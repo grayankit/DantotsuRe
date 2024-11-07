@@ -199,7 +199,7 @@ jobs:
                         --arg thumbnail_url "$thumbnail_url" \
                         --argjson embed_color "$embed_color" \
                         '{
-                          "content": "<@&1298926901833895986>",
+                          "content": "<@",
                           "embeds": [
                             {
                               "title": "New Alpha-Build dropped 🔥",
