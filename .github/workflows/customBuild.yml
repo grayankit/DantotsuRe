@@ -7,9 +7,14 @@ jobs:
     runs-on: ubuntu-latest
     if: contains(github.event.head_commit.message,'quack')
     permissions:
-        contents: write
-        repository-projects: write
+        contents: write     
+        pull-requests: read
+        actions: read
     steps:
+        - name: Cloing repository
+          uses: actions/checkout@v4
+          with:
+            fetch-depth: 0
         - name: Upload build artifact 
           uses: actions/upload-artifact@v4
           with: 
