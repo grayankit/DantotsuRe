@@ -67,9 +67,9 @@ jobs:
         id: set_additional_variable 
         run: | 
           if [ "${{ env.contains_noPing }}" == "false" ]; then 
-            echo "ping_variable=some_value" >> $GITHUB_ENV 
+            echo "ping_variable=noping" >> $GITHUB_ENV 
           else 
-            echo "ping_variable=other_value" >> $GITHUB_ENV 
+            echo "ping_variable=<@1298924969744404550>" >> $GITHUB_ENV 
           fi
       - name: Upload APK to Discord and Telegram
         shell: bash
@@ -107,7 +107,7 @@ jobs:
               echo "Debug: Commit count for $name: $count"
           done < <(echo "$COMMIT_LOG" | sed 's/%0A/\n/g' | grep -oP '(?<=~)[^[]*' | sort | uniq -c | sort -rn)
 
-          echo "this is curretn event"
+          echo "this is current event"
           echo "${{env.ping_variable}}"
           echo "Debug: Fetching contributors from GitHub"
           # Fetch contributors from GitHub
@@ -220,7 +220,7 @@ jobs:
                         --arg thumbnail_url "$thumbnail_url" \
                         --argjson embed_color "$embed_color" \
                         '{
-                          "content": "<@",
+                          "content": "${{env.ping_variable}}",
                           "embeds": [
                             {
                               "title": "New Alpha-Build dropped 🔥",
