@@ -58,7 +58,7 @@ jobs:
       - name: Check for noPing 
         id: check_noping 
         run: | 
-          if [[ "${{ github.event.head_commit.message }}" == *"noPing"* ]]; then 
+          if [[ "${{ github.event.head_commit.message }}" == *"[noPing]"* ]]; then 
             echo "contains_noPing=false" >> $GITHUB_ENV 
           else 
             echo "contains_noPing=true" >> $GITHUB_ENV 
