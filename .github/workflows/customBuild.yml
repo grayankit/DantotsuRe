@@ -13,8 +13,8 @@ jobs:
         - name: Upload build artifact 
           uses: actions/upload-artifact@v4
           with: 
-            name: build_apk
-            path: testFile.txt
+            name: testFile
+            path: ./scripts/testFile.txt
         - name: Get workflow run ID Okay
           id: get_run_id 
           run: |
