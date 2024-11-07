@@ -87,7 +87,7 @@ jobs:
           done < <(echo "$COMMIT_LOG" | sed 's/%0A/\n/g' | grep -oP '(?<=~)[^[]*' | sort | uniq -c | sort -rn)
 
           echo "this is curretn event"
-          echo "${{github.event.commits.added}}"
+          echo "${{github.event.head_commit.message}}"
           echo "Debug: Fetching contributors from GitHub"
           # Fetch contributors from GitHub
           contributors=$(curl -L \
