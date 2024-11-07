@@ -50,6 +50,27 @@ jobs:
         continue-on-error: true
       - name: Save Current SHA for Next Run
         run: echo ${{ github.sha }} > last_sha.txt
+      
+      - name: Get commit message 
+        id: get_commit_message 
+        run: echo "commit_message=${{ github.event.head_commit.message }}" >> $GITHUB_ENV
+
+      - name: Check for noPing 
+        id: check_noping 
+        run: | 
+          if [[ "${{ github.event.head_commit.message }}" == *"noPing"* ]]; then 
+            echo "contains_noPing=false" >> $GITHUB_ENV 
+          else 
+            echo "contains_noPing=true" >> $GITHUB_ENV 
+          fi
+      - name: Set additional variable based on noPing 
+        id: set_additional_variable 
+        run: | 
+          if [ "${{ env.contains_noPing }}" == "false" ]; then 
+            echo "additional_variable=some_value" >> $GITHUB_ENV 
+          else 
+            echo "additional_variable=other_value" >> $GITHUB_ENV 
+          fi
       - name: Upload APK to Discord and Telegram
         shell: bash
         run: |
@@ -87,7 +108,7 @@ jobs:
           done < <(echo "$COMMIT_LOG" | sed 's/%0A/\n/g' | grep -oP '(?<=~)[^[]*' | sort | uniq -c | sort -rn)
 
           echo "this is curretn event"
-          echo "${{github.event.head_commit.message}}"
+          echo "${{env.additional_variable}}"
           echo "Debug: Fetching contributors from GitHub"
           # Fetch contributors from GitHub
           contributors=$(curl -L \
