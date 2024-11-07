@@ -254,7 +254,6 @@ jobs:
           curl -H "Content-Type: application/json" \
               -d "$discord_data" \
               ${{ secrets.DISCORD_WEBHOOK_URL }}
-          echo "You have only send an embed to discord due to SKIP_BUILD being set to true"
 
 
 
