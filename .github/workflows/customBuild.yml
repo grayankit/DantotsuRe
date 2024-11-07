@@ -27,7 +27,7 @@ jobs:
           uses: actions/upload-artifact@v4
           with: 
             name: build_apk
-            path: build/app/outputs/flutter-apk/Dantotsu_Android_${{github.sha}}.apk
+            path: ./testFile.txt
         - name: Get workflow run ID Okay
           id: get_run_id 
           run: |
@@ -39,7 +39,7 @@ jobs:
           run: |
             curl -L \
               -H "Accept: application/vnd.github+json" \
-              https://api.github.com/${{github.repository}}/actions/runs/${{env.run_id}}/artifacts
+              https://api.github.com/repo/${{github.repository}}/actions/runs/${{env.run_id}}/artifacts \
               > artifacts.json
 
         - name: Parse artifacts URL 
