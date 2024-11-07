@@ -28,7 +28,7 @@ jobs:
           with: 
             name: build_apk
             path: build/app/outputs/flutter-apk/Dantotsu_Android_${{github.sha}}.apk
-        - name: Get workflow run ID 
+        - name: Get workflow run ID Okay
           id: get_run_id 
           run: |
             echo "run_id=${{ github.run_id }}" >> $GITHUB_ENV
