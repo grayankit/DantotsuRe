@@ -1,48 +1,58 @@
 name: build
 on:
   push:
-    branches: main
+    branches: 
+      - main
+
 jobs:
   build_android:
     runs-on: ubuntu-latest
-    if: contains(github.event.head_commit.message,'quack')
+    if: contains(github.event.head_commit.message, 'quack')
     permissions:
-        contents: write     
-        pull-requests: read
-        actions: read
-    steps:
-        - name: Cloing repository
-          uses: actions/checkout@v4
-          with:
-            fetch-depth: 0
-        - name: Upload build artifact 
-          uses: actions/upload-artifact@v4
-          with: 
-            name: testFile
-            path: ./scripts/testFile.txt
-        - name: Get workflow run ID Okay
-          id: get_run_id 
-          run: |
-            echo "run_id=${{ github.run_id }}" >> $GITHUB_ENV
-            echo "${{env.run_id}}"
-          
-        - name: List artifacts 
-          id: list_artifacts 
-          run: |
-            curl -L \
-              -H "Accept: application/vnd.github+json" \
-              -H "X-GitHub-Api-Version: 2022-11-28" \
-              https://api.github.com/repos/${{github.repository}}/actions/runs/${{env.run_id}}/artifacts \
-              > artifacts.json
-            
-            cat artifacts.json
-            artifact_url=$(jq -r '.artifacts[0].archive_download_url' artifacts.json) 
-            echo "artifact_url=${artifact_url}" >> $GITHUB_ENV
-            echo "${{env.artifact_url}}"
+      contents: write     
+      pull-requests: read
+      actions: read
 
-        - name: Parse artifacts URL 
-          id: parse_artifacts_url 
-          run: | 
-            artifact_url=$(jq -r '.artifacts[0].archive_download_url' artifacts.json) 
-            echo "artifact_url=${artifact_url}" >> $GITHUB_ENV
-            echo "${{env.artifact_url}}"
+    steps:
+      - name: Cloning repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: testFile
+          path: ./scripts/testFile.txt
+
+      - name: Get workflow run ID
+        id: get_run_id
+        run: echo "run_id=${{ github.run_id }}" >> $GITHUB_ENV
+
+      - name: List artifacts
+        id: list_artifacts
+        run: |
+          curl -L \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ env.run_id }}/artifacts \
+            > artifacts.json
+          
+          cat artifacts.json
+          artifact_url=$(jq -r '.artifacts[0].archive_download_url' artifacts.json)
+          echo "artifact_url=${artifact_url}" >> $GITHUB_ENV
+
+      - name: Download Artifact as TXT
+        run: |
+          curl -L \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -o downloaded_testFile.zip \
+            "${{ env.artifact_url }}"
+
+          # Unzip the downloaded file to get the .txt file
+          unzip downloaded_testFile.zip -d downloaded_artifact
+          
+          # Move or rename to desired location/format
+          mv downloaded_artifact/testFile.txt downloaded_testFile.txt
+          
+          cat downloaded_testFile.txt  # Optionally output contents for verification
