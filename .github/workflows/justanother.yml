@@ -40,6 +40,7 @@ jobs:
                 repo: context.repo.repo, 
                 ref: 'refs/tags/build-${{ env.prevSha }}' 
             });
+        continue-on-error: true
       - name: Create GitHub Prerelease
         id: create_release
         uses: actions/create-release@v1
