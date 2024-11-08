@@ -32,7 +32,7 @@ jobs:
             curl -L \
               -H "Accept: application/vnd.github+json" \
               -H "X-GitHub-Api-Version: 2022-11-28" \
-              https://api.github.com/repo/${{github.repository}}/actions/runs/${{env.run_id}}/artifacts \
+              https://api.github.com/repos/${{github.repository}}/actions/runs/${{env.run_id}}/artifacts \
               > artifacts.json
 
         - name: Parse artifacts URL 
