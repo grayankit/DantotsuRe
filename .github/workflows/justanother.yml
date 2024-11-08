@@ -69,7 +69,7 @@ jobs:
           echo "Release URL: $release_url"  # Debugging output to check URL format
           curl -X POST \
             -H "Content-Type: application/json" \
-            -d "{\"content\": \"A new Android APK has been built continously and is available as a prerelease: ${release_url}. Please test and review.\"}" \
+            -d "{\"content\": \"A new Android APK has been built  and is available as a prerelease: ${release_url}. Please test and review.\"}" \
             "${{ secrets.DISCORD_WEBHOOK_URL }}"
 
       - name: Upload Current SHA as Artifact
