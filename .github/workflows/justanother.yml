@@ -32,7 +32,7 @@ jobs:
 
       - run: mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/Dantotsu_Android_${{ github.sha }}.apk
 
-      - name: Create Draft GitHub Release
+      - name: Create Draft GitHub release
         id: create_release
         uses: actions/create-release@v1
         env:
