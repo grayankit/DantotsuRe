@@ -36,6 +36,9 @@ jobs:
               > artifacts.json
             
             cat artifacts.json
+            artifact_url=$(jq -r '.artifacts[0].archive_download_url' artifacts.json) 
+            echo "artifact_url=${artifact_url}" >> $GITHUB_ENV
+            echo "${{env.artifact_url}}"
 
         - name: Parse artifacts URL 
           id: parse_artifacts_url 
