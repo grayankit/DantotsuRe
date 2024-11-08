@@ -1,0 +1,58 @@
+name: build
+on:
+  push:
+    branches: main
+
+jobs:
+  build_android:
+    runs-on: ubuntu-latest
+    if: contains(github.event.head_commit.message, 'duck')
+    permissions:
+      contents: write     
+      pull-requests: read
+      actions: read
+
+    steps:
+      - name: Cloning repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.24.1
+
+      - run: flutter pub get
+      - run: flutter build apk
+
+      - run: mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/Dantotsu_Android_${{ github.sha }}.apk
+
+      - name: Create Draft GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: "build-${{ github.sha }}"
+          release_name: "Build for Commit ${{ github.sha }}"
+          draft: true          # Set to true to make it a draft
+          prerelease: false     # Set to false for a full release
+
+      - name: Upload APK to Release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: build/app/outputs/flutter-apk/Dantotsu_Android_${{ github.sha }}.apk
+          asset_name: Dantotsu_Android_${{ github.sha }}.apk
+          asset_content_type: application/vnd.android.package-archive
+
+      - name: Post to Discord
+        run: |
+          release_url="https://github.com/${{ github.repository }}/releases/tag/build-${{ github.sha }}"
+          curl -X POST \
+            -H "Content-Type: application/json" \
+            -d "{\"content\": \"A new Android APK has been built and is available as a draft release: ${release_url}. Please publish the release when ready.\"}" \
+            "${{ secrets.DISCORD_WEBHOOK_URL }}"
