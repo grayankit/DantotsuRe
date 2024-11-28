@@ -74,7 +74,7 @@ jobs:
         with:
           file-path: build/app/outputs/flutter-apk/Dantotsu_Android_${{github.ref_name}}.apk
           upload-name: Dartotsu.apk
-          upload-to-folder-id: 1nWYex54zd58SVitJUCva91_4k1PPTdP3
+          upload-to-folder-id: 1pqurWwP9qiCqZj_0FmV1U7sm34BETOuu
           service-account-json: "${{secrets.GOOGLE_KEY}}"
           overrwrite: true
 
