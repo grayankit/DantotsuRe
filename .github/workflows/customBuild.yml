@@ -86,25 +86,61 @@ jobs:
   build_windows:
     runs-on: windows-latest
     if: contains(github.event.head_commit.message, '[build.windows]')
-    permissions: 
-        contents: write
-        pull-requests: write
-        repository-projects: write
+    
+    permissions:
+      contents: write
+      pull-requests: write
+      repository-projects: write
+    
     steps:
-      - name: Cloing repository
+      - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Cache Flutter and Dart dependencies
+      - uses: actions/cache@v4
+        with:
+          path: |
+            C:\hostedtoolcache\windows\flutter
+            ~\AppData\Local\Pub\Cache
+            build\
+            .dart_tool\
+          key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-flutter-
+
+      # Setup Flutter with caching
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: 3.24.1
+          cache: true
+
+      # Enable Windows desktop support
+      - name: Enable Windows desktop support
+        run: flutter config --enable-windows-desktop
+
+      # Get dependencies with cached packages
       - run: flutter pub get
-      - run: flutter build windows
+
+      # Build Windows executable with optimizations
+      - run: flutter build windows --release
+
+      # Archive the release
       - name: Archive App
         uses: thedoctor0/zip-release@master
         with:
           type: 'zip'
           filename: Dantotsu_Windows_${{github.ref_name}}.zip
           directory: build\windows\x64\runner\Release
+          
+      # Verify archive creation
+      - name: List Release Directory
+        run: ls build\windows\x64\runner\Release
+        shell: pwsh
+
+      # Upload to Google Drive
       - name: Upload File To Google Drive
         id: gdriveUpload
         uses: hoatruongdev09/google-drive-file-upload-github-action@v1.1
@@ -114,10 +150,20 @@ jobs:
           upload-to-folder-id: 1nWYex54zd58SVitJUCva91_4k1PPTdP3
           service-account-json: "${{secrets.GOOGLE_KEY}}"
           overrwrite: true
+
+      # Discord notification with error handling
       - name: Send Download link to discord after Build
-        id: dealing
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: |
-          $payload = '{"content": "A new windows build is here check it out: [Dartotsu Windows](${{steps.gdriveUpload.outputs.web-content-link}})"}'
-          Invoke-RestMethod -Uri ${{secrets.DISCORD_WEBHOOK_URL}} -Method Post -Body $payload -ContentType 'application/json'
+          $payload = @{
+            content = "A new Windows build is here: [Dartotsu Windows](${{steps.gdriveUpload.outputs.web-content-link}})"
+          } | ConvertTo-Json
+
+          try {
+            Invoke-RestMethod -Uri $env:DISCORD_WEBHOOK -Method Post -Body $payload -ContentType 'application/json'
+          } catch {
+            Write-Error "Failed to send Discord notification: $_"
+          }
         shell: pwsh
       
