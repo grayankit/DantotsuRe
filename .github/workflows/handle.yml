@@ -172,6 +172,7 @@ jobs:
         shell: pwsh
 
   build_linux:
+    needs: [build_android,build_windows]
     runs-on: ubuntu-latest
     permissions: 
       contents: read
