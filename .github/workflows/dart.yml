@@ -207,7 +207,7 @@ jobs:
                         --arg footer_text "Version $VERSION" \
                         --arg timestamp "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)" \
                         --arg thumbnail_url "$thumbnail_url" \
-                        --arg embed_color "$embed_color" \
+                        --argjson embed_color "$embed_color" \
                         '{
                           "content": "${{env.ping_variable}}",
                           "embeds": [
@@ -243,41 +243,6 @@ jobs:
           curl -H "Content-Type: application/json" \
               -d "$discord_data" \
               ${{ secrets.DISCORD_WEBHOOK_URL }}
-          echo "You have only send an embed to discord due to SKIP_BUILD being set to true"
-
-          # Format commit messages for Telegram
-          telegram_commit_messages=$(echo "$COMMIT_LOG" | sed 's/%0A/\n/g' | while read -r line; do
-            message=$(echo "$line" | sed -E 's/● (.*) ~(.*) \[֍\]\((.*)\)/● \1 ~\2 <a href="\3">֍<\/a>/')
-            message=$(echo "$message" | sed -E 's/\[#([0-9]+)\]\((https:\/\/github\.com\/[^)]+)\)/<a href="\2">#\1<\/a>/g')
-            echo "$message"
-          done)
-          telegram_commit_messages="<blockquote>${telegram_commit_messages}</blockquote>"
-          echo "$telegram_commit_messages"
-
-          # Configuring dev info
-          echo "$developers" > dev_info.txt
-          # making the file executable
-          chmod +x scripts/tel_parser.sed
-          ./scripts/tel_parser.sed dev_info.txt >> output.txt
-          dev_info_tel=$(< output.txt)
-          
-          telegram_dev_info="<blockquote>${dev_info_tel}</blockquote>"
-          echo "$telegram_dev_info"
-
-
-          # Upload APK to Telegram
-          response=$(curl -sS -f -X POST \
-            "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKKEN}}/sendDocument" \
-            -F "chat_id=${{ secrets.TELEGRAM_CHANNEL_ID}}" \
-            -F "document=@last_sha.txt" \
-            -F "caption=New Alpha-Build dropped 🔥
-          
-          Commits:
-          ${telegram_commit_messages}
-          Devs:
-          ${telegram_dev_info}
-          version: ${VERSION}" \
-              -F "parse_mode=HTML")
 
       - name: Upload Current SHA as Artifact
         uses: actions/upload-artifact@v4
