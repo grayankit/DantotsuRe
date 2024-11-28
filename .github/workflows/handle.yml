@@ -405,7 +405,7 @@ jobs:
                             ],
                             "attachments": []
                           }')
-            echo "Debug: Final Discord payload:"
+            echo "Debug: Final Discord payload is this:"
             echo "$discord_data"
             # Send Discord message
             curl -H "Content-Type: application/json" \
