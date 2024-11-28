@@ -207,7 +207,7 @@ jobs:
                         --arg footer_text "Version $VERSION" \
                         --arg timestamp "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)" \
                         --arg thumbnail_url "$thumbnail_url" \
-                        --argjson embed_color "$embed_color" \
+                        --arg embed_color "$embed_color" \
                         '{
                           "content": "${{env.ping_variable}}",
                           "embeds": [
