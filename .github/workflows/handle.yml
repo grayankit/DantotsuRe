@@ -406,14 +406,14 @@ jobs:
         run: |
           # Check if APK_DOWNLOAD_LINK is not empty
           if [[ -n "$APK_DOWNLOAD_LINK" ]]; then
-            APK_MESSAGE="**[Download APK]($APK_DOWNLOAD_LINK)**"
+            APK_MESSAGE="[Download APK]($APK_DOWNLOAD_LINK)"
           else
             APK_MESSAGE="No APK link available"
           fi
       
           # Check if WINDOWS_DOWNLOAD_LINK is not empty
           if [[ -n "$WINDOWS_DOWNLOAD_LINK" ]]; then
-            WINDOWS_MESSAGE="**[Download Windows ZIP]($WINDOWS_DOWNLOAD_LINK)**"
+            WINDOWS_MESSAGE="[Download Windows ZIP]($WINDOWS_DOWNLOAD_LINK)"
           else
             WINDOWS_MESSAGE="No Windows link available"
           fi
