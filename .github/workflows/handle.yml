@@ -80,16 +80,11 @@ jobs:
           service-account-json: "${{secrets.GOOGLE_KEY}}"
           overrwrite: true
 
-
-      - name: Send Download link to discord after Build
-        run: |
-          curl -H "Content-Type: application/json" \
-               -d '{"content": "A new apk is here check it out: [Dartotsu](${{steps.gdriveUpload.outputs.web-content-link}})"}' \
-               ${{ secrets.DISCORD_WEBHOOK_URL }}
-
   build_windows:
     runs-on: windows-latest
     if: contains(github.event.head_commit.message, '[build.windows]')
+    outputs:
+      zip_link: ${{steps.gdriveUpload.outputs.web-content-link}}
     
     permissions:
       contents: write
@@ -155,26 +150,10 @@ jobs:
           service-account-json: "${{secrets.GOOGLE_KEY}}"
           overrwrite: true
 
-      # Discord notification with error handling
-      - name: Send Download link to discord after Build
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        run: |
-          $payload = @{
-            content = "A new Windows build is here: [Dartotsu Windows](${{steps.gdriveUpload.outputs.web-content-link}})"
-          } | ConvertTo-Json
-
-          try {
-            Invoke-RestMethod -Uri $env:DISCORD_WEBHOOK -Method Post -Body $payload -ContentType 'application/json'
-          } catch {
-            Write-Error "Failed to send Discord notification: $_"
-          }
-        shell: pwsh
-
   build_linux:
     runs-on: ubuntu-latest
     needs: [build_android,build_windows]
-    if: always()
+    if: ${{ needs.build_android.result != 'failure' && needs.build_windows.result != 'failure' }}
     permissions: 
       contents: read
       pull-requests: read
@@ -419,8 +398,34 @@ jobs:
         with:
             name: last-sha
             path: last_sha.txt
-      - name: get links
-        run: echo "The link for output data ${{ needs.build_android.outputs.apk_link}}"
+      - name: Send Discord Notification with Download Links
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          APK_DOWNLOAD_LINK: ${{ needs.build_android.outputs.apk_link }}
+          WINDOWS_DOWNLOAD_LINK: ${{ needs.build_windows.outputs.zip_link }}
+        run: |
+          # Check if APK_DOWNLOAD_LINK is not empty
+          if [[ -n "$APK_DOWNLOAD_LINK" ]]; then
+            APK_MESSAGE="**[Download APK]($APK_DOWNLOAD_LINK)**"
+          else
+            APK_MESSAGE="No APK link available"
+          fi
+      
+          # Check if WINDOWS_DOWNLOAD_LINK is not empty
+          if [[ -n "$WINDOWS_DOWNLOAD_LINK" ]]; then
+            WINDOWS_MESSAGE="**[Download Windows ZIP]($WINDOWS_DOWNLOAD_LINK)**"
+          else
+            WINDOWS_MESSAGE="No Windows link available"
+          fi
+      
+          # Prepare and send the Discord message
+          curl -H "Content-Type: application/json" \
+            -X POST \
+            -d '{
+              "content": "**Build Links**\n'$APK_MESSAGE'\n'$WINDOWS_MESSAGE'"
+            }' \
+            $DISCORD_WEBHOOK_URL
+          
 
 
 
