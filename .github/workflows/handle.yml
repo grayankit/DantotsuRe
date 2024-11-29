@@ -400,7 +400,6 @@ jobs:
             path: last_sha.txt
       - name: Send Discord Notification with Download Links
         env:
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           APK_DOWNLOAD_LINK: ${{ needs.build_android.outputs.apk_link }}
           WINDOWS_DOWNLOAD_LINK: ${{ needs.build_windows.outputs.zip_link }}
         run: |
@@ -420,11 +419,8 @@ jobs:
       
           # Prepare and send the Discord message
           curl -H "Content-Type: application/json" \
-            -X POST \
-            -d '{
-              "content": "**Build Links**\n'$APK_MESSAGE'\n'$WINDOWS_MESSAGE'"
-            }' \
-            $DISCORD_WEBHOOK_URL
+               -d '{"content": $APK_MESSAGE /n $WINDOWS_MESSAGE}' \
+               ${{ secrets.DISCORD_WEBHOOK_URL }}
           
 
 
