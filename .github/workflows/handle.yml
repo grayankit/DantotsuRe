@@ -420,7 +420,7 @@ jobs:
           # Prepare and send the Discord message
           curl -H "Content-Type: application/json" \
               -d "{\"content\": \"${APK_MESSAGE}
-              ${WINDOWS_MESSAGE}\"}"
+              ${WINDOWS_MESSAGE}\"}" \
                ${{ secrets.DISCORD_WEBHOOK_URL }}
           
 
