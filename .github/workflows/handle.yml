@@ -419,7 +419,7 @@ jobs:
       
           # Prepare and send the Discord message
           curl -H "Content-Type: application/json" \
-               -d '{"content": "$APK_MESSAGE /n $WINDOWS_MESSAGE"}' \
+               -d '{"content": "${APK_MESSAGE} /n ${WINDOWS_MESSAGE}}' \
                ${{ secrets.DISCORD_WEBHOOK_URL }}
           
 
