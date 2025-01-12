@@ -371,13 +371,9 @@ jobs:
         run: |
           echo "SIMKL_SECRET= $SIMKL_SECRET" > .env
         shell: bash
-      - run: flutter config --enable-macos-desktop
-      - run: flutter clean
       # Step 4: Get Dependencies
       - name: Get Dependencies
         run: flutter pub get
-      - run: cd macos && pod install
-      - run: cd ..
       # Step 5: Build app for macOS
       - name: Build macOS
         run: flutter build macos --release
