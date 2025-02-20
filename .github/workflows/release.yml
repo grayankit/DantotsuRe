@@ -443,10 +443,38 @@ jobs:
               echo "$key: ${recent_commit_counts[$key]}"
             done
 
+            extra_info="${additional_info[$name]}"
+            if [ -n "$extra_info" ]; then
+              extra_info=$(echo "$extra_info" | sed 's/\\n/\n- /g')
+            fi
+
+            # Construct the developer entry
+            developer_entry="◗ **${name}** ${extra_info}
+          - Github: [${login}](https://github.com/${login})
+          - Commits: ${branch_commit_count}"
+
+
+
+            # Add the entry to developers, with a newline if it's not the first entry
+            if [ -n "$developers" ]; then
+              developers="${developers}
+          ${developer_entry}"
+              else
+                developers="${developer_entry}"
+              fi
+              committers_count=$((committers_count + 1))
+            fi
+          done <<< "$sorted_contributors"
+
+          # Set the thumbnail URL and color based on top contributor(s)
+          if [ $top_contributor_count -eq 1 ]; then
+            thumbnail_url="$top_contributor_avatar"
+          else
             thumbnail_url="https://i.imgur.com/qt1ixRk.gif"
             embed_color=$(hex_to_decimal "$default_color")
+          fi
 
-            
+          thumbnail_url="https://i.imgur.com/qt1ixRk.gif"
 
           # Truncate field values
           max_length=1500
@@ -469,7 +497,7 @@ jobs:
                           "content": "${{env.ping_variable}}",
                           "embeds": [
                             {
-                              "title": "New App update Dropped 🔥",
+                              "title": "New Alpha-Build dropped 🔥",
                               "color": $embed_color,
                               "fields": [
                                 {
@@ -504,6 +532,16 @@ jobs:
           done)
           telegram_commit_messages="<blockquote>${telegram_commit_messages}</blockquote>"
           echo "$telegram_commit_messages"
+
+          # Configuring dev info
+          echo "$developers" > dev_info.txt
+          # making the file executable
+          chmod +x scripts/tel_parser.sed
+          ./scripts/tel_parser.sed dev_info.txt >> output.txt
+          dev_info_tel=$(< output.txt)
+
+          telegram_dev_info="<blockquote>${dev_info_tel}</blockquote>"
+          echo "$telegram_dev_info"
 
 
 
