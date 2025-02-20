@@ -548,7 +548,7 @@ jobs:
 
   upload_download_url:
     runs-on: ubuntu-latest
-    needs: [build_android,build_windows,build_linux,build_ios,build_macos,make_and_upload_git_changes]
+    needs: [make_and_upload_git_changes]
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
