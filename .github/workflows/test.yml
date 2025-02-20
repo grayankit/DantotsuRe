@@ -69,7 +69,7 @@ jobs:
                 ESCAPED_MESSAGE=$(echo "$ESCAPED_MESSAGE" | sed -E \
                     's#\*\*([0-9a-f]{7,})\*\*#**[\1](https://github.com/${{github.repository}}/commit/\1)**#g')
 
-                cat "$ESCAPED_MESSAGE"
+                echo "$ESCAPED_MESSAGE"
             
                 # Send message to Telegram
                 curl -s -X POST "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendMessage" \
