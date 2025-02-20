@@ -61,7 +61,7 @@ jobs:
                 TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
                 TELEGRAM_TOPIC: ${{ secrets.TELEGRAM_TOPIC }}
             run: |
-                # Correct escaping for Telegram MarkdownV2
+                # Escape all special characters required by Telegram MarkdownV2
                 ESCAPED_MESSAGE=$(echo "$FORMATTED_NOTES" | sed -E \
                     -e 's/\\/\\\\/g' \
                     -e 's/\_/\\_/g' \
@@ -72,9 +72,13 @@ jobs:
                     -e 's/\)/\\)/g' \
                     -e 's/\-/\\-/g' \
                     -e 's/\./\\./g' \
-                    -e 's/\#/\\#/g')
+                    -e 's/\#/\\#/g' \
+                    -e 's/\!/\\!/g')
             
-                # Fixing bold headers (**text** -> *text*)
+                # Ensure commit links are properly formatted
+                ESCAPED_MESSAGE=$(echo "$ESCAPED_MESSAGE" | sed -E 's/\(([^\)]+)\):/\\(\\1\\):/g')
+            
+                # Fix bold headers (**text** -> *text*)
                 ESCAPED_MESSAGE=$(echo "$ESCAPED_MESSAGE" | sed -E 's/\*\*([^*]+)\*\/*/*\1*/g')
             
                 # Send message to Telegram
@@ -83,6 +87,7 @@ jobs:
                     -d "message_thread_id=$TELEGRAM_TOPIC" \
                     --data-urlencode "text=$ESCAPED_MESSAGE" \
                     -d "parse_mode=MarkdownV2"
+                  
                   
                   
                   
