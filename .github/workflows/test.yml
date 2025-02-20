@@ -1,0 +1,53 @@
+name: test for workflow
+on:
+  push:
+    branches:
+      - main
+jobs:
+    notes:
+        runs-on: ubuntu-latest
+        steps:
+          - name: Get Latest Release Notes
+            id: get_release_notes
+            run: |
+                RELEASE_DATA=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                "https://api.github.com/repos/${{ github.repository }}/releases/latest")
+
+                RELEASE_NOTES=$(echo "$RELEASE_DATA" | jq -r '.body')
+                echo "Release Notes: $RELEASE_NOTES"
+                
+                echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
+                echo "$RELEASE_NOTES" >> $GITHUB_ENV
+                echo "EOF" >> $GITHUB_ENV
+
+          - name: Format Release Notes
+            id: format_notes
+            run: |
+                echo "**🚀 Features**" > formatted_notes.txt
+                echo "$(echo "$RELEASE_NOTES" | grep -iE '^\*\s\[[a-f0-9]+\]\(.*\):\sfeat' | head -n 5 || echo 'None')" >> formatted_notes.txt
+                echo "" >> formatted_notes.txt
+        
+                echo "**🐛 Fixes**" >> formatted_notes.txt
+                echo "$(echo "$RELEASE_NOTES" | grep -iE '^\*\s\[[a-f0-9]+\]\(.*\):\sfix' | head -n 5 || echo 'None')" >> formatted_notes.txt
+                echo "" >> formatted_notes.txt
+        
+                echo "**🛠 Chores**" >> formatted_notes.txt
+                echo "$(echo "$RELEASE_NOTES" | grep -iE '^\*\s\[[a-f0-9]+\]\(.*\):\schore' | head -n 5 || echo 'None')" >> formatted_notes.txt
+                echo "" >> formatted_notes.txt
+        
+                cat formatted_notes.txt
+                echo "FORMATTED_NOTES=$(jq -Rsa . < formatted_notes.txt)" >> $GITHUB_ENV
+        
+          - name: Send message to Discord
+            env:
+                DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+            run: |
+                # Ensure proper JSON formatting
+                JSON_PAYLOAD=$(jq -n --arg content "$FORMATTED_NOTES" '{"content": $content}')
+                
+                # Send the message to Discord using the webhook
+                curl -H "Content-Type: application/json" \
+                    -X POST \
+                    -d "$JSON_PAYLOAD" \
+                    $DISCORD_WEBHOOK_URL
+          
