@@ -469,7 +469,7 @@ jobs:
           thumbnail_url="https://i.imgur.com/qt1ixRk.gif"
 
           # Truncate field values
-          max_length=1500
+          max_length=1000
           commit_messages=$(echo "$COMMIT_LOG" | sed 's/%0A/\n/g; s/^/\n/')
           if [ ${#developers} -gt $max_length ]; then
             developers="${developers:0:$max_length}... (truncated)"
@@ -480,10 +480,8 @@ jobs:
           # Construct Discord payload
           discord_data=$(jq -nc \
                         --arg field_value "$commit_messages" \
-                        --arg author_value "$developers" \
                         --arg footer_text "Version $VERSION" \
                         --arg timestamp "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)" \
-                        --arg thumbnail_url "$thumbnail_url" \
                         --arg embed_color "$embed_color" \
                         '{
                           "content": "@",
@@ -501,10 +499,7 @@ jobs:
                               "footer": {
                                 "text": $footer_text
                               },
-                              "timestamp": $timestamp,
-                              "thumbnail": {
-                                "url": $thumbnail_url
-                              }
+                              "timestamp": $timestamp
                             }
                           ],
                           "attachments": []
