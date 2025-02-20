@@ -61,11 +61,12 @@ jobs:
                 TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
                 TELEGRAM_TOPIC: ${{ secrets.TELEGRAM_TOPIC }}
             run: |
-                # Properly escape Markdown special characters
+                # Escape Markdown characters (but keep links intact)
                 ESCAPED_MESSAGE=$(echo "$FORMATTED_NOTES" | sed -E \
-                    -e 's/([]_*\[\]()])/\\\1/g')
+                    -e 's/([_*`])/\\\1/g' \
+                    -e 's/([]()])/\\\1/g')
             
-                # Ensure commit links remain inline
+                # Ensure commit links are not double-escaped
                 ESCAPED_MESSAGE=$(echo "$ESCAPED_MESSAGE" | sed -E 's/\\\] \\\(https/](https/g')
             
                 # Send message to Telegram
@@ -74,6 +75,7 @@ jobs:
                     -d "message_thread_id=$TELEGRAM_TOPIC" \
                     --data-urlencode "text=$ESCAPED_MESSAGE" \
                     -d "parse_mode=Markdown"
+                  
                   
                   
                   
