@@ -84,6 +84,7 @@
 * [ded3f2b](https://github.com/grayankit/DantotsuRe/commit/ded3f2b): fixes here and there
 
 ### 🧹 Chores & Documentation
+* [3474841](https://github.com/grayankit/DantotsuRe/commit/3474841): chore : some more changes added to release workflow
 * [0588125](https://github.com/grayankit/DantotsuRe/commit/0588125): chore : some changes
 * [ecc5d14](https://github.com/grayankit/DantotsuRe/commit/ecc5d14): chore : some more changes added to release workflow  (#62)
 * [79fb3ae](https://github.com/grayankit/DantotsuRe/commit/79fb3ae): chore : some more fixes
