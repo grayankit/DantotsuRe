@@ -306,31 +306,34 @@ jobs:
           id: format_notes
           run: |
             echo "**🚀 Features**" > formatted_notes.txt
-            echo "$(echo "$RELEASE_NOTES" | grep -iE '^(\*|-)\s(feat|Feature)' || echo 'None')" >> formatted_notes.txt
+            echo "$(echo "$RELEASE_NOTES" | grep -iE '^\*\s\[[a-f0-9]+\]\(.*\):\sfeat' || echo 'None')" >> formatted_notes.txt
             echo "" >> formatted_notes.txt
-
+  
             echo "**🐛 Fixes**" >> formatted_notes.txt
-            echo "$(echo "$RELEASE_NOTES" | grep -iE '^(\*|-)\s(fix|Fix)' || echo 'None')" >> formatted_notes.txt
+            echo "$(echo "$RELEASE_NOTES" | grep -iE '^\*\s\[[a-f0-9]+\]\(.*\):\sfix' || echo 'None')" >> formatted_notes.txt
             echo "" >> formatted_notes.txt
-
+  
             echo "**🛠 Chores**" >> formatted_notes.txt
-            echo "$(echo "$RELEASE_NOTES" | grep -iE '^(\*|-)\s(chore|Chore)' || echo 'None')" >> formatted_notes.txt
+            echo "$(echo "$RELEASE_NOTES" | grep -iE '^\*\s\[[a-f0-9]+\]\(.*\):\schore' || echo 'None')" >> formatted_notes.txt
             echo "" >> formatted_notes.txt
-
+  
             cat formatted_notes.txt
             echo "FORMATTED_NOTES=$(cat formatted_notes.txt | jq -sR)" >> $GITHUB_ENV
+    
 
         - name: Send message to Discord
           env:
             DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-            MESSAGE: ${{ env.MESSAGE }}
           run: |
+            # Ensure the formatted notes are properly escaped
+            JSON_PAYLOAD=$(jq -Rs --arg content "$FORMATTED_NOTES" '{"content": $content}' <<< "")
+            
             # Send the message to Discord using the webhook
             curl -H "Content-Type: application/json" \
-              -X POST \
-              -d "{\"content\": \"$FORMATTED_NOTES \"}" \
-              $DISCORD_WEBHOOK_URL
-
+                  -X POST \
+                  -d "$JSON_PAYLOAD" \
+                  $DISCORD_WEBHOOK_URL
+    
 
 
 
