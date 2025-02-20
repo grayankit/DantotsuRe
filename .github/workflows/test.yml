@@ -61,19 +61,11 @@ jobs:
                 TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
                 TELEGRAM_TOPIC: ${{ secrets.TELEGRAM_TOPIC }}
             run: |
-                # Escape special characters for Telegram MarkdownV2
+                # Escape only necessary characters for regular Markdown
                 ESCAPED_MESSAGE=$(echo "$FORMATTED_NOTES" | sed -E \
-                    -e 's/\\/\\\\/g' \
-                    -e 's/\_/\\_/g' \
-                    -e 's/\*/\\*/g' \
                     -e 's/\[/\\[/g' \
                     -e 's/\]/\\]/g' \
-                    -e 's/\(/\\(/g' \
-                    -e 's/\)/\\)/g' \
-                    -e 's/\-/\\-/g' \
-                    -e 's/\./\\./g' \
-                    -e 's/\#/\\#/g' \
-                    -e 's/\!/\\!/g')
+                    -e 's/\_/\\_/g' )
             
                 # Fix commit links to avoid newlines
                 ESCAPED_MESSAGE=$(echo "$ESCAPED_MESSAGE" | sed -E 's/\] \(https/](https/g')
@@ -83,7 +75,8 @@ jobs:
                     -d "chat_id=$TELEGRAM_CHAT_ID" \
                     -d "message_thread_id=$TELEGRAM_TOPIC" \
                     --data-urlencode "text=$ESCAPED_MESSAGE" \
-                    -d "parse_mode=MarkdownV2"
+                    -d "parse_mode=Markdown"
+                  
                   
                   
                   
