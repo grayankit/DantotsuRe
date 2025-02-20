@@ -41,7 +41,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: 3.29.0
+          flutter-version: 3.27.1
           cache: true
 
           # Download the keystore file (from GitHub Secrets or other storage)
@@ -124,7 +124,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: 3.29.0
+          flutter-version: 3.27.1
           cache: true
       - name: Setup NuGet.exe for use with actions
         uses: NuGet/setup-nuget@v2.0.1
@@ -169,7 +169,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: 3.29.0
+          flutter-version: 3.27.1
           cache: true
 
       # Step 3: Setup system dependencies
@@ -219,7 +219,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: 3.29.0
+          flutter-version: 3.27.1
           cache: true
       
       - name: Setup .env File for macOS
@@ -261,7 +261,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: 3.29.0
+          flutter-version: 3.27.1
           cache: true
       - name: Setup .env File for macOS
         env:
@@ -288,7 +288,6 @@ jobs:
   make_and_upload_git_changes:
     runs-on: ubuntu-latest
     needs: [build_android, build_windows, build_linux, build_ios, build_macos]
-    if: always()
     permissions:
       contents: read
       pull-requests: read
@@ -476,7 +475,7 @@ jobs:
           fi
 
           # Truncate field values
-          max_length=1000
+          max_length=1500
           commit_messages=$(echo "$COMMIT_LOG" | sed 's/%0A/\n/g; s/^/\n/')
           if [ ${#developers} -gt $max_length ]; then
             developers="${developers:0:$max_length}... (truncated)"
