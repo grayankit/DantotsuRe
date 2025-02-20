@@ -337,14 +337,6 @@ jobs:
       - name: Save Current SHA for Next Run
         run: echo ${{ github.sha }} > last_sha.txt
 
-      - name: Check for Ping
-        id: check_noping
-        run: |
-          if [[ "${{ github.event.head_commit.message }}" == *"[Ping]"* ]]; then 
-            echo "ping_variable=<@&1324799528255225997>" >> $GITHUB_ENV 
-          else 
-            echo "ping_variable=noPing" >> $GITHUB_ENV 
-          fi
       - name: Upload APK to Discord and Telegram
         shell: bash
         run: |
@@ -494,7 +486,7 @@ jobs:
                         --arg thumbnail_url "$thumbnail_url" \
                         --arg embed_color "$embed_color" \
                         '{
-                          "content": "${{env.ping_variable}}",
+                          "content": "@",
                           "embeds": [
                             {
                               "title": "New Alpha-Build dropped 🔥",
