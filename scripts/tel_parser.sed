@@ -17,3 +17,5 @@ s/~~([^~]+)~~/<del>\1<\/del>/g
 s/~([^~]+)~/<s>\1<\/s>/g
 # `text`
 s/`([^`]+)`/<code>\1<\/code>/g
+# Add zero-width space at end to prevent preview
+s/$/\&#8203;/
