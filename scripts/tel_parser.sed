@@ -17,5 +17,3 @@ s/~~([^~]+)~~/<del>\1<\/del>/g
 s/~([^~]+)~/<s>\1<\/s>/g
 # `text`
 s/`([^`]+)`/<code>\1<\/code>/g
-# Preserve line breaks with HTML breaks
-s/$/\<br\/>/
