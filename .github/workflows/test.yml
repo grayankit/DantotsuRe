@@ -7,6 +7,10 @@ jobs:
     notes:
         runs-on: ubuntu-latest
         steps:
+          - name: Cloing repository
+            uses: actions/checkout@v4
+            with:
+              fetch-depth: 0
           - name: Get Latest Release Notes
             id: get_release_notes
             run: |
