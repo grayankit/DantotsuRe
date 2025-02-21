@@ -3,8 +3,9 @@
 # s/◗//
 /Discord/d
 s/%0A/\n/g
-s/^[-*] /• /
-s/●/•/
+# Using a bigger bullet point character (●) or with styling
+s/^[-*] /<span style="font-size: 1.2em; color: #000;">●<\/span> /
+s/●/<span style="font-size: 1.2em; color: #000;">●<\/span>/
 s/[<>]//g
 s/\[ *([[:alnum:] \&\;\?!,\)\+]*.{0,10}[[:alnum:] \&\;\?!,\)\+]+) *\] *\( *([^ ]+) *\)/<a href='\2'>\1<\/a>/g
 # **text** and **text**
