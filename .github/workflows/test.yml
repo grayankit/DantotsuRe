@@ -49,6 +49,7 @@ jobs:
             env:
                 DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
             run: |
+                FORMATTED_NOTES=$(echo "$FORMATTED_NOTES" | sed -E 's/\): [^:]+:/) :/g')
                 # Ensure proper JSON formatting
                 JSON_PAYLOAD=$(jq -Rs --arg content "$FORMATTED_NOTES" '{"content": $content}')
                 
@@ -65,7 +66,7 @@ jobs:
                 TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
                 TELEGRAM_TOPIC: ${{ secrets.TELEGRAM_TOPIC }}
             run: |
-
+                FORMATTED_NOTES=$(echo "$FORMATTED_NOTES" | sed -E 's/\): [^:]+:/) :/g')
                 echo "$FORMATTED_NOTES" > markdown.txt
                 chmod +x scripts/tel_parser.sed
                 ./scripts/tel_parser.sed markdown.txt >> output.txt
