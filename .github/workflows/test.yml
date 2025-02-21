@@ -27,24 +27,27 @@ jobs:
           - name: Format Release Notes
             id: format_notes
             run: |
-                echo "**🚀 Features**" > formatted_notes.txt
-                echo "$(echo "$RELEASE_NOTES" | grep -iE '^\*\s\[[a-f0-9]+\]\(.*\):\sfeat' | head -n 5 || echo 'None')" >> formatted_notes.txt
-                echo "" >> formatted_notes.txt
-        
-                echo "**🐛 Fixes**" >> formatted_notes.txt
-                echo "$(echo "$RELEASE_NOTES" | grep -iE '^\*\s\[[a-f0-9]+\]\(.*\):\sfix' | head -n 5 || echo 'None')" >> formatted_notes.txt
-                echo "" >> formatted_notes.txt
-        
-                echo "**🛠 Chores**" >> formatted_notes.txt
-                echo "$(echo "$RELEASE_NOTES" | grep -iE '^\*\s\[[a-f0-9]+\]\(.*\):\schore' | head -n 5 || echo 'None')" >> formatted_notes.txt
-                echo "" >> formatted_notes.txt
-        
-                cat formatted_notes.txt
-                FORMATTED_NOTES=$(cat formatted_notes.txt) 
-                echo "FORMATTED_NOTES<<EOF" >> $GITHUB_ENV
-                echo "$FORMATTED_NOTES" >> $GITHUB_ENV
-                echo "EOF" >> $GITHUB_ENV
-        
+              {
+                echo "**🚀 Features**"
+                grep -iE '^\*\s\[[a-f0-9]+\]\(.*\):\sfeat' <<< "$RELEASE_NOTES" | head -n 5 | sed -E 's/(\*\s\[[a-f0-9]+\]\(.*\)):\s[^:]+:\s/\1 : /g' || echo "None"
+                echo ""
+    
+                echo "**🐛 Fixes**"
+                grep -iE '^\*\s\[[a-f0-9]+\]\(.*\):\sfix' <<< "$RELEASE_NOTES" | head -n 5 | sed -E 's/(\*\s\[[a-f0-9]+\]\(.*\)):\s[^:]+:\s/\1 : /g' || echo "None"
+                echo ""
+    
+                echo "**🛠 Chores**"
+                grep -iE '^\*\s\[[a-f0-9]+\]\(.*\):\schore' <<< "$RELEASE_NOTES" | head -n 5 | sed -E 's/(\*\s\[[a-f0-9]+\]\(.*\)):\s[^:]+:\s/\1 : /g' || echo "None"
+                echo ""
+              } > formatted_notes.txt
+    
+              cat formatted_notes.txt
+    
+              FORMATTED_NOTES=$(cat formatted_notes.txt)
+              echo "FORMATTED_NOTES<<EOF" >> $GITHUB_ENV
+              echo "$FORMATTED_NOTES" >> $GITHUB_ENV
+              echo "EOF" >> $GITHUB_ENV
+              
           - name: Send message to Discord
             env:
                 DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
