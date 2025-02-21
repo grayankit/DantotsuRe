@@ -54,10 +54,8 @@ jobs:
           embed_color=$(hex_to_decimal "$default_color")
           
           # Ensure VERSION is not empty
-          VERSION=${VERSION:-"Unknown"}
+          VERSION=${VERSION:-"${{github.ref_name}}"}
 
-          # Truncate field value if it's too long (max 1024 characters)
-          MAX_LENGTH=1024
           
           discord_data=$(jq -nc \
                         --arg field_value "$FORMATTED_NOTES" \
