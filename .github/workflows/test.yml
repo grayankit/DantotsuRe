@@ -79,7 +79,8 @@ jobs:
                     -d "chat_id=$TELEGRAM_CHAT_ID" \
                     -d "message_thread_id=$TELEGRAM_TOPIC" \
                     -d "text=$markdown_info_tel" \
-                    -d "parse_mode=HTML"
+                    -d "parse_mode=HTML" \
+                    -d "disable_web_page_preview=true"
                   
                   
                   
