@@ -61,6 +61,7 @@ jobs:
                 TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
                 TELEGRAM_TOPIC: ${{ secrets.TELEGRAM_TOPIC }}
             run: |
+                echo "$FORMATTED_NOTES"
                 # Escape only necessary Markdown characters
                 ESCAPED_MESSAGE=$(echo "$FORMATTED_NOTES" | sed -E \
                     -e 's/([_*`])/\\\1/g' )  # Escape only *, _, `
