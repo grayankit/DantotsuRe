@@ -52,26 +52,31 @@ jobs:
           default_color="#1ac4c5"
           hex_to_decimal() { printf '%d' "0x${1#"#"}"; }
           embed_color=$(hex_to_decimal "$default_color")
-          FORMATTED_NOTES=$(echo "$FORMATTED_NOTES" | sed -E 's/\): [^:]+:/) :/g')
+          
+          # Ensure VERSION is not empty
+          VERSION=${VERSION:-"Unknown"}
 
-          # Ensure proper JSON formatting
+          # Truncate field value if it's too long (max 1024 characters)
+          MAX_LENGTH=1024
+          if [ ${#FORMATTED_NOTES} -gt $MAX_LENGTH ]; then
+            FORMATTED_NOTES="${FORMATTED_NOTES:0:$((MAX_LENGTH-3))}..."
+          fi
+          
           discord_data=$(jq -nc \
                         --arg field_value "$FORMATTED_NOTES" \
-                        --arg author_value "$developers" \
                         --arg footer_text "Version $VERSION" \
                         --arg timestamp "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)" \
                         --argjson embed_color "$embed_color" \
                         '{
-                          "content": "@",
+                          "content": "New release available! 🚀",
                           "embeds": [
                             {
-                              "title": "New App Version dropped 🔥",
+                              "title": "New App Version Dropped 🔥",
                               "color": $embed_color,
                               "fields": [
                                 {
                                   "name": "Commits:",
-                                  "value": $field_value,
-                                  "inline": true
+                                  "value": $field_value
                                 }
                               ],
                               "footer": {
@@ -79,17 +84,17 @@ jobs:
                               },
                               "timestamp": $timestamp
                             }
-                          ],
-                          "attachments": []
+                          ]
                         }')
-          echo "Debug: Final Discord payload is:"
-          echo "$discord_data"
+
+          echo "Debug: Final Discord payload is: $discord_data"
 
           # Send the message to Discord using the webhook
           curl -H "Content-Type: application/json" \
               -X POST \
               -d "$discord_data" \
               "$DISCORD_WEBHOOK_URL"
+  
 
       - name: Send message to Telegram
         env:
