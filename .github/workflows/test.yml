@@ -58,9 +58,6 @@ jobs:
 
           # Truncate field value if it's too long (max 1024 characters)
           MAX_LENGTH=1024
-          if [ ${#FORMATTED_NOTES} -gt $MAX_LENGTH ]; then
-            FORMATTED_NOTES="${FORMATTED_NOTES:0:$((MAX_LENGTH-3))}..."
-          fi
           
           discord_data=$(jq -nc \
                         --arg field_value "$FORMATTED_NOTES" \
@@ -73,12 +70,7 @@ jobs:
                             {
                               "title": "New App Version Dropped 🔥",
                               "color": $embed_color,
-                              "fields": [
-                                {
-                                  "name": "Commits:",
-                                  "value": $field_value
-                                }
-                              ],
+                              "description": $FORMATTED_NOTES,
                               "footer": {
                                 "text": $footer_text
                               },
