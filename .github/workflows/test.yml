@@ -38,7 +38,7 @@ jobs:
               LATEST_TAG="$TAG_NAME"
             fi
           done
-          echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_ENV
+          echo "$LATEST_TAG" >> $GITHUB_ENV
       - name: Get Latest Release Notes
         id: get_release_notes
         run: |
