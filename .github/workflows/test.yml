@@ -4,123 +4,110 @@ on:
     branches:
       - main
 jobs:
-    notes:
-        runs-on: ubuntu-latest
-        steps:
-          - name: Cloing repository
-            uses: actions/checkout@v4
-            with:
-              fetch-depth: 0
-          - name: Get Latest Release Notes
-            id: get_release_notes
-            run: |
-                RELEASE_DATA=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-                "https://api.github.com/repos/${{ github.repository }}/releases/latest")
+  notes:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cloing repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Get Latest Release Notes
+        id: get_release_notes
+        run: |
+          RELEASE_DATA=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          "https://api.github.com/repos/${{ github.repository }}/releases/latest")
 
-                RELEASE_NOTES=$(echo "$RELEASE_DATA" | jq -r '.body')
-                echo "Release Notes: $RELEASE_NOTES"
-                
-                echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
-                echo "$RELEASE_NOTES" >> $GITHUB_ENV
-                echo "EOF" >> $GITHUB_ENV
+          RELEASE_NOTES=$(echo "$RELEASE_DATA" | jq -r '.body')
+          echo "Release Notes: $RELEASE_NOTES"
 
-          - name: Format Release Notes
-            id: format_notes
-            run: |
-                echo "**🚀 Features**" > formatted_notes.txt
-                echo "$(echo "$RELEASE_NOTES" | grep -iE '^\*\s\[[a-f0-9]+\]\(.*\):\sfeat' | head -n 5 || echo 'None')" >> formatted_notes.txt
-                echo "" >> formatted_notes.txt
-        
-                echo "**🐛 Fixes**" >> formatted_notes.txt
-                echo "$(echo "$RELEASE_NOTES" | grep -iE '^\*\s\[[a-f0-9]+\]\(.*\):\sfix' | head -n 5 || echo 'None')" >> formatted_notes.txt
-                echo "" >> formatted_notes.txt
-        
-                echo "**🛠 Chores**" >> formatted_notes.txt
-                echo "$(echo "$RELEASE_NOTES" | grep -iE '^\*\s\[[a-f0-9]+\]\(.*\):\schore' | head -n 5 || echo 'None')" >> formatted_notes.txt
-                echo "" >> formatted_notes.txt
-        
-                cat formatted_notes.txt
-                FORMATTED_NOTES=$(cat formatted_notes.txt) 
-                echo "FORMATTED_NOTES<<EOF" >> $GITHUB_ENV
-                echo "$FORMATTED_NOTES" >> $GITHUB_ENV
-                echo "EOF" >> $GITHUB_ENV
-        
-          - name: Send message to Discord
-            env:
-                DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-            run: |
-                default_color="#1ac4c5"
-                hex_to_decimal() { printf '%d' "0x${1#"#"}"; }
-                embed_color=$(hex_to_decimal "$default_color")
-                FORMATTED_NOTES=$(echo "$FORMATTED_NOTES" | sed -E 's/\): [^:]+:/) :/g')
-                # Ensure proper JSON formatting
+          echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
+          echo "$RELEASE_NOTES" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
-                discord_data=$(jq -nc \
-                --arg field_value "$FORMATTED_NOTES" \
-                --arg author_value "$developers" \
-                --arg footer_text "Version $VERSION" \
-                --arg timestamp "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)" \
-                --arg embed_color "$embed_color" \
-                '{
-                  "content": "${{env.ping_variable}}",
-                  "embeds": [
-                    {
-                      "title": "New App Version dropped 🔥",
-                      "color": $embed_color,
-                      "fields": [
-                        {
-                          "name": "Commits:",
-                          "value": $field_value,
-                          "inline": true
-                        },
-                      ],
-                      "footer": {
-                        "text": $footer_text
-                      },
-                      "timestamp": $timestamp
-                    }
-                  ],
-                  "attachments": []
-                }')
-                
-                # Send the message to Discord using the webhook
-                curl -H "Content-Type: application/json" \
-                    -X POST \
-                    -d "$discord_data" \
-                    $DISCORD_WEBHOOK_URL
+      - name: Format Release Notes
+        id: format_notes
+        run: |
+          echo "**🚀 Features**" > formatted_notes.txt
+          echo "$(echo "$RELEASE_NOTES" | grep -iE '^\*\s\[[a-f0-9]+\]\(.*\):\sfeat' | head -n 5 || echo 'None')" >> formatted_notes.txt
+          echo "" >> formatted_notes.txt
 
+          echo "**🐛 Fixes**" >> formatted_notes.txt
+          echo "$(echo "$RELEASE_NOTES" | grep -iE '^\*\s\[[a-f0-9]+\]\(.*\):\sfix' | head -n 5 || echo 'None')" >> formatted_notes.txt
+          echo "" >> formatted_notes.txt
 
-          - name: Send message to Telegram
-            env:
-                TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-                TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-                TELEGRAM_TOPIC: ${{ secrets.TELEGRAM_TOPIC }}
-            run: |
-                FORMATTED_NOTES=$(echo "$FORMATTED_NOTES" | sed -E 's/\): [^:]+:/) :/g')
-                echo "$FORMATTED_NOTES" > markdown.txt
-                chmod +x scripts/tel_commit_parser.sed
-                ./scripts/tel_commit_parser.sed markdown.txt >> output.txt
+          echo "**🛠 Chores**" >> formatted_notes.txt
+          echo "$(echo "$RELEASE_NOTES" | grep -iE '^\*\s\[[a-f0-9]+\]\(.*\):\schore' | head -n 5 || echo 'None')" >> formatted_notes.txt
+          echo "" >> formatted_notes.txt
 
-                markdown_info_tel=$(< output.txt)
+          cat formatted_notes.txt
+          FORMATTED_NOTES=$(cat formatted_notes.txt) 
+          echo "FORMATTED_NOTES<<EOF" >> $GITHUB_ENV
+          echo "$FORMATTED_NOTES" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
-                echo "$markdown_info_tel"
-            
-                # Send message to Telegram
-                curl -s -X POST "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendMessage" \
-                    -d "chat_id=$TELEGRAM_CHAT_ID" \
-                    -d "message_thread_id=$TELEGRAM_TOPIC" \
-                    -d "text=$markdown_info_tel" \
-                    -d "parse_mode=HTML" \
-                    -d "disable_web_page_preview=true"
-                  
-                  
-                  
-                  
-                  
-                  
-                  
-                  
-                  
-                  
-                  
-          
+      - name: Send message to Discord
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          default_color="#1ac4c5"
+          hex_to_decimal() { printf '%d' "0x${1#"#"}"; }
+          embed_color=$(hex_to_decimal "$default_color")
+          FORMATTED_NOTES=$(echo "$FORMATTED_NOTES" | sed -E 's/\): [^:]+:/) :/g')
+          # Ensure proper JSON formatting
+
+          discord_data=$(jq -nc \
+                        --arg field_value "$FORMATTED_NOTES" \
+                        --arg author_value "$developers" \
+                        --arg footer_text "Version $VERSION" \
+                        --arg timestamp "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)" \
+                        --arg embed_color "$embed_color" \
+                        '{
+                          "content": "@",
+                          "embeds": [
+                            {
+                              "title": "New App Version dropped 🔥",
+                              "color": $embed_color,
+                              "fields": [
+                                {
+                                  "name": "Commits:",
+                                  "value": $field_value,
+                                  "inline": true
+                                },
+                              ],
+                              "footer": {
+                                "text": $footer_text
+                              },
+                              "timestamp": $timestamp
+                            }
+                          ],
+                          "attachments": []
+                        }')
+
+          # Send the message to Discord using the webhook
+          curl -H "Content-Type: application/json" \
+              -X POST \
+              -d "$discord_data" \
+              $DISCORD_WEBHOOK_URL
+
+      - name: Send message to Telegram
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_TOPIC: ${{ secrets.TELEGRAM_TOPIC }}
+        run: |
+          FORMATTED_NOTES=$(echo "$FORMATTED_NOTES" | sed -E 's/\): [^:]+:/) :/g')
+          echo "$FORMATTED_NOTES" > markdown.txt
+          chmod +x scripts/tel_commit_parser.sed
+          ./scripts/tel_commit_parser.sed markdown.txt >> output.txt
+
+          markdown_info_tel=$(< output.txt)
+
+          echo "$markdown_info_tel"
+
+          # Send message to Telegram
+          curl -s -X POST "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendMessage" \
+              -d "chat_id=$TELEGRAM_CHAT_ID" \
+              -d "message_thread_id=$TELEGRAM_TOPIC" \
+              -d "text=$markdown_info_tel" \
+              -d "parse_mode=HTML" \
+              -d "disable_web_page_preview=true"
