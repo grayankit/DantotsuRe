@@ -11,6 +11,34 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Fetch Repository Tags by Date and Time
+        id: fetch_tags
+        run: |
+          curl -s "https://api.github.com/repos/RyanYuuki/AnymeX/tags" -o tags.json
+          TAGS=$(jq -r '.[].name' tags.json)
+          declare -a TAGS_WITH_DATES=()
+          for TAG in $TAGS; do
+            TAG_DETAILS=$(curl -s "https://api.github.com/repos/${{github.repository}}/git/refs/tags/$TAG")
+            OBJECT_URL=$(echo "$TAG_DETAILS" | jq -r '.object.url // empty')
+            if [ -n "$OBJECT_URL" ]; then
+              OBJECT_DETAILS=$(curl -s "$OBJECT_URL")
+              DATE=$(echo "$OBJECT_DETAILS" | jq -r '.tagger.date // .committer.date // empty')
+              if [ -n "$DATE" ]; then
+                TAGS_WITH_DATES+=("$DATE $TAG")
+              fi
+            fi
+          done
+          LATEST_TAG=""
+          LATEST_DATE=""
+          for TAG_DATE in "${TAGS_WITH_DATES[@]}"; do
+            TAG_DATE_TIME=$(echo "$TAG_DATE" | awk '{print $1}')
+            TAG_NAME=$(echo "$TAG_DATE" | awk '{print $2}')
+            if [[ -z "$LATEST_DATE" || "$TAG_DATE_TIME" > "$LATEST_DATE" ]]; then
+              LATEST_DATE="$TAG_DATE_TIME"
+              LATEST_TAG="$TAG_NAME"
+            fi
+          done
+          echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_ENV
       - name: Get Latest Release Notes
         id: get_release_notes
         run: |
@@ -54,7 +82,7 @@ jobs:
           embed_color=$(hex_to_decimal "$default_color")
           
           # Ensure VERSION is not empty
-          VERSION=${VERSION:-"${{github.ref_name}}"}
+          VERSION=${VERSION:-"${{env.LATEST_TAG}}"}
 
           
           discord_data=$(jq -nc \
