@@ -49,14 +49,44 @@ jobs:
             env:
                 DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
             run: |
+                default_color="#1ac4c5"
+                hex_to_decimal() { printf '%d' "0x${1#"#"}"; }
+                embed_color=$(hex_to_decimal "$default_color")
                 FORMATTED_NOTES=$(echo "$FORMATTED_NOTES" | sed -E 's/\): [^:]+:/) :/g')
                 # Ensure proper JSON formatting
-                JSON_PAYLOAD=$(jq -Rs --arg content "$FORMATTED_NOTES" '{"content": $content}')
+
+                discord_data=$(jq -nc \
+                --arg field_value "$FORMATTED_NOTES" \
+                --arg author_value "$developers" \
+                --arg footer_text "Version $VERSION" \
+                --arg timestamp "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)" \
+                --arg embed_color "$embed_color" \
+                '{
+                  "content": "${{env.ping_variable}}",
+                  "embeds": [
+                    {
+                      "title": "New App Version dropped 🔥",
+                      "color": $embed_color,
+                      "fields": [
+                        {
+                          "name": "Commits:",
+                          "value": $field_value,
+                          "inline": true
+                        },
+                      ],
+                      "footer": {
+                        "text": $footer_text
+                      },
+                      "timestamp": $timestamp
+                    }
+                  ],
+                  "attachments": []
+                }')
                 
                 # Send the message to Discord using the webhook
                 curl -H "Content-Type: application/json" \
                     -X POST \
-                    -d "$JSON_PAYLOAD" \
+                    -d "$discord_data" \
                     $DISCORD_WEBHOOK_URL
 
 
@@ -68,8 +98,8 @@ jobs:
             run: |
                 FORMATTED_NOTES=$(echo "$FORMATTED_NOTES" | sed -E 's/\): [^:]+:/) :/g')
                 echo "$FORMATTED_NOTES" > markdown.txt
-                chmod +x scripts/tel_parser.sed
-                ./scripts/tel_parser.sed markdown.txt >> output.txt
+                chmod +x scripts/tel_commit_parser.sed
+                ./scripts/tel_commit_parser.sed markdown.txt >> output.txt
 
                 markdown_info_tel=$(< output.txt)
 
