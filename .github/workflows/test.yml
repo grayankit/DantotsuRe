@@ -70,7 +70,7 @@ jobs:
                             {
                               "title": "New App Version Dropped 🔥",
                               "color": $embed_color,
-                              "description": $FORMATTED_NOTES,
+                              "description": $field_value,
                               "footer": {
                                 "text": $footer_text
                               },
