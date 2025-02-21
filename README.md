@@ -1,4 +1,4 @@
-<p align="center">
+<p align="center"> 
    <img src="https://files.catbox.moe/tnm1sr.png" alt="Dantotsu Banner" width="100%">
 </p>
 
