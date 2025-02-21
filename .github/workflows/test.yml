@@ -61,23 +61,21 @@ jobs:
                 TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
                 TELEGRAM_TOPIC: ${{ secrets.TELEGRAM_TOPIC }}
             run: |
-                echo "$FORMATTED_NOTES"
-                # Escape only necessary Markdown characters
-                ESCAPED_MESSAGE=$(echo "$FORMATTED_NOTES" | sed -E \
-                    -e 's/([_*`])/\\\1/g' )  # Escape only *, _, `
-            
-                # Make commit hashes bold inside links
-                ESCAPED_MESSAGE=$(echo "$ESCAPED_MESSAGE" | sed -E \
-                    's#\*\*([0-9a-f]{7,})\*\*#**[\1](https://github.com/${{github.repository}}/commit/\1)**#g')
 
-                echo "$ESCAPED_MESSAGE"
+                echo "$FORMATTED_NOTES" > markdown.txt
+                chmod +x scripts/tel_parser.sed
+                ./scripts/tel_parser.sed markdown.txt >> output.txt
+
+                markdown_info_tel=$(< output.txt)
+
+                echo "$markdown_info_tel"
             
                 # Send message to Telegram
                 curl -s -X POST "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendMessage" \
                     -d "chat_id=$TELEGRAM_CHAT_ID" \
                     -d "message_thread_id=$TELEGRAM_TOPIC" \
-                    -d "text=$ESCAPED_MESSAGE" \
-                    -d "parse_mode=Markdown"
+                    -d "text=$markdown_info_tel" \
+                    -d "parse_mode=HTML"
                   
                   
                   
