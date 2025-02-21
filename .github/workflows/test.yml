@@ -56,7 +56,7 @@ jobs:
           # Ensure proper JSON formatting
 
           discord_data=$(jq -nc \
-                        --arg field_value "$FORMATTED_NOTES" \
+                        --arg field_value '$FORMATTED_NOTES' \
                         --arg author_value "$developers" \
                         --arg footer_text "Version $VERSION" \
                         --arg timestamp "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)" \
