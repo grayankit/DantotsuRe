@@ -517,11 +517,13 @@ jobs:
 
           MESSAGE: ${{ env.MESSAGE }}
         run: |
+
+          FORMATTED_MESSAGE=$(echo -e "$MESSAGE")
           # Send the message to Telegram using the Bot API
           curl -s -X POST "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendMessage" \
             -d "chat_id=$TELEGRAM_CHAT_ID" \
             -d "message_thread_id=$TELEGRAM_TOPIC" \
-            -d text="$MESSAGE" \
+            -d text="$FORMATTED_MESSAGE" \
             -d parse_mode="Markdown"
 
   generate-changelog:
