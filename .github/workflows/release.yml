@@ -372,7 +372,7 @@ jobs:
                         --arg timestamp "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)" \
                         --argjson embed_color "$embed_color" \
                         '{
-                          "content": "New release available! 🚀",
+                          "content": "<@>",
                           "embeds": [
                             {
                               "title": "New App Version Dropped 🔥",
@@ -432,7 +432,7 @@ jobs:
               echo "No commits found. Skipping Telegram message."
               exit 0
           fi
-          echo -n "<a href='https://github.com/${{github.repository}}/releases/tag/${{ env.LATEST_TAG }}'>📌 Full changelog</a>" > output.txt
+          echo -n "<a href='https://github.com/${{github.repository}}/releases/tag/${{ env.LATEST_TAG }}'>📌 Full changelog</a>" >> output.txt
           markdown_info_tel=$(< output.txt)
           echo "Final Telegram Message:"
           echo "$markdown_info_tel"
