@@ -61,7 +61,7 @@ jobs:
           [Desktop Entry]
           Name=Dartotsu
           Exec=usr/bin/Dartotsu
-          Icon=Dartotsu
+          Icon=dartotsu
           Type=Application
           Categories=Utility;
           EOF
