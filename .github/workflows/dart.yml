@@ -295,7 +295,7 @@ jobs:
           cat <<EOF > AppDir/dartotsu.desktop
           [Desktop Entry]
           Name=Dartotsu
-          Exec=usr/bin/Dartotsu
+          Exec=usr/bin/dantotsu
           Icon=dartotsu
           Type=Application
           Categories=Utility;
