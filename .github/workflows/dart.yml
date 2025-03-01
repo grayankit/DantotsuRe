@@ -1,4 +1,4 @@
-name: Dantotsu Build Workflow
+name: Dartotsu Build Workflow
 on:
   push:
     branches:
@@ -295,7 +295,7 @@ jobs:
           cat <<EOF > AppDir/dartotsu.desktop
           [Desktop Entry]
           Name=Dartotsu
-          Exec=usr/bin/dantotsu
+          Exec=usr/bin/dartotsu
           Icon=dartotsu
           Type=Application
           Categories=Utility;
@@ -321,7 +321,7 @@ jobs:
         uses: thedoctor0/zip-release@master
         with:
           type: "zip"
-          filename: Dantotsu_Linux_${{github.ref_name}}.zip
+          filename: Dartotsu_Linux_${{github.ref_name}}.zip
           directory: build/linux/x64/release/bundle
 
       # Step 9: Upload to Google Drive
@@ -329,7 +329,7 @@ jobs:
         id: gdriveUpload
         uses: hoatruongdev09/google-drive-file-upload-github-action@v1.1
         with:
-          file-path: build/linux/x64/release/bundle/Dantotsu_Linux_${{github.ref_name}}.zip
+          file-path: build/linux/x64/release/bundle/Dartotsu_Linux_${{github.ref_name}}.zip
           upload-name: Dartotsu_linux.zip
           upload-to-folder-id: 1pqurWwP9qiCqZj_0FmV1U7sm34BETOuu
           service-account-json: "${{secrets.GOOGLE_KEY}}"
@@ -428,7 +428,7 @@ jobs:
       - name: Create DMG file for macOS Build
         run: |
           mkdir -p build/macos/Release
-          hdiutil create -volname "Dartotsu" -srcfolder build/macos/Build/Products/Release/Dantotsu.app -ov -format UDZO build/macos/Release/Dartotsu-macos-${{github.ref_name}}.dmg
+          hdiutil create -volname "Dartotsu" -srcfolder build/macos/Build/Products/Release/Dartotsu.app -ov -format UDZO build/macos/Release/Dartotsu-macos-${{github.ref_name}}.dmg
         shell: bash
       - name: Upload File To Google Drive
         id: gdriveUpload

@@ -1,4 +1,4 @@
-name: Dantotsu Test Build Workflow
+name: Dartotsu Test Build Workflow
 on:
   push:
     branches:
