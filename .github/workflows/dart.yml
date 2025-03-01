@@ -331,7 +331,7 @@ jobs:
         with:
           file-path: build/linux/x64/release/bundle/Dartotsu_Linux_${{github.ref_name}}.zip
           upload-name: Dartotsu_linux.zip
-          upload-to-folder-id: 1pqurWwP9qiCqZj_0FmV1U7sm34BETOuu
+          upload-to-folder-id: 1nWYex54zd58SVitJUCva91_4k1PPTdP3
           service-account-json: "${{secrets.GOOGLE_KEY}}"
           overrwrite: true
       # Step 9: Upload to Google Drive
@@ -341,7 +341,7 @@ jobs:
         with:
           file-path: build/linux/x64/release/Dartotsu-Linux.AppImage
           upload-name: Dartotsu_Linux.AppImage
-          upload-to-folder-id: 1pqurWwP9qiCqZj_0FmV1U7sm34BETOuu
+          upload-to-folder-id: 1nWYex54zd58SVitJUCva91_4k1PPTdP3
           service-account-json: "${{secrets.GOOGLE_KEY}}"
           overrwrite: true
 
