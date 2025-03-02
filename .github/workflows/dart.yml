@@ -224,8 +224,9 @@ jobs:
           upload-to-folder-id: 1nWYex54zd58SVitJUCva91_4k1PPTdP3
           service-account-json: "${{secrets.GOOGLE_KEY}}"
           overrwrite: true
+          
   build_linux:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     if: contains(github.event.head_commit.message, '[build.linux]')  ||  contains(github.event.head_commit.message, '[build.all]')
     permissions:
       contents: write
