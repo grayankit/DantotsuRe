@@ -280,42 +280,88 @@ jobs:
       # Step 6: Build the Linux application
       - name: Build Flutter Linux app
         run: flutter build linux
+
+      - name: Create dist directory
+        run: mkdir -p dist
+
       
 
       - name: Create AppImage
         run: |
-          # Create fresh AppDir structure
+          # Clean previous AppDir
           rm -rf AppDir
           mkdir -p AppDir/usr/bin
           mkdir -p AppDir/usr/share/icons/hicolor/256x256/apps
-          # Copy built files
+
+          # Copy Flutter build output
           cp -r build/linux/x64/release/bundle/* AppDir/usr/bin/
+
+          # Set up icons
           cp assets/images/logo.png AppDir/usr/share/icons/hicolor/256x256/apps/dartotsu.png
           cp assets/images/logo.png AppDir/dartotsu.png
-          # Create desktop file in AppDir root
+
+          # Create .desktop file (correct Icon reference!)
           cat <<EOF > AppDir/dartotsu.desktop
           [Desktop Entry]
           Name=Dartotsu
-          Exec=usr/bin/dartotsu
-          Icon=assests/images/logo.png
+          Exec=dartotsu
+          Icon=dartotsu
           Type=Application
           Categories=Utility;
           EOF
-          # Create AppRun file
+
+          # Create AppRun
           cat <<EOF > AppDir/AppRun
           #!/bin/sh
           SELF=\$(readlink -f "\$0")
           HERE=\${SELF%/*}
-          export PATH="\${HERE}/usr/bin/:\${PATH}"
-          export LD_LIBRARY_PATH="\${HERE}/usr/lib/:\${LD_LIBRARY_PATH}"
+          export PATH="\${HERE}/usr/bin:\$PATH"
+          export LD_LIBRARY_PATH="\${HERE}/usr/lib:\$LD_LIBRARY_PATH"
           exec "\${HERE}/usr/bin/dartotsu" "\$@"
           EOF
           chmod +x AppDir/AppRun
-          # Make AppImage
-          /usr/local/bin/appimagetool AppDir
-          mv Dartotsu-x86_64.AppImage build/linux/x64/release/Dartotsu-Linux.AppImage
 
-          ls build/linux/x64/release
+          # Download appimagetool if not exists
+          if [ ! -f /usr/local/bin/appimagetool ]; then
+            wget https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage -O appimagetool
+            chmod +x appimagetool
+            sudo mv appimagetool /usr/local/bin/appimagetool
+          fi
+
+          # Build AppImage
+          appimagetool AppDir
+
+          # Move output to dist/
+          mkdir -p dist
+          mv Dartotsu*.AppImage dist/Dartotsu_Linux.AppImage
+
+          # Confirm output
+          ls dist
+
+
+
+      - name: Extract Version
+        id: get_version
+        run: |
+          $version = (Get-Content pubspec.yaml | Select-String -Pattern 'version: ([\d.]+)').Matches.Groups[1].Value
+          echo "version=$version" >> $env:GITHUB_ENV
+
+
+      - name: Create DEB package
+        run: |
+          mkdir -p deb/usr/bin
+          cp build/linux/x64/release/bundle/dartotsu deb/usr/bin/
+          mkdir -p deb/DEBIAN
+          cat <<EOF > deb/DEBIAN/control
+          Package: Dartotsu
+          Version: ${{env.version}}
+          Section: base
+          Priority: optional
+          Architecture: amd64
+          Maintainer: Ankit Grai <ankigray@outlook.com>
+          Description: Cross Platform Anilist Client
+          EOF
+          dpkg-deb --build deb dist/Dartotsu_Linux.deb
 
       # Step 7: Archive the app
       - name: Archive app
@@ -341,10 +387,21 @@ jobs:
         uses: hoatruongdev09/google-drive-file-upload-github-action@v1.1
         with:
           file-path: build/linux/x64/release/Dartotsu-Linux.AppImage
-          upload-name: Dartotsu_Linux.AppImage
+          upload-name: dist/Dartotsu_Linux.AppImage
           upload-to-folder-id: ${{secrets.GOOGLE_FOLDER_MAIN}}
           service-account-json: "${{secrets.GOOGLE_KEY}}"
           overrwrite: true
+      # Step 10: Upload DEB package to Google Drive
+      - name: Upload DEB To Google Drive
+        id: gdriveUpload_deb
+        uses: hoatruongdev09/google-drive-file-upload-github-action@v1.1
+        with:
+          file-path: dist/Dartotsu_Linux.deb
+          upload-name: Dartotsu_Linux.deb
+          upload-to-folder-id: ${{ secrets.GOOGLE_FOLDER_MAIN }}
+          service-account-json: "${{ secrets.GOOGLE_KEY }}"
+          overrwrite: true
+
 
   build_ios:
     runs-on: macos-latest
