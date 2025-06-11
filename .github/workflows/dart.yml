@@ -343,8 +343,9 @@ jobs:
       - name: Extract Version
         id: get_version
         run: |
-          $version = (Get-Content pubspec.yaml | Select-String -Pattern 'version: ([\d.]+)').Matches.Groups[1].Value
-          echo "version=$version" >> $env:GITHUB_ENV
+          version=$(grep -oP '^version:\s*\K[\d.]+' pubspec.yaml)
+          echo "version=$version" >> "$GITHUB_ENV"
+
 
 
       - name: Create DEB package
