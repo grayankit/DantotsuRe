@@ -387,8 +387,8 @@ jobs:
         id: gdriveUpload_appImage
         uses: hoatruongdev09/google-drive-file-upload-github-action@v1.1
         with:
-          file-path: build/linux/x64/release/Dartotsu-Linux.AppImage
-          upload-name: dist/Dartotsu_Linux.AppImage
+          file-path: dist/Dartotsu_Linux.AppImage
+          upload-name: Dartotsu_Linux.AppImage
           upload-to-folder-id: ${{secrets.GOOGLE_FOLDER_MAIN}}
           service-account-json: "${{secrets.GOOGLE_KEY}}"
           overrwrite: true
