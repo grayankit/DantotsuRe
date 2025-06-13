@@ -13,7 +13,7 @@
    <a href="https://github.com/aayush2622/Dartotsu/stargazers"><img src="https://img.shields.io/github/stars/aayush2622/Dartotsu?style=for-the-badge&label=Stars&labelColor=00ffff&color=0d1117" alt="Stars" /></a>
 </p>
 
-# Dartotsu
+# Dartotsu  
 
 **Dartotsu** is a complete rewrite of [Dantotsu](https://github.com/rebelonion/Dantotsu/) in Flutter. It's a hybrid [**AniList**](https://anilist.co/) and [**MyAnimeList**](https://myanimelist.net/) tracking client, along with [**Simkl**](https://simkl.com/) support!  
 > [!WARNING]
