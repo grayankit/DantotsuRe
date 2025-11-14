@@ -668,7 +668,7 @@ jobs:
         run: |
           # Check if APK_DOWNLOAD_LINK is not empty
           if [[ -n "$APK_DOWNLOAD_LINK" ]]; then
-            APK_MESSAGE="[Download APK](https://drive.google.com/drive/folders/1S4QzdKz7ZofhiF5GAvjMdBvYK7YhndKM)"
+            APK_MESSAGE="[Download APK](https://drive.google.com/drive/folders/${{ secrets.GOOGLE_FOLDER_ANDROID }})"
           else
             APK_MESSAGE=""
           fi
