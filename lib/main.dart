@@ -163,7 +163,6 @@ void initDeepLinkListener() async {
 
 void handleDeepLink(Uri uri) {
   if (uri.host != "add-repo") return;
-
   final scheme = uri.scheme.toLowerCase();
   bool isRepoAdded = false;
 
