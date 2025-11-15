@@ -6,27 +6,27 @@ concurrency:
 on:
   push:
     branches: [main]
-    tags: ['v*.*.*']
+    tags: ["v*.*.*"]
   workflow_dispatch:
     inputs:
       build_targets:
-        description: 'Select platforms to build'
+        description: "Select platforms to build"
         required: true
         type: choice
-        options: ['all', 'android', 'windows', 'linux', 'ios', 'macos']
+        options: ["all", "android", "windows", "linux", "ios", "macos"]
       clean_build:
-        description: 'Clean build?'
+        description: "Clean build?"
         type: boolean
         default: false
       ping_discord:
-        description: 'Ping Discord role?'
+        description: "Ping Discord role?"
         type: boolean
         default: false
       release_type:
-        description: 'Release type'
+        description: "Release type"
         type: choice
-        options: ['alpha', 'beta', 'stable']
-        default: 'alpha'
+        options: ["alpha", "beta", "stable"]
+        default: "alpha"
 
 env:
   FLUTTER_VERSION: 3.35.7
@@ -38,11 +38,16 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - platform: android ; os: ubuntu-latest
-          - platform: windows ; os: windows-latest
-          - platform: linux   ; os: ubuntu-latest
-          - platform: ios     ; os: macos-latest
-          - platform: macos   ; os: macos-latest
+          - platform: android
+            os: ubuntu-latest
+          - platform: windows
+            os: windows-latest
+          - platform: linux
+            os: ubuntu-latest
+          - platform: ios
+            os: macos-latest
+          - platform: macos
+            os: macos-latest
 
     # Run only if platform is selected via tag, commit message, or manual dispatch
     if: >-
@@ -61,7 +66,7 @@ jobs:
       pull-requests: write
     outputs:
       is_alpha: ${{ steps.config.outputs.is_alpha }}
-      is_beta:  ${{ steps.config.outputs.is_beta }}
+      is_beta: ${{ steps.config.outputs.is_beta }}
 
     steps:
       - uses: actions/checkout@v4
