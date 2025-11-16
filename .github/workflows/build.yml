@@ -227,7 +227,7 @@ jobs:
           path: |
             ${{ matrix.platform == 'android' && 'build/app/outputs/flutter-apk/Dartotsu_Android_*.apk' || '' }}
             ${{ matrix.platform == 'windows' && 'build/windows/x64/installer/Release/Dartotsu-x86_64-*-Installer.exe' || '' }}
-            ${{ matrix.platform == 'linux' && 'build/linux/x64/release/bundle/Dartotsu 'Dartotsu_Linux_*.zip' || '' }}
+            ${{ matrix.platform == 'linux' && 'build/linux/x64/release/bundle/Dartotsu_Linux_*.zip' || '' }}
             ${{ matrix.platform == 'ios' && 'build/ios/iphoneos/Dartotsu-iOS-*.ipa' || '' }}
             ${{ matrix.platform == 'macos' && 'build/macos/Release/Dartotsu-macos-*.dmg' || '' }}
 
