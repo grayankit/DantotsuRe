@@ -76,7 +76,7 @@ jobs:
               PLATFORMS='["android","windows","linux","ios","macos"]'
             else
               TMP='['
-              [[ "$MESSAGE" == *"[build.android]"* ]] && TMP="${TMP}\"android\","
+              [[ "$MESSAGE" == *"[build.android]"* || "$MESSAGE" == *"[build.apk]"* ]] && TMP="${TMP}\"android\","
               [[ "$MESSAGE" == *"[build.windows]"* ]] && TMP="${TMP}\"windows\","
               [[ "$MESSAGE" == *"[build.linux]"* ]] && TMP="${TMP}\"linux\","
               [[ "$MESSAGE" == *"[build.ios]"* ]] && TMP="${TMP}\"ios\","
