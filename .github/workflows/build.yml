@@ -163,9 +163,9 @@ jobs:
       # Linux: Install system packages
       - name: Setup Linux deps
         if: matrix.platform == 'linux'
-        uses: awalsh128/cache-apt-pkgs@v1
-        with:
-          packages: ninja-build cmake libgtk-3-dev webkit2gtk-4.1 libmpv-dev pkg-config fuse
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ninja-build cmake libgtk-3-dev webkit2gtk-4.1 libmpv-dev pkg-config fuse
 
       # Windows: Enable MSVC + signtool
       - name: Setup Windows dev env
