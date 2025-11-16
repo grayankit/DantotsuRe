@@ -227,7 +227,7 @@ jobs:
           path: |
             ${{ matrix.platform == 'android' && 'build/app/outputs/flutter-apk/Dartotsu_Android_*.apk' || '' }}
             ${{ matrix.platform == 'windows' && 'build/windows/x64/installer/Release/Dartotsu-x86_64-*-Installer.exe' || '' }}
-            ${{ matrix.platform == 'linux' && 'build/linux/x64/release/bundle/Dartotsu_Linux_*.zip' || '' }}
+            ${{ matrix.platform == 'linux' && 'build/linux/x64/release/bundle/Dartotsu 'Dartotsu_Linux_*.zip' || '' }}
             ${{ matrix.platform == 'ios' && 'build/ios/iphoneos/Dartotsu-iOS-*.ipa' || '' }}
             ${{ matrix.platform == 'macos' && 'build/macos/Release/Dartotsu-macos-*.dmg' || '' }}
 
@@ -285,7 +285,7 @@ jobs:
           service-account-json: "${{ secrets.GOOGLE_KEY }}"
           overwrite: true
 
-  # 4. Beta / Stable – Create GitHub Release
+  # 4. Beta / Stable – Create GitHub Release + IzzyOnDroid Changelog
   release:
     needs: [prepare, build]
     if: needs.prepare.outputs.is_alpha == 'false' && !contains(needs.*.result, 'failure')
@@ -296,7 +296,9 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           path: artifacts
-      - name: Generate changelog
+
+      # Full GitHub changelog (mikepenz)
+      - name: Generate full changelog
         uses: mikepenz/release-changelog-builder-action@v4
         id: changelog
         env:
@@ -313,13 +315,64 @@ jobs:
                 {"title": "### Chores & Documentation", "labels": ["chore"]}
               ]
             }
-      - uses: ncipollo/release-action@v1
+
+      # Generate clean Fastlane changelog for IzzyOnDroid
+      - name: Generate Fastlane changelog
+        run: |
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || git rev-list --max-parents=0 HEAD)
+          REPO_URL="https://github.com/${{ github.repository }}"
+          
+          declare -A categories=(
+            ["feat"]="### New Features"
+            ["fix"]="### Bug Fixes & Improvements"
+            ["refactor"]="### Refactors"
+            ["style"]="### Style Changes"
+            ["perf"]="### Performance Improvements"
+            ["chore"]="### Chores & Documentation"
+          )
+          
+          declare -A commits
+          while IFS= read -r line; do
+            hash=$(echo "$line" | awk '{print $1}')
+            msg=$(echo "$line" | cut -d' ' -f2-)
+            type=$(echo "$msg" | grep -oP '^(feat|fix|refactor|style|perf|chore|docs|build|ci)' || echo "other")
+            [[ "$type" =~ ^(bug|improvement|patch)$ ]] && type="fix"
+            [[ "$type" =~ ^(docs|build|ci)$ ]] && type="chore"
+            commits[$type]+="* [$hash]($REPO_URL/commit/$hash): $msg\n"
+          done < <(git log $PREV_TAG..HEAD --pretty=format:'%h %s')
+          
+          echo "" > CHANGELOG.md
+          for type in feat fix refactor style perf chore; do
+            if [[ -n "${commits[$type]}" ]]; then
+              echo "${categories[$type]}" >> CHANGELOG.md
+              echo -e "${commits[$type]}" >> CHANGELOG.md
+            fi
+          done
+          
+          mkdir -p fastlane/metadata/android/en-US/changelogs
+          awk '/^### New Features/{flag=1; next}/^### Refactors/{flag=0}flag' CHANGELOG.md \
+            | sed -E 's/!\[[^]]*\]\([^)]*\)//g; s/\[[^]]*\]\([^)]*\)//g; s/^\*[[:space:]]+/-/; s/^\s+//; /^$/d' \
+            > fastlane/metadata/android/en-US/changelogs/default.txt || true
+
+      # Create/Update GitHub Release
+      - name: Update GitHub Release
+        uses: ncipollo/release-action@v1
         with:
           artifacts: "artifacts/**/*"
           tag: ${{ github.ref_name }}
-          body: ${{ steps.changelog.outputs.changelog }}
+          bodyFile: CHANGELOG.md
           prerelease: ${{ needs.prepare.outputs.is_beta == 'true' }}
           allowUpdates: true
+
+      # Commit Fastlane changelog (non-blocking)
+      - name: Commit Fastlane changelog
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add CHANGELOG.md fastlane/metadata/android/en-US/changelogs/default.txt
+          git commit -m "chore: update changelog for ${{ github.ref_name }}" || echo "No changes"
+          git push origin HEAD:main || echo "Push failed (non-critical)"
+        continue-on-error: true
 
   # 5. Alpha – Discord notification
   notify-alpha:
