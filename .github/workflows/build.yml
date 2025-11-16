@@ -32,7 +32,8 @@ env:
   FLUTTER_VERSION: 3.35.7
 
 jobs:
-  # Determine which platforms to build
+  
+  # 1. Determine release type & which platforms must be built
   prepare:
     runs-on: ubuntu-latest
     outputs:
@@ -63,38 +64,44 @@ jobs:
         id: set-platforms
         run: |
           PLATFORMS='[]'
-          
-          # Workflow dispatch with specific target
+
+          # ---- Manual dispatch ----
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             TARGET="${{ inputs.build_targets }}"
             if [[ "$TARGET" == "all" ]]; then
               PLATFORMS='["android","windows","linux","ios","macos"]'
-            else
+            elif [[ -n "$TARGET" ]]; then
               PLATFORMS="[\"$TARGET\"]"
             fi
-          # Tag push - build all platforms
-          elif [[ "${{ startsWith(github.ref, 'refs/tags/v') }}" == "true" ]]; then
+
+          # ---- Tag push ----
+          elif [[ "${{ github.ref }}" == refs/tags/v* ]]; then
             PLATFORMS='["android","windows","linux","ios","macos"]'
-          # Commit to main - check commit message
+
+          # ---- Push to main ----
           elif [[ "${{ github.event_name }}" == "push" ]] && [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
             MESSAGE="${{ github.event.head_commit.message }}"
             if [[ "$MESSAGE" == *"[build.all]"* ]]; then
               PLATFORMS='["android","windows","linux","ios","macos"]'
             else
-              PLATFORMS='['
-              [[ "$MESSAGE" == *"[build.android]"* ]] && PLATFORMS="${PLATFORMS}\"android\","
-              [[ "$MESSAGE" == *"[build.windows]"* ]] && PLATFORMS="${PLATFORMS}\"windows\","
-              [[ "$MESSAGE" == *"[build.linux]"* ]] && PLATFORMS="${PLATFORMS}\"linux\","
-              [[ "$MESSAGE" == *"[build.ios]"* ]] && PLATFORMS="${PLATFORMS}\"ios\","
-              [[ "$MESSAGE" == *"[build.macos]"* ]] && PLATFORMS="${PLATFORMS}\"macos\","
-              PLATFORMS="${PLATFORMS%,}]"
+              TMP='['
+              [[ "$MESSAGE" == *"[build.android]"* ]] && TMP="${TMP}\"android\","
+              [[ "$MESSAGE" == *"[build.windows]"* ]] && TMP="${TMP}\"windows\","
+              [[ "$MESSAGE" == *"[build.linux]"* ]] && TMP="${TMP}\"linux\","
+              [[ "$MESSAGE" == *"[build.ios]"* ]] && TMP="${TMP}\"ios\","
+              [[ "$MESSAGE" == *"[build.macos]"* ]] && TMP="${TMP}\"macos\","
+              PLATFORMS="${TMP%,}]"
             fi
           fi
-          
-          echo "platforms=$PLATFORMS" >> $GITHUB_OUTPUT
-          echo "Building platforms: $PLATFORMS"
 
-  # Build all selected platforms
+          # Ensure we always output valid JSON (empty array if nothing selected)
+          [[ "$PLATFORMS" == '[' ]] && PLATFORMS='[]'
+
+          echo "platforms=$PLATFORMS" >> $GITHUB_OUTPUT
+          echo "DEBUG: platforms JSON = $PLATFORMS"
+
+  
+  # 2. Build only the selected platforms
   build:
     needs: prepare
     if: needs.prepare.outputs.platforms != '[]'
@@ -102,19 +109,11 @@ jobs:
       fail-fast: false
       matrix:
         platform: ${{ fromJson(needs.prepare.outputs.platforms) }}
-        include:
-          - platform: android
-            os: ubuntu-latest
-          - platform: windows
-            os: windows-latest
-          - platform: linux
-            os: ubuntu-latest
-          - platform: ios
-            os: macos-latest
-          - platform: macos
-            os: macos-latest
-
-    runs-on: ${{ matrix.os }}
+    # OS is derived from the platform (no `include:`)
+    runs-on: >-
+      ${{ matrix.platform == 'windows' && 'windows-latest' ||
+          (matrix.platform == 'ios' || matrix.platform == 'macos') && 'macos-latest' ||
+          'ubuntu-latest' }}
     permissions:
       contents: write
       pull-requests: write
@@ -124,14 +123,14 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Setup Flutter
+        # Flutter 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           cache: true
 
-      # Cache dependencies
+        # Cache 
       - uses: actions/cache@v4
         with:
           path: |
@@ -146,7 +145,7 @@ jobs:
           key: v2-${{ runner.os }}-${{ matrix.platform }}-${{ hashFiles('**/pubspec.lock','**/pubspec.yaml','**/*.gradle*','**/gradle-wrapper.properties','**/Cargo.lock') }}
           restore-keys: v2-${{ runner.os }}-${{ matrix.platform }}-
 
-      # Android: Java + NDK
+        # Android 
       - name: Setup Java
         if: matrix.platform == 'android'
         uses: actions/setup-java@v4
@@ -160,20 +159,20 @@ jobs:
         with:
           ndk-version: r25c
 
-      # Linux: Install system packages
+        # Linux 
       - name: Setup Linux deps
         if: matrix.platform == 'linux'
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq ninja-build cmake libgtk-3-dev webkit2gtk-4.1 libmpv-dev pkg-config fuse
 
-      # Windows: Enable MSVC + signtool
+        # Windows 
       - name: Setup Windows dev env
         if: matrix.platform == 'windows'
         uses: ilammy/msvc-dev-cmd@v1
 
-      # Load secrets and write config files
-      - name: Setup secrets (Non-Windows)
+        # Secrets (non‑Windows)
+      - name: Setup secrets (Non‑Windows)
         if: matrix.platform != 'windows'
         env:
           FLUTTER_VERSION_SECRET: ${{ secrets.FLUTTER_VERSION }}
@@ -186,7 +185,6 @@ jobs:
           echo "SIMKL_SECRET=$SIMKL_SECRET" > .env
           echo "hash=$(git rev-parse --short HEAD)" >> .env
 
-          # Android keystore
           if [[ "${{ matrix.platform }}" == "android" ]]; then
             mkdir -p android/app
             echo "$APK_SIGN" | base64 --decode > android/app/dartotsu.jks
@@ -198,6 +196,7 @@ jobs:
           EOF
           fi
 
+        # Secrets (Windows)
       - name: Setup secrets (Windows)
         if: matrix.platform == 'windows'
         shell: pwsh
@@ -216,7 +215,7 @@ jobs:
           mkdir -p $env:USERPROFILE\certs
           [System.IO.File]::WriteAllBytes("$env:USERPROFILE\certs\Dartotsu.pfx", [Convert]::FromBase64String($env:PFX_FILE))
 
-      # Build platform-specific artifacts
+        # Build 
       - name: Build
         shell: bash
         run: |
@@ -230,19 +229,19 @@ jobs:
               cd build/app/outputs/flutter-apk
               for f in app-*-release.apk; do
                 abi=$(echo $f | sed 's/app-\(.*\)-release.apk/\1/')
-                mv $f Dartotsu_Android_${abi}_${{github.ref_name}}.apk
+                mv $f Dartotsu_Android_${abi}_${{ github.ref_name }}.apk
               done
-              mv app-release.apk Dartotsu_Android_Universal_${{github.ref_name}}.apk
+              mv app-release.apk Dartotsu_Android_Universal_${{ github.ref_name }}.apk
               ;;
             windows)
               version=$(grep 'version:' pubspec.yaml | sed 's/version: \([0-9.]*\).*/\1/')
               echo "version=$version" >> $GITHUB_ENV
-              dart run inno_bundle:build --sign-tool-params "signtool sign /fd sha256 /f \"C:\Users\runneradmin\certs\Dartotsu.pfx\" /p \"${{secrets.PFX_PASSWORD}}\" /tr http://timestamp.digicert.com /td sha256 /v \$f" --release
+              dart run inno_bundle:build --sign-tool-params "signtool sign /fd sha256 /f \"C:\Users\runneradmin\certs\Dartotsu.pfx\" /p \"${{ secrets.PFX_PASSWORD }}\" /tr http://timestamp.digicert.com /td sha256 /v \$f" --release
               ;;
             linux)
               flutter build linux --release
               cd build/linux/x64/release/bundle
-              zip -r Dartotsu_Linux_${{github.ref_name}}.zip .
+              zip -r Dartotsu_Linux_${{ github.ref_name }}.zip .
               ;;
             ios)
               flutter build ios --release --no-codesign
@@ -253,11 +252,11 @@ jobs:
             macos)
               flutter build macos --release
               mkdir -p build/macos/Release
-              hdiutil create -volname "Dartotsu" -srcfolder build/macos/Build/Products/Release/Dartotsu.app -ov -format UDZO build/macos/Release/Dartotsu-macos-${{github.ref_name}}.dmg
+              hdiutil create -volname "Dartotsu" -srcfolder build/macos/Build/Products/Release/Dartotsu.app -ov -format UDZO build/macos/Release/Dartotsu-macos-${{ github.ref_name }}.dmg
               ;;
           esac
 
-      # Upload built files as artifacts
+        # Upload artifacts
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.platform }}-artifacts
@@ -267,8 +266,8 @@ jobs:
             ${{ matrix.platform == 'linux' && 'build/linux/x64/release/bundle/Dartotsu_Linux_*.zip' || '' }}
             ${{ matrix.platform == 'ios' && 'build/ios/iphoneos/Dartotsu-iOS-*.ipa' || '' }}
             ${{ matrix.platform == 'macos' && 'build/macos/Release/Dartotsu-macos-*.dmg' || '' }}
-
-  # Alpha: Upload APK to Google Drive
+  
+  # 3. Alpha – upload APKs to Google Drive
   drive-alpha:
     needs: [prepare, build]
     if: needs.prepare.outputs.is_alpha == 'true' && !contains(needs.*.result, 'failure')
@@ -283,8 +282,8 @@ jobs:
           folderId: ${{ secrets.GOOGLE_FOLDER_ANDROID }}
           filename: "artifacts/android-artifacts/**/*.apk"
           overwrite: true
-
-  # Beta/Stable: Create GitHub Release
+ 
+  # 4. Beta / Stable – create GitHub release
   release:
     needs: [prepare, build]
     if: needs.prepare.outputs.is_alpha == 'false' && !contains(needs.*.result, 'failure')
@@ -319,8 +318,8 @@ jobs:
           body: ${{ steps.changelog.outputs.changelog }}
           prerelease: ${{ needs.prepare.outputs.is_beta == 'true' }}
           allowUpdates: true
-
-  # Alpha: Notify Discord
+  
+  # 5. Alpha – Discord notification
   notify-alpha:
     needs: [prepare, build, drive-alpha]
     if: needs.prepare.outputs.is_alpha == 'true' && !contains(needs.*.result, 'failure')
@@ -353,8 +352,8 @@ jobs:
         with:
           name: last-sha
           path: .git/HEAD
-
-  # Beta/Stable: Notify Discord
+  
+  # 6. Beta / Stable – Discord notification
   notify-release:
     needs: [prepare, build, release]
     if: needs.prepare.outputs.is_alpha == 'false' && !contains(needs.*.result, 'failure')
@@ -373,8 +372,8 @@ jobs:
           embed-description: |
             [View Release](${{ steps.rel.outputs.url }})
           embed-color: 1820869
-
-  # Trigger external downloader (alpha only)
+  
+  # 7. Trigger external downloader (alpha only)
   trigger-downloader:
     needs: [prepare, build, notify-alpha]
     if: needs.prepare.outputs.is_alpha == 'true' && !contains(needs.*.result, 'failure')
