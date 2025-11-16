@@ -29,7 +29,6 @@ on:
 env:
   FLUTTER_VERSION: 3.35.7
 jobs:
-
   # 1. Determine release type & which platforms must be built
   prepare:
     runs-on: ubuntu-latest
@@ -168,7 +167,7 @@ jobs:
           storeFile=dartotsu.jks
           EOF
           fi
-      - name: Setup secrets (Windowsachs
+      - name: Setup secrets (Windows)
         if: matrix.platform == 'windows'
         shell: pwsh
         env:
@@ -241,11 +240,49 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           path: artifacts
-      - uses: adityaa1999/google-drive-upload-git-action@v3
+      # Android → Sub-folder
+      - name: Upload Android APKs to sub-folder
+        uses: hoatruongdev09/google-drive-file-upload-github-action@v1.1
         with:
-          credentials: ${{ secrets.GOOGLE_SERVICE_ACCOUNT }}
-          folderId: ${{ secrets.GOOGLE_FOLDER_ANDROID }}
-          filename: "artifacts/**/*"  # Uploads ALL artifacts
+          file-path: artifacts/android-artifacts/Dartotsu_Android_*.apk
+          upload-to-folder-id: ${{ secrets.GOOGLE_FOLDER_ANDROID }}
+          service-account-json: "${{ secrets.GOOGLE_KEY }}"
+          overwrite: true
+      # Windows → Main folder
+      - name: Upload Windows installer to main folder
+        if: contains(needs.prepare.outputs.platforms, 'windows')
+        uses: hoatruongdev09/google-drive-file-upload-github-action@v1.1
+        with:
+          file-path: artifacts/windows-artifacts/Dartotsu-x86_64-*-Installer.exe
+          upload-to-folder-id: ${{ secrets.GOOGLE_FOLDER_MAIN }}
+          service-account-json: "${{ secrets.GOOGLE_KEY }}"
+          overwrite: true
+      # Linux → Main folder
+      - name: Upload Linux zip to main folder
+        if: contains(needs.prepare.outputs.platforms, 'linux')
+        uses: hoatruongdev09/google-drive-file-upload-github-action@v1.1
+        with:
+          file-path: artifacts/linux-artifacts/Dartotsu_Linux_*.zip
+          upload-to-folder-id: ${{ secrets.GOOGLE_FOLDER_MAIN }}
+          service-account-json: "${{ secrets.GOOGLE_KEY }}"
+          overwrite: true
+      # iOS → Main folder
+      - name: Upload iOS IPA to main folder
+        if: contains(needs.prepare.outputs.platforms, 'ios')
+        uses: hoatruongdev09/google-drive-file-upload-github-action@v1.1
+        with:
+          file-path: artifacts/ios-artifacts/Dartotsu-iOS-*.ipa
+          upload-to-folder-id: ${{ secrets.GOOGLE_FOLDER_MAIN }}
+          service-account-json: "${{ secrets.GOOGLE_KEY }}"
+          overwrite: true
+      # macOS → Main folder
+      - name: Upload macOS DMG to main folder
+        if: contains(needs.prepare.outputs.platforms, 'macos')
+        uses: hoatruongdev09/google-drive-file-upload-github-action@v1.1
+        with:
+          file-path: artifacts/macos-artifacts/Dartotsu-macos-*.dmg
+          upload-to-folder-id: ${{ secrets.GOOGLE_FOLDER_MAIN }}
+          service-account-json: "${{ secrets.GOOGLE_KEY }}"
           overwrite: true
 
   # 4. Beta / Stable – Create GitHub Release
