@@ -32,49 +32,20 @@ env:
   FLUTTER_VERSION: 3.35.7
 
 jobs:
-  # Build all selected platforms
-  build:
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - platform: android
-            os: ubuntu-latest
-          - platform: windows
-            os: windows-latest
-          - platform: linux
-            os: ubuntu-latest
-          - platform: ios
-            os: macos-latest
-          - platform: macos
-            os: macos-latest
-
-    # Run only if platform is selected via tag, commit message, or manual dispatch
-    if: >-
-      ${{ github.event_name == 'workflow_dispatch' && (
-          inputs.build_targets == 'all' || contains(inputs.build_targets, matrix.platform)
-      ) }} ||
-      ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && (
-          contains(github.event.head_commit.message, '[build.all]') ||
-          contains(github.event.head_commit.message, format('[build.{0}]', matrix.platform))
-      ) }} ||
-      ${{ startsWith(github.ref, 'refs/tags/v') }}
-
-    runs-on: ${{ matrix.os }}
-    permissions:
-      contents: write
-      pull-requests: write
+  # Determine which platforms to build
+  prepare:
+    runs-on: ubuntu-latest
     outputs:
+      platforms: ${{ steps.set-platforms.outputs.platforms }}
       is_alpha: ${{ steps.config.outputs.is_alpha }}
       is_beta: ${{ steps.config.outputs.is_beta }}
-
+      release_type: ${{ steps.config.outputs.release_type }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # Determine if this is alpha, beta, or stable
-      - name: Set release type
+      - name: Determine release type
         id: config
         run: |
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
@@ -87,6 +58,71 @@ jobs:
           echo "release_type=$TYPE" >> $GITHUB_OUTPUT
           echo "is_alpha=$([[ $TYPE == 'alpha' ]] && echo true || echo false)" >> $GITHUB_OUTPUT
           echo "is_beta=$([[ $TYPE == 'beta' ]] && echo true || echo false)" >> $GITHUB_OUTPUT
+
+      - name: Set platforms to build
+        id: set-platforms
+        run: |
+          PLATFORMS='[]'
+          
+          # Workflow dispatch with specific target
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            TARGET="${{ inputs.build_targets }}"
+            if [[ "$TARGET" == "all" ]]; then
+              PLATFORMS='["android","windows","linux","ios","macos"]'
+            else
+              PLATFORMS="[\"$TARGET\"]"
+            fi
+          # Tag push - build all platforms
+          elif [[ "${{ startsWith(github.ref, 'refs/tags/v') }}" == "true" ]]; then
+            PLATFORMS='["android","windows","linux","ios","macos"]'
+          # Commit to main - check commit message
+          elif [[ "${{ github.event_name }}" == "push" ]] && [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            MESSAGE="${{ github.event.head_commit.message }}"
+            if [[ "$MESSAGE" == *"[build.all]"* ]]; then
+              PLATFORMS='["android","windows","linux","ios","macos"]'
+            else
+              PLATFORMS='['
+              [[ "$MESSAGE" == *"[build.android]"* ]] && PLATFORMS="${PLATFORMS}\"android\","
+              [[ "$MESSAGE" == *"[build.windows]"* ]] && PLATFORMS="${PLATFORMS}\"windows\","
+              [[ "$MESSAGE" == *"[build.linux]"* ]] && PLATFORMS="${PLATFORMS}\"linux\","
+              [[ "$MESSAGE" == *"[build.ios]"* ]] && PLATFORMS="${PLATFORMS}\"ios\","
+              [[ "$MESSAGE" == *"[build.macos]"* ]] && PLATFORMS="${PLATFORMS}\"macos\","
+              PLATFORMS="${PLATFORMS%,}]"
+            fi
+          fi
+          
+          echo "platforms=$PLATFORMS" >> $GITHUB_OUTPUT
+          echo "Building platforms: $PLATFORMS"
+
+  # Build all selected platforms
+  build:
+    needs: prepare
+    if: needs.prepare.outputs.platforms != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: ${{ fromJson(needs.prepare.outputs.platforms) }}
+        include:
+          - platform: android
+            os: ubuntu-latest
+          - platform: windows
+            os: windows-latest
+          - platform: linux
+            os: ubuntu-latest
+          - platform: ios
+            os: macos-latest
+          - platform: macos
+            os: macos-latest
+
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       # Setup Flutter
       - name: Setup Flutter
@@ -137,40 +173,59 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
 
       # Load secrets and write config files
-      - name: Setup secrets
+      - name: Setup secrets (Non-Windows)
+        if: matrix.platform != 'windows'
         env:
           FLUTTER_VERSION_SECRET: ${{ secrets.FLUTTER_VERSION }}
           SIMKL_SECRET: ${{ secrets.SIMKL_SECRET }}
           APK_SIGN: ${{ secrets.APK_SIGN }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          PFX_FILE: ${{ secrets.PFX_FILE }}
-          PFX_PASSWORD: ${{ secrets.PFX_PASSWORD }}
+        shell: bash
         run: |
           echo "FLUTTER_VERSION=${FLUTTER_VERSION_SECRET:-$FLUTTER_VERSION}" >> $GITHUB_ENV
           echo "SIMKL_SECRET=$SIMKL_SECRET" > .env
           echo "hash=$(git rev-parse --short HEAD)" >> .env
 
           # Android keystore
-          mkdir -p android/app
-          echo "$APK_SIGN" | base64 --decode > android/app/dartotsu.jks
-          cat > android/key.properties <<EOF
+          if [[ "${{ matrix.platform }}" == "android" ]]; then
+            mkdir -p android/app
+            echo "$APK_SIGN" | base64 --decode > android/app/dartotsu.jks
+            cat > android/key.properties <<EOF
           storePassword=$KEYSTORE_PASSWORD
           keyPassword=$KEYSTORE_PASSWORD
           keyAlias=$KEY_ALIAS
           storeFile=dartotsu.jks
           EOF
+          fi
 
-          # Windows PFX
-          mkdir -p $env:USERPROFILE\certs
-          [System.IO.File]::WriteAllBytes("$env:USERPROFILE\certs\Dartotsu.pfx", [Convert]::FromBase64String("$PFX_FILE"))
+      - name: Setup secrets (Windows)
+        if: matrix.platform == 'windows'
+        env:
+          FLUTTER_VERSION_SECRET: ${{ secrets.FLUTTER_VERSION }}
+          SIMKL_SECRET: ${{ secrets.SIMKL_SECRET }}
+          PFX_FILE: ${{ secrets.PFX_FILE }}
+        shell: pwsh
+        run: |
+          echo "FLUTTER_VERSION=$env:FLUTTER_VERSION_SECRET" >> $env:GITHUB_ENV
+          echo "SIMKL_SECRET=$env:SIMKL_SECRET" > .env
+          $hash = git rev-parse --short HEAD
+          echo "hash=$hash" >> .env
+          
+          New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\certs"
+          $bytes = [Convert]::FromBase64String($env:PFX_FILE)
+          [System.IO.File]::WriteAllBytes("$env:USERPROFILE\certs\Dartotsu.pfx", $bytes)
+
+      # Clean build if requested
+      - name: Clean build
+        if: github.event.inputs.clean_build == 'true'
+        run: flutter clean
 
       # Build platform-specific artifacts
       - name: Build
         shell: bash
         run: |
           flutter pub get
-          ${{ inputs.clean_build && 'flutter clean && ' || '' }}flutter pub get
 
           case "${{ matrix.platform }}" in
             android)
@@ -219,8 +274,8 @@ jobs:
 
   # Alpha: Upload APK to Google Drive
   drive-alpha:
-    needs: build
-    if: needs.build.outputs.is_alpha == 'true' && !contains(needs.*.result, 'failure')
+    needs: [prepare, build]
+    if: needs.prepare.outputs.is_alpha == 'true' && !contains(needs.*.result, 'failure')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
@@ -235,8 +290,8 @@ jobs:
 
   # Beta/Stable: Create GitHub Release
   release:
-    needs: build
-    if: needs.build.outputs.is_alpha == 'false' && !contains(needs.*.result, 'failure')
+    needs: [prepare, build]
+    if: needs.prepare.outputs.is_alpha == 'false' && !contains(needs.*.result, 'failure')
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -266,13 +321,13 @@ jobs:
           artifacts: "artifacts/**/*"
           tag: ${{ github.ref_name }}
           body: ${{ steps.changelog.outputs.changelog }}
-          prerelease: ${{ needs.build.outputs.is_beta == 'true' }}
+          prerelease: ${{ needs.prepare.outputs.is_beta == 'true' }}
           allowUpdates: true
 
   # Alpha: Notify Discord
   notify-alpha:
-    needs: [build, drive-alpha]
-    if: needs.build.outputs.is_alpha == 'true' && !contains(needs.*.result, 'failure')
+    needs: [prepare, build, drive-alpha]
+    if: needs.prepare.outputs.is_alpha == 'true' && !contains(needs.*.result, 'failure')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -305,8 +360,8 @@ jobs:
 
   # Beta/Stable: Notify Discord
   notify-release:
-    needs: [build, release]
-    if: needs.build.outputs.is_alpha == 'false' && !contains(needs.*.result, 'failure')
+    needs: [prepare, build, release]
+    if: needs.prepare.outputs.is_alpha == 'false' && !contains(needs.*.result, 'failure')
     runs-on: ubuntu-latest
     steps:
       - name: Get release URL
@@ -316,17 +371,17 @@ jobs:
           echo "url=$URL" >> $GITHUB_OUTPUT
       - uses: tsickert/discord-webhook@v5
         with:
-          webhook-url: ${{ needs.build.outputs.is_beta == 'true' && secrets.DISCORD_WEBHOOK_BETA_URL || secrets.DISCORD_WEBHOOK_RELEASE_URL }}
-          content: ${{ needs.build.outputs.is_beta == 'true' && secrets.DISCORD_BETA_ROLE_PING || secrets.DISCORD_STABLE_ROLE_PING }}
-          embed-title: "New ${{ needs.build.outputs.is_beta == 'true' && 'Beta' || 'Stable' }} Release"
+          webhook-url: ${{ needs.prepare.outputs.is_beta == 'true' && secrets.DISCORD_WEBHOOK_BETA_URL || secrets.DISCORD_WEBHOOK_RELEASE_URL }}
+          content: ${{ needs.prepare.outputs.is_beta == 'true' && secrets.DISCORD_BETA_ROLE_PING || secrets.DISCORD_STABLE_ROLE_PING }}
+          embed-title: "New ${{ needs.prepare.outputs.is_beta == 'true' && 'Beta' || 'Stable' }} Release"
           embed-description: |
             [View Release](${{ steps.rel.outputs.url }})
           embed-color: 1820869
 
   # Trigger external downloader (alpha only)
   trigger-downloader:
-    needs: [build, notify-alpha]
-    if: needs.build.outputs.is_alpha == 'true' && !contains(needs.*.result, 'failure')
+    needs: [prepare, build, notify-alpha]
+    if: needs.prepare.outputs.is_alpha == 'true' && !contains(needs.*.result, 'failure')
     runs-on: ubuntu-latest
     steps:
       - name: Trigger downloader
