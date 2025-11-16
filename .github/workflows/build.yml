@@ -173,15 +173,14 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
 
       # Load secrets and write config files
-      - name: Setup secrets
+      - name: Setup secrets (Non-Windows)
+        if: matrix.platform != 'windows'
         env:
           FLUTTER_VERSION_SECRET: ${{ secrets.FLUTTER_VERSION }}
           SIMKL_SECRET: ${{ secrets.SIMKL_SECRET }}
           APK_SIGN: ${{ secrets.APK_SIGN }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          PFX_FILE: ${{ secrets.PFX_FILE }}
-          PFX_PASSWORD: ${{ secrets.PFX_PASSWORD }}
         run: |
           echo "FLUTTER_VERSION=${FLUTTER_VERSION_SECRET:-$FLUTTER_VERSION}" >> $GITHUB_ENV
           echo "SIMKL_SECRET=$SIMKL_SECRET" > .env
@@ -199,11 +198,23 @@ jobs:
           EOF
           fi
 
-          # Windows PFX
-          if [[ "${{ matrix.platform }}" == "windows" ]]; then
-            mkdir -p $env:USERPROFILE\certs
-            [System.IO.File]::WriteAllBytes("$env:USERPROFILE\certs\Dartotsu.pfx", [Convert]::FromBase64String("$PFX_FILE"))
-          fi
+      - name: Setup secrets (Windows)
+        if: matrix.platform == 'windows'
+        shell: pwsh
+        env:
+          FLUTTER_VERSION_SECRET: ${{ secrets.FLUTTER_VERSION }}
+          SIMKL_SECRET: ${{ secrets.SIMKL_SECRET }}
+          PFX_FILE: ${{ secrets.PFX_FILE }}
+          PFX_PASSWORD: ${{ secrets.PFX_PASSWORD }}
+        run: |
+          $flutterVersion = if ($env:FLUTTER_VERSION_SECRET) { $env:FLUTTER_VERSION_SECRET } else { "${{ env.FLUTTER_VERSION }}" }
+          echo "FLUTTER_VERSION=$flutterVersion" >> $env:GITHUB_ENV
+          echo "SIMKL_SECRET=$env:SIMKL_SECRET" > .env
+          $hash = git rev-parse --short HEAD
+          echo "hash=$hash" >> .env
+          
+          mkdir -p $env:USERPROFILE\certs
+          [System.IO.File]::WriteAllBytes("$env:USERPROFILE\certs\Dartotsu.pfx", [Convert]::FromBase64String($env:PFX_FILE))
 
       # Build platform-specific artifacts
       - name: Build
