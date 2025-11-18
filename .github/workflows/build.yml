@@ -2,6 +2,7 @@ name: Dartotsu Unified Build & Release
 concurrency:
   group: release-${{ github.ref }}
   cancel-in-progress: true
+
 on:
   push:
     branches: [main]
@@ -26,10 +27,14 @@ on:
         type: choice
         options: ["alpha", "beta", "stable"]
         default: "alpha"
+
 env:
   FLUTTER_VERSION: 3.35.7
+
 jobs:
-  # 1. Determine release type & which platforms must be built
+  # ================================
+  # 1. PREPARE - Determine build targets and release type
+  # ================================
   prepare:
     runs-on: ubuntu-latest
     outputs:
@@ -41,6 +46,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - name: Determine release type
         id: config
         run: |
@@ -54,11 +60,11 @@ jobs:
           echo "release_type=$TYPE" >> $GITHUB_OUTPUT
           echo "is_alpha=$([[ $TYPE == 'alpha' ]] && echo true || echo false)" >> $GITHUB_OUTPUT
           echo "is_beta=$([[ $TYPE == 'beta' ]] && echo true || echo false)" >> $GITHUB_OUTPUT
+
       - name: Set platforms to build
         id: set-platforms
         run: |
           PLATFORMS='[]'
-          # ---- Manual dispatch ----
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             TARGET="${{ inputs.build_targets }}"
             if [[ "$TARGET" == "all" ]]; then
@@ -66,13 +72,11 @@ jobs:
             elif [[ -n "$TARGET" ]]; then
               PLATFORMS="[\"$TARGET\"]"
             fi
-          # ---- Tag push ----
           elif [[ "${{ github.ref }}" == refs/tags/v* ]]; then
             PLATFORMS='["android","windows","linux","ios","macos"]'
-          # ---- Push to main ----
           elif [[ "${{ github.event_name }}" == "push" ]] && [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
             MESSAGE="${{ github.event.head_commit.message }}"
-            if [[ "$MESSAGE" == *"[build.all]"* ]]; then
+            if [[ "$MESSAGE" == *"[build.all]"* || "$MESSAGE" == *"[build]"* ]]; then
               PLATFORMS='["android","windows","linux","ios","macos"]'
             else
               TMP='['
@@ -84,11 +88,13 @@ jobs:
               PLATFORMS="${TMP%,}]"
             fi
           fi
-          # Ensure we always output valid JSON (empty array if nothing selected)
           [[ "$PLATFORMS" == '[' ]] && PLATFORMS='[]'
           echo "platforms=$PLATFORMS" >> $GITHUB_OUTPUT
-          echo "DEBUG: platforms JSON = $PLATFORMS"
-  # 2. Build only the selected platforms
+          echo "DEBUG: platforms = $PLATFORMS"
+
+  # ================================
+  # 2. BUILD - Matrix build for all platforms
+  # ================================
   build:
     needs: prepare
     if: needs.prepare.outputs.platforms != '[]'
@@ -102,16 +108,23 @@ jobs:
           'ubuntu-latest' }}
     permissions:
       contents: write
-      pull-requests: write
+    outputs:
+      android_link: ${{ steps.android_upload.outputs.link }}
+      windows_link: ${{ steps.windows_upload.outputs.link }}
+      linux_link: ${{ steps.linux_upload.outputs.link }}
+      ios_link: ${{ steps.ios_upload.outputs.link }}
+      macos_link: ${{ steps.macos_upload.outputs.link }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           cache: true
+
       - uses: actions/cache@v4
         with:
           path: |
@@ -125,25 +138,38 @@ jobs:
             target/
           key: v2-${{ runner.os }}-${{ matrix.platform }}-${{ hashFiles('**/pubspec.lock','**/pubspec.yaml','**/*.gradle*','**/gradle-wrapper.properties','**/Cargo.lock') }}
           restore-keys: v2-${{ runner.os }}-${{ matrix.platform }}-
-      - name: Setup Java
+
+      - name: Setup Java (Android)
         if: matrix.platform == 'android'
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
-      - name: Setup NDK
+
+      - name: Setup NDK (Android)
         if: matrix.platform == 'android'
         uses: nttld/setup-ndk@v1
         with:
           ndk-version: r25c
+
+      - name: Setup cmake & ninja (Android)
+        if: matrix.platform == 'android'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ninja-build cmake
+          mkdir -p /usr/local/lib/android/sdk/cmake/3.18.1/bin
+          sudo ln -s /usr/bin/ninja /usr/local/lib/android/sdk/cmake/3.18.1/bin/ninja
+
       - name: Setup Linux deps
         if: matrix.platform == 'linux'
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq ninja-build cmake libgtk-3-dev webkit2gtk-4.1 libmpv-dev pkg-config fuse
+
       - name: Setup Windows dev env
         if: matrix.platform == 'windows'
         uses: ilammy/msvc-dev-cmd@v1
+
       - name: Setup secrets (Non-Windows)
         if: matrix.platform != 'windows'
         env:
@@ -166,6 +192,7 @@ jobs:
           storeFile=dartotsu.jks
           EOF
           fi
+
       - name: Setup secrets (Windows)
         if: matrix.platform == 'windows'
         shell: pwsh
@@ -182,11 +209,21 @@ jobs:
           echo "hash=$hash" >> .env
           mkdir -p $env:USERPROFILE\certs
           [System.IO.File]::WriteAllBytes("$env:USERPROFILE\certs\Dartotsu.pfx", [Convert]::FromBase64String($env:PFX_FILE))
+
+      - name: Configure Gradle (Android)
+        if: matrix.platform == 'android'
+        run: |
+          mkdir -p ~/.gradle
+          echo "org.gradle.daemon=true" >> ~/.gradle/gradle.properties
+          echo "org.gradle.parallel=true" >> ~/.gradle/gradle.properties
+          echo "org.gradle.caching=true" >> ~/.gradle/gradle.properties
+
       - name: Build
         shell: bash
         run: |
           flutter pub get
           ${{ inputs.clean_build && 'flutter clean && ' || '' }}flutter pub get
+          
           case "${{ matrix.platform }}" in
             android)
               flutter build apk --release --split-per-abi
@@ -220,6 +257,7 @@ jobs:
               hdiutil create -volname "Dartotsu" -srcfolder build/macos/Build/Products/Release/Dartotsu.app -ov -format UDZO build/macos/Release/Dartotsu-macos-${{ github.ref_name }}.dmg
               ;;
           esac
+
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.platform }}-artifacts
@@ -230,7 +268,35 @@ jobs:
             ${{ matrix.platform == 'ios' && 'build/ios/iphoneos/Dartotsu-iOS-*.ipa' || '' }}
             ${{ matrix.platform == 'macos' && 'build/macos/Release/Dartotsu-macos-*.dmg' || '' }}
 
-  # 3. Alpha – Upload ALL artifacts to Google Drive (FIXED)
+      # Store download links for later
+      - name: Set output link (Android)
+        if: matrix.platform == 'android'
+        id: android_upload
+        run: echo "link=https://drive.google.com/drive/folders/${{ secrets.GOOGLE_FOLDER_ANDROID }}" >> $GITHUB_OUTPUT
+
+      - name: Set output link (Windows)
+        if: matrix.platform == 'windows'
+        id: windows_upload
+        run: echo "link=https://drive.google.com/drive/folders/${{ secrets.GOOGLE_FOLDER_MAIN }}" >> $GITHUB_OUTPUT
+
+      - name: Set output link (Linux)
+        if: matrix.platform == 'linux'
+        id: linux_upload
+        run: echo "link=https://drive.google.com/drive/folders/${{ secrets.GOOGLE_FOLDER_MAIN }}" >> $GITHUB_OUTPUT
+
+      - name: Set output link (iOS)
+        if: matrix.platform == 'ios'
+        id: ios_upload
+        run: echo "link=https://drive.google.com/drive/folders/${{ secrets.GOOGLE_FOLDER_MAIN }}" >> $GITHUB_OUTPUT
+
+      - name: Set output link (macOS)
+        if: matrix.platform == 'macos'
+        id: macos_upload
+        run: echo "link=https://drive.google.com/drive/folders/${{ secrets.GOOGLE_FOLDER_MAIN }}" >> $GITHUB_OUTPUT
+
+  # ================================
+  # 3. ALPHA - Upload to Google Drive
+  # ================================
   drive-alpha:
     needs: [prepare, build]
     if: needs.prepare.outputs.is_alpha == 'true' && !contains(needs.*.result, 'failure')
@@ -240,8 +306,8 @@ jobs:
         with:
           path: artifacts
 
-      # Android → Sub-folder (all split + universal APKs)
       - name: Upload Android APKs to sub-folder
+        if: contains(needs.prepare.outputs.platforms, 'android')
         uses: hoatruongdev09/google-drive-file-upload-github-action@v1.1
         with:
           file-path: artifacts/android-artifacts/Dartotsu_Android_*.apk
@@ -249,7 +315,6 @@ jobs:
           service-account-json: "${{ secrets.GOOGLE_KEY }}"
           overwrite: true
 
-      # Windows → Main folder
       - name: Upload Windows installer to main folder
         if: contains(needs.prepare.outputs.platforms, 'windows')
         uses: hoatruongdev09/google-drive-file-upload-github-action@v1.1
@@ -260,7 +325,6 @@ jobs:
           service-account-json: "${{ secrets.GOOGLE_KEY }}"
           overwrite: true
 
-      # Linux → Main folder
       - name: Upload Linux zip to main folder
         if: contains(needs.prepare.outputs.platforms, 'linux')
         uses: hoatruongdev09/google-drive-file-upload-github-action@v1.1
@@ -271,7 +335,6 @@ jobs:
           service-account-json: "${{ secrets.GOOGLE_KEY }}"
           overwrite: true
 
-      # iOS → Main folder
       - name: Upload iOS IPA to main folder
         if: contains(needs.prepare.outputs.platforms, 'ios')
         uses: hoatruongdev09/google-drive-file-upload-github-action@v1.1
@@ -282,7 +345,6 @@ jobs:
           service-account-json: "${{ secrets.GOOGLE_KEY }}"
           overwrite: true
 
-      # macOS → Main folder
       - name: Upload macOS DMG to main folder
         if: contains(needs.prepare.outputs.platforms, 'macos')
         uses: hoatruongdev09/google-drive-file-upload-github-action@v1.1
@@ -293,7 +355,9 @@ jobs:
           service-account-json: "${{ secrets.GOOGLE_KEY }}"
           overwrite: true
 
-  # 4. Beta / Stable – Create GitHub Release + IzzyOnDroid Changelog
+  # ================================
+  # 4. BETA/STABLE - GitHub Release with Changelog
+  # ================================
   release:
     needs: [prepare, build]
     if: needs.prepare.outputs.is_alpha == 'false' && !contains(needs.*.result, 'failure')
@@ -301,10 +365,15 @@ jobs:
     permissions:
       contents: write
     steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - uses: actions/download-artifact@v4
         with:
           path: artifacts
-      # Full GitHub changelog (mikepenz)
+
+      # Generate full changelog with mikepenz
       - name: Generate full changelog
         uses: mikepenz/release-changelog-builder-action@v4
         id: changelog
@@ -314,27 +383,28 @@ jobs:
           configurationJson: |
             {
               "categories": [
-                {"title": "### New Features", "labels": ["feat"]},
-                {"title": "### Bug Fixes & Improvements", "labels": ["fix"]},
-                {"title": "### Refactors", "labels": ["refactor"]},
-                {"title": "### Style Changes", "labels": ["style"]},
-                {"title": "### Performance Improvements", "labels": ["perf"]},
-                {"title": "### Chores & Documentation", "labels": ["chore"]}
+                {"title": "### 🎉 New Features", "labels": ["feat"]},
+                {"title": "### 🛠️ Bug Fixes & Improvements", "labels": ["fix"]},
+                {"title": "### 🔧 Refactors", "labels": ["refactor"]},
+                {"title": "### 🎨 Style Changes", "labels": ["style"]},
+                {"title": "### 🚀 Performance Improvements", "labels": ["perf"]},
+                {"title": "### 🧹 Chores & Documentation", "labels": ["chore"]}
               ]
             }
-      # Generate clean Fastlane changelog for IzzyOnDroid
+
+      # Generate Fastlane changelog for IzzyOnDroid
       - name: Generate Fastlane changelog
         run: |
           PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || git rev-list --max-parents=0 HEAD)
           REPO_URL="https://github.com/${{ github.repository }}"
          
           declare -A categories=(
-            ["feat"]="### New Features"
-            ["fix"]="### Bug Fixes & Improvements"
-            ["refactor"]="### Refactors"
-            ["style"]="### Style Changes"
-            ["perf"]="### Performance Improvements"
-            ["chore"]="### Chores & Documentation"
+            ["feat"]="### 🎉 New Features"
+            ["fix"]="### 🛠️ Bug Fixes & Improvements"
+            ["refactor"]="### 🔧 Refactors"
+            ["style"]="### 🎨 Style Changes"
+            ["perf"]="### 🚀 Performance Improvements"
+            ["chore"]="### 🧹 Chores & Documentation"
           )
          
           declare -A commits
@@ -356,9 +426,10 @@ jobs:
           done
          
           mkdir -p fastlane/metadata/android/en-US/changelogs
-          awk '/^### New Features/{flag=1; next}/^### Refactors/{flag=0}flag' CHANGELOG.md \
+          awk '/^### 🎉 New Features/{flag=1; next}/^### 🔧 Refactors/{flag=0}flag' CHANGELOG.md \
             | sed -E 's/!\[[^]]*\]\([^)]*\)//g; s/\[[^]]*\]\([^)]*\)//g; s/^\*[[:space:]]+/-/; s/^\s+//; /^$/d' \
             > fastlane/metadata/android/en-US/changelogs/default.txt || true
+
       # Create/Update GitHub Release
       - name: Update GitHub Release
         uses: ncipollo/release-action@v1
@@ -368,6 +439,7 @@ jobs:
           bodyFile: CHANGELOG.md
           prerelease: ${{ needs.prepare.outputs.is_beta == 'true' }}
           allowUpdates: true
+
       # Commit Fastlane changelog (non-blocking)
       - name: Commit Fastlane changelog
         run: |
@@ -378,61 +450,426 @@ jobs:
           git push origin HEAD:main || echo "Push failed (non-critical)"
         continue-on-error: true
 
-  # 5. Alpha – Discord notification
+  # ================================
+  # 5. ALPHA - Discord Notification (FULL ORIGINAL)
+  # ================================
   notify-alpha:
     needs: [prepare, build, drive-alpha]
     if: needs.prepare.outputs.is_alpha == 'true' && !contains(needs.*.result, 'failure')
     runs-on: ubuntu-latest
+    outputs:
+      commit_logs: ${{ steps.set_output.outputs.commit_logs }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Get recent commits
-        id: commits
-        run: |
-          LAST=$(git rev-list --max-parents=0 HEAD || echo "")
-          COMMITS=$(git log $LAST..HEAD --pretty=format:"• %s (%an)" --max-count=8 | paste -sd '\n' -)
-          echo "commits<<EOF" >> $GITHUB_OUTPUT
-          echo "$COMMITS" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-      - uses: tsickert/discord-webhook@v5
+
+      - name: Download last SHA artifact
+        uses: dawidd6/action-download-artifact@v6
         with:
-          webhook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          content: ${{ inputs.ping_discord && secrets.DISCORD_ALPHA_ROLE_PING || '' }}
-          embed-title: "New Alpha Build Dropped"
-          embed-description: |
-            **Commits**
-            ${{ steps.commits.outputs.commits }}
-            **Download**
-            [Google Drive Folder](https://drive.google.com/drive/folders/${{ secrets.GOOGLE_FOLDER_ANDROID }})
-          embed-color: 1820869
-          embed-footer: "Alpha Build • ${{ github.sha }}"
-      - uses: actions/upload-artifact@v4
+          workflow: build.yml
+          name: last-sha
+        continue-on-error: true
+
+      - name: Get Commits Since Last Run
+        run: |
+          if [ -f last_sha.txt ]; then
+            LAST_SHA=$(cat last_sha.txt)
+          else
+            LAST_SHA=$(git rev-list --max-parents=0 HEAD)
+          fi
+          echo "Commits since $LAST_SHA:"
+          COMMIT_LOGS=$(git log $LAST_SHA..HEAD --pretty=format:"● %s ~%an [֍](https://github.com/${{ github.repository }}/commit/%H)" --max-count=10)
+          COMMIT_LOGS="${COMMIT_LOGS//'%'/'%25'}"
+          COMMIT_LOGS="${COMMIT_LOGS//$'\n'/'%0A'}"
+          COMMIT_LOGS="${COMMIT_LOGS//$'\r'/'%0D'}"
+          echo "COMMIT_LOG=${COMMIT_LOGS}" >> $GITHUB_ENV
+          echo "$COMMIT_LOGS"
+
+      - name: Save Current SHA for Next Run
+        run: echo ${{ github.sha }} > last_sha.txt
+
+      - name: Set output
+        id: set_output
+        run: echo "commit_logs=${{ env.COMMIT_LOG }}" >> $GITHUB_OUTPUT
+
+      - name: Check for Ping
+        run: |
+          if [[ "${{ github.event.head_commit.message }}" == *"[Ping]"* ]] || [[ "${{ inputs.ping_discord }}" == "true" ]]; then
+            echo "ping_variable=<@&1324799528255225997>" >> $GITHUB_ENV
+          else
+            echo "ping_variable=" >> $GITHUB_ENV
+          fi
+
+      - name: Send Discord Notification with Rich Embeds
+        shell: bash
+        run: |
+          fetch_user_details() {
+            local login=$1
+            user_details=$(curl -s "https://api.github.com/users/$login")
+            name=$(echo "$user_details" | jq -r '.name // .login')
+            login=$(echo "$user_details" | jq -r '.login')
+            avatar_url=$(echo "$user_details" | jq -r '.avatar_url')
+            echo "$name|$login|$avatar_url"
+          }
+
+          declare -A additional_info
+          additional_info["ibo"]="\n Discord: <@951737931159187457>\n AniList: [takarealist112](<https://anilist.co/user/5790266/>)"
+          additional_info["aayush262"]="\n Discord: <@918825160654598224>\n AniList: [aayush262](<https://anilist.co/user/5144645/>)"
+          additional_info["Ankit Grai"]="\n Discord: <@1125628254330560623>\n AniList: [bheshnarayan](<https://anilist.co/user/6417303/>)\n X: [grayankit01](<https://x.com/grayankit01>)"
+
+          declare -A contributor_colors
+          default_color="#1ac4c5"
+          contributor_colors["aayush262"]="#ff7eb6"
+          contributor_colors["Sadwhy"]="#ff7e95"
+          contributor_colors["grayankit"]="#c51aa1"
+          contributor_colors["rebelonion"]="#d4e5ed"
+          hex_to_decimal() { printf '%d' "0x${1#"#"}"; }
+
+          declare -A recent_commit_counts
+          echo "Debug: Processing COMMIT_LOG:"
+          echo "$COMMIT_LOG"
+          while read -r count name; do
+              recent_commit_counts["$name"]=$count
+              echo "Debug: Commit count for $name: $count"
+          done < <(echo "$COMMIT_LOG" | sed 's/%0A/\n/g' | grep -oP '(?<=~)[^[]*' | sort | uniq -c | sort -rn)
+
+          echo "Debug: Fetching contributors from GitHub"
+          contributors=$(curl -L \
+          -H "Accept: application/vnd.github+json" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          https://api.github.com/repos/${{github.repository}}/contributors)
+          echo "Debug: Contributors response:"
+          echo "$contributors"
+
+          sorted_contributors=$(for login in $(echo "$contributors" | jq -r '.[].login'); do
+              user_info=$(fetch_user_details "$login")
+              name=$(echo "$user_info" | cut -d'|' -f1)
+              count=${recent_commit_counts["$name"]:-0}
+              echo "$count|$login"
+          done | sort -rn | cut -d'|' -f2)
+
+          developers=""
+          committers_count=0
+          max_commits=0
+          top_contributor=""
+          top_contributor_count=0
+          top_contributor_avatar=""
+          embed_color=$(hex_to_decimal "$default_color")
+
+          while read -r login; do
+            user_info=$(fetch_user_details "$login")
+            name=$(echo "$user_info" | cut -d'|' -f1)
+            login=$(echo "$user_info" | cut -d'|' -f2)
+            avatar_url=$(echo "$user_info" | cut -d'|' -f3)
+
+          commit_count=${recent_commit_counts["$name"]:-0}
+          if [ $commit_count -gt 0 ]; then
+            if [ $commit_count -gt $max_commits ]; then
+              max_commits=$commit_count
+              top_contributors=("$login")
+              top_contributor_count=1
+              top_contributor_avatar="$avatar_url"
+              embed_color=$(hex_to_decimal "${contributor_colors[$name]:-$default_color}")
+            elif [ $commit_count -eq $max_commits ]; then
+              top_contributors+=("$login")
+              top_contributor_count=$((top_contributor_count + 1))
+              embed_color=$(hex_to_decimal "$default_color")
+            fi
+
+            branch_commit_count=$(git log --author="$login" --author="$name" --oneline | awk '!seen[$0]++' | wc -l)
+
+            extra_info="${additional_info[$name]}"
+            if [ -n "$extra_info" ]; then
+              extra_info=$(echo "$extra_info" | sed 's/\\n/\n- /g')
+            fi
+
+            developer_entry="◗ **${name}** ${extra_info}
+          - Github: [${login}](https://github.com/${login})
+          - Commits: ${branch_commit_count}"
+
+            if [ -n "$developers" ]; then
+              developers="${developers}
+          ${developer_entry}"
+            else
+              developers="${developer_entry}"
+            fi
+            committers_count=$((committers_count + 1))
+          fi
+          done <<< "$sorted_contributors"
+
+          if [ $top_contributor_count -eq 1 ]; then
+            thumbnail_url="$top_contributor_avatar"
+          else
+            thumbnail_url="https://i.imgur.com/qt1ixRk.gif"
+            embed_color=$(hex_to_decimal "$default_color")
+          fi
+
+          max_length=1000
+          commit_messages=$(echo "$COMMIT_LOG" | sed 's/%0A/\n/g; s/^/\n/')
+          if [ ${#developers} -gt $max_length ]; then
+            developers="${developers:0:$max_length}... (truncated)"
+          fi
+          if [ ${#commit_messages} -gt $max_length ]; then
+            commit_messages="${commit_messages:0:$max_length}... (truncated)"
+          fi
+
+          VERSION="${{ github.ref_name }}"
+          discord_data=$(jq -nc \
+                        --arg field_value "$commit_messages" \
+                        --arg author_value "$developers" \
+                        --arg footer_text "Version $VERSION" \
+                        --arg timestamp "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)" \
+                        --arg thumbnail_url "$thumbnail_url" \
+                        --arg embed_color "$embed_color" \
+                        '{
+                          "content": "${{env.ping_variable}}",
+                          "embeds": [
+                            {
+                              "title": "New Alpha-Build dropped 🔥",
+                              "color": $embed_color,
+                              "fields": [
+                                {
+                                  "name": "Commits:",
+                                  "value": $field_value,
+                                  "inline": true
+                                },
+                                {
+                                  "name": "Developers:",
+                                  "value": $author_value,
+                                  "inline": false
+                                }
+                              ],
+                              "footer": {
+                                "text": $footer_text
+                              },
+                              "timestamp": $timestamp,
+                              "thumbnail": {
+                                "url": $thumbnail_url
+                              }
+                            }
+                          ],
+                          "attachments": []
+                        }')
+          echo "Debug: Final Discord payload:"
+          echo "$discord_data"
+
+          curl -H "Content-Type: application/json" \
+              -d "$discord_data" \
+              ${{ secrets.DISCORD_WEBHOOK_URL }}
+
+      - name: Upload Current SHA as Artifact
+        uses: actions/upload-artifact@v4
         with:
           name: last-sha
-          path: .git/HEAD
+          path: last_sha.txt
 
-  # 6. Beta / Stable – Discord notification
+      - name: Send Discord Notification with Download Links
+        env:
+          APK_DOWNLOAD_LINK: ${{ needs.build.outputs.android_link }}
+          WINDOWS_DOWNLOAD_LINK: ${{ needs.build.outputs.windows_link }}
+          LINUX_DOWNLOAD_LINK: ${{ needs.build.outputs.linux_link }}
+          IOS_DOWNLOAD_LINK: ${{ needs.build.outputs.ios_link }}
+          MACOS_DOWNLOAD_LINK: ${{ needs.build.outputs.macos_link }}
+        run: |
+          if [[ -n "$APK_DOWNLOAD_LINK" ]]; then
+            APK_MESSAGE="[Download APK](https://drive.google.com/drive/folders/${{ secrets.GOOGLE_FOLDER_ANDROID }})"
+          else
+            APK_MESSAGE=""
+          fi
+
+          if [[ -n "$WINDOWS_DOWNLOAD_LINK" ]]; then
+            WINDOWS_MESSAGE="[Download Windows Installer]($WINDOWS_DOWNLOAD_LINK)"
+          else
+            WINDOWS_MESSAGE=""
+          fi
+
+          if [[ -n "$LINUX_DOWNLOAD_LINK" ]]; then
+            LINUX_MESSAGE="[Download Linux ZIP]($LINUX_DOWNLOAD_LINK)"
+          else
+            LINUX_MESSAGE=""
+          fi
+
+          if [[ -n "$IOS_DOWNLOAD_LINK" ]]; then
+            IOS_MESSAGE="[Download iOS IPA]($IOS_DOWNLOAD_LINK)"
+          else
+            IOS_MESSAGE=""
+          fi
+
+          if [[ -n "$MACOS_DOWNLOAD_LINK" ]]; then
+            MACOS_MESSAGE="[Download macOS DMG]($MACOS_DOWNLOAD_LINK)"
+          else
+            MACOS_MESSAGE=""
+          fi
+
+          curl -H "Content-Type: application/json" \
+               -d "{\"content\": \"${APK_MESSAGE}\n${WINDOWS_MESSAGE}\n${LINUX_MESSAGE}\n${IOS_MESSAGE}\n${MACOS_MESSAGE}\"}" \
+               "${{ secrets.DISCORD_WEBHOOK_URL }}"
+
+  # ================================
+  # 6. BETA/STABLE - Discord Release Notification
+  # ================================
   notify-release:
     needs: [prepare, build, release]
     if: needs.prepare.outputs.is_alpha == 'false' && !contains(needs.*.result, 'failure')
     runs-on: ubuntu-latest
     steps:
-      - name: Get release URL
-        id: rel
-        run: |
-          URL="${{ github.server_url }}/${{ github.repository }}/releases/tag/${{ github.ref_name }}"
-          echo "url=$URL" >> $GITHUB_OUTPUT
-      - uses: tsickert/discord-webhook@v5
+      - uses: actions/checkout@v4
         with:
-          webhook-url: ${{ needs.prepare.outputs.is_beta == 'true' && secrets.DISCORD_WEBHOOK_BETA_URL || secrets.DISCORD_WEBHOOK_RELEASE_URL }}
-          content: ${{ needs.prepare.outputs.is_beta == 'true' && secrets.DISCORD_BETA_ROLE_PING || secrets.DISCORD_STABLE_ROLE_PING }}
-          embed-title: "New ${{ needs.prepare.outputs.is_beta == 'true' && 'Beta' || 'Stable' }} Release"
-          embed-description: |
-            [View Release](${{ steps.rel.outputs.url }})
-          embed-color: 1820869
+          fetch-depth: 0
 
-  # 7. Trigger external downloader (alpha only) – ONLY IN MAIN REPO
+      - name: Fetch Repository Tags by Date
+        id: fetch_tags
+        run: |
+          curl -s "https://api.github.com/repos/${{github.repository}}/tags" -o tags.json
+          TAGS=$(jq -r '.[].name' tags.json)
+          declare -a TAGS_WITH_DATES=()
+          for TAG in $TAGS; do
+            TAG_DETAILS=$(curl -s "https://api.github.com/repos/${{github.repository}}/git/refs/tags/$TAG")
+            OBJECT_URL=$(echo "$TAG_DETAILS" | jq -r '.object.url // empty')
+            if [ -n "$OBJECT_URL" ]; then
+              OBJECT_DETAILS=$(curl -s "$OBJECT_URL")
+              DATE=$(echo "$OBJECT_DETAILS" | jq -r '.tagger.date // .committer.date // empty')
+              if [ -n "$DATE" ]; then
+                TAGS_WITH_DATES+=("$DATE $TAG")
+              fi
+            fi
+          done
+          LATEST_TAG=""
+          LATEST_DATE=""
+          for TAG_DATE in "${TAGS_WITH_DATES[@]}"; do
+            TAG_DATE_TIME=$(echo "$TAG_DATE" | awk '{print $1}')
+            TAG_NAME=$(echo "$TAG_DATE" | awk '{print $2}')
+            if [[ -z "$LATEST_DATE" || "$TAG_DATE_TIME" > "$LATEST_DATE" ]]; then
+              LATEST_DATE="$TAG_DATE_TIME"
+              LATEST_TAG="$TAG_NAME"
+            fi
+          done
+          echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_ENV
+
+      - name: Get Latest Release Notes
+        id: get_release_notes
+        run: |
+          RELEASE_DATA=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          "https://api.github.com/repos/${{ github.repository }}/releases/latest")
+
+          RELEASE_NOTES=$(echo "$RELEASE_DATA" | jq -r '.body')
+          echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
+          echo "$RELEASE_NOTES" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Format Release Notes for Discord
+        id: format_notes
+        run: |
+          features=$(echo "$RELEASE_NOTES" | grep -iE '^\*\s\[[a-f0-9]+\]\(.*\):\sfeat' | head -n 5)
+          if [[ -n "$features" ]]; then
+            echo "**🚀 Features**" > formatted_notes.txt
+            echo "$features" >> formatted_notes.txt
+            echo "" >> formatted_notes.txt
+          fi
+      
+          fixes=$(echo "$RELEASE_NOTES" | grep -iE '^\*\s\[[a-f0-9]+\]\(.*\):\s(fix|bug|improvement|patch)' | head -n 5)
+          if [[ -n "$fixes" ]]; then
+            echo "**🐛 Fixes**" >> formatted_notes.txt
+            echo "$fixes" >> formatted_notes.txt
+            echo "" >> formatted_notes.txt
+          fi
+
+          chores=$(echo "$RELEASE_NOTES" | grep -iE '^\*\s\[[a-f0-9]+\]\(.*\):\s(chore|docs|build|ci)' | head -n 5)
+          if [[ -n "$chores" ]]; then
+            echo "**🛠 Chores**" >> formatted_notes.txt
+            echo "$chores" >> formatted_notes.txt
+            echo "" >> formatted_notes.txt
+          fi
+
+          FORMATTED_NOTES=$(cat formatted_notes.txt) 
+          echo "FORMATTED_NOTES<<EOF" >> $GITHUB_ENV
+          echo "$FORMATTED_NOTES" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Send Release Notification to Discord
+        env:
+          DISCORD_WEBHOOK_URL: ${{ needs.prepare.outputs.is_beta == 'true' && secrets.DISCORD_WEBHOOK_BETA_URL || secrets.DISCORD_WEBHOOK_RELEASE_URL }}
+        run: |
+          FORMATTED_NOTES=$(echo "$FORMATTED_NOTES" | sed -E 's/\): [^:]+:/) :/g')
+          
+          default_color="#1ac4c5"
+          hex_to_decimal() { printf '%d' "0x${1#"#"}"; }
+          embed_color=$(hex_to_decimal "$default_color")
+
+          VERSION="${{ env.LATEST_TAG }}"
+          RELEASE_TYPE="${{ needs.prepare.outputs.is_beta == 'true' && 'Beta' || 'Stable' }}"
+          PING_ROLE="${{ needs.prepare.outputs.is_beta == 'true' && secrets.DISCORD_BETA_ROLE_PING || secrets.DISCORD_STABLE_ROLE_PING }}"
+
+          discord_data=$(jq -nc \
+                        --arg field_value "$FORMATTED_NOTES
+
+[📌 Full changelog](https://github.com/${{github.repository}}/releases/tag/${{ env.LATEST_TAG }})" \
+                        --arg footer_text "Version $VERSION" \
+                        --arg timestamp "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)" \
+                        --argjson embed_color "$embed_color" \
+                        --arg title "New $RELEASE_TYPE Release Dropped 🔥" \
+                        --arg ping "$PING_ROLE" \
+                        '{
+                          "content": $ping,
+                          "embeds": [
+                            {
+                              "title": $title,
+                              "color": $embed_color,
+                              "description": $field_value,
+                              "footer": {
+                                "text": $footer_text
+                              },
+                              "timestamp": $timestamp
+                            }
+                          ]
+                        }')
+
+          curl -H "Content-Type: application/json" \
+              -X POST \
+              -d "$discord_data" \
+              "$DISCORD_WEBHOOK_URL"
+
+      - name: Send Download Links to Discord
+        run: |
+          sleep 3
+          curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/releases/latest" \
+            | jq -r '.assets[].browser_download_url' \
+            | sort > asset_links.txt
+
+          MESSAGE="**Dartotsu ${{ env.LATEST_TAG }} Downloads:**\n\n"
+
+          while IFS= read -r LINK; do
+            if [[ $LINK == *"arm64"* ]]; then
+              MESSAGE+="• [Android_arm64]($LINK)\n"
+            elif [[ $LINK == *"armeabi"* ]]; then
+              MESSAGE+="• [Android_armeabi-v7a]($LINK)\n"
+            elif [[ $LINK == *"Android_x86"* ]]; then
+              MESSAGE+="• [Android_x86_64]($LINK)\n"
+            elif [[ $LINK == *"Android_Universal"* ]]; then
+              MESSAGE+="• [Android_Universal]($LINK)\n"
+            elif [[ $LINK == *"iOS"* ]]; then
+              MESSAGE+="• [iOS]($LINK)\n"
+            elif [[ $LINK == *"Linux"* ]]; then
+              MESSAGE+="• [Linux]($LINK)\n"
+            elif [[ $LINK == *"macos"* ]]; then
+              MESSAGE+="• [macOS]($LINK)\n"
+            elif [[ $LINK == *"Installer"* ]]; then
+              MESSAGE+="• [Windows]($LINK)\n"
+            fi
+          done < asset_links.txt
+
+          DISCORD_WEBHOOK_URL="${{ needs.prepare.outputs.is_beta == 'true' && secrets.DISCORD_WEBHOOK_BETA_URL || secrets.DISCORD_WEBHOOK_RELEASE_URL }}"
+          
+          curl -H "Content-Type: application/json" \
+            -X POST \
+            -d "{\"content\": \"$MESSAGE\"}" \
+            "$DISCORD_WEBHOOK_URL"
+
+  # ================================
+  # 7. Trigger External Downloader (Alpha only)
+  # ================================
   trigger-downloader:
     needs: [prepare, build, notify-alpha]
     if: >
@@ -441,7 +878,7 @@ jobs:
       github.repository == 'aayush2622/Dartotsu'
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger downloader
+      - name: Trigger downloader workflow
         run: |
           curl -X POST \
             -H "Authorization: token ${{ secrets.DOWNLOADER_TRIGGER_TOKEN_SHEBY }}" \
@@ -451,6 +888,7 @@ jobs:
               "ref":"main",
               "inputs":{
                 "commit_sha":"${{ github.sha }}",
+                "commit_logs":"${{ needs.notify-alpha.outputs.commit_logs }}",
                 "build_android":"success",
                 "build_windows":"success",
                 "build_linux":"success",
