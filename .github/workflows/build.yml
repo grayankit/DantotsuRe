@@ -88,7 +88,6 @@ jobs:
           [[ "$PLATFORMS" == '[' ]] && PLATFORMS='[]'
           echo "platforms=$PLATFORMS" >> $GITHUB_OUTPUT
           echo "DEBUG: platforms JSON = $PLATFORMS"
-
   # 2. Build only the selected platforms
   build:
     needs: prepare
@@ -231,7 +230,7 @@ jobs:
             ${{ matrix.platform == 'ios' && 'build/ios/iphoneos/Dartotsu-iOS-*.ipa' || '' }}
             ${{ matrix.platform == 'macos' && 'build/macos/Release/Dartotsu-macos-*.dmg' || '' }}
 
-  # 3. Alpha – Upload ALL artifacts to Google Drive
+  # 3. Alpha – Upload ALL artifacts to Google Drive (FIXED)
   drive-alpha:
     needs: [prepare, build]
     if: needs.prepare.outputs.is_alpha == 'true' && !contains(needs.*.result, 'failure')
@@ -240,7 +239,8 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           path: artifacts
-      # Android → Sub-folder
+
+      # Android → Sub-folder (all split + universal APKs)
       - name: Upload Android APKs to sub-folder
         uses: hoatruongdev09/google-drive-file-upload-github-action@v1.1
         with:
@@ -248,39 +248,47 @@ jobs:
           upload-to-folder-id: ${{ secrets.GOOGLE_FOLDER_ANDROID }}
           service-account-json: "${{ secrets.GOOGLE_KEY }}"
           overwrite: true
+
       # Windows → Main folder
       - name: Upload Windows installer to main folder
         if: contains(needs.prepare.outputs.platforms, 'windows')
         uses: hoatruongdev09/google-drive-file-upload-github-action@v1.1
         with:
           file-path: artifacts/windows-artifacts/Dartotsu-x86_64-*-Installer.exe
+          upload-name: Dartotsu_windows.exe
           upload-to-folder-id: ${{ secrets.GOOGLE_FOLDER_MAIN }}
           service-account-json: "${{ secrets.GOOGLE_KEY }}"
           overwrite: true
+
       # Linux → Main folder
       - name: Upload Linux zip to main folder
         if: contains(needs.prepare.outputs.platforms, 'linux')
         uses: hoatruongdev09/google-drive-file-upload-github-action@v1.1
         with:
           file-path: artifacts/linux-artifacts/Dartotsu_Linux_*.zip
+          upload-name: Dartotsu_linux.zip
           upload-to-folder-id: ${{ secrets.GOOGLE_FOLDER_MAIN }}
           service-account-json: "${{ secrets.GOOGLE_KEY }}"
           overwrite: true
+
       # iOS → Main folder
       - name: Upload iOS IPA to main folder
         if: contains(needs.prepare.outputs.platforms, 'ios')
         uses: hoatruongdev09/google-drive-file-upload-github-action@v1.1
         with:
           file-path: artifacts/ios-artifacts/Dartotsu-iOS-*.ipa
+          upload-name: Dartotsu-iOS-${{ github.ref_name }}.ipa
           upload-to-folder-id: ${{ secrets.GOOGLE_FOLDER_MAIN }}
           service-account-json: "${{ secrets.GOOGLE_KEY }}"
           overwrite: true
+
       # macOS → Main folder
       - name: Upload macOS DMG to main folder
         if: contains(needs.prepare.outputs.platforms, 'macos')
         uses: hoatruongdev09/google-drive-file-upload-github-action@v1.1
         with:
           file-path: artifacts/macos-artifacts/Dartotsu-macos-*.dmg
+          upload-name: Dartotsu-macos-${{ github.ref_name }}.dmg
           upload-to-folder-id: ${{ secrets.GOOGLE_FOLDER_MAIN }}
           service-account-json: "${{ secrets.GOOGLE_KEY }}"
           overwrite: true
@@ -296,7 +304,6 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           path: artifacts
-
       # Full GitHub changelog (mikepenz)
       - name: Generate full changelog
         uses: mikepenz/release-changelog-builder-action@v4
@@ -315,13 +322,12 @@ jobs:
                 {"title": "### Chores & Documentation", "labels": ["chore"]}
               ]
             }
-
       # Generate clean Fastlane changelog for IzzyOnDroid
       - name: Generate Fastlane changelog
         run: |
           PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || git rev-list --max-parents=0 HEAD)
           REPO_URL="https://github.com/${{ github.repository }}"
-          
+         
           declare -A categories=(
             ["feat"]="### New Features"
             ["fix"]="### Bug Fixes & Improvements"
@@ -330,7 +336,7 @@ jobs:
             ["perf"]="### Performance Improvements"
             ["chore"]="### Chores & Documentation"
           )
-          
+         
           declare -A commits
           while IFS= read -r line; do
             hash=$(echo "$line" | awk '{print $1}')
@@ -340,7 +346,7 @@ jobs:
             [[ "$type" =~ ^(docs|build|ci)$ ]] && type="chore"
             commits[$type]+="* [$hash]($REPO_URL/commit/$hash): $msg\n"
           done < <(git log $PREV_TAG..HEAD --pretty=format:'%h %s')
-          
+         
           echo "" > CHANGELOG.md
           for type in feat fix refactor style perf chore; do
             if [[ -n "${commits[$type]}" ]]; then
@@ -348,12 +354,11 @@ jobs:
               echo -e "${commits[$type]}" >> CHANGELOG.md
             fi
           done
-          
+         
           mkdir -p fastlane/metadata/android/en-US/changelogs
           awk '/^### New Features/{flag=1; next}/^### Refactors/{flag=0}flag' CHANGELOG.md \
             | sed -E 's/!\[[^]]*\]\([^)]*\)//g; s/\[[^]]*\]\([^)]*\)//g; s/^\*[[:space:]]+/-/; s/^\s+//; /^$/d' \
             > fastlane/metadata/android/en-US/changelogs/default.txt || true
-
       # Create/Update GitHub Release
       - name: Update GitHub Release
         uses: ncipollo/release-action@v1
@@ -363,7 +368,6 @@ jobs:
           bodyFile: CHANGELOG.md
           prerelease: ${{ needs.prepare.outputs.is_beta == 'true' }}
           allowUpdates: true
-
       # Commit Fastlane changelog (non-blocking)
       - name: Commit Fastlane changelog
         run: |
