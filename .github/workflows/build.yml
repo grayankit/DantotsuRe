@@ -5,7 +5,7 @@ concurrency:
 
 on:
   push:
-    branches: [main]
+    branches: [main1]
     tags: ["v*.*.*"]
   workflow_dispatch:
     inputs:
