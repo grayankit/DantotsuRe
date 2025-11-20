@@ -18,20 +18,17 @@ hex_to_decimal() {
 
 # Contributor additional info (Discord handles, social profiles)
 declare -A additional_info
-additional_info["itsmechinmoy"]="\n Discord: <@523539866311720963>\n AniList: [itsmechinmoy](<https://anilist.co/user/6110204/>)"
+additional_info["ibo"]="\n Discord: <@951737931159187457>\n AniList: [takarealist112](<https://anilist.co/user/5790266/>)"
 additional_info["aayush262"]="\n Discord: <@918825160654598224>\n AniList: [aayush262](<https://anilist.co/user/5144645/>)"
 additional_info["Ankit Grai"]="\n Discord: <@1125628254330560623>\n AniList: [bheshnarayan](<https://anilist.co/user/6417303/>)\n X: [grayankit01](<https://x.com/grayankit01>)"
-additional_info["Shebyyy"]="\n Discord: <@612532963938271232>\n AniList: [ASheby](<https://anilist.co/user/5724017/>)"
-additional_info["koxx12-dev"]="\n Discord: <@378587857796726785>)"
 
 # Contributor color mapping
 declare -A contributor_colors
 default_color="#1ac4c5"
 contributor_colors["aayush262"]="#ff7eb6"
-contributor_colors["itsmechinmoy"]="#045b94"
+contributor_colors["Sadwhy"]="#ff7e95"
 contributor_colors["grayankit"]="#c51aa1"
-contributor_colors["Shebyyy"]="#fff0cc"
-contributor_colors["koxx12-dev"]="#1d1d1d"
+contributor_colors["rebelonion"]="#d4e5ed"
 
 # Get last SHA or first commit
 if [ -f last_sha.txt ]; then
@@ -161,28 +158,44 @@ if [[ "$COMMIT_MESSAGE" == *"[Ping]"* ]] || [[ "$PING_DISCORD" == "true" ]]; the
     ping_variable="<@&1324799528255225997>"
 fi
 
-# Build Discord JSON payload
-VERSION="$GITHUB_REF_NAME"
-discord_data=$(jq -nc \
-    --arg field_value "$commit_messages" \
-    --arg author_value "$developers" \
-    --arg footer_text "Version $VERSION" \
-    --arg timestamp "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)" \
-    --arg thumbnail_url "$thumbnail_url" \
-    --arg embed_color "$embed_color" \
+# Build commit messages only payload (send first)
+commit_payload=$(jq -nc \
+    --arg commits "$commit_messages" \
     --arg ping "$ping_variable" \
     '{
         "content": $ping,
         "embeds": [
             {
+                "title": "📝 New Commits",
+                "description": $commits,
+                "color": 3447003,
+                "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%S.000Z)'"
+            }
+        ]
+    }')
+
+echo "Sending commit messages first..."
+curl -H "Content-Type: application/json" \
+    -d "$commit_payload" \
+    "$DISCORD_WEBHOOK_URL"
+
+# Wait a moment for message order
+sleep 2
+
+# Build main Discord JSON payload (send second)
+VERSION="$GITHUB_REF_NAME"
+discord_data=$(jq -nc \
+    --arg author_value "$developers" \
+    --arg footer_text "Version $VERSION" \
+    --arg timestamp "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)" \
+    --arg thumbnail_url "$thumbnail_url" \
+    --arg embed_color "$embed_color" \
+    '{
+        "embeds": [
+            {
                 "title": "New Alpha-Build dropped 🔥",
                 "color": ($embed_color | tonumber),
                 "fields": [
-                    {
-                        "name": "Commits:",
-                        "value": $field_value,
-                        "inline": true
-                    },
                     {
                         "name": "Developers:",
                         "value": $author_value,
@@ -204,12 +217,15 @@ discord_data=$(jq -nc \
 echo "Debug: Final Discord payload:"
 echo "$discord_data"
 
-# Send to Discord
+# Send build notification to Discord
 curl -H "Content-Type: application/json" \
     -d "$discord_data" \
     "$DISCORD_WEBHOOK_URL"
 
-# Send download links as separate message
+# Wait before sending download links
+sleep 2
+
+# Send download links as third message
 APK_MESSAGE="[Download APK](https://drive.google.com/drive/folders/$GOOGLE_FOLDER_ANDROID)"
 WINDOWS_MESSAGE="[Download Windows Installer](https://drive.google.com/drive/folders/$GOOGLE_FOLDER_MAIN)"
 LINUX_MESSAGE="[Download Linux ZIP](https://drive.google.com/drive/folders/$GOOGLE_FOLDER_MAIN)"
