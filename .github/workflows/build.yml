@@ -5,7 +5,7 @@ concurrency:
 
 on:
   push:
-    branches: [main1]
+    branches: [main]
     tags: ["v*.*.*"]
   workflow_dispatch:
     inputs:
@@ -265,54 +265,101 @@ jobs:
         with:
           path: artifacts
 
+      - name: Find and upload Android APKs
+        if: contains(needs.prepare.outputs.platforms, 'android')
+        run: |
+          cd artifacts/android-artifacts
+          for apk in Dartotsu_Android_*.apk; do
+            if [ -f "$apk" ]; then
+              echo "Uploading $apk"
+            fi
+          done
+        shell: bash
+
       - name: Upload Android APKs
         if: contains(needs.prepare.outputs.platforms, 'android')
         uses: hoatruongdev09/google-drive-file-upload-github-action@v1.1
         with:
-          file-path: artifacts/android-artifacts/Dartotsu_Android_*.apk
+          file-path: artifacts/android-artifacts
           upload-to-folder-id: ${{ secrets.GOOGLE_FOLDER_ANDROID }}
           service-account-json: "${{ secrets.GOOGLE_KEY }}"
-          overwrite: true
+          overrwrite: true
 
       - name: Upload Windows installer
         if: contains(needs.prepare.outputs.platforms, 'windows')
+        run: |
+          INSTALLER=$(ls artifacts/windows-artifacts/Dartotsu-x86_64-*-Installer.exe 2>/dev/null | head -n1)
+          if [ -f "$INSTALLER" ]; then
+            echo "installer_path=$INSTALLER" >> $GITHUB_ENV
+          fi
+        shell: bash
+
+      - name: Upload Windows to Drive
+        if: contains(needs.prepare.outputs.platforms, 'windows') && env.installer_path != ''
         uses: hoatruongdev09/google-drive-file-upload-github-action@v1.1
         with:
-          file-path: artifacts/windows-artifacts/Dartotsu-x86_64-*-Installer.exe
+          file-path: ${{ env.installer_path }}
           upload-name: Dartotsu_windows.exe
           upload-to-folder-id: ${{ secrets.GOOGLE_FOLDER_MAIN }}
           service-account-json: "${{ secrets.GOOGLE_KEY }}"
-          overwrite: true
+          overrwrite: true
 
       - name: Upload Linux zip
         if: contains(needs.prepare.outputs.platforms, 'linux')
+        run: |
+          LINUX_ZIP=$(ls artifacts/linux-artifacts/Dartotsu_Linux_*.zip 2>/dev/null | head -n1)
+          if [ -f "$LINUX_ZIP" ]; then
+            echo "linux_path=$LINUX_ZIP" >> $GITHUB_ENV
+          fi
+        shell: bash
+
+      - name: Upload Linux to Drive
+        if: contains(needs.prepare.outputs.platforms, 'linux') && env.linux_path != ''
         uses: hoatruongdev09/google-drive-file-upload-github-action@v1.1
         with:
-          file-path: artifacts/linux-artifacts/Dartotsu_Linux_*.zip
+          file-path: ${{ env.linux_path }}
           upload-name: Dartotsu_linux.zip
           upload-to-folder-id: ${{ secrets.GOOGLE_FOLDER_MAIN }}
           service-account-json: "${{ secrets.GOOGLE_KEY }}"
-          overwrite: true
+          overrwrite: true
 
       - name: Upload iOS IPA
         if: contains(needs.prepare.outputs.platforms, 'ios')
+        run: |
+          IOS_IPA=$(ls artifacts/ios-artifacts/Dartotsu-iOS-*.ipa 2>/dev/null | head -n1)
+          if [ -f "$IOS_IPA" ]; then
+            echo "ios_path=$IOS_IPA" >> $GITHUB_ENV
+          fi
+        shell: bash
+
+      - name: Upload iOS to Drive
+        if: contains(needs.prepare.outputs.platforms, 'ios') && env.ios_path != ''
         uses: hoatruongdev09/google-drive-file-upload-github-action@v1.1
         with:
-          file-path: artifacts/ios-artifacts/Dartotsu-iOS-*.ipa
+          file-path: ${{ env.ios_path }}
           upload-name: Dartotsu-iOS-${{ github.ref_name }}.ipa
           upload-to-folder-id: ${{ secrets.GOOGLE_FOLDER_MAIN }}
           service-account-json: "${{ secrets.GOOGLE_KEY }}"
-          overwrite: true
+          overrwrite: true
 
       - name: Upload macOS DMG
         if: contains(needs.prepare.outputs.platforms, 'macos')
+        run: |
+          MACOS_DMG=$(ls artifacts/macos-artifacts/Dartotsu-macos-*.dmg 2>/dev/null | head -n1)
+          if [ -f "$MACOS_DMG" ]; then
+            echo "macos_path=$MACOS_DMG" >> $GITHUB_ENV
+          fi
+        shell: bash
+
+      - name: Upload macOS to Drive
+        if: contains(needs.prepare.outputs.platforms, 'macos') && env.macos_path != ''
         uses: hoatruongdev09/google-drive-file-upload-github-action@v1.1
         with:
-          file-path: artifacts/macos-artifacts/Dartotsu-macos-*.dmg
+          file-path: ${{ env.macos_path }}
           upload-name: Dartotsu-macos-${{ github.ref_name }}.dmg
           upload-to-folder-id: ${{ secrets.GOOGLE_FOLDER_MAIN }}
           service-account-json: "${{ secrets.GOOGLE_KEY }}"
-          overwrite: true
+          overrwrite: true
 
   release:
     needs: [prepare, build]
