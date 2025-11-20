@@ -161,44 +161,28 @@ if [[ "$COMMIT_MESSAGE" == *"[Ping]"* ]] || [[ "$PING_DISCORD" == "true" ]]; the
     ping_variable="<@&1324799528255225997>"
 fi
 
-# Build commit messages only payload (send first)
-commit_payload=$(jq -nc \
-    --arg commits "$commit_messages" \
-    --arg ping "$ping_variable" \
-    '{
-        "content": $ping,
-        "embeds": [
-            {
-                "title": "📝 New Commits",
-                "description": $commits,
-                "color": 3447003,
-                "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%S.000Z)'"
-            }
-        ]
-    }')
-
-echo "Sending commit messages first..."
-curl -H "Content-Type: application/json" \
-    -d "$commit_payload" \
-    "$DISCORD_WEBHOOK_URL"
-
-# Wait a moment for message order
-sleep 2
-
-# Build main Discord JSON payload (send second)
+# Build Discord JSON payload
 VERSION="$GITHUB_REF_NAME"
 discord_data=$(jq -nc \
+    --arg field_value "$commit_messages" \
     --arg author_value "$developers" \
     --arg footer_text "Version $VERSION" \
     --arg timestamp "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)" \
     --arg thumbnail_url "$thumbnail_url" \
     --arg embed_color "$embed_color" \
+    --arg ping "$ping_variable" \
     '{
+        "content": $ping,
         "embeds": [
             {
                 "title": "New Alpha-Build dropped 🔥",
                 "color": ($embed_color | tonumber),
                 "fields": [
+                    {
+                        "name": "Commits:",
+                        "value": $field_value,
+                        "inline": true
+                    },
                     {
                         "name": "Developers:",
                         "value": $author_value,
@@ -220,15 +204,12 @@ discord_data=$(jq -nc \
 echo "Debug: Final Discord payload:"
 echo "$discord_data"
 
-# Send build notification to Discord
+# Send to Discord
 curl -H "Content-Type: application/json" \
     -d "$discord_data" \
     "$DISCORD_WEBHOOK_URL"
 
-# Wait before sending download links
-sleep 2
-
-# Send download links as third message
+# Send download links as separate message
 APK_MESSAGE="[Download APK](https://drive.google.com/drive/folders/$GOOGLE_FOLDER_ANDROID)"
 WINDOWS_MESSAGE="[Download Windows Installer](https://drive.google.com/drive/folders/$GOOGLE_FOLDER_MAIN)"
 LINUX_MESSAGE="[Download Linux ZIP](https://drive.google.com/drive/folders/$GOOGLE_FOLDER_MAIN)"
