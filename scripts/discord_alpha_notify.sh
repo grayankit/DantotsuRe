@@ -18,17 +18,20 @@ hex_to_decimal() {
 
 # Contributor additional info (Discord handles, social profiles)
 declare -A additional_info
-additional_info["ibo"]="\n Discord: <@951737931159187457>\n AniList: [takarealist112](<https://anilist.co/user/5790266/>)"
+additional_info["itsmechinmoy"]="\n Discord: <@523539866311720963>\n AniList: [itsmechinmoy](<https://anilist.co/user/6110204/>)"
 additional_info["aayush262"]="\n Discord: <@918825160654598224>\n AniList: [aayush262](<https://anilist.co/user/5144645/>)"
 additional_info["Ankit Grai"]="\n Discord: <@1125628254330560623>\n AniList: [bheshnarayan](<https://anilist.co/user/6417303/>)\n X: [grayankit01](<https://x.com/grayankit01>)"
+additional_info["Shebyyy"]="\n Discord: <@612532963938271232>\n AniList: [ASheby](<https://anilist.co/user/5724017/>)"
+additional_info["koxx12-dev"]="\n Discord: <@378587857796726785>)"
 
 # Contributor color mapping
 declare -A contributor_colors
 default_color="#1ac4c5"
 contributor_colors["aayush262"]="#ff7eb6"
-contributor_colors["Sadwhy"]="#ff7e95"
+contributor_colors["itsmechinmoy"]="#045b94"
 contributor_colors["grayankit"]="#c51aa1"
-contributor_colors["rebelonion"]="#d4e5ed"
+contributor_colors["Shebyyy"]="#fff0cc"
+contributor_colors["koxx12-dev"]="#1d1d1d"
 
 # Get last SHA or first commit
 if [ -f last_sha.txt ]; then
