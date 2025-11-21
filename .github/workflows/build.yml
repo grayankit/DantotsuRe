@@ -211,7 +211,7 @@ jobs:
         run: |
           flutter pub get
           ${{ inputs.clean_build && 'flutter clean && ' || '' }}flutter pub get
-          
+
           case "${{ matrix.platform }}" in
             android)
               flutter build apk --release --split-per-abi
