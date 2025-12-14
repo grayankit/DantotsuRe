@@ -130,9 +130,8 @@ class MediaPlayerState extends State<MediaPlayer>
       ScreenBrightness.instance.resetApplicationScreenBrightness();
       _setLandscapeMode(false);
     }
-    if (!keepOrientation) {
-      WakelockPlus.disable();
-    }
+    if (!keepOrientation) WakelockPlus.disable();
+
     updateProgress();
   }
 
