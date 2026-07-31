@@ -40,6 +40,7 @@ enum RefreshId {
   Mal,
   Kitsu,
   Simkl,
+  MangaBaka,
   Extensions;
 
   List<int> get ids => List.generate(5, (index) => baseId + index);
@@ -54,8 +55,10 @@ enum RefreshId {
         return 30;
       case RefreshId.Simkl:
         return 40;
-      case RefreshId.Extensions:
+      case RefreshId.MangaBaka:
         return 50;
+      case RefreshId.Extensions:
+        return 60;
     }
   }
 
