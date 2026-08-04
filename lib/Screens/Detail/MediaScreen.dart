@@ -84,9 +84,11 @@ class MediaInfoPageState extends State<MediaInfoPage> {
     reload;
     super.initState();
     loadMediaData();
-    if (loadData(PrefName.useCoverTheme)) {
-      loadCustomTheme(widget.mediaData.cover);
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (loadData(PrefName.useCoverTheme)) {
+        loadCustomTheme(widget.mediaData.cover);
+      }
+    });
   }
 
   bool? _lastDarkMode;
