@@ -32,11 +32,10 @@ class MangaBakaIssue {
 
   const MangaBakaIssue({required this.code, this.message});
 
-  factory MangaBakaIssue.fromJson(Map<String, dynamic> json) =>
-      MangaBakaIssue(
-        code: json['code'] as String? ?? '',
-        message: json['message'] as String?,
-      );
+  factory MangaBakaIssue.fromJson(Map<String, dynamic> json) => MangaBakaIssue(
+    code: json['code'] as String? ?? '',
+    message: json['message'] as String?,
+  );
 }
 
 enum MangaBakaStatus {
@@ -48,31 +47,31 @@ enum MangaBakaStatus {
   upcoming;
 
   static MangaBakaStatus fromString(String? v) => switch (v) {
-        'cancelled' => cancelled,
-        'completed' => completed,
-        'hiatus' => hiatus,
-        'releasing' => releasing,
-        'upcoming' => upcoming,
-        _ => unknown,
-      };
+    'cancelled' => cancelled,
+    'completed' => completed,
+    'hiatus' => hiatus,
+    'releasing' => releasing,
+    'upcoming' => upcoming,
+    _ => unknown,
+  };
 
   String get displayName => switch (this) {
-        cancelled => 'Cancelled',
-        completed => 'Completed',
-        hiatus => 'Hiatus',
-        releasing => 'Releasing',
-        unknown => 'Unknown',
-        upcoming => 'Upcoming',
-      };
+    cancelled => 'Cancelled',
+    completed => 'Completed',
+    hiatus => 'Hiatus',
+    releasing => 'Releasing',
+    unknown => 'Unknown',
+    upcoming => 'Upcoming',
+  };
 
   String get toAnilistStatus => switch (this) {
-        completed => 'FINISHED',
-        releasing => 'RELEASING',
-        upcoming => 'NOT_YET_RELEASED',
-        cancelled => 'CANCELLED',
-        hiatus => 'HIATUS',
-        unknown => 'UNKNOWN',
-      };
+    completed => 'FINISHED',
+    releasing => 'RELEASING',
+    upcoming => 'NOT_YET_RELEASED',
+    cancelled => 'CANCELLED',
+    hiatus => 'HIATUS',
+    unknown => 'UNKNOWN',
+  };
 }
 
 enum MangaBakaType {
@@ -84,31 +83,31 @@ enum MangaBakaType {
   other;
 
   static MangaBakaType fromString(String? v) => switch (v) {
-        'manga' => manga,
-        'novel' => novel,
-        'manhwa' => manhwa,
-        'manhua' => manhua,
-        'oel' => oel,
-        _ => other,
-      };
+    'manga' => manga,
+    'novel' => novel,
+    'manhwa' => manhwa,
+    'manhua' => manhua,
+    'oel' => oel,
+    _ => other,
+  };
 
   String get apiValue => switch (this) {
-        manga => 'manga',
-        novel => 'novel',
-        manhwa => 'manhwa',
-        manhua => 'manhua',
-        oel => 'oel',
-        other => 'other',
-      };
+    manga => 'manga',
+    novel => 'novel',
+    manhwa => 'manhwa',
+    manhua => 'manhua',
+    oel => 'oel',
+    other => 'other',
+  };
 
   String get displayName => switch (this) {
-        manga => 'Manga',
-        novel => 'Novel',
-        manhwa => 'Manhwa',
-        manhua => 'Manhua',
-        oel => 'OEL',
-        other => 'Other',
-      };
+    manga => 'Manga',
+    novel => 'Novel',
+    manhwa => 'Manhwa',
+    manhua => 'Manhua',
+    oel => 'OEL',
+    other => 'Other',
+  };
 }
 
 enum MangaBakaContentRating {
@@ -118,11 +117,11 @@ enum MangaBakaContentRating {
   pornographic;
 
   static MangaBakaContentRating fromString(String? v) => switch (v) {
-        'suggestive' => suggestive,
-        'erotica' => erotica,
-        'pornographic' => pornographic,
-        _ => safe,
-      };
+    'suggestive' => suggestive,
+    'erotica' => erotica,
+    'pornographic' => pornographic,
+    _ => safe,
+  };
 }
 
 enum MangaBakaLibraryState {
@@ -138,15 +137,15 @@ enum MangaBakaLibraryState {
   const MangaBakaLibraryState(this.value);
 
   static MangaBakaLibraryState fromString(String? v) => switch (v) {
-        'considering' => considering,
-        'plan_to_read' => planToRead,
-        'reading' => reading,
-        'completed' => completed,
-        'rereading' => rereading,
-        'paused' => paused,
-        'dropped' => dropped,
-        _ => reading,
-      };
+    'considering' => considering,
+    'plan_to_read' => planToRead,
+    'reading' => reading,
+    'completed' => completed,
+    'rereading' => rereading,
+    'paused' => paused,
+    'dropped' => dropped,
+    _ => reading,
+  };
 
   static MangaBakaLibraryState fromAnilistStatus(String? status) =>
       switch (status?.toUpperCase()) {
@@ -160,34 +159,34 @@ enum MangaBakaLibraryState {
       };
 
   String toAnilistStatus() => switch (this) {
-        considering => 'PLANNING',
-        planToRead => 'PLANNING',
-        reading => 'CURRENT',
-        completed => 'COMPLETED',
-        rereading => 'REPEATING',
-        paused => 'PAUSED',
-        dropped => 'DROPPED',
-      };
+    considering => 'PLANNING',
+    planToRead => 'PLANNING',
+    reading => 'CURRENT',
+    completed => 'COMPLETED',
+    rereading => 'REPEATING',
+    paused => 'PAUSED',
+    dropped => 'DROPPED',
+  };
 
   String toMalStatus() => switch (this) {
-        considering => 'plan_to_read',
-        planToRead => 'plan_to_read',
-        reading => 'reading',
-        completed => 'completed',
-        rereading => 'reading',
-        paused => 'on_hold',
-        dropped => 'dropped',
-      };
+    considering => 'plan_to_read',
+    planToRead => 'plan_to_read',
+    reading => 'reading',
+    completed => 'completed',
+    rereading => 'reading',
+    paused => 'on_hold',
+    dropped => 'dropped',
+  };
 
   String get displayName => switch (this) {
-        considering => 'Considering',
-        planToRead => 'Plan to Read',
-        reading => 'Reading',
-        completed => 'Completed',
-        rereading => 'Rereading',
-        paused => 'Paused',
-        dropped => 'Dropped',
-      };
+    considering => 'Considering',
+    planToRead => 'Plan to Read',
+    reading => 'Reading',
+    completed => 'Completed',
+    rereading => 'Rereading',
+    paused => 'Paused',
+    dropped => 'Dropped',
+  };
 }
 
 const _titlePriorities = [
@@ -216,7 +215,8 @@ class MangaBakaItemTitle {
   factory MangaBakaItemTitle.fromJson(Map<String, dynamic> json) {
     return MangaBakaItemTitle(
       language: json['language'] as String? ?? '',
-      traits: (json['traits'] as List<dynamic>?)
+      traits:
+          (json['traits'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
           [],
@@ -227,7 +227,10 @@ class MangaBakaItemTitle {
 }
 
 String chooseBestTitle(
-    int id, List<MangaBakaItemTitle>? titles, String? defaultTitle) {
+  int id,
+  List<MangaBakaItemTitle>? titles,
+  String? defaultTitle,
+) {
   if (titles != null && titles.isNotEmpty) {
     for (final lang in _titlePriorities) {
       final matching = titles.where((t) => t.language == lang).toList();
@@ -308,7 +311,10 @@ class MangaBakaSeries {
         .toList();
     final defaultTitle = json['title'] as String?;
     final bestTitle = chooseBestTitle(
-        json['id'] as int? ?? 0, titles, defaultTitle);
+      json['id'] as int? ?? 0,
+      titles,
+      defaultTitle,
+    );
 
     final source = json['source'] as Map<String, dynamic>?;
     final anilistSource = source?['anilist'] as Map<String, dynamic>?;
@@ -335,7 +341,7 @@ class MangaBakaSeries {
       finalVolume: json['final_volume']?.toString(),
       anilistId: anilistSource?['id'] as int?,
       malId: malSource?['id'] as int?,
-      rating: (json['rating'] as num?)?.toDouble(),
+      rating: ((json['rating'] as num?)?.toDouble() ?? 0) / 10,
       authors: authorsList,
       artists: artistsList,
       startDate: startDate,
@@ -453,11 +459,11 @@ class MangaBakaOAuthToken {
   }
 
   Map<String, dynamic> toJson() => {
-        'access_token': accessToken,
-        if (refreshToken != null) 'refresh_token': refreshToken,
-        if (expiresIn != null) 'expires_in': expiresIn,
-        'fetched_at': fetchedAt.millisecondsSinceEpoch,
-      };
+    'access_token': accessToken,
+    if (refreshToken != null) 'refresh_token': refreshToken,
+    if (expiresIn != null) 'expires_in': expiresIn,
+    'fetched_at': fetchedAt.millisecondsSinceEpoch,
+  };
 
   bool get isExpired {
     if (expiresIn == null) return false;

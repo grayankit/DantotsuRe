@@ -6,7 +6,6 @@ import '../../Functions/Function.dart';
 import '../../Widgets/CustomBottomDialog.dart';
 import '../../Widgets/DropdownMenu.dart';
 import 'MangaBaka.dart';
-import 'MangaBakaModels.dart';
 
 class MangaBakaListEditorDialog extends StatefulWidget {
   final Media media;
@@ -19,7 +18,8 @@ class MangaBakaListEditorDialog extends StatefulWidget {
   });
 
   @override
-  State<MangaBakaListEditorDialog> createState() => _MangaBakaListEditorDialogState();
+  State<MangaBakaListEditorDialog> createState() =>
+      _MangaBakaListEditorDialogState();
 }
 
 class _MangaBakaListEditorDialogState extends State<MangaBakaListEditorDialog> {
@@ -33,12 +33,14 @@ class _MangaBakaListEditorDialogState extends State<MangaBakaListEditorDialog> {
     super.initState();
     final media = widget.media;
     status = media.userStatus ?? "READING";
-    progressController =
-        TextEditingController(text: media.userProgress?.toString() ?? '0');
+    progressController = TextEditingController(
+      text: media.userProgress?.toString() ?? '0',
+    );
     scoreController = TextEditingController(
-        text: media.userScore != null && media.userScore! > 0
-            ? (media.userScore! / 10).toString()
-            : "0");
+      text: media.userScore != null && media.userScore! > 0
+          ? (media.userScore! / 10).toString()
+          : "0",
+    );
     noteController = TextEditingController(text: widget.media.notes ?? "");
   }
 
@@ -105,7 +107,7 @@ class _MangaBakaListEditorDialogState extends State<MangaBakaListEditorDialog> {
                     ),
                   ),
                 ],
-              )
+              ),
             ],
           ),
         ),
@@ -123,11 +125,14 @@ class _MangaBakaListEditorDialogState extends State<MangaBakaListEditorDialog> {
       'DROPPED',
     ];
 
-    return CustomDropdownMenu(
-      text: "Status",
-      selectedOption: status,
+    return buildDropdownMenu(
+      padding: const EdgeInsets.all(0),
+      borderRadius: 16,
+      labelText: "Status",
+      currentValue: status,
+      hintText: status,
       options: statuses,
-      onOptionSelected: (val) {
+      onChanged: (val) {
         setState(() {
           status = val;
         });
@@ -152,7 +157,7 @@ class _MangaBakaListEditorDialogState extends State<MangaBakaListEditorDialog> {
     return TextField(
       controller: scoreController,
       keyboardType: TextInputType.number,
-      decoration: const InputDecoration(
+      decoration: InputDecoration(
         labelText: "Score (1-10)",
         labelStyle: labelStyle,
       ),

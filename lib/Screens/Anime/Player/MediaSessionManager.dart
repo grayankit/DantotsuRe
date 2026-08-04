@@ -51,8 +51,8 @@ class MediaSessionManager implements MediaSessionAdapter {
       _observePlayer();
 
       await sync();
-    } catch (e, s) {
-      debugPrint("MediaSession initialize failed: $e\n$s");
+    } catch (e) {
+      debugPrint("MediaSession initialize failed: $e");
     }
   }
 

@@ -97,7 +97,7 @@ class MangaBakaHomeScreen extends BaseHomeScreen {
       ),
       MediaSectionData(
         type: 0,
-        title: getString.completed(getString.manga),
+        title: "Completed Title",
         pairTitle: 'Completed Manga',
         list: mangaCompleted.value,
         emptyIcon: Icons.check_circle_outline,
@@ -139,53 +139,51 @@ class MangaBakaHomeScreen extends BaseHomeScreen {
     }).toList();
 
     return [
-      Obx(
-        () {
-          return LayoutBuilder(
-            builder: (context, constraints) {
-              final spacing = 16.0;
-              final horizontalPadding = context.isPhone ? 0.0 : 16.0;
-              final maxWidth = constraints.maxWidth - horizontalPadding;
+      Obx(() {
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            final spacing = 16.0;
+            final horizontalPadding = context.isPhone ? 0.0 : 16.0;
+            final maxWidth = constraints.maxWidth - horizontalPadding;
 
-              final columns = context.isPhone ? 1 : 2;
-              final width = (maxWidth - ((columns - 1) * spacing)) / columns;
-              final useColumnLayout = width < 480;
+            final columns = context.isPhone ? 1 : 2;
+            final width = (maxWidth - ((columns - 1) * spacing)) / columns;
+            final useColumnLayout = width < 480;
 
-              final children = result.map((section) {
-                return SizedBox(
-                  width: useColumnLayout ? null : width,
-                  child: section,
-                );
-              }).toList();
-
-              return Padding(
-                padding: EdgeInsets.only(right: horizontalPadding),
-                child: Column(
-                  children: [
-                    useColumnLayout
-                        ? Column(
-                            children: children
-                                .map(
-                                  (child) => Padding(
-                                    padding: EdgeInsets.only(bottom: spacing),
-                                    child: child,
-                                  ),
-                                )
-                                .toList(),
-                          )
-                        : Wrap(
-                            spacing: spacing,
-                            runSpacing: spacing,
-                            children: children,
-                          ),
-                    const SizedBox(height: 128),
-                  ],
-                ),
+            final children = result.map((section) {
+              return SizedBox(
+                width: useColumnLayout ? null : width,
+                child: section,
               );
-            },
-          );
-        },
-      ),
+            }).toList();
+
+            return Padding(
+              padding: EdgeInsets.only(right: horizontalPadding),
+              child: Column(
+                children: [
+                  useColumnLayout
+                      ? Column(
+                          children: children
+                              .map(
+                                (child) => Padding(
+                                  padding: EdgeInsets.only(bottom: spacing),
+                                  child: child,
+                                ),
+                              )
+                              .toList(),
+                        )
+                      : Wrap(
+                          spacing: spacing,
+                          runSpacing: spacing,
+                          children: children,
+                        ),
+                  const SizedBox(height: 128),
+                ],
+              ),
+            );
+          },
+        );
+      }),
     ];
   }
 }

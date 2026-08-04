@@ -1,6 +1,7 @@
 import 'package:dartotsu/Theme/LanguageSwitcher.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
+import 'package:get/get_utils/src/extensions/context_extensions.dart';
 
 import '../../../Adaptor/Media/Widgets/MediaSection.dart';
 import '../../../DataClass/Media.dart';
@@ -8,6 +9,7 @@ import '../../../DataClass/MediaSection.dart';
 import '../../../Functions/Function.dart';
 import '../../../Services/Screens/BaseMangaScreen.dart';
 import '../MangaBaka.dart';
+import '../MangaBakaModels.dart';
 
 class MangaBakaMangaScreen extends BaseMangaScreen {
   final MangaBakaController controller;
@@ -100,21 +102,72 @@ class MangaBakaMangaScreen extends BaseMangaScreen {
       ),
     ];
 
-    return mediaSections
-        .map((section) => MediaSection(
-              context: context,
-              type: section.type,
-              title: section.title,
-              mediaList: section.list,
-            ))
-        .toList()
-      ..add(
-        MediaSection(
-          context: context,
-          type: 2,
-          title: getString.popular(getString.manga),
-          mediaList: mangaPopular.value,
-        ),
-      );
+    final groupedWidgets = mediaSections
+        .map(
+          (section) => MediaSection(
+            context: context,
+            type: section.type,
+            title: section.title,
+            mediaList: section.list,
+          ),
+        )
+        .toList();
+
+    final popularSection = MediaSection(
+      context: context,
+      type: 2,
+      title: getString.popular(getString.manga),
+      mediaList: mangaPopular.value,
+    );
+
+    return [
+      LayoutBuilder(
+        builder: (context, constraints) {
+          final spacing = context.isPhone ? 0.0 : 16.0;
+          final horizontalPadding = context.isPhone ? 0.0 : 16.0;
+          final maxWidth = constraints.maxWidth - (horizontalPadding * 2);
+
+          final columns = context.isPhone ? 1 : 2;
+          final width = (maxWidth - ((columns - 1) * spacing)) / columns;
+          final useColumnLayout = width < 480;
+
+          final children = groupedWidgets
+              .map(
+                (widget) => SizedBox(
+                  width: useColumnLayout ? null : width,
+                  child: widget,
+                ),
+              )
+              .toList();
+
+          return Padding(
+            padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+            child: Column(
+              children: [
+                useColumnLayout
+                    ? Column(
+                        children: children
+                            .map(
+                              (child) => Padding(
+                                padding: EdgeInsets.only(bottom: spacing),
+                                child: child,
+                              ),
+                            )
+                            .toList(),
+                      )
+                    : Wrap(
+                        spacing: spacing,
+                        runSpacing: spacing,
+                        children: children,
+                      ),
+                SizedBox(height: spacing),
+                popularSection,
+                const SizedBox(height: 128),
+              ],
+            ),
+          );
+        },
+      ),
+    ];
   }
 }

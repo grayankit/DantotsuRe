@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../../Functions/Function.dart';
 import '../../../Services/Screens/BaseAnimeScreen.dart';
 import '../MangaBaka.dart';
@@ -19,15 +20,10 @@ class MangaBakaAnimeScreen extends BaseAnimeScreen {
     final theme = Theme.of(context).colorScheme;
     return [
       Center(
-        padding: const EdgeInsets.all(32.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.menu_book_rounded,
-              size: 64,
-              color: theme.primary,
-            ),
+            Icon(Icons.menu_book_rounded, size: 64, color: theme.primary),
             const SizedBox(height: 16),
             Text(
               "MangaBaka is a Manga & Novel service",
@@ -52,4 +48,7 @@ class MangaBakaAnimeScreen extends BaseAnimeScreen {
       ),
     ];
   }
+
+  @override
+  void loadTrending(int page) {}
 }

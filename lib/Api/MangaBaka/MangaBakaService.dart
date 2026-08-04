@@ -23,7 +23,7 @@ class MangaBakaService extends MediaService {
   String get getName => "MangaBaka";
 
   @override
-  String get iconPath => "assets/svg/mangabaka.svg";
+  String get iconPath => "assets/images/mangabaka.png";
 
   @override
   BaseServiceData get data => MangaBaka;
@@ -50,7 +50,9 @@ class MangaBakaService extends MediaService {
 
   @override
   void listEditor(context, media) => showCustomBottomDialog(
-      context, MangaBakaListEditorDialog(media: media, isCompact: false));
+    context,
+    MangaBakaListEditorDialog(media: media, isCompact: false),
+  );
 }
 
 class MangaBakaLoginScreen extends BaseLoginScreen {

@@ -1,5 +1,6 @@
 import 'package:dartotsu/DataClass/Media.dart';
 import 'package:dartotsu/DataClass/SearchResults.dart';
+
 import '../../Services/Api/Queries.dart';
 import 'MangaBaka.dart';
 import 'MangaBakaModels.dart';
@@ -34,27 +35,38 @@ class MangaBakaQueries extends Queries {
   Future<Map<String, List<Media>>>? initHomePage() async {
     final userEntries = await controller.fetchUserLibrary();
     final continueReading = userEntries
-        .where((e) => e.state == MangaBakaLibraryState.reading && e.series != null)
+        .where(
+          (e) => e.state == MangaBakaLibraryState.reading && e.series != null,
+        )
         .map((e) => Media.fromMangaBaka(e.series!, libraryEntry: e))
         .toList();
 
     final planned = userEntries
-        .where((e) => e.state == MangaBakaLibraryState.planToRead && e.series != null)
+        .where(
+          (e) =>
+              e.state == MangaBakaLibraryState.planToRead && e.series != null,
+        )
         .map((e) => Media.fromMangaBaka(e.series!, libraryEntry: e))
         .toList();
 
     final completed = userEntries
-        .where((e) => e.state == MangaBakaLibraryState.completed && e.series != null)
+        .where(
+          (e) => e.state == MangaBakaLibraryState.completed && e.series != null,
+        )
         .map((e) => Media.fromMangaBaka(e.series!, libraryEntry: e))
         .toList();
 
     final dropped = userEntries
-        .where((e) => e.state == MangaBakaLibraryState.dropped && e.series != null)
+        .where(
+          (e) => e.state == MangaBakaLibraryState.dropped && e.series != null,
+        )
         .map((e) => Media.fromMangaBaka(e.series!, libraryEntry: e))
         .toList();
 
     final onHold = userEntries
-        .where((e) => e.state == MangaBakaLibraryState.paused && e.series != null)
+        .where(
+          (e) => e.state == MangaBakaLibraryState.paused && e.series != null,
+        )
         .map((e) => Media.fromMangaBaka(e.series!, libraryEntry: e))
         .toList();
 
@@ -70,12 +82,42 @@ class MangaBakaQueries extends Queries {
   @override
   Future<Map<String, List<Media>>> getMangaList() async {
     final results = await Future.wait([
-      controller.fetchSeries(types: [MangaBakaType.manga, MangaBakaType.manhwa, MangaBakaType.manhua, MangaBakaType.oel, MangaBakaType.other], sortBy: 'latest', limit: 15),
-      controller.fetchSeries(types: [MangaBakaType.manga], sortBy: 'popularity_desc', limit: 15),
-      controller.fetchSeries(types: [MangaBakaType.manhwa], sortBy: 'popularity_desc', limit: 15),
-      controller.fetchSeries(types: [MangaBakaType.manhua], sortBy: 'popularity_desc', limit: 15),
-      controller.fetchSeries(types: [MangaBakaType.novel], sortBy: 'popularity_desc', limit: 15),
-      controller.fetchSeries(types: [MangaBakaType.manga], sortBy: 'rating_desc', limit: 15),
+      controller.fetchSeries(
+        types: [
+          MangaBakaType.manga,
+          MangaBakaType.manhwa,
+          MangaBakaType.manhua,
+          MangaBakaType.oel,
+          MangaBakaType.other,
+        ],
+        sortBy: 'latest',
+        limit: 15,
+      ),
+      controller.fetchSeries(
+        types: [MangaBakaType.manga],
+        sortBy: 'popularity_desc',
+        limit: 15,
+      ),
+      controller.fetchSeries(
+        types: [MangaBakaType.manhwa],
+        sortBy: 'popularity_desc',
+        limit: 15,
+      ),
+      controller.fetchSeries(
+        types: [MangaBakaType.manhua],
+        sortBy: 'popularity_desc',
+        limit: 15,
+      ),
+      controller.fetchSeries(
+        types: [MangaBakaType.novel],
+        sortBy: 'popularity_desc',
+        limit: 15,
+      ),
+      controller.fetchSeries(
+        types: [MangaBakaType.manga],
+        sortBy: 'score_desc',
+        limit: 15,
+      ),
     ]);
 
     return {
@@ -85,7 +127,9 @@ class MangaBakaQueries extends Queries {
       "trendingManhua": results[3].map((s) => Media.fromMangaBaka(s)).toList(),
       "trendingNovels": results[4].map((s) => Media.fromMangaBaka(s)).toList(),
       "topRatedManga": results[5].map((s) => Media.fromMangaBaka(s)).toList(),
-      "mostFavouriteManga": results[1].map((s) => Media.fromMangaBaka(s)).toList(),
+      "mostFavouriteManga": results[1]
+          .map((s) => Media.fromMangaBaka(s))
+          .toList(),
     };
   }
 
@@ -123,7 +167,7 @@ class MangaBakaQueries extends Queries {
     return SearchResults(
       page: searchResults?.page ?? 1,
       hasNextPage: false,
-      list: mediaList,
+      results: mediaList,
     );
   }
 }
