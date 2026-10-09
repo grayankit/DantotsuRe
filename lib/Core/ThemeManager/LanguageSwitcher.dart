@@ -47,7 +47,7 @@ class _LanguageSheetState extends State<LanguageSheet> {
           child: TextField(
             onChanged: (v) => _query.value = v.trim().toLowerCase(),
             decoration: InputDecoration(
-              hintText: 'Search language',
+              hintText: getString.searchLanguage,
               prefixIcon: Icon(
                 Icons.search_rounded,
                 color: scheme.onSurfaceVariant,

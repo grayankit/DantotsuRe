@@ -871,4 +871,1842 @@ class AppLocalizationsMl extends AppLocalizations {
   @override
   String get discordRichPresenceRowOff =>
       'Show what you are doing on your Discord profile';
+
+  @override
+  String get loginCancelled => 'Login cancelled';
+
+  @override
+  String get invalidToken => 'Invalid token';
+
+  @override
+  String loginFailed(String error) {
+    return 'Login failed: $error';
+  }
+
+  @override
+  String get malLoginFailed => 'MyAnimeList login failed';
+
+  @override
+  String get simklReadOnly => 'Simkl granted read-only access';
+
+  @override
+  String get incognitoEditsBlocked => 'Incognito: list edits are blocked';
+
+  @override
+  String serviceError(String service, String error) {
+    return '$service: $error';
+  }
+
+  @override
+  String get incognitoProgressNotSaved => 'Incognito: progress not saved';
+
+  @override
+  String progressSet(int progress) {
+    return 'Progress set to $progress';
+  }
+
+  @override
+  String removedFromList(String title) {
+    return 'Removed $title from your list';
+  }
+
+  @override
+  String get following => 'Following';
+
+  @override
+  String get homeSections => 'Home sections';
+
+  @override
+  String get homeSectionsHint =>
+      'Drag to reorder. Hidden sections are never fetched.';
+
+  @override
+  String get customListDeleteFailed => 'Failed to delete custom list';
+
+  @override
+  String get customListsSaveFailed => 'Failed to save custom lists';
+
+  @override
+  String get customListsSaved => 'Custom lists saved';
+
+  @override
+  String get listName => 'List name';
+
+  @override
+  String get addList => 'Add list';
+
+  @override
+  String voiceActorsIn(String name) {
+    return 'Voice actors · $name';
+  }
+
+  @override
+  String get animeAppearances => 'Anime appearances';
+
+  @override
+  String get mangaAppearances => 'Manga appearances';
+
+  @override
+  String get voicedCharacters => 'Voiced characters';
+
+  @override
+  String get animeCredits => 'Anime credits';
+
+  @override
+  String get mangaCredits => 'Manga credits';
+
+  @override
+  String get mainProductions => 'Main productions';
+
+  @override
+  String get otherWorks => 'Other works';
+
+  @override
+  String get prequelSequel => 'Prequel & Sequel';
+
+  @override
+  String get previousSeason => 'മുൻകാലം';
+
+  @override
+  String get thisSeason => 'ഈ മാസം';
+
+  @override
+  String get nextSeason => 'അടുത്ത മാസം';
+
+  @override
+  String get voiceRoles => 'Voice roles';
+
+  @override
+  String get staffPositions => 'Staff positions';
+
+  @override
+  String get mangaWorks => 'Manga works';
+
+  @override
+  String get malProfile => 'MyAnimeList profile';
+
+  @override
+  String get refreshFromMal => 'Refresh from MyAnimeList';
+
+  @override
+  String get repullProfileCounts => 'Re-pull your profile and counts';
+
+  @override
+  String get refreshed => 'Refreshed';
+
+  @override
+  String get simklProfile => 'Simkl profile';
+
+  @override
+  String get refreshFromSimkl => 'Refresh from Simkl';
+
+  @override
+  String get repullProfileLibrary => 'Re-pull your profile and library';
+
+  @override
+  String get simklSignInToSearch => 'Sign in to Simkl to search';
+
+  @override
+  String get dropRate => 'Drop rate';
+
+  @override
+  String get latestEpisodes => 'Latest episodes';
+
+  @override
+  String get simklAttribution =>
+      'Data and artwork provided by Simkl. View on Simkl';
+
+  @override
+  String get onHold => 'നിര്‍ത്തിയ null';
+
+  @override
+  String get scoredBy => 'Scored by';
+
+  @override
+  String get planToWatch => 'Plan to watch';
+
+  @override
+  String get planToRead => 'Plan to read';
+
+  @override
+  String get timesRewatched => 'Times rewatched';
+
+  @override
+  String get timesReread => 'Times reread';
+
+  @override
+  String get comments => 'പ്രതികരണങ്ങൾ';
+
+  @override
+  String get moviesAndSeries => 'Movies & Series';
+
+  @override
+  String get trackingOnly => 'Tracking only';
+
+  @override
+  String get signedIn => 'Signed in';
+
+  @override
+  String get searchLanguage => 'Search language';
+
+  @override
+  String get savedToList => 'Saved to your list';
+
+  @override
+  String get removedFromYourList => 'Removed from your list';
+
+  @override
+  String get retry => 'Retry';
+
+  @override
+  String get synopsis => 'സംഗ്രഹം';
+
+  @override
+  String get details => 'Details';
+
+  @override
+  String get addToList => 'Add To List';
+
+  @override
+  String get trailer => 'Trailer';
+
+  @override
+  String get titleCopied => 'Title copied';
+
+  @override
+  String get linkCopied => 'Link copied';
+
+  @override
+  String get watchTrailer => 'Watch trailer';
+
+  @override
+  String get copyTitle => 'Copy title';
+
+  @override
+  String get copyLink => 'Copy link';
+
+  @override
+  String get openInBrowser => 'Open in browser';
+
+  @override
+  String viewOnSource(String source) {
+    return 'View on $source';
+  }
+
+  @override
+  String episodeAirsIn(int ep, String time) {
+    return 'Episode $ep airs in $time';
+  }
+
+  @override
+  String nextEpisodeIn(String time) {
+    return 'Next episode in $time';
+  }
+
+  @override
+  String get logPathCopied => 'Log file path copied to clipboard';
+
+  @override
+  String get animeSource => 'Anime source';
+
+  @override
+  String get mangaSource => 'Manga source';
+
+  @override
+  String get popular => 'പ്രചാരത്തിലുള്ള null';
+
+  @override
+  String get latest => 'Latest';
+
+  @override
+  String get saved => 'Saved';
+
+  @override
+  String get nothingMatched => 'Nothing matched';
+
+  @override
+  String get nothingSavedFromSource => 'Nothing saved from this source yet';
+
+  @override
+  String get sourceReturnedNothing => 'This source returned nothing';
+
+  @override
+  String get checkConnectionOrSource =>
+      'Check your connection or try another source.';
+
+  @override
+  String get tryDifferentSearch => 'Try a different search term.';
+
+  @override
+  String get savedTitlesAppearHere =>
+      'Titles you add to your list appear here.';
+
+  @override
+  String get tryOtherFeed => 'Try the other feed or search instead.';
+
+  @override
+  String searchSource(String source) {
+    return 'Search $source';
+  }
+
+  @override
+  String get animeExtensions => 'Anime Extensions';
+
+  @override
+  String get mangaExtensions => 'Manga Extensions';
+
+  @override
+  String get nothingHereYet => 'Nothing here yet';
+
+  @override
+  String get savedOnDeviceUntilLogin =>
+      'Everything below is saved on this device until you do.';
+
+  @override
+  String get yourProfile => 'Your profile';
+
+  @override
+  String get activity => 'null';
+
+  @override
+  String get extensions => 'Extensions';
+
+  @override
+  String get logOut => 'Log out';
+
+  @override
+  String get logIn => 'Log in';
+
+  @override
+  String get logOutConfirm => 'Are you sure you want to log out?';
+
+  @override
+  String get incognitoMode => 'ഇൻകോജ്നിറ്റോ മോഡ്';
+
+  @override
+  String get alsoBlockListEdits => 'Also block list edits';
+
+  @override
+  String get offlineMode => 'ഓഫ്ലൈനിൽ മോഡ്';
+
+  @override
+  String get switchService => 'Switch service';
+
+  @override
+  String logOutOf(String name) {
+    return 'Log out of $name';
+  }
+
+  @override
+  String get loggedIn => 'Logged in';
+
+  @override
+  String get notifications => 'നോട്ടിഫിക്കേഷനുകൾ';
+
+  @override
+  String get nothingNew => 'Nothing new';
+
+  @override
+  String get thisWeek => 'This week';
+
+  @override
+  String get listOnly => 'List Only';
+
+  @override
+  String get filter => 'Filter';
+
+  @override
+  String get searchResults => 'Search Results';
+
+  @override
+  String get recentSearches => 'Recent searches';
+
+  @override
+  String get searchOrSetFilter => 'Search or set a filter';
+
+  @override
+  String get filters => 'Filters';
+
+  @override
+  String get showLess => 'Show less';
+
+  @override
+  String get showAll => 'Show all';
+
+  @override
+  String get apply => 'Apply';
+
+  @override
+  String get preview => 'Preview';
+
+  @override
+  String get preset => 'Preset';
+
+  @override
+  String get cardNormal => 'Normal';
+
+  @override
+  String get cardOnCard => 'On card';
+
+  @override
+  String get cardInCard => 'In card';
+
+  @override
+  String get size => 'Size';
+
+  @override
+  String get cardWidth => 'Card width';
+
+  @override
+  String get compact => 'Compact';
+
+  @override
+  String get coverAndTitleOnly => 'Cover and title only';
+
+  @override
+  String get titleLines => 'Title lines';
+
+  @override
+  String get shape => 'Shape';
+
+  @override
+  String get posterShape => 'Poster shape';
+
+  @override
+  String get cornerRadius => 'Corner radius';
+
+  @override
+  String get off => 'Off';
+
+  @override
+  String get topLeft => 'Top left';
+
+  @override
+  String get topRight => 'Top right';
+
+  @override
+  String get bottomLeft => 'Bottom left';
+
+  @override
+  String get bottomRight => 'Bottom right';
+
+  @override
+  String get overlays => 'Overlays';
+
+  @override
+  String get progressCount => 'Progress / count';
+
+  @override
+  String get pill => 'Pill';
+
+  @override
+  String get bar => 'Bar';
+
+  @override
+  String get outside => 'Outside';
+
+  @override
+  String get scoreBadge => 'Score badge';
+
+  @override
+  String get airingDot => 'Airing dot';
+
+  @override
+  String get updateAvailable => 'Update available';
+
+  @override
+  String get notInstalled => 'Not installed';
+
+  @override
+  String get done => 'Done';
+
+  @override
+  String get searchOrEnterUrl => 'Search or enter URL';
+
+  @override
+  String get refresh => 'Refresh';
+
+  @override
+  String get share => 'Share';
+
+  @override
+  String get characters => 'പാത്രങ്ങൾ';
+
+  @override
+  String get staff => 'സ്റ്റാഫ്';
+
+  @override
+  String get readMore => 'Read more';
+
+  @override
+  String get couldNotLoadList => 'Could not load the list';
+
+  @override
+  String get logInToFavourite => 'Log in to add favourites';
+
+  @override
+  String get alsoKnownAs => 'Also known as';
+
+  @override
+  String get hideSpoilerNames => 'Hide spoiler names';
+
+  @override
+  String get showSpoilerNames => 'Show spoiler names';
+
+  @override
+  String get favourited => 'Favourited';
+
+  @override
+  String get favourite => 'Favourite';
+
+  @override
+  String get couldNotOpenTitle => 'Could not open this title';
+
+  @override
+  String get nobodyHereYet => 'Nobody here yet';
+
+  @override
+  String get noMatches => 'No matches';
+
+  @override
+  String get gridView => 'ഗ്രിഡ് വ്യൂ';
+
+  @override
+  String get fullWidth => 'Full width';
+
+  @override
+  String get userNotFound => 'User not found';
+
+  @override
+  String get couldNotUpdateFollow => 'Could not update follow';
+
+  @override
+  String followedUser(String name) {
+    return 'Followed $name';
+  }
+
+  @override
+  String unfollowedUser(String name) {
+    return 'Unfollowed $name';
+  }
+
+  @override
+  String get messages => 'Messages';
+
+  @override
+  String get logInToSeeMessages => 'Log in to see your messages';
+
+  @override
+  String get editActivity => 'Edit activity';
+
+  @override
+  String get newActivity => 'New activity';
+
+  @override
+  String get editMessage => 'Edit message';
+
+  @override
+  String get writeMessage => 'Write a message';
+
+  @override
+  String get editReply => 'Edit reply';
+
+  @override
+  String get posted => 'Posted';
+
+  @override
+  String get couldNotPost => 'Could not post';
+
+  @override
+  String get nothingToPreview => 'Nothing to preview';
+
+  @override
+  String get writeSomethingHint =>
+      'Write something… AniList markdown works here';
+
+  @override
+  String get privateMessage => 'Private message';
+
+  @override
+  String get post => 'Post';
+
+  @override
+  String get nothingHere => 'Nothing here';
+
+  @override
+  String get noAnimeProgress => 'No anime progress';
+
+  @override
+  String get noMangaProgress => 'No manga progress';
+
+  @override
+  String get noMessages => 'No messages';
+
+  @override
+  String get writeMessageHint => 'Write a message…';
+
+  @override
+  String get shareSomethingHint => 'Share something…';
+
+  @override
+  String get all => 'All';
+
+  @override
+  String get anime => 'ആനിമെ';
+
+  @override
+  String get manga => 'മംഗ';
+
+  @override
+  String get count => 'Count';
+
+  @override
+  String get hoursWatched => 'Hours watched';
+
+  @override
+  String get chaptersRead => 'Chapters read';
+
+  @override
+  String get meanScore => 'Mean Score';
+
+  @override
+  String get noStatsYet => 'No stats yet';
+
+  @override
+  String get totalEntries => 'Total entries';
+
+  @override
+  String get episodesWatched => 'Episodes watched';
+
+  @override
+  String get daysWatched => 'Days watched';
+
+  @override
+  String get volumesRead => 'Volumes read';
+
+  @override
+  String get standardDeviation => 'Standard deviation';
+
+  @override
+  String get showMore => 'Show more';
+
+  @override
+  String get followsYou => 'Follows you';
+
+  @override
+  String get nobodyYet => 'Nobody yet';
+
+  @override
+  String get logInToLike => 'Log in to like';
+
+  @override
+  String get failedToLikeActivity => 'Failed to like activity';
+
+  @override
+  String get deleteActivityConfirm => 'Delete activity?';
+
+  @override
+  String get deletedActivity => 'Deleted activity';
+
+  @override
+  String get failedToDeleteActivity => 'Failed to delete activity';
+
+  @override
+  String get subscribed => 'Subscribed';
+
+  @override
+  String get unsubscribed => 'Unsubscribed';
+
+  @override
+  String get failedToUpdateSubscription => 'Failed to update subscription';
+
+  @override
+  String get edit => 'Edit';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get likedBy => 'Liked by';
+
+  @override
+  String get follow => 'Follow';
+
+  @override
+  String get nameCopied => 'Name copied';
+
+  @override
+  String get followsEachOther => 'Follows each other';
+
+  @override
+  String get unfollow => 'Unfollow';
+
+  @override
+  String get userIdCopied => 'User id copied';
+
+  @override
+  String get shareProfile => 'Share profile';
+
+  @override
+  String get copyUserId => 'Copy user id';
+
+  @override
+  String get failedToDelete => 'Failed to delete';
+
+  @override
+  String get failedToLike => 'Failed to like';
+
+  @override
+  String get replies => 'Replies';
+
+  @override
+  String get reply => 'Reply';
+
+  @override
+  String get noRepliesYet => 'No replies yet';
+
+  @override
+  String get favouriteAnime => 'Favourite anime';
+
+  @override
+  String get favouriteManga => 'Favourite manga';
+
+  @override
+  String get favouriteCharacters => 'Favourite characters';
+
+  @override
+  String get favouriteStaff => 'Favourite staff';
+
+  @override
+  String get favouriteStudios => 'Favourite studios';
+
+  @override
+  String get noFavouritesYet => 'No favourites yet';
+
+  @override
+  String get yourStory => 'Your story';
+
+  @override
+  String get copiedToClipboard => 'Copied to clipboard';
+
+  @override
+  String get justNow => 'Just now';
+
+  @override
+  String get openImage => 'Open image';
+
+  @override
+  String get hideSpoiler => 'Hide spoiler';
+
+  @override
+  String get showSpoiler => 'Show spoiler';
+
+  @override
+  String get status => 'Status';
+
+  @override
+  String get score => 'Score';
+
+  @override
+  String get started => 'Started';
+
+  @override
+  String get completed => 'Completed';
+
+  @override
+  String get private => 'Private';
+
+  @override
+  String get hideFromStatusLists => 'Hide from status lists';
+
+  @override
+  String get totalRepeats => 'Total repeats';
+
+  @override
+  String get other => 'Other';
+
+  @override
+  String get customLists => 'Custom lists';
+
+  @override
+  String get activeDays => 'Active days';
+
+  @override
+  String get longestStreak => 'Longest streak';
+
+  @override
+  String get currentStreak => 'Current streak';
+
+  @override
+  String get tapOrHoverDay => 'Tap or hover a day';
+
+  @override
+  String get less => 'Less';
+
+  @override
+  String get more => 'More';
+
+  @override
+  String epIn(int ep, String time) {
+    return 'Ep $ep in $time';
+  }
+
+  @override
+  String get sectionLoading => 'Loading';
+
+  @override
+  String get querySize => 'Query size';
+
+  @override
+  String get querySizeDesc =>
+      'One big query loads every row (and a whole profile) in a single request. Split queries send a small request per row or per profile part: each is quick and parts appear as they arrive.';
+
+  @override
+  String get oneBig => 'One big';
+
+  @override
+  String get split => 'Split';
+
+  @override
+  String get sectionSocial => 'Social';
+
+  @override
+  String get systemNotifications => 'System notifications';
+
+  @override
+  String get systemNotificationsDesc =>
+      'Show a notification for each unread AniList notification while the app is running. Opening the notifications page marks them read.';
+
+  @override
+  String get feedLayout => 'Feed layout';
+
+  @override
+  String sectionsShown(int shown, int total) {
+    return '$shown of $total shown — tap to pick and reorder';
+  }
+
+  @override
+  String labelSections(String label) {
+    return '$label sections';
+  }
+
+  @override
+  String get accountOptions => 'Account options';
+
+  @override
+  String get accountOptionsDesc =>
+      'Names, score format, list order, notifications and more';
+
+  @override
+  String get anilistAccountOptions => 'AniList account options';
+
+  @override
+  String get sectionPrivacy => 'Privacy';
+
+  @override
+  String get hidePrivateEntries => 'Hide private entries';
+
+  @override
+  String get hidePrivateEntriesDesc =>
+      'Keep entries marked private on AniList out of the feed';
+
+  @override
+  String get anilistProfile => 'AniList profile';
+
+  @override
+  String get refreshFromAnilist => 'Refresh from AniList';
+
+  @override
+  String get couldNotUpdateAnilistSettings =>
+      'Could not update AniList settings';
+
+  @override
+  String get sectionNames => 'Names';
+
+  @override
+  String get titleLanguage => 'Title language';
+
+  @override
+  String get titleLanguageDesc =>
+      'How titles are written everywhere, e.g. Attack on Titan / Shingeki no Kyojin / 進撃の巨人.';
+
+  @override
+  String get staffCharacterNames => 'Staff and character names';
+
+  @override
+  String get sectionLists => 'Lists';
+
+  @override
+  String get scoreFormat => 'Score format';
+
+  @override
+  String get sortListsBy => 'Sort lists by';
+
+  @override
+  String labelCustomLists(String label) {
+    return '$label custom lists';
+  }
+
+  @override
+  String customListsCount(int count) {
+    return '$count lists — tap to add or remove';
+  }
+
+  @override
+  String get mergeActivities => 'Merge activities';
+
+  @override
+  String minutesCount(int count) {
+    return '$count mins';
+  }
+
+  @override
+  String get timezone => 'Timezone';
+
+  @override
+  String get notSet => 'Not set';
+
+  @override
+  String get airingNotifications => 'Airing notifications';
+
+  @override
+  String get airingNotificationsDesc =>
+      'Get notified when an episode of a followed show airs';
+
+  @override
+  String get displayAdultContent => 'Display adult content';
+
+  @override
+  String get displayAdultContentDesc =>
+      'Include 18+ titles in browse, search and feeds';
+
+  @override
+  String get restrictMessages => 'Restrict messages to following';
+
+  @override
+  String get restrictMessagesDesc => 'Only people you follow can message you';
+
+  @override
+  String get sectionServices => 'Services';
+
+  @override
+  String get novel => 'നവലുകൾ';
+
+  @override
+  String labelService(String label) {
+    return '$label service';
+  }
+
+  @override
+  String nameSettings(String name) {
+    return '$name settings';
+  }
+
+  @override
+  String extensionBridgeOptions(String name) {
+    return 'Options from the $name extension bridge';
+  }
+
+  @override
+  String get importLists => 'Import lists';
+
+  @override
+  String get importListsDesc =>
+      'From Aniyomi, Mihon / Tachiyomi or Kotatsu backups';
+
+  @override
+  String get exportLists => 'Export lists';
+
+  @override
+  String get exportListsDesc => 'To an Aniyomi, Mihon or Kotatsu backup';
+
+  @override
+  String get sectionBrowse => 'Browse';
+
+  @override
+  String get readingTab => 'Reading tab';
+
+  @override
+  String get readingTabDesc => 'Which extensions the third tab shows';
+
+  @override
+  String get defaultFeed => 'Default feed';
+
+  @override
+  String get defaultFeedDesc => 'Which list a source opens with';
+
+  @override
+  String noServiceSupports(String type) {
+    return 'No service supports $type';
+  }
+
+  @override
+  String sourcesLoading(String name, int loaded, int installed) {
+    return '$name · $loaded of $installed sources loading';
+  }
+
+  @override
+  String noExtensionServiceSupportsHere(String type) {
+    return 'No extension service supports $type here.';
+  }
+
+  @override
+  String get loadDataFrom => 'Load data from';
+
+  @override
+  String noInstalledSourcesYet(String type) {
+    return 'No installed $type sources yet.';
+  }
+
+  @override
+  String extensionNotInstalled(String name) {
+    return 'The extension for $name is not installed';
+  }
+
+  @override
+  String get thisSource => 'this source';
+
+  @override
+  String failedToAddRepository(String error) {
+    return 'Failed to add repository: $error';
+  }
+
+  @override
+  String installedType(String type) {
+    return 'Installed $type';
+  }
+
+  @override
+  String availableType(String type) {
+    return 'Available $type';
+  }
+
+  @override
+  String noInstalledExtensions(String type) {
+    return 'No installed $type extensions';
+  }
+
+  @override
+  String noAvailableExtensions(String type) {
+    return 'No available $type extensions';
+  }
+
+  @override
+  String get nothingToShowYet => 'Nothing to show yet';
+
+  @override
+  String get addTitlesHint =>
+      'Add some titles to your list and they\'ll appear here.';
+
+  @override
+  String get couldntLoad => 'Couldn\'t load';
+
+  @override
+  String get progressStyleHint =>
+      'Pill and bar overlay the poster; outside shows the same count as plain text instead — pick one.';
+
+  @override
+  String get nixManagedUpdate =>
+      'This build is managed by Nix — run \"nix flake update\" on your flake and rebuild instead of updating from here';
+
+  @override
+  String autoUpdateFailed(String error) {
+    return 'Automatic update failed ($error) — opening the download page instead';
+  }
+
+  @override
+  String get unknownPreference => 'Unknown preference';
+
+  @override
+  String unsupportedPreferenceType(String type) {
+    return 'Unsupported preference type $type';
+  }
+
+  @override
+  String get notYetReleased => 'Not Yet Released';
+
+  @override
+  String get notStarted => 'Not Started';
+
+  @override
+  String get country => 'Country';
+
+  @override
+  String get sort => 'ക്രമീകരിക്കുക';
+
+  @override
+  String get chooseBackupDialog => 'Choose an Aniyomi, Mihon or Kotatsu backup';
+
+  @override
+  String get importListsHint =>
+      'Bring a library over from Aniyomi, Mihon / Tachiyomi or Kotatsu. Titles, covers, progress and categories are kept.';
+
+  @override
+  String get chooseBackupFile => 'Choose backup file';
+
+  @override
+  String importAnimeCount(int count) {
+    return 'Import $count anime';
+  }
+
+  @override
+  String importMangaCount(int count) {
+    return 'Import $count manga';
+  }
+
+  @override
+  String get mergeWithExisting => 'Merge with existing lists';
+
+  @override
+  String get mergeWithExistingDesc =>
+      'Keeps what you already have; off replaces matching titles';
+
+  @override
+  String get chooseAnother => 'Choose another';
+
+  @override
+  String get import => 'Import';
+
+  @override
+  String animeCount(int count) {
+    return '$count anime';
+  }
+
+  @override
+  String mangaCount(int count) {
+    return '$count manga';
+  }
+
+  @override
+  String get chooseSaveLocation => 'Choose where to save the backup';
+
+  @override
+  String savedPath(String path) {
+    return 'Saved $path';
+  }
+
+  @override
+  String exportFailed(String error) {
+    return 'Export failed: $error';
+  }
+
+  @override
+  String get nothingInLocalLists => 'Nothing in your local lists yet.';
+
+  @override
+  String exportsSummary(int anime, int manga) {
+    return 'Exports $anime anime and $manga manga from your local lists. Kotatsu only supports manga.';
+  }
+
+  @override
+  String get saveToFolder => 'Save to folder';
+
+  @override
+  String get formatAnimeManga => 'Anime and manga · .tachibk';
+
+  @override
+  String get formatMangaTachibk => 'Manga only · .tachibk';
+
+  @override
+  String get formatMangaZip => 'Manga only · .zip';
+
+  @override
+  String get genres => 'ശാഖകൾ';
+
+  @override
+  String get relations => 'Relations';
+
+  @override
+  String get recommendations => 'Recommendations';
+
+  @override
+  String get openings => 'Openings';
+
+  @override
+  String get endings => 'Endings';
+
+  @override
+  String get background => 'Background';
+
+  @override
+  String get links => 'Links';
+
+  @override
+  String get rank => 'Rank';
+
+  @override
+  String get members => 'Members';
+
+  @override
+  String get favorites => 'പ്രിയപ്പെട്ടവ';
+
+  @override
+  String get episodes => 'Episodes';
+
+  @override
+  String get chapters => 'Chapters';
+
+  @override
+  String get volumes => 'Volumes';
+
+  @override
+  String get format => 'രൂപരേഖ';
+
+  @override
+  String get source => 'Source';
+
+  @override
+  String get duration => 'Duration';
+
+  @override
+  String minutesPerEpisode(int minutes) {
+    return '$minutes min per ep';
+  }
+
+  @override
+  String get rating => 'Rating';
+
+  @override
+  String get studio => 'Studio';
+
+  @override
+  String get serialization => 'Serialization';
+
+  @override
+  String get season => 'മാസകാലം';
+
+  @override
+  String get broadcast => 'Broadcast';
+
+  @override
+  String get aired => 'Aired';
+
+  @override
+  String get published => 'Published';
+
+  @override
+  String get popularity => 'പ്രചാരം';
+
+  @override
+  String get community => 'Community';
+
+  @override
+  String get watching => 'കാണുന്നു';
+
+  @override
+  String get reading => 'വായിക്കുന്നു';
+
+  @override
+  String get dropped => 'Dropped';
+
+  @override
+  String get planned => 'null പദ്ധതികൊണ്ടുള്ള';
+
+  @override
+  String get trailers => 'Trailers';
+
+  @override
+  String get ratings => 'Ratings';
+
+  @override
+  String get originalTitle => 'Original';
+
+  @override
+  String get titleLabel => 'Title';
+
+  @override
+  String get votes => 'Votes';
+
+  @override
+  String get watchedStat => 'Watched';
+
+  @override
+  String get runtime => 'Runtime';
+
+  @override
+  String get director => 'Director';
+
+  @override
+  String get network => 'Network';
+
+  @override
+  String get certification => 'Certification';
+
+  @override
+  String get airs => 'Airs';
+
+  @override
+  String get budget => 'Budget';
+
+  @override
+  String get revenue => 'Revenue';
+
+  @override
+  String get released => 'Released';
+
+  @override
+  String get tags => 'Tags';
+
+  @override
+  String get author => 'Author';
+
+  @override
+  String get born => 'Born';
+
+  @override
+  String get website => 'Website';
+
+  @override
+  String get established => 'Established';
+
+  @override
+  String get manhwa => 'Manhwa';
+
+  @override
+  String get manhua => 'Manhua';
+
+  @override
+  String get novels => 'Novels';
+
+  @override
+  String get thisMonth => 'This month';
+
+  @override
+  String get movies => 'Movies';
+
+  @override
+  String get shows => 'Shows';
+
+  @override
+  String get rewatching => 'Rewatching';
+
+  @override
+  String get rereading => 'Rereading';
+
+  @override
+  String get watchedStatus => 'Watched';
+
+  @override
+  String get planning => 'Planning';
+
+  @override
+  String get paused => 'Paused';
+
+  @override
+  String get watch => 'കാണുക';
+
+  @override
+  String get read => 'ഒരുക്കുക';
+
+  @override
+  String get finished => 'Finished';
+
+  @override
+  String get releasing => 'Releasing';
+
+  @override
+  String get cancelled => 'Cancelled';
+
+  @override
+  String get hiatus => 'Hiatus';
+
+  @override
+  String get remove => 'Remove';
+
+  @override
+  String get cardPresetPoster => 'Poster';
+
+  @override
+  String get cardPresetCard => 'Card';
+
+  @override
+  String get cardPresetCozy => 'Cozy';
+
+  @override
+  String get sortTopRated => 'Top rated';
+
+  @override
+  String get sortMostPopular => 'Most popular';
+
+  @override
+  String get sortTrending => 'Trending';
+
+  @override
+  String get sortNewest => 'Newest';
+
+  @override
+  String get sortAz => 'A–Z';
+
+  @override
+  String get sortMostFavourited => 'Most favourited';
+
+  @override
+  String get anyCountry => 'Any country';
+
+  @override
+  String get orderScore => 'Score';
+
+  @override
+  String get orderTitle => 'Title';
+
+  @override
+  String get orderLastUpdated => 'Last Updated';
+
+  @override
+  String get orderLastAdded => 'Last Added';
+
+  @override
+  String get never => 'Never';
+
+  @override
+  String get always => 'Always';
+
+  @override
+  String get scorePoint100 => '100 Point';
+
+  @override
+  String get scorePoint10Decimal => '10 Point Decimal';
+
+  @override
+  String get scorePoint10 => '10 Point';
+
+  @override
+  String get scorePoint5 => '5 Star';
+
+  @override
+  String get scorePoint3 => '3 Point Smiley';
+
+  @override
+  String hoursCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count hours',
+      one: '1 hour',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String daysCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days',
+      one: '1 day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String weeksCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count weeks',
+      one: '1 week',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get continueWatching => 'കാണൽ തുടരുക';
+
+  @override
+  String get continueReading => 'വായന തുടരുക';
+
+  @override
+  String get favouriteAnimeSection => 'Favourite Anime';
+
+  @override
+  String get favouriteMangaSection => 'Favourite Manga';
+
+  @override
+  String get plannedAnime => 'Planned Anime';
+
+  @override
+  String get plannedManga => 'Planned Manga';
+
+  @override
+  String get completedAnime => 'Completed Anime';
+
+  @override
+  String get completedManga => 'Completed Manga';
+
+  @override
+  String get hiddenMedia => 'ലൊക്കിച്ച മീഡിയ';
+
+  @override
+  String get recentUpdates => 'സമീപകാല പുതുക്കലുകൾ';
+
+  @override
+  String get trendingNow => 'Trending Now';
+
+  @override
+  String get popularThisSeason => 'Popular This Season';
+
+  @override
+  String get trendingMovies => 'Trending Movies';
+
+  @override
+  String get topRatedSeries => 'Top Rated Series';
+
+  @override
+  String get mostFavouriteSeries => 'Most Favourite Series';
+
+  @override
+  String get popularAnime => 'Popular Anime';
+
+  @override
+  String get trendingManhwa => 'Trending Manhwa';
+
+  @override
+  String get trendingNovels => 'Trending Novels';
+
+  @override
+  String get topRatedManga => 'Top Rated Manga';
+
+  @override
+  String get mostFavouriteManga => 'Most Favourite Manga';
+
+  @override
+  String get popularManga => 'Popular Manga';
+
+  @override
+  String get topMovies => 'Top Movies';
+
+  @override
+  String get topOna => 'Top ONA';
+
+  @override
+  String get topOva => 'Top OVA';
+
+  @override
+  String get mostPopular => 'Most Popular';
+
+  @override
+  String get mostFavourite => 'എഴുതിയ null';
+
+  @override
+  String get upcoming => 'Upcoming';
+
+  @override
+  String get topManga => 'Top Manga';
+
+  @override
+  String get topManhwa => 'Top Manhwa';
+
+  @override
+  String get topManhua => 'Top Manhua';
+
+  @override
+  String get topNovels => 'Top Novels';
+
+  @override
+  String get topOneShots => 'Top One-shots';
+
+  @override
+  String get trendingMoviesToday => 'Trending Movies Today';
+
+  @override
+  String get trendingShowsToday => 'Trending Shows Today';
+
+  @override
+  String get trendingMoviesWeek => 'Trending Movies This Week';
+
+  @override
+  String get trendingShowsWeek => 'Trending Shows This Week';
+
+  @override
+  String get mostWatchedMoviesMonth => 'Most Watched Movies This Month';
+
+  @override
+  String get mostWatchedShowsMonth => 'Most Watched Shows This Month';
+
+  @override
+  String get trendingThisWeek => 'Trending This Week';
+
+  @override
+  String get mostWatchedThisMonth => 'Most Watched This Month';
+
+  @override
+  String get repoLinksAdded => 'Added Repo Links Successfully!';
+
+  @override
+  String get errorGettingAnilistData => 'Error getting data from AniList.';
+
+  @override
+  String get navInfo => 'INFO';
+
+  @override
+  String get navComments => 'COMMENTS';
+
+  @override
+  String get playerNotAvailable => 'The player is not available yet';
+
+  @override
+  String deepLinkInitialError(String error) {
+    return 'Error getting initial deep link: $error';
+  }
+
+  @override
+  String deepLinkOpenError(String error) {
+    return 'Error Opening link: $error';
+  }
+
+  @override
+  String linkCantBeOpened(String link) {
+    return 'This link can\'t be opened: $link';
+  }
+
+  @override
+  String linkOpenError(String error) {
+    return 'Error opening link: $error';
+  }
+
+  @override
+  String get forReleasingTitles => 'for currently releasing titles';
+
+  @override
+  String get progress => 'Progress';
+
+  @override
+  String get notes => 'Notes';
+
+  @override
+  String serviceNotFound(String id) {
+    return 'Service \"$id\" not found';
+  }
+
+  @override
+  String get glassEffectEnabled => 'Glass effect enabled';
+
+  @override
+  String get glassEffectDisabled => 'Glass effect disabled';
+
+  @override
+  String get materialYouEnabled => 'Material You enabled';
+
+  @override
+  String get materialYouDisabled => 'Material You disabled';
+
+  @override
+  String get darkModeEnabled => 'Dark mode enabled';
+
+  @override
+  String get darkModeDisabled => 'Dark mode disabled';
+
+  @override
+  String get animeList => 'Anime list';
+
+  @override
+  String get mangaList => 'Manga list';
+
+  @override
+  String ownerAnimeList(String owner) {
+    return '$owner\'s anime list';
+  }
+
+  @override
+  String ownerMangaList(String owner) {
+    return '$owner\'s manga list';
+  }
+
+  @override
+  String get loadingList => 'Loading list';
+
+  @override
+  String get earlier => 'Earlier';
+
+  @override
+  String daysAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days ago',
+      one: '1 day ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String hoursAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count hours ago',
+      one: '1 hour ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String minutesAgo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count minutes ago',
+      one: '1 minute ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String minutesAgoShort(int count) {
+    return '${count}m ago';
+  }
+
+  @override
+  String hoursAgoShort(int count) {
+    return '${count}h ago';
+  }
+
+  @override
+  String daysAgoShort(int count) {
+    return '${count}d ago';
+  }
+
+  @override
+  String weeksAgoShort(int count) {
+    return '${count}w ago';
+  }
+
+  @override
+  String get couldntLoadSource => 'Couldn\'t load this source';
+
+  @override
+  String get followers => 'Followers';
+
+  @override
+  String couldntLoadTitle(String title) {
+    return 'Couldn\'t load $title';
+  }
+
+  @override
+  String userTitle(String name, String title) {
+    return '$name · $title';
+  }
+
+  @override
+  String get couldntLoadProfile => 'Couldn\'t load this profile';
+
+  @override
+  String get profile => 'Profile';
+
+  @override
+  String get feed => 'Feed';
+
+  @override
+  String get stats => 'Stats';
+
+  @override
+  String get received => 'Received';
+
+  @override
+  String get sent => 'Sent';
+
+  @override
+  String get global => 'Global';
+
+  @override
+  String get couldntLoadPage => 'Couldn\'t load this page';
+
+  @override
+  String get couldntLoadAllDetails => 'Couldn\'t load all details';
+
+  @override
+  String get series => 'Series';
+
+  @override
+  String get studios => 'Studios';
+
+  @override
+  String get users => 'Users';
+
+  @override
+  String repositoriesTitle(String type) {
+    return '$type Repositories';
+  }
+
+  @override
+  String get repositoryUrl => 'Repository URL';
+
+  @override
+  String get downloadingRepository => 'Downloading repository…';
+
+  @override
+  String get noRepositories => 'No repositories added';
+
+  @override
+  String repoExtensionsCount(String count) {
+    return '$count extensions';
+  }
+
+  @override
+  String get searchExtensions => 'Search extensions...';
+
+  @override
+  String deletePluginTitle(String name) {
+    return 'Delete $name?';
+  }
+
+  @override
+  String get deletePluginMessage =>
+      'Are you sure you want to delete this plugin?';
+
+  @override
+  String pluginDeleted(String name) {
+    return '$name deleted';
+  }
+
+  @override
+  String pluginNotInRepo(String name) {
+    return '$name is not available in the configured repo';
+  }
+
+  @override
+  String get pluginFetchFailed => 'Failed to fetch plugin info';
+
+  @override
+  String installPluginTitle(String name) {
+    return 'Install $name';
+  }
+
+  @override
+  String sizeLabel(String size) {
+    return 'Size: $size';
+  }
+
+  @override
+  String get installedState => 'Installed';
+
+  @override
+  String get errorLabel => 'Error:';
+
+  @override
+  String get stackTraceDetails => 'Details (Stack Trace)';
+
+  @override
+  String get shareLogFile => 'Share log file';
+
+  @override
+  String get copyLogs => 'Copy Logs';
+
+  @override
+  String noListToEdit(String service) {
+    return '$service has no list to edit';
+  }
+
+  @override
+  String get couldNotReadFile => 'Could not read that file';
+
+  @override
+  String importedSummary(int anime, int manga) {
+    return 'Imported $anime anime and $manga manga';
+  }
+
+  @override
+  String alreadyThere(int count) {
+    return ' · $count already there';
+  }
 }
