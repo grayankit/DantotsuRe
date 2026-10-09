@@ -16,7 +16,7 @@ class MangaBakaFeedView extends FeedScreenView {
   @override
   List<int> skeleton(MediaType type) => [
     for (final s in applyLayout(
-      mangaBakaSections,
+      mangaBakaSectionsFor(type),
       (s) => s.title,
       MangaBakaPref.feedLayout.value,
     ))
@@ -24,12 +24,13 @@ class MangaBakaFeedView extends FeedScreenView {
   ];
 
   @override
-  List<FeedChip> chips(MediaType type) => [
-    FeedChip('manga', getString.manga),
-    FeedChip('manhwa', getString.manhwa),
-    FeedChip('manhua', getString.manhua),
-    FeedChip('novel', getString.novels),
-  ];
+  List<FeedChip> chips(MediaType type) => type == MediaType.novel
+      ? const []
+      : [
+          FeedChip('manga', getString.manga),
+          FeedChip('manhwa', getString.manhwa),
+          FeedChip('manhua', getString.manhua),
+        ];
 
   @override
   Future<List<Media>?> chipMedia(MediaType type, FeedChip chip) =>
@@ -39,9 +40,11 @@ class MangaBakaFeedView extends FeedScreenView {
   Stream<List<ScreenWidget>> screenStream(MediaType type) {
     final queries = mangaBakaAuth.queries;
     return sectionWidgets(
-      queries.browseJobs(anime: false),
+      queries.browseJobsFor(type),
       build: (title, media) {
-        final section = mangaBakaSections.firstWhere((s) => s.title == title);
+        final section = mangaBakaSectionsFor(
+          type,
+        ).firstWhere((s) => s.title == title);
         return ScreenWidget.media(
           title,
           media,

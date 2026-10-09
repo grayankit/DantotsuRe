@@ -5,7 +5,7 @@ import '../Queries.dart';
 
 class MangaBakaSearchView extends SearchScreenView {
   @override
-  List<MediaType> get types => const [MediaType.manga];
+  List<MediaType> get types => const [MediaType.manga, MediaType.novel];
 
   @override
   Future<SearchResults?> search(SearchResults query) =>

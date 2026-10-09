@@ -31,7 +31,7 @@ class MangaBakaService extends MediaService {
   ServiceAuth get auth => _auth;
 
   @override
-  List<MediaType> get feedTypes => const [MediaType.manga];
+  List<MediaType> get feedTypes => const [MediaType.manga, MediaType.novel];
 
   @override
   HomeScreenView get homeView => MangaBakaHomeView(this);

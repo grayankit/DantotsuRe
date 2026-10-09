@@ -8,6 +8,7 @@ import '../../../Core/Services/LayoutPref.dart';
 import '../../../Core/Services/Model/Media.dart';
 import '../../../Core/Services/Model/MediaListEntry.dart';
 import '../../../Core/ThemeManager/LanguageSwitcher.dart';
+import '../../../Model/MediaType.dart';
 import '../../../Model/SearchResults.dart';
 import 'Client.dart';
 import 'Data/Mapper.dart';
@@ -42,6 +43,22 @@ const mangaBakaSections = [
     'type': 'novel',
   }),
 ];
+
+const _readingTypes = 'manga,manhwa,manhua';
+
+List<MangaBakaSection> mangaBakaSectionsFor(MediaType type) {
+  final novel = type == MediaType.novel;
+  return [
+    for (final s in mangaBakaSections)
+      if (s.title == (novel ? 'Top Manga' : 'Top Novels'))
+        ...const <MangaBakaSection>[]
+      else
+        MangaBakaSection(s.title, {
+          ...s.query,
+          'type': s.query['type'] ?? (novel ? 'novel' : _readingTypes),
+        }),
+  ];
+}
 
 const _fallbackGenres = {
   'Action': 'action',
@@ -338,6 +355,15 @@ class MangaBakaQueries extends Queries {
         j.$2,
     ];
   }
+
+  List<SectionJob> browseJobsFor(MediaType type) => [
+    for (final section in applyLayout(
+      mangaBakaSectionsFor(type),
+      (s) => s.title,
+      MangaBakaPref.feedLayout.value,
+    ))
+      () async => {section.title: await sectionPage(section)},
+  ];
 
   @override
   List<SectionJob> browseJobs({required bool anime}) => anime
