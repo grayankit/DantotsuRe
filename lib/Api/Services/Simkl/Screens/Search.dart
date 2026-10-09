@@ -2,6 +2,7 @@ import '../../../../Core/Services/MediaService.dart';
 import '../../../../Model/SearchResults.dart';
 import '../../../../Utils/Functions/SnackBar.dart';
 import '../Auth.dart';
+import '../../../../Core/ThemeManager/LanguageSwitcher.dart';
 
 class SimklSearchView extends SearchScreenView {
   @override
@@ -14,7 +15,7 @@ class SimklSearchView extends SearchScreenView {
   @override
   Future<SearchResults?> search(SearchResults query) async {
     if (!simklAuth.isLoggedIn) {
-      snackString('Sign in to Simkl to search');
+      snackString(getString.simklSignInToSearch);
       return query
         ..results = const []
         ..hasNextPage = false;

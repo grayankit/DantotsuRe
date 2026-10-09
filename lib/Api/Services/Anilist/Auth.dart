@@ -11,6 +11,7 @@ import 'Mutations.dart';
 import 'Queries.dart';
 import 'Data/User.dart';
 import '../../../Core/State/State.dart';
+import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 
 AnilistAuth get anilistAuth => find<AnilistAuth>();
 
@@ -74,12 +75,12 @@ class AnilistAuth extends AppController implements ServiceAuth {
       final match = RegExp(r'access_token=([^&]+)').firstMatch(result);
       final token = match?.group(1);
       if (token == null || token.isEmpty) {
-        snackString('Login cancelled');
+        snackString(getString.loginCancelled);
         return false;
       }
       return await loginWithToken(token);
     } catch (e) {
-      snackString('Login failed: $e');
+      snackString(getString.loginFailed(e.toString()));
       return false;
     }
   }
@@ -95,7 +96,7 @@ class AnilistAuth extends AppController implements ServiceAuth {
     final ok = user.value != null;
     if (!ok) {
       token.value = '';
-      snackString('Invalid token');
+      snackString(getString.invalidToken);
     }
     return ok;
   }

@@ -5,6 +5,7 @@ import '../../../../Utils/Function.dart';
 import '../../../../Utils/Functions/SnackBar.dart';
 import '../Auth.dart';
 import '../Data/User.dart';
+import '../../../../Core/ThemeManager/LanguageSwitcher.dart';
 
 class SimklSettingsView extends SettingsScreenView {
   @override
@@ -13,19 +14,19 @@ class SimklSettingsView extends SettingsScreenView {
     return [
       if (user is SimklUser)
         Setting.normal(
-          name: 'Simkl profile',
+          name: getString.simklProfile,
           description: user.name,
           icon: Icons.person_outline_rounded,
           onClick: () => openLinkInBrowser(user.profileUrl),
         ),
       Setting.normal(
-        name: 'Refresh from Simkl',
-        description: 'Re-pull your profile and library',
+        name: getString.refreshFromSimkl,
+        description: getString.repullProfileLibrary,
         icon: Icons.refresh_rounded,
         onClick: () async {
           simklAuth.queries.clearLibrary();
           await simklAuth.refreshUser();
-          snackString('Refreshed');
+          snackString(getString.refreshed);
         },
       ),
     ];

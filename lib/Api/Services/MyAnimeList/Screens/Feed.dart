@@ -2,6 +2,7 @@ import '../../../../Core/Services/MediaService.dart';
 import '../../../../Core/Services/Model/Media.dart';
 import '../Auth.dart';
 import '../Queries.dart';
+import '../../../../Core/ThemeManager/LanguageSwitcher.dart';
 
 class MalFeedView extends FeedScreenView {
   MalFeedView(super.service);
@@ -16,16 +17,16 @@ class MalFeedView extends FeedScreenView {
 
   @override
   List<FeedChip> chips(MediaType type) => type.isVideo
-      ? const [
-          FeedChip('previous', 'Previous season'),
-          FeedChip('current', 'This season'),
-          FeedChip('next', 'Next season'),
+      ? [
+          FeedChip('previous', getString.previousSeason),
+          FeedChip('current', getString.thisSeason),
+          FeedChip('next', getString.nextSeason),
         ]
-      : const [
-          FeedChip('manga', 'Manga'),
-          FeedChip('manhwa', 'Manhwa'),
-          FeedChip('manhua', 'Manhua'),
-          FeedChip('novel', 'Novels'),
+      : [
+          FeedChip('manga', getString.manga),
+          FeedChip('manhwa', getString.manhwa),
+          FeedChip('manhua', getString.manhua),
+          FeedChip('novel', getString.novels),
         ];
 
   @override

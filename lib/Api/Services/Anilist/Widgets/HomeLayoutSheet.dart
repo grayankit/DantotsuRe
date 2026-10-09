@@ -7,41 +7,24 @@ import '../../../../Widgets/Components/CustomBottomDialog.dart';
 import '../../../../Widgets/Components/ThemedContainer.dart';
 import '../../../../Core/Preferences/PrefManager.dart';
 import '../../../../Core/State/State.dart';
+import '../../../../Core/ThemeManager/LanguageSwitcher.dart';
+import '../../../../Widgets/Components/ScreenState.dart';
+import 'HomeLayoutState.dart';
 
 class HomeLayoutSheet extends StatefulWidget {
-  final String title;
+  final String? title;
   final Pref<Map<String, bool>> pref;
 
-  const HomeLayoutSheet({
-    super.key,
-    this.title = 'Home sections',
-    required this.pref,
-  });
+  const HomeLayoutSheet({super.key, this.title, required this.pref});
 
   @override
   State<HomeLayoutSheet> createState() => _HomeLayoutSheetState();
 }
 
-class _HomeLayoutSheetState extends State<HomeLayoutSheet> {
-  late final _entries = widget.pref.value.entries
-      .map((e) => MapEntry(e.key, e.value))
-      .toList()
-      .liveList;
-
-  void _save() {
-    widget.pref.rx.value = {for (final e in _entries) e.key: e.value};
-  }
-
-  void _toggle(int index, bool value) {
-    _entries[index] = MapEntry(_entries[index].key, value);
-    _save();
-  }
-
-  void _reorder(int from, int to) {
-    final target = to > from ? to - 1 : to;
-    _entries.insert(target, _entries.removeAt(from));
-    _save();
-  }
+class _HomeLayoutSheetState extends State<HomeLayoutSheet>
+    with ScreenStateHost<HomeLayoutSheet, HomeLayoutState> {
+  @override
+  HomeLayoutState buildState() => HomeLayoutState(widget.pref);
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +54,7 @@ class _HomeLayoutSheetState extends State<HomeLayoutSheet> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(24, 0, 24, 4),
                 child: Text(
-                  widget.title,
+                  widget.title ?? getString.homeSections,
                   style: context.textTheme.titleMedium,
                   textAlign: TextAlign.center,
                 ),
@@ -79,7 +62,7 @@ class _HomeLayoutSheetState extends State<HomeLayoutSheet> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
                 child: Text(
-                  'Drag to reorder. Hidden sections are never fetched.',
+                  getString.homeSectionsHint,
                   textAlign: TextAlign.center,
                   style: context.textTheme.bodySmall?.copyWith(
                     color: scheme.onSurfaceVariant,
@@ -96,12 +79,12 @@ class _HomeLayoutSheetState extends State<HomeLayoutSheet> {
                     shrinkWrap: true,
                     buildDefaultDragHandles: false,
                     padding: EdgeInsets.symmetric(horizontal: Dimens.pagePad),
-                    itemCount: _entries.length,
-                    onReorder: _reorder,
+                    itemCount: state.entries.length,
+                    onReorder: state.reorder,
                     itemBuilder: (context, i) {
-                      final entry = _entries[i];
+                      final entry = state.entries[i];
                       final first = i == 0;
-                      final last = i == _entries.length - 1;
+                      final last = i == state.entries.length - 1;
                       return ClipRRect(
                         key: ValueKey(entry.key),
                         borderRadius: BorderRadius.vertical(
@@ -146,9 +129,9 @@ class _HomeLayoutSheetState extends State<HomeLayoutSheet> {
                                 ),
                                 trailing: Switch(
                                   value: entry.value,
-                                  onChanged: (v) => _toggle(i, v),
+                                  onChanged: (v) => state.toggle(i, v),
                                 ),
-                                onTap: () => _toggle(i, !entry.value),
+                                onTap: () => state.toggle(i, !entry.value),
                               ),
                             ],
                           ),
@@ -168,7 +151,7 @@ class _HomeLayoutSheetState extends State<HomeLayoutSheet> {
 
 Future<void> showHomeLayoutSheet(
   BuildContext context, {
-  String title = 'Home sections',
+  String? title,
   required Pref<Map<String, bool>> pref,
 }) => showCustomBottomDialog<void>(
   context,

@@ -1,3 +1,5 @@
+import '../../../../Core/ThemeManager/LanguageSwitcher.dart';
+
 const kAnilistTitleLanguages = {
   'ENGLISH': 'English',
   'ROMAJI': 'Romaji',
@@ -10,27 +12,27 @@ const kAnilistStaffLanguages = {
   'NATIVE': 'Native (キルア=ゾルディック)',
 };
 
-const kAnilistRowOrders = {
-  'score': 'Score',
-  'title': 'Title',
-  'updatedAt': 'Last Updated',
-  'id': 'Last Added',
+Map<String, String> get kAnilistRowOrders => {
+  'score': getString.orderScore,
+  'title': getString.orderTitle,
+  'updatedAt': getString.orderLastUpdated,
+  'id': getString.orderLastAdded,
 };
 
-const kAnilistMergeTimes = {
-  0: 'Never',
-  30: '30 mins',
-  60: '1 hour',
-  120: '2 hours',
-  180: '3 hours',
-  360: '6 hours',
-  720: '12 hours',
-  1440: '1 day',
-  2880: '2 days',
-  4320: '3 days',
-  10080: '1 week',
-  20160: '2 weeks',
-  29160: 'Always',
+Map<int, String> get kAnilistMergeTimes => {
+  0: getString.never,
+  30: getString.minutesCount(30),
+  60: getString.hoursCount(1),
+  120: getString.hoursCount(2),
+  180: getString.hoursCount(3),
+  360: getString.hoursCount(6),
+  720: getString.hoursCount(12),
+  1440: getString.daysCount(1),
+  2880: getString.daysCount(2),
+  4320: getString.daysCount(3),
+  10080: getString.weeksCount(1),
+  20160: getString.weeksCount(2),
+  29160: getString.always,
 };
 
 const kAnilistTimezones = [

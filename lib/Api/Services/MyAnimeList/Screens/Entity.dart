@@ -3,6 +3,7 @@ import '../../../../Core/Services/Model/Author.dart';
 import '../../../../Core/Services/Model/Media.dart';
 import '../Auth.dart';
 import '../Data/Mapper.dart';
+import '../../../../Core/ThemeManager/LanguageSwitcher.dart';
 
 class MalEntityView extends EntityScreenView {
   MalEntityView(super.service);
@@ -30,7 +31,7 @@ class MalEntityView extends EntityScreenView {
         yield [
           if (first.isNotEmpty)
             ScreenWidget.media(
-              'Anime',
+              getString.anime,
               first,
               onLoadMore: (page) => queries.producerAnime(id, page),
             ),
@@ -70,9 +71,9 @@ class MalEntityView extends EntityScreenView {
     }
     return [
       for (final e in voices.entries)
-        ScreenWidget.staff('Voice actors · ${e.key}', e.value),
-      ..._media('Anime appearances', j['anime'], 'anime', true),
-      ..._media('Manga appearances', j['manga'], 'manga', false),
+        ScreenWidget.staff(getString.voiceActorsIn(e.key), e.value),
+      ..._media(getString.animeAppearances, j['anime'], 'anime', true),
+      ..._media(getString.mangaAppearances, j['manga'], 'manga', false),
     ];
   }
 
@@ -92,9 +93,10 @@ class MalEntityView extends EntityScreenView {
       favourites: (j['favorites'] as num?)?.toInt(),
       url: j['url'] as String?,
       facts: [
-        if (_date(j['birthday']) != null) ('Born', _date(j['birthday'])!),
+        if (_date(j['birthday']) != null)
+          (getString.born, _date(j['birthday'])!),
         if ((j['website_url'] as String?)?.isNotEmpty ?? false)
-          ('Website', j['website_url'] as String),
+          (getString.website, j['website_url'] as String),
       ],
       description: tenraiHtml(j['about'] as String?),
     );
@@ -116,9 +118,21 @@ class MalEntityView extends EntityScreenView {
       );
     }
     return [
-      if (roles.isNotEmpty) ScreenWidget.media('Voice roles', roles),
-      ..._media('Staff positions', j['anime'], 'anime', true, key: 'position'),
-      ..._media('Manga works', j['manga'], 'manga', false, key: 'position'),
+      if (roles.isNotEmpty) ScreenWidget.media(getString.voiceRoles, roles),
+      ..._media(
+        getString.staffPositions,
+        j['anime'],
+        'anime',
+        true,
+        key: 'position',
+      ),
+      ..._media(
+        getString.mangaWorks,
+        j['manga'],
+        'manga',
+        false,
+        key: 'position',
+      ),
     ];
   }
 
@@ -143,8 +157,8 @@ class MalEntityView extends EntityScreenView {
       url: 'https://myanimelist.net/anime/producer/${j['mal_id']}',
       facts: [
         if (_date(j['established']) != null)
-          ('Established', _date(j['established'])!),
-        if (j['count'] != null) ('Anime', '${j['count']}'),
+          (getString.established, _date(j['established'])!),
+        if (j['count'] != null) (getString.anime, '${j['count']}'),
       ],
       description: tenraiHtml(j['about'] as String?),
     );

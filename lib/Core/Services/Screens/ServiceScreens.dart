@@ -6,6 +6,7 @@ import '../../../Widgets/Components/ListEditorFields.dart';
 import '../../../Screen/Detail/DetailWidgets.dart';
 import '../Model/Media.dart';
 import '../MediaService.dart';
+import '../../ThemeManager/LanguageSwitcher.dart';
 
 export '../../../Model/MediaType.dart';
 export '../Api/SectionJobs.dart';
@@ -196,12 +197,12 @@ class ListEditorScreenView {
   bool get advanced => false;
 
   Map<String, String> statuses({required bool anime}) => {
-    'CURRENT': anime ? 'Watching' : 'Reading',
-    'PLANNING': 'Planning',
-    'COMPLETED': 'Completed',
-    'PAUSED': 'Paused',
-    'DROPPED': 'Dropped',
-    'REPEATING': anime ? 'Rewatching' : 'Rereading',
+    'CURRENT': anime ? getString.watching : getString.reading,
+    'PLANNING': getString.planning,
+    'COMPLETED': getString.completed,
+    'PAUSED': getString.paused,
+    'DROPPED': getString.dropped,
+    'REPEATING': anime ? getString.rewatching : getString.rereading,
   };
 
   Map<String, bool> customLists(Media media) => const {};

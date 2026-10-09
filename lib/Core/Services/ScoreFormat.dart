@@ -1,18 +1,26 @@
+import '../ThemeManager/LanguageSwitcher.dart';
 import 'MediaServiceController.dart';
 import '../State/State.dart';
 
 enum ScoreFormat {
-  point100('POINT_100', '100 Point', '55/100'),
-  point10Decimal('POINT_10_DECIMAL', '10 Point Decimal', '5.5/10'),
-  point10('POINT_10', '10 Point', '5/10'),
-  point5('POINT_5', '5 Star', '3/5'),
-  point3('POINT_3', '3 Point Smiley', ':)');
+  point100('POINT_100', '55/100'),
+  point10Decimal('POINT_10_DECIMAL', '5.5/10'),
+  point10('POINT_10', '5/10'),
+  point5('POINT_5', '3/5'),
+  point3('POINT_3', ':)');
 
   final String api;
-  final String title;
   final String example;
 
-  const ScoreFormat(this.api, this.title, this.example);
+  const ScoreFormat(this.api, this.example);
+
+  String get title => switch (this) {
+    point100 => getString.scorePoint100,
+    point10Decimal => getString.scorePoint10Decimal,
+    point10 => getString.scorePoint10,
+    point5 => getString.scorePoint5,
+    point3 => getString.scorePoint3,
+  };
 
   String get label => '$title ($example)';
 

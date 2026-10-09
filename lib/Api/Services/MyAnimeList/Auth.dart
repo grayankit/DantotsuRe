@@ -15,6 +15,7 @@ import 'Mutations.dart';
 import 'Prefs.dart';
 import 'Queries.dart';
 import '../../../Core/State/State.dart';
+import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 
 MalAuth get malAuth => find<MalAuth>();
 
@@ -83,7 +84,7 @@ class MalAuth extends AppController implements ServiceAuth {
       );
       final code = Uri.parse(result).queryParameters['code'];
       if (code == null || code.isEmpty) {
-        snackString('Login cancelled');
+        snackString(getString.loginCancelled);
         return false;
       }
       final ok = await _exchange({
@@ -93,13 +94,13 @@ class MalAuth extends AppController implements ServiceAuth {
         'grant_type': 'authorization_code',
       });
       if (!ok) {
-        snackString('MyAnimeList login failed');
+        snackString(getString.malLoginFailed);
         return false;
       }
       await refreshUser();
       return user.value != null;
     } catch (e) {
-      snackString('Login failed: $e');
+      snackString(getString.loginFailed(e.toString()));
       return false;
     }
   }
@@ -112,7 +113,7 @@ class MalAuth extends AppController implements ServiceAuth {
     final ok = user.value != null;
     if (!ok) {
       token.value = '';
-      snackString('Invalid token');
+      snackString(getString.invalidToken);
     }
     return ok;
   }

@@ -11,6 +11,7 @@ import '../../../../Widgets/Components/ThemedContainer.dart';
 import '../../../../Screen/Settings/ExtensionSourceSettingsScreen.dart';
 import '../Services.dart';
 import '../../../../Core/State/State.dart';
+import '../../../../Core/ThemeManager/LanguageSwitcher.dart';
 
 class ExtensionServiceSheet extends StatelessWidget {
   final ItemType type;
@@ -61,7 +62,7 @@ class ExtensionServiceSheet extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.all(16),
                         child: Text(
-                          'No extension service supports ${type.name} here.',
+                          getString.noExtensionServiceSupportsHere(type.name),
                           style: context.textTheme.bodyMedium,
                         ),
                       ),
@@ -87,14 +88,14 @@ class ExtensionServiceSheet extends StatelessWidget {
                         ),
                       ),
                     const SizedBox(height: 8),
-                    _label(context, 'Load data from'),
+                    _label(context, getString.loadDataFrom),
                     Watch(() {
                       final sources = installedSources(type);
                       if (sources.isEmpty) {
                         return Padding(
                           padding: const EdgeInsets.all(16),
                           child: Text(
-                            'No installed ${type.name} sources yet.',
+                            getString.noInstalledSourcesYet(type.name),
                             style: context.textTheme.bodyMedium?.copyWith(
                               color: scheme.onSurfaceVariant,
                             ),
@@ -149,7 +150,7 @@ class ExtensionServiceSheet extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 8),
                 child: FilledButton.tonal(
                   onPressed: () => popPage(context),
-                  child: const Text('Done'),
+                  child: Text(getString.done),
                 ),
               ),
             ],

@@ -1,6 +1,7 @@
 import '../../../../Core/Services/MediaService.dart';
 import '../Data/Entity.dart';
 import 'Entity.dart';
+import '../../../../Core/ThemeManager/LanguageSwitcher.dart';
 
 class AnilistCharacterScreen extends AnilistEntityScreen {
   @override
@@ -18,15 +19,15 @@ class AnilistCharacterScreen extends AnilistEntityScreen {
     final manga = json['manga'] as Map<String, dynamic>?;
     return [
       for (final entry in voiceActorsByLanguage(anime).entries)
-        ScreenWidget.staff('Voice actors · ${entry.key}', entry.value),
+        ScreenWidget.staff(getString.voiceActorsIn(entry.key), entry.value),
       ...mediaSection(
-        'Anime appearances',
+        getString.animeAppearances,
         anime,
         'characterRole',
         (page) => queries.characterMedia(id, 'ANIME', page),
       ),
       ...mediaSection(
-        'Manga appearances',
+        getString.mangaAppearances,
         manga,
         'characterRole',
         (page) => queries.characterMedia(id, 'MANGA', page),

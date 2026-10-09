@@ -3,6 +3,7 @@ import 'dart:convert';
 import '../../../Core/NetworkManager/NetworkManager.dart';
 import '../../../Utils/Functions/SnackBar.dart';
 import '../../../Core/State/State.dart';
+import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 
 class AnilistException implements Exception {
   final String message;
@@ -98,7 +99,9 @@ class AnilistClient {
     } on AnilistException {
       rethrow;
     } catch (e) {
-      if (showErrors) snackString('AniList: $e');
+      if (showErrors) {
+        snackString(getString.serviceError(getString.anilist, e.toString()));
+      }
       throw AnilistException(e.toString());
     }
   }

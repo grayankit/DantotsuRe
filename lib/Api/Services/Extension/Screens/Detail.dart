@@ -3,6 +3,7 @@ import '../../../../Screen/Detail/DetailWidgets.dart';
 import '../../../../Utils/Functions/SnackBar.dart';
 import '../Queries.dart';
 import '../Services.dart';
+import '../../../../Core/ThemeManager/LanguageSwitcher.dart';
 
 class ExtensionDetailView extends DetailScreenView {
   final ExtensionQueries queries;
@@ -16,7 +17,7 @@ class ExtensionDetailView extends DetailScreenView {
     if (host.cached || source == null) return;
     if (!isSourceInstalled(source)) {
       snackString(
-        'The extension for ${source.name ?? 'this source'} is not installed',
+        getString.extensionNotInstalled(source.name ?? getString.thisSource),
       );
       return;
     }

@@ -10,6 +10,7 @@ import 'MediaService.dart';
 
 export 'MediaService.dart';
 import '../State/State.dart';
+import '../ThemeManager/LanguageSwitcher.dart';
 
 class MediaServiceController extends AppController {
   final services = <MediaService>[].liveList;
@@ -43,7 +44,7 @@ class MediaServiceController extends AppController {
   void switchService(String id) {
     final next = _byId(id);
     if (next == null) {
-      snackString('Service "$id" not found');
+      snackString(getString.serviceNotFound(id));
       return;
     }
     currentService.value = next;

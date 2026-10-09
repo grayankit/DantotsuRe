@@ -1,6 +1,7 @@
 import '../../../../Core/Services/MediaService.dart';
 import '../Data/Entity.dart';
 import 'Entity.dart';
+import '../../../../Core/ThemeManager/LanguageSwitcher.dart';
 
 class AnilistStudioScreen extends AnilistEntityScreen {
   @override
@@ -15,13 +16,13 @@ class AnilistStudioScreen extends AnilistEntityScreen {
   @override
   List<ScreenWidget> widgets(Map<String, dynamic> json, String id) => [
     ...mediaSection(
-      'Main productions',
+      getString.mainProductions,
       json['main'] as Map<String, dynamic>?,
       'none',
       (page) => queries.studioMedia(id, true, page),
     ),
     ...mediaSection(
-      'Other works',
+      getString.otherWorks,
       json['other'] as Map<String, dynamic>?,
       'none',
       (page) => queries.studioMedia(id, false, page),

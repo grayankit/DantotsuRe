@@ -11,6 +11,7 @@ import '../../../../Utils/Nav/DpadNav.dart';
 import '../../../../Widgets/Components/CachedNetworkImage.dart';
 import '../../../../Widgets/Components/ScrollConfig.dart';
 import '../../../../Widgets/Shelf/ShelfFrame.dart';
+import '../../../../Core/ThemeManager/LanguageSwitcher.dart';
 
 class FollowersShelf extends StatelessWidget {
   final Media media;
@@ -33,7 +34,7 @@ class FollowersShelf extends StatelessWidget {
       ...users.where((u) => u.name != me),
     ];
     return ShelfFrame(
-      title: 'Following',
+      title: getString.following,
       child: SizedBox(
         height: 190,
         child: ScrollConfig(

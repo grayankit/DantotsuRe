@@ -8,6 +8,7 @@ import '../../../Utils/Functions/SnackBar.dart';
 import 'Client.dart';
 import 'AnilistService.dart';
 import '../../../Core/State/State.dart';
+import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 
 part 'Mutations/DeleteFromList.dart';
 part 'Mutations/EditList.dart';
@@ -24,7 +25,7 @@ class AnilistMutations extends Mutations {
   @override
   Future<void> editList(Media media, {List<String>? customList}) async {
     if (incognitoBlocksEdits) {
-      snackString('Incognito: list edits are blocked');
+      snackString(getString.incognitoEditsBlocked);
       return;
     }
     await _editList(media, customList: customList);
@@ -33,7 +34,7 @@ class AnilistMutations extends Mutations {
   @override
   Future<void> deleteFromList(Media media) async {
     if (incognitoBlocksEdits) {
-      snackString('Incognito: list edits are blocked');
+      snackString(getString.incognitoEditsBlocked);
       return;
     }
     await _deleteFromList(media);

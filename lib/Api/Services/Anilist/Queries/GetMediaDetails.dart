@@ -14,10 +14,10 @@ extension on AnilistQueries {
         );
         return await compute(_parseDetail, {'media': media, 'body': body});
       } on AnilistException catch (e) {
-        snackString('AniList: ${e.message}');
+        snackString(getString.serviceError(getString.anilist, e.message));
         return media;
       } catch (_) {
-        snackString('Error getting data from AniList.');
+        snackString(getString.errorGettingAnilistData);
         return media;
       }
     }

@@ -5,6 +5,7 @@ import '../Api/Progress.dart';
 import '../MediaService.dart';
 import '../Model/Media.dart';
 import '../../State/State.dart';
+import '../../ThemeManager/LanguageSwitcher.dart';
 
 class LocalMutations extends Mutations {
   final MediaService service;
@@ -17,7 +18,7 @@ class LocalMutations extends Mutations {
   @override
   Future<void> editList(Media media, {List<String>? customList}) async {
     if (incognitoBlocksEdits) {
-      snackString('Incognito: list edits are blocked');
+      snackString(getString.incognitoEditsBlocked);
       return;
     }
     media.userStatus ??= 'CURRENT';
@@ -28,7 +29,7 @@ class LocalMutations extends Mutations {
   @override
   Future<void> deleteFromList(Media media) async {
     if (incognitoBlocksEdits) {
-      snackString('Incognito: list edits are blocked');
+      snackString(getString.incognitoEditsBlocked);
       return;
     }
     _store(media).remove(media.id);
@@ -37,10 +38,10 @@ class LocalMutations extends Mutations {
 
   @override
   Future<void> setProgress(Media media, int progress) async {
-    if (skipForIncognito('Incognito: progress not saved')) return;
+    if (skipForIncognito(getString.incognitoProgressNotSaved)) return;
     if (!applyProgress(media, progress)) return;
     _store(media).touch(media);
-    snackString('Progress set to $progress');
+    snackString(getString.progressSet(progress));
     _signal();
   }
 

@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 
 import '../../../../Core/Services/MediaService.dart';
 import '../../../../Core/Services/Model/Media.dart';
+import '../../../../Screen/Detail/Components/DetailSections.dart';
 import '../../../../Screen/Detail/Components/DetailStats.dart';
 import '../../../../Utils/Extensions/StringExtensions.dart';
 import '../Auth.dart';
@@ -10,6 +11,7 @@ import '../Data/User.dart';
 import '../../../../Screen/Review/ReviewsShelf.dart';
 import '../Widgets/FollowersShelf.dart';
 import '../Widgets/StudioChip.dart';
+import '../../../../Core/ThemeManager/LanguageSwitcher.dart';
 
 class AnilistDetailView extends DetailScreenView {
   AnilistDetailView(super.service);
@@ -58,7 +60,7 @@ class AnilistDetailView extends DetailScreenView {
       ScreenWidget.extra(DetailStats(host)),
       if (description.isNotEmpty)
         ScreenWidget.data(
-          'Synopsis',
+          getString.synopsis,
           ScreenData(
             html: description.contains('<')
                 ? description
@@ -70,10 +72,10 @@ class AnilistDetailView extends DetailScreenView {
         ScreenWidget.extra(
           StudioChip(service: service, studio: m.anime!.studio!),
         ),
-      ..._names(m),
+      ...nameSections(m),
       if (m.genres.isNotEmpty)
         ScreenWidget.data(
-          'Genres',
+          getString.genres,
           ScreenData(chips: m.genres, onChipTap: host.search),
         ),
       ..._tags(m, host),
@@ -83,13 +85,13 @@ class AnilistDetailView extends DetailScreenView {
       ..._followers(m),
       ..._sequels(m),
       if ((m.characters ?? const []).isNotEmpty)
-        ScreenWidget.characters('Characters', m.characters),
+        ScreenWidget.characters(getString.characters, m.characters),
       if ((m.staff ?? const []).isNotEmpty)
-        ScreenWidget.staff('Staff', m.staff),
+        ScreenWidget.staff(getString.staff, m.staff),
       if ((m.relations ?? const []).isNotEmpty)
-        ScreenWidget.media('Relations', m.relations),
+        ScreenWidget.media(getString.relations, m.relations),
       if ((m.recommendations ?? const []).isNotEmpty)
-        ScreenWidget.media('Recommendations', m.recommendations),
+        ScreenWidget.media(getString.recommendations, m.recommendations),
     ];
   }
 
@@ -102,30 +104,18 @@ class AnilistDetailView extends DetailScreenView {
     final author = (anime?.author ?? m.manga?.author)?.name;
     final season = anime?.season;
     final rows = [
-      (m.isAnime ? 'Episodes' : 'Chapters', count),
-      if (m.format != null) ('Format', m.format!.titleCase),
-      if (m.source != null) ('Source', m.source!.titleCase),
-      if (studio?.isNotEmpty ?? false) ('Studio', studio!),
-      if (author?.isNotEmpty ?? false) ('Author', author!),
+      (m.isAnime ? getString.episodes : getString.chapters, count),
+      if (m.format != null) (getString.format, m.format!.titleCase),
+      if (m.source != null) (getString.source, m.source!.titleCase),
+      if (studio?.isNotEmpty ?? false) (getString.studio, studio!),
+      if (author?.isNotEmpty ?? false) (getString.author, author!),
       if (season != null && anime?.seasonYear != null)
-        ('Season', '${season.titleCase} ${anime!.seasonYear}'),
-      if (m.countryOfOrigin != null) ('Country', m.countryOfOrigin!),
-      if (m.startDate?.getFormattedDate() != null) ('Aired', _aired(m)),
+        (getString.season, '${season.titleCase} ${anime!.seasonYear}'),
+      if (m.countryOfOrigin != null) (getString.country, m.countryOfOrigin!),
+      if (m.startDate?.getFormattedDate() != null)
+        (getString.aired, airedRange(m)),
     ];
-    return [ScreenWidget.data('Details', ScreenData(rows: rows))];
-  }
-
-  List<ScreenWidget> _names(Media m) {
-    final rows = [
-      if (m.nameRomaji?.isNotEmpty ?? false) ('Romaji', m.nameRomaji!),
-      if (m.name?.isNotEmpty ?? false) ('English', m.name!),
-    ];
-    if (rows.isEmpty && m.synonyms.isEmpty) return const [];
-    return [
-      ScreenWidget.data('Names', ScreenData(rows: rows, columns: 1)),
-      if (m.synonyms.isNotEmpty)
-        ScreenWidget.data('Synonyms', ScreenData(chips: m.synonyms)),
-    ];
+    return [ScreenWidget.data(getString.details, ScreenData(rows: rows))];
   }
 
   List<ScreenWidget> _followers(Media m) {
@@ -150,15 +140,7 @@ class AnilistDetailView extends DetailScreenView {
     ];
     return related.isEmpty
         ? const []
-        : [ScreenWidget.media('Prequel & Sequel', related)];
-  }
-
-  String _aired(Media m) {
-    final start = m.startDate?.getFormattedDate();
-    final end = m.endDate?.getFormattedDate();
-    if (start == null) return '';
-    if (end == null || end == start) return start;
-    return '$start  –  $end';
+        : [ScreenWidget.media(getString.prequelSequel, related)];
   }
 
   List<ScreenWidget> _tags(Media m, DetailHost host) {
@@ -168,7 +150,7 @@ class AnilistDetailView extends DetailScreenView {
     final sorted = m.tags.toList()..sort((a, b) => rank(b).compareTo(rank(a)));
     return [
       ScreenWidget.data(
-        'Tags',
+        getString.tags,
         ScreenData(
           chips: [for (final t in sorted) t.replaceFirst(' : ', '  ')],
           onChipTap: (chip) => host.search(chip.split('  ').first),

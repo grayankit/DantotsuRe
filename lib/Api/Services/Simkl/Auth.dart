@@ -14,6 +14,7 @@ import 'Mutations.dart';
 import 'Prefs.dart';
 import 'Queries.dart';
 import '../../../Core/State/State.dart';
+import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 
 SimklAuth get simklAuth => find<SimklAuth>();
 
@@ -76,7 +77,7 @@ class SimklAuth extends AppController implements ServiceAuth {
     try {
       return await _login();
     } catch (e) {
-      snackString('Login failed: $e');
+      snackString(getString.loginFailed(e.toString()));
       return false;
     }
   }
@@ -109,7 +110,7 @@ class SimklAuth extends AppController implements ServiceAuth {
     );
     final params = Uri.parse(result).queryParameters;
     if (params['state'] != state || (params['code'] ?? '').isEmpty) {
-      snackString('Login cancelled');
+      snackString(getString.loginCancelled);
       return false;
     }
     final data = await client.token('/oauth2/token', {
@@ -121,7 +122,7 @@ class SimklAuth extends AppController implements ServiceAuth {
     });
     if (!_store(data)) return false;
     if (!'${data['scope']}'.contains('media:write')) {
-      snackString('Simkl granted read-only access');
+      snackString(getString.simklReadOnly);
     }
     await refreshUser();
     return user.value != null;
@@ -135,7 +136,7 @@ class SimklAuth extends AppController implements ServiceAuth {
     final ok = user.value != null;
     if (!ok) {
       token.value = '';
-      snackString('Invalid token');
+      snackString(getString.invalidToken);
     }
     return ok;
   }

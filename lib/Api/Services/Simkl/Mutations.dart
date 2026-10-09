@@ -8,6 +8,7 @@ import 'Client.dart';
 import 'Data/Mapper.dart';
 import 'Queries.dart';
 import '../../../Core/State/State.dart';
+import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 
 class SimklMutations extends Mutations {
   final SimklClient client;
@@ -54,7 +55,7 @@ class SimklMutations extends Mutations {
   @override
   Future<void> editList(Media media, {List<String>? customList}) async {
     if (incognitoBlocksEdits) {
-      snackString('Incognito: list edits are blocked');
+      snackString(getString.incognitoEditsBlocked);
       return;
     }
     final ref = parseSimklMediaId(media.id);
@@ -104,7 +105,7 @@ class SimklMutations extends Mutations {
       }
       _done();
     } on SimklException catch (e) {
-      snackString('Simkl: ${e.message}');
+      snackString(getString.serviceError(getString.simkl, e.message));
     }
   }
 
@@ -116,16 +117,16 @@ class SimklMutations extends Mutations {
       await client.post('/sync/history/remove', _body(ref.$1, ref.$2));
       _done();
     } on SimklException catch (e) {
-      snackString('Simkl: ${e.message}');
+      snackString(getString.serviceError(getString.simkl, e.message));
     }
   }
 
   @override
   Future<void> setProgress(Media media, int progress) async {
-    if (skipForIncognito('Incognito: progress not saved')) return;
+    if (skipForIncognito(getString.incognitoProgressNotSaved)) return;
     if (!applyProgress(media, progress)) return;
     await editList(media);
-    snackString('Progress set to $progress');
+    snackString(getString.progressSet(progress));
   }
 
   void _done() {

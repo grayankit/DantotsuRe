@@ -1,18 +1,19 @@
 import '../../../../Core/Services/MediaService.dart';
 import '../../../../Core/Services/Model/Media.dart';
 import '../../../../Widgets/Components/ListEditorFields.dart';
+import '../../../../Core/ThemeManager/LanguageSwitcher.dart';
 
 class MalListEditorView extends ListEditorScreenView {
   MalListEditorView(super.service);
 
   @override
   Map<String, String> statuses({required bool anime}) => {
-    'CURRENT': anime ? 'Watching' : 'Reading',
-    'PLANNING': anime ? 'Plan to watch' : 'Plan to read',
-    'COMPLETED': 'Completed',
-    'PAUSED': 'On hold',
-    'DROPPED': 'Dropped',
-    'REPEATING': anime ? 'Rewatching' : 'Rereading',
+    'CURRENT': anime ? getString.watching : getString.reading,
+    'PLANNING': anime ? getString.planToWatch : getString.planToRead,
+    'COMPLETED': getString.completed,
+    'PAUSED': getString.onHold,
+    'DROPPED': getString.dropped,
+    'REPEATING': anime ? getString.rewatching : getString.rereading,
   };
 
   @override
@@ -31,9 +32,9 @@ class MalListEditorView extends ListEditorScreenView {
     ScreenWidget.extra(
       ListRepeatField(
         draft: draft,
-        label: media.isAnime ? 'Times rewatched' : 'Times reread',
+        label: media.isAnime ? getString.timesRewatched : getString.timesReread,
       ),
     ),
-    ScreenWidget.extra(ListNotesField(draft: draft, label: 'Comments')),
+    ScreenWidget.extra(ListNotesField(draft: draft, label: getString.comments)),
   ];
 }

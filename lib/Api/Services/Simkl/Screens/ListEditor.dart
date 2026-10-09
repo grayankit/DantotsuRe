@@ -2,6 +2,7 @@ import '../../../../Core/Services/MediaService.dart';
 import '../../../../Core/Services/Model/Media.dart';
 import '../../../../Widgets/Components/ListEditorFields.dart';
 import '../Data/Mapper.dart';
+import '../../../../Core/ThemeManager/LanguageSwitcher.dart';
 
 class SimklListEditorView extends ListEditorScreenView {
   SimklListEditorView(super.service);
@@ -10,11 +11,11 @@ class SimklListEditorView extends ListEditorScreenView {
 
   @override
   Map<String, String> statuses({required bool anime}) => {
-    'CURRENT': 'Watching',
-    'PLANNING': 'Plan to watch',
-    'COMPLETED': 'Completed',
-    'PAUSED': 'On hold',
-    'DROPPED': 'Dropped',
+    'CURRENT': getString.watching,
+    'PLANNING': getString.planToWatch,
+    'COMPLETED': getString.completed,
+    'PAUSED': getString.onHold,
+    'DROPPED': getString.dropped,
   };
 
   @override
@@ -26,7 +27,10 @@ class SimklListEditorView extends ListEditorScreenView {
         ListStatusField(
           draft: draft,
           statuses: movie
-              ? const {'PLANNING': 'Plan to watch', 'COMPLETED': 'Watched'}
+              ? {
+                  'PLANNING': getString.planToWatch,
+                  'COMPLETED': getString.watchedStatus,
+                }
               : statuses(anime: media.isAnime),
         ),
       ),

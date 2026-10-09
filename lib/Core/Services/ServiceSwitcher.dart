@@ -64,10 +64,10 @@ class _ServiceRow extends StatelessWidget {
     final scheme = context.colorScheme;
     final auth = service.auth;
     final subtitle = auth == null
-        ? 'Tracking only'
+        ? getString.trackingOnly
         : auth.isLoggedIn
-        ? (auth.user.value?.name ?? 'Signed in')
-        : 'Not signed in';
+        ? (auth.user.value?.name ?? getString.signedIn)
+        : getString.notSignedIn;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 3),

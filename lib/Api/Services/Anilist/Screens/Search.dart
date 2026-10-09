@@ -5,15 +5,16 @@ import '../../../../Core/Services/Model/Character.dart';
 import '../../../../Core/Services/Model/Studio.dart';
 import '../../../../Core/Services/Model/User.dart';
 import '../../../../Model/SearchResults.dart';
+import '../../../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../Auth.dart';
 
-const _anilistSorts = {
-  'SCORE_DESC': 'Top rated',
-  'POPULARITY_DESC': 'Most popular',
-  'TRENDING_DESC': 'Trending',
-  'START_DATE_DESC': 'Newest',
-  'TITLE_ROMAJI': 'A–Z',
-  'FAVOURITES_DESC': 'Most favourited',
+Map<String, String> get _anilistSorts => {
+  'SCORE_DESC': getString.sortTopRated,
+  'POPULARITY_DESC': getString.sortMostPopular,
+  'TRENDING_DESC': getString.sortTrending,
+  'START_DATE_DESC': getString.sortNewest,
+  'TITLE_ROMAJI': getString.sortAz,
+  'FAVOURITES_DESC': getString.sortMostFavourited,
 };
 
 class AnilistSearchView extends SearchScreenView {
@@ -85,8 +86,8 @@ class AnilistSearchView extends SearchScreenView {
       ],
       genres: genres,
       tags: tags,
-      countries: const {
-        '': 'Any country',
+      countries: {
+        '': getString.anyCountry,
         'JP': 'Japan',
         'KR': 'Korea',
         'CN': 'China',

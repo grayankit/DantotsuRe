@@ -14,7 +14,7 @@ extension on AnilistMutations {
     media.userStatus = null;
     media.userProgress = null;
     _signalRefresh();
-    snackString('Removed ${media.mainName} from your list');
+    snackString(getString.removedFromList(media.mainName));
   }
 
   Future<int?> _mediaListId(Media media) async {

@@ -2,6 +2,7 @@ import '../../../../Core/Services/MediaService.dart';
 import '../../../../Core/Services/Model/Media.dart';
 import '../Auth.dart';
 import '../Queries.dart';
+import '../../../../Core/ThemeManager/LanguageSwitcher.dart';
 
 class SimklFeedView extends FeedScreenView {
   SimklFeedView(super.service);
@@ -14,15 +15,15 @@ class SimklFeedView extends FeedScreenView {
 
   @override
   List<FeedChip> chips(MediaType type) => type == MediaType.anime
-      ? const [
-          FeedChip('today', 'Today'),
-          FeedChip('week', 'This week'),
-          FeedChip('month', 'This month'),
+      ? [
+          FeedChip('today', getString.calendarToday),
+          FeedChip('week', getString.thisWeek),
+          FeedChip('month', getString.thisMonth),
         ]
-      : const [
-          FeedChip('movies', 'Movies'),
-          FeedChip('tv', 'Shows'),
-          FeedChip('anime', 'Anime'),
+      : [
+          FeedChip('movies', getString.movies),
+          FeedChip('tv', getString.shows),
+          FeedChip('anime', getString.anime),
         ];
 
   @override

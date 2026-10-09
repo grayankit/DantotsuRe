@@ -7,6 +7,7 @@ import 'Screens/Search.dart';
 import 'Screens/Detail.dart';
 import 'Screens/Calendar.dart';
 import 'Screens/Settings.dart';
+import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 
 const simklServiceId = 'simkl';
 
@@ -36,7 +37,7 @@ class SimklService extends MediaService {
 
   @override
   String feedLabel(MediaType type) =>
-      type == MediaType.movie ? 'Movies & Series' : type.label;
+      type == MediaType.movie ? getString.moviesAndSeries : type.label;
 
   @override
   HomeScreenView get homeView => SimklHomeView(this);

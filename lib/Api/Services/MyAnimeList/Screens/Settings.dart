@@ -5,6 +5,7 @@ import '../../../../Utils/Function.dart';
 import '../../../../Utils/Functions/SnackBar.dart';
 import '../Auth.dart';
 import '../Data/User.dart';
+import '../../../../Core/ThemeManager/LanguageSwitcher.dart';
 
 class MalSettingsView extends SettingsScreenView {
   @override
@@ -13,18 +14,18 @@ class MalSettingsView extends SettingsScreenView {
     return [
       if (user is MalUser)
         Setting.normal(
-          name: 'MyAnimeList profile',
+          name: getString.malProfile,
           description: user.name,
           icon: Icons.person_outline_rounded,
           onClick: () => openLinkInBrowser(user.profileUrl),
         ),
       Setting.normal(
-        name: 'Refresh from MyAnimeList',
-        description: 'Re-pull your profile and counts',
+        name: getString.refreshFromMal,
+        description: getString.repullProfileCounts,
         icon: Icons.refresh_rounded,
         onClick: () async {
           await malAuth.refreshUser();
-          snackString('Refreshed');
+          snackString(getString.refreshed);
         },
       ),
     ];

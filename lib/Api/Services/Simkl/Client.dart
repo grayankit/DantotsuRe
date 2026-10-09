@@ -138,6 +138,18 @@ class SimklClient {
     return _decode(res);
   }
 
+  Future<String> getBody(String path, {Map<String, String>? query}) async {
+    final url = path.startsWith('http') ? path : '$simklApi$path';
+    var res = await _getRaw(url, await _query(query), true, false);
+    if (res.statusCode == 401 && hasToken && await _refresh()) {
+      res = await _getRaw(url, await _query(query), true, false);
+    }
+    if (res.statusCode >= 400) {
+      throw SimklException('HTTP ${res.statusCode}', res.statusCode);
+    }
+    return '${res.data}';
+  }
+
   Future<String> getText(String url) async {
     final res = await _getRaw(url, await _query(null), false, false);
     if (res.statusCode >= 400) {

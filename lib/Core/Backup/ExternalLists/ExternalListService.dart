@@ -11,6 +11,7 @@ import '../../Services/Model/Media.dart';
 import 'ExternalList.dart';
 import 'KotatsuCodec.dart';
 import 'TachiyomiCodec.dart';
+import '../../ThemeManager/LanguageSwitcher.dart';
 
 class ImportSummary {
   final int anime;
@@ -130,11 +131,11 @@ class ExternalListService {
   static String _categoryFor(Media media) {
     final anime = media.isAnime;
     return switch (media.userStatus) {
-      'COMPLETED' => 'Completed',
-      'PLANNING' => anime ? 'Plan to watch' : 'Plan to read',
-      'PAUSED' => 'On hold',
-      'DROPPED' => 'Dropped',
-      _ => anime ? 'Watching' : 'Reading',
+      'COMPLETED' => getString.completed,
+      'PLANNING' => anime ? getString.planToWatch : getString.planToRead,
+      'PAUSED' => getString.onHold,
+      'DROPPED' => getString.dropped,
+      _ => anime ? getString.watching : getString.reading,
     };
   }
 

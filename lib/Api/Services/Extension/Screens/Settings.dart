@@ -10,18 +10,19 @@ import '../../../../Screen/Settings/ExtensionSourceSettingsScreen.dart';
 import '../ExtensionImport.dart';
 import '../Services.dart';
 import '../Widgets/ServiceSheet.dart';
+import '../../../../Core/ThemeManager/LanguageSwitcher.dart';
 
 class ExtensionSettingsView extends SettingsScreenView {
   @override
   List<Setting> build(BuildContext context) => [
-    const Setting.header('Services'),
-    for (final (label, type, icon) in const [
-      ('Anime', ItemType.anime, Icons.movie_filter_rounded),
-      ('Manga', ItemType.manga, Icons.menu_book_rounded),
-      ('Novel', ItemType.novel, Icons.auto_stories_rounded),
+    Setting.header(getString.sectionServices),
+    for (final (label, type, icon) in [
+      (getString.anime, ItemType.anime, Icons.movie_filter_rounded),
+      (getString.manga, ItemType.manga, Icons.menu_book_rounded),
+      (getString.novel, ItemType.novel, Icons.auto_stories_rounded),
     ])
       Setting.normal(
-        name: '$label service',
+        name: getString.labelService(label),
         description: _description(type),
         icon: icon,
         isActivity: true,
@@ -29,16 +30,16 @@ class ExtensionSettingsView extends SettingsScreenView {
       ),
     for (final service in _bridgeServices(context))
       Setting.normal(
-        name: '${service.name} settings',
-        description: 'Options from the ${service.name} extension bridge',
+        name: getString.nameSettings(service.name),
+        description: getString.extensionBridgeOptions(service.name),
         icon: Icons.settings_rounded,
         isActivity: true,
         onClick: () => openExtensionSettings(context, service),
       ),
-    const Setting.header('Lists'),
+    Setting.header(getString.sectionLists),
     Setting.normal(
-      name: 'Import lists',
-      description: 'From Aniyomi, Mihon / Tachiyomi or Kotatsu backups',
+      name: getString.importLists,
+      description: getString.importListsDesc,
       icon: Icons.download_rounded,
       isActivity: true,
       onClick: () => showListImportSheet(
@@ -48,34 +49,34 @@ class ExtensionSettingsView extends SettingsScreenView {
       ),
     ),
     Setting.normal(
-      name: 'Export lists',
-      description: 'To an Aniyomi, Mihon or Kotatsu backup',
+      name: getString.exportLists,
+      description: getString.exportListsDesc,
       icon: Icons.upload_rounded,
       isActivity: true,
       onClick: () => showListExportSheet(context, extensionService()),
     ),
-    const Setting.header('Browse'),
+    Setting.header(getString.sectionBrowse),
     segmentedSetting<String>(
-      name: 'Reading tab',
-      description: 'Which extensions the third tab shows',
+      name: getString.readingTab,
+      description: getString.readingTabDesc,
       icon: Icons.menu_book_rounded,
-      label: 'Reading tab',
+      label: getString.readingTab,
       value: extensionReadTypePref.rx.value,
-      segments: const [
-        AppSegment('manga', label: 'Manga'),
-        AppSegment('novel', label: 'Novel'),
+      segments: [
+        AppSegment('manga', label: getString.manga),
+        AppSegment('novel', label: getString.novel),
       ],
       onChanged: (v) => extensionReadTypePref.rx.value = v,
     ),
     segmentedSetting<String>(
-      name: 'Default feed',
-      description: 'Which list a source opens with',
+      name: getString.defaultFeed,
+      description: getString.defaultFeedDesc,
       icon: Icons.explore_rounded,
-      label: 'Default feed',
+      label: getString.defaultFeed,
       value: extensionDefaultFeedPref.rx.value,
-      segments: const [
-        AppSegment('popular', label: 'Popular'),
-        AppSegment('latest', label: 'Latest'),
+      segments: [
+        AppSegment('popular', label: getString.popular),
+        AppSegment('latest', label: getString.latest),
       ],
       onChanged: (v) => extensionDefaultFeedPref.rx.value = v,
     ),
@@ -93,9 +94,9 @@ class ExtensionSettingsView extends SettingsScreenView {
 
   String _description(ItemType type) {
     final service = extensionServiceFor(type);
-    if (service == null) return 'No service supports ${type.name}';
+    if (service == null) return getString.noServiceSupports(type.name);
     final loaded = loadedSources(type).length;
     final installed = installedSources(type).length;
-    return '${service.name} · $loaded of $installed sources loading';
+    return getString.sourcesLoading(service.name, loaded, installed);
   }
 }

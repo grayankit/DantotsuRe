@@ -4,16 +4,17 @@ import '../../../../Model/SearchResults.dart';
 import '../Auth.dart';
 import '../Data/Mapper.dart';
 import 'Feed.dart';
+import '../../../../Core/ThemeManager/LanguageSwitcher.dart';
 
 class AnilistAnimeFeed extends AnilistTypeFeed {
   @override
   MediaType get type => MediaType.anime;
 
   @override
-  List<FeedChip> get chips => const [
-    FeedChip('previous', 'Previous season'),
-    FeedChip('current', 'This season'),
-    FeedChip('next', 'Next season'),
+  List<FeedChip> get chips => [
+    FeedChip('previous', getString.previousSeason),
+    FeedChip('current', getString.thisSeason),
+    FeedChip('next', getString.nextSeason),
   ];
 
   @override

@@ -1,6 +1,7 @@
 import '../../../../Core/Services/MediaService.dart';
 import '../Data/Entity.dart';
 import 'Entity.dart';
+import '../../../../Core/ThemeManager/LanguageSwitcher.dart';
 
 class AnilistStaffScreen extends AnilistEntityScreen {
   @override
@@ -19,15 +20,15 @@ class AnilistStaffScreen extends AnilistEntityScreen {
     );
     return [
       if (voiced.isNotEmpty)
-        ScreenWidget.characters('Voiced characters', voiced),
+        ScreenWidget.characters(getString.voicedCharacters, voiced),
       ...mediaSection(
-        'Anime credits',
+        getString.animeCredits,
         json['anime'] as Map<String, dynamic>?,
         'staffRole',
         (page) => queries.staffMedia(id, 'ANIME', page),
       ),
       ...mediaSection(
-        'Manga credits',
+        getString.mangaCredits,
         json['manga'] as Map<String, dynamic>?,
         'staffRole',
         (page) => queries.staffMedia(id, 'MANGA', page),

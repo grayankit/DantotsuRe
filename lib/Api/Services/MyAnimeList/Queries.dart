@@ -12,6 +12,7 @@ import '../../../Core/Services/Model/Review.dart';
 import '../../../Model/SearchResults.dart';
 import 'Client.dart';
 import 'Data/Mapper.dart';
+import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 
 class MalSection {
   final String title;
@@ -101,12 +102,12 @@ const _sorts = {
   'FAVOURITES_DESC': ('favorites', 'desc'),
 };
 
-const malSearchSorts = {
-  'SCORE_DESC': 'Top rated',
-  'POPULARITY_DESC': 'Most popular',
-  'START_DATE_DESC': 'Newest',
-  'TITLE_ROMAJI': 'A–Z',
-  'FAVOURITES_DESC': 'Most favourited',
+Map<String, String> get malSearchSorts => {
+  'SCORE_DESC': getString.sortTopRated,
+  'POPULARITY_DESC': getString.sortMostPopular,
+  'START_DATE_DESC': getString.sortNewest,
+  'TITLE_ROMAJI': getString.sortAz,
+  'FAVOURITES_DESC': getString.sortMostFavourited,
 };
 
 class MalQueries extends Queries {
@@ -414,12 +415,12 @@ class MalQueries extends Queries {
   }) async {
     final all = await library(anime: anime);
     final names = {
-      'CURRENT': anime ? 'Watching' : 'Reading',
-      'PLANNING': 'Planning',
-      'COMPLETED': 'Completed',
-      'PAUSED': 'Paused',
-      'DROPPED': 'Dropped',
-      'REPEATING': anime ? 'Rewatching' : 'Rereading',
+      'CURRENT': anime ? getString.watching : getString.reading,
+      'PLANNING': getString.planning,
+      'COMPLETED': getString.completed,
+      'PAUSED': getString.paused,
+      'DROPPED': getString.dropped,
+      'REPEATING': anime ? getString.rewatching : getString.rereading,
     };
     final out = <String, List<Media>>{};
     for (final entry in names.entries) {

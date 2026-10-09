@@ -6,6 +6,7 @@ import '../../../Utils/Functions/RefreshController.dart';
 import '../../../Utils/Functions/SnackBar.dart';
 import 'Client.dart';
 import 'Data/Mapper.dart';
+import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 
 class MalMutations extends Mutations {
   final MalClient client;
@@ -16,7 +17,7 @@ class MalMutations extends Mutations {
   @override
   Future<void> editList(Media media, {List<String>? customList}) async {
     if (incognitoBlocksEdits) {
-      snackString('Incognito: list edits are blocked');
+      snackString(getString.incognitoEditsBlocked);
       return;
     }
     final ref = parseMalMediaId(media.id);
@@ -45,7 +46,7 @@ class MalMutations extends Mutations {
       );
       _done();
     } on MalException catch (e) {
-      snackString('MyAnimeList: ${e.message}');
+      snackString(getString.serviceError(getString.mal, e.message));
     }
   }
 
@@ -59,7 +60,7 @@ class MalMutations extends Mutations {
       );
       _done();
     } on MalException catch (e) {
-      snackString('MyAnimeList: ${e.message}');
+      snackString(getString.serviceError(getString.mal, e.message));
     }
   }
 
@@ -87,7 +88,7 @@ class MalMutations extends Mutations {
       );
       _done();
     } on MalException catch (e) {
-      snackString('MyAnimeList: ${e.message}');
+      snackString(getString.serviceError(getString.mal, e.message));
     }
   }
 

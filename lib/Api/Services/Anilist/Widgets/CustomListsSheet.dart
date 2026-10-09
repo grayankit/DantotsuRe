@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-import '../../../../Utils/Functions/SnackBar.dart';
 import '../../../../Widgets/Components/CustomBottomDialog.dart';
 import '../../../../Widgets/Components/AppSheet.dart';
-import '../Auth.dart';
-import '../Data/User.dart';
 import '../../../../Core/State/State.dart';
+import '../../../../Core/ThemeManager/LanguageSwitcher.dart';
+import '../../../../Widgets/Components/ScreenState.dart';
+import 'CustomListsState.dart';
 
 class CustomListsSheet extends StatefulWidget {
   final bool anime;
@@ -16,77 +16,17 @@ class CustomListsSheet extends StatefulWidget {
   State<CustomListsSheet> createState() => _CustomListsSheetState();
 }
 
-class _CustomListsSheetState extends State<CustomListsSheet> {
-  late final List<String> _saved = _current();
-  late final _names = _saved
-      .map((n) => TextEditingController(text: n))
-      .toList()
-      .liveList;
-  final _busy = false.live;
-
-  List<String> _current() {
-    final user = anilistAuth.user.value as AnilistUser?;
-    return List.of(
-      (widget.anime ? user?.animeCustomLists : user?.mangaCustomLists) ??
-          const <String>[],
-    );
-  }
-
+class _CustomListsSheetState extends State<CustomListsSheet>
+    with ScreenStateHost<CustomListsSheet, CustomListsState> {
   @override
-  void dispose() {
-    for (final c in _names) {
-      c.dispose();
-    }
-    super.dispose();
-  }
-
-  Future<void> _remove(int index) async {
-    final name = _names[index].text.trim();
-    if (name.isNotEmpty && _saved.contains(name)) {
-      _busy.value = true;
-      final ok = await anilistAuth.mutations.deleteCustomList(
-        name,
-        anime: widget.anime,
-      );
-      _busy.value = false;
-      if (!ok) {
-        snackString('Failed to delete custom list');
-        return;
-      }
-      _saved.remove(name);
-      await anilistAuth.refreshUser();
-    }
-    if (!mounted) return;
-    _names.removeAt(index).dispose();
-  }
-
-  Future<void> _save() async {
-    final names = {
-      for (final c in _names)
-        if (c.text.trim().isNotEmpty) c.text.trim(),
-    }.toList();
-    _busy.value = true;
-    final ok = await anilistAuth.mutations.updateCustomLists(
-      anime: widget.anime ? names : null,
-      manga: widget.anime ? null : names,
-    );
-    _busy.value = false;
-    if (!ok) {
-      snackString('Failed to save custom lists');
-      return;
-    }
-    await anilistAuth.refreshUser();
-    snackString('Custom lists saved');
-    if (mounted) Navigator.of(context).pop();
-  }
+  CustomListsState buildState() => CustomListsState(widget.anime);
 
   @override
   Widget build(BuildContext context) => Watch(() => _build(context));
 
   Widget _build(BuildContext context) {
-    final kind = widget.anime ? 'Anime' : 'Manga';
     return AppSheet(
-      title: '$kind custom lists',
+      title: state.title,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
         child: Column(
@@ -97,16 +37,16 @@ class _CustomListsSheetState extends State<CustomListsSheet> {
               child: ListView(
                 shrinkWrap: true,
                 children: [
-                  for (var i = 0; i < _names.length; i++)
+                  for (var i = 0; i < state.names.length; i++)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 8),
                       child: TextField(
-                        controller: _names[i],
+                        controller: state.names[i],
                         decoration: InputDecoration(
-                          labelText: 'List name',
+                          labelText: getString.listName,
                           suffixIcon: IconButton(
                             icon: const Icon(Icons.delete_outline_rounded),
-                            onPressed: () => _remove(i),
+                            onPressed: () => state.remove(i),
                           ),
                         ),
                       ),
@@ -117,15 +57,15 @@ class _CustomListsSheetState extends State<CustomListsSheet> {
             Row(
               children: [
                 TextButton.icon(
-                  onPressed: () => _names.add(TextEditingController()),
+                  onPressed: state.add,
                   icon: const Icon(Icons.add_rounded),
-                  label: const Text('Add list'),
+                  label: Text(getString.addList),
                 ),
                 const Spacer(),
                 Watch(
                   () => FilledButton(
-                    onPressed: _busy.value ? null : _save,
-                    child: const Text('Save'),
+                    onPressed: state.busy.value ? null : state.save,
+                    child: Text(getString.save),
                   ),
                 ),
               ],

@@ -22,6 +22,7 @@ import '../../Utils/Function.dart';
 import '../../Utils/Functions/SnackBar.dart';
 import '../../Widgets/Components/CustomBottomDialog.dart';
 import '../../Core/State/State.dart';
+import '../../Core/ThemeManager/LanguageSwitcher.dart';
 
 class AppUpdater extends AppController {
   static const _mainRepo = 'aayush2622/Dartotsu';
@@ -275,10 +276,7 @@ class AppUpdater extends AppController {
             }
 
             if (_isNixManaged) {
-              snackString(
-                'This build is managed by Nix — run "nix flake update" on '
-                'your flake and rebuild instead of updating from here',
-              );
+              snackString(getString.nixManagedUpdate);
               return;
             }
 
@@ -456,9 +454,7 @@ class AppUpdater extends AppController {
       }
     } catch (e) {
       _resetDownloadState();
-      snackString(
-        'Automatic update failed ($e) — opening the download page instead',
-      );
+      snackString(getString.autoUpdateFailed(e.toString()));
       unawaited(openLinkInBrowser(url));
     }
   }

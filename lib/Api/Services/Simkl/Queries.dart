@@ -16,6 +16,7 @@ import '../../../Core/State/State.dart';
 import '../MyAnimeList/Auth.dart';
 import 'Client.dart';
 import 'Data/Mapper.dart';
+import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 
 class SimklSection {
   final String title;
@@ -64,6 +65,19 @@ class _Activity {
   }
 }
 
+Map<String, Media> parseSimklLibrary(String body) {
+  final data = body.isEmpty ? null : jsonDecode(body);
+  final out = <String, Media>{};
+  if (data is! Map<String, dynamic>) return out;
+  for (final kind in SimklKind.values) {
+    for (final e in (data[kind.syncKey] as List?) ?? const []) {
+      final media = mapSimklListEntry((e as Map).cast<String, dynamic>(), kind);
+      if (media != null) out[media.id] = media;
+    }
+  }
+  return out;
+}
+
 class SimklQueries extends Queries {
   final SimklClient client;
   final Future<bool> Function() refreshUser;
@@ -95,17 +109,20 @@ class SimklQueries extends Queries {
     if (previous != null && before != null) {
       if (now.all == before.all) return previous;
       if (now.removed == before.removed) {
-        final delta = await client.get(
+        final delta = await client.getBody(
           '/sync/all-items/all/all',
           query: {'date_from': before.all},
         );
         _seen = now;
-        return _publish({...previous, ..._parseLibrary(delta)});
+        return _publish({
+          ...previous,
+          ...await compute(parseSimklLibrary, delta),
+        });
       }
     }
-    final full = await client.get('/sync/all-items/all/all');
+    final full = await client.getBody('/sync/all-items/all/all');
     _seen = now;
-    return _publish(_parseLibrary(full));
+    return _publish(await compute(parseSimklLibrary, full));
   }
 
   Map<String, Media> _publish(Map<String, Media> library) {
@@ -113,21 +130,6 @@ class SimklQueries extends Queries {
       library.values.fold<int>(0, (sum, m) => sum + (m.userProgress ?? 0)),
     );
     return library;
-  }
-
-  Map<String, Media> _parseLibrary(Object? data) {
-    final out = <String, Media>{};
-    if (data is! Map<String, dynamic>) return out;
-    for (final kind in SimklKind.values) {
-      for (final e in (data[kind.syncKey] as List?) ?? const []) {
-        final media = mapSimklListEntry(
-          (e as Map).cast<String, dynamic>(),
-          kind,
-        );
-        if (media != null) out[media.id] = media;
-      }
-    }
-    return out;
   }
 
   Future<List<Media>> trending(SimklSection section, {int page = 1}) async {
@@ -195,13 +197,17 @@ class SimklQueries extends Queries {
   Future<List<Character>> characters(Media media) async {
     final mal = simklExtras[media]?.malId;
     if (mal == null || !media.isAnime) return const [];
-    return find<MalAuth>().queries.characters(Media(id: 'anime/$mal', shareLink: ''));
+    return find<MalAuth>().queries.characters(
+      Media(id: 'anime/$mal', shareLink: ''),
+    );
   }
 
   Future<List<Author>> staff(Media media) async {
     final mal = simklExtras[media]?.malId;
     if (mal == null || !media.isAnime) return const [];
-    return find<MalAuth>().queries.staff(Media(id: 'anime/$mal', shareLink: ''));
+    return find<MalAuth>().queries.staff(
+      Media(id: 'anime/$mal', shareLink: ''),
+    );
   }
 
   Future<Map<String, Media>> _safeLibrary() async {
@@ -235,7 +241,7 @@ class SimklQueries extends Queries {
         'Continue Watching': _byStatus((await library()).values, 'CURRENT'),
       },
       () async => {
-        'Plan to Watch': _byStatus((await library()).values, 'PLANNING'),
+        getString.planToWatch: _byStatus((await library()).values, 'PLANNING'),
       },
     ];
   }
@@ -254,12 +260,12 @@ class SimklQueries extends Queries {
       for (final m in (await library()).values)
         if ((parseSimklMediaId(m.id)?.$1 == SimklKind.anime) == anime) m,
     ]..sort((a, b) => (b.userUpdatedAt ?? 0).compareTo(a.userUpdatedAt ?? 0));
-    const names = {
-      'CURRENT': 'Watching',
-      'PLANNING': 'Plan to Watch',
-      'COMPLETED': 'Completed',
-      'PAUSED': 'On Hold',
-      'DROPPED': 'Dropped',
+    final names = {
+      'CURRENT': getString.watching,
+      'PLANNING': getString.planToWatch,
+      'COMPLETED': getString.completed,
+      'PAUSED': getString.onHold,
+      'DROPPED': getString.dropped,
     };
     final out = <String, List<Media>>{};
     for (final e in names.entries) {
