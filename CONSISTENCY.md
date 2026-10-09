@@ -12,6 +12,10 @@ dedicated wrappers for almost everything UI-adjacent (see below) — a raw `Navi
 `showModalBottomSheet`, `showDialog`, `TextStyle(fontSize: ...)`, or `getApplicationDocumentsDirectory()`
 call is usually a sign a wrapper was skipped, not that one doesn't exist.
 
+## Screens: UI + state
+
+A screen (page, sheet with logic) is `FooScreen.dart` + `FooState.dart`; see `ScreenState` / `ScreenStateHost`. Logic never lives in the widget's `State`.
+
 ## Navigation
 
 - Push: `navigateToPage(context, widget)` — never `Navigator.push(MaterialPageRoute(...))`.
@@ -122,6 +126,12 @@ the custom-font feature (Settings → Appearance → Font) can retarget every pi
 app by changing that one value. A raw `TextStyle(...)` literal bypasses that entirely and will
 silently keep rendering in the platform default font even after the user picks a custom font.
 The same logic applies to colors — prefer `context.colorScheme.*` over a hardcoded `Color`.
+
+## D-pad / keyboard
+
+- A row of things that scrolls sideways (shelf, chips, tabs, header actions) → `DpadRow`; a grid or vertical list that should keep left/right inside it → `DpadColumn`; a modal panel that must trap focus → `DpadPanel` (`Utils/Nav/DpadLayers.dart`).
+- Tappable custom widgets → `Clickable` / `DpadTap` / `DpadFocusable` (icons: `DpadIcon` or `dpadScaleFocus`, rows and tiles: background highlight via `DpadTap`). Never a bare `GestureDetector`.
+- Back: `layerBack()`, not `guardedBack()`, for anything bound to a key or the back button.
 
 ## Layout constants
 

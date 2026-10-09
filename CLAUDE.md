@@ -105,6 +105,8 @@ that used to trip `Navigator._debugLocked` are swallowed), a `DpadThemeData` wit
 1.03 scale + 2px border focus effect, no glow).
 `home:` is gated on `PrefName.hasCompletedOnboarding`.
 
+**D-pad layers** (`Utils/Nav/DpadLayers.dart`) — focus is organised in layers, each a `DpadRegion` with focus memory: the **shell** (the navbar lane, `shellLaneKey`), the **page** (header `DpadRow`, chips/tabs `DpadRow`, every shelf a `DpadRow`, grids a `DpadColumn`) and **overlays** (sheets/dialogs are their own route focus scope). Left/right stay inside a row (`stop` edge), up/down leave it and re-enter the next row at its remembered item. `layerBack()` (mouse back, Esc, system back) pops a route/sheet first, then moves focus from the page to the navbar, and only then lets the system exit. `DpadEnter` (wrapped around every `navigateToPage` page and `showCustomBottomDialog` sheet) puts focus on the first item when the user is navigating by keyboard. Focus looks: Material controls get theme-level states in `ThemeManager.buildAppTheme` (icon buttons a `secondaryContainer` disc, buttons/segments/switches a 2px ring, tiles/chips a tinted background — only while `usingKeyboard`), custom icons use `DpadIcon` / `dpadScaleFocus` (a little bigger), rows and tiles use `DpadTap` (background colour). `Clickable` is focusable too, so never reach for a bare `GestureDetector`.
+
 **TV / keyboard navigation** — `Dpad.wrap` handles arrow-key directional focus + `onBack`
 app-wide. Standard Material widgets participate automatically; custom tap targets are wrapped
 in `DpadFocusable` (`onSelect`, auto-scroll-to-focus, focus effects): `MediaSection` cards,
@@ -506,8 +508,8 @@ defines `handleError(e, st, {softCrash})` (called from the zone handler in `main
   `AlertDialogBuilder`, `AppDropdown` (owns its trailing `FocusNode`), `CachedNetworkImage`
   wrapper (`cachedNetworkImage(...)`), `loadSvg(...)`, `ScrollConfig` / `CustomScrollConfig`
   (bouncing physics, no scrollbars; only touch drags — mouse/trackpad use the wheel, so a slightly-moved click never loses to the scroller), `AppButton` (→ `FilledButton`),
-  `GenreItem`, `NotImplemented`.
-- `Widgets/Shelf/` — `MediaSection` + `MediaSectionState` (horizontal media shelf in
+  `NotImplemented`.
+- `Widgets/Shelf/` — `MediaSection` (horizontal media shelf in
   a `ShelfFrame` with skeleton loading — `MediaSectionData.loading()` → `Skeletonizer` — and
   overscroll-to-load-more + haptics; every titled shelf gets a → arrow (and a tappable title) that opens `Screen/Feed/ShelfScreen` — a full-page `PosterCard` grid that keeps paging through the section's `onLoadMore` as you scroll; opt out with `MediaSectionData(fullPage: false)`). `PosterCard` items in a `SuperSliverList`, keyed by
   `media.id` (+ `findChildIndexCallback`) so a cache patch touches only what changed.
@@ -543,10 +545,10 @@ defines `handleError(e, st, {softCrash})` (called from the zone handler in `main
   `unawaited_futures: true` are enforced — use relative imports within `lib/`.
 - Never import `package:get` outside `Core/State` (only `GetBridge.dart` may); no `setState`. Resolve controllers with the `find<T>()` / `put<T>()` helpers. Add
   new long-lived controllers to `DI.init()`.
-- Screens: extend `BaseScreen<T>` and implement `buildContent`, don't override `build`.
+- Screens: extend `BaseScreen<T>` and implement `buildContent`, don't override `build`. **Every screen is two files**: `FooScreen.dart` (widget + a thin `State` that only builds) and `FooState.dart` (`class FooState extends ScreenState` from `Widgets/Components/ScreenState.dart`: the `Live` fields, controllers, timers, loading/paging/mutation logic and anything derived). The UI `State` mixes in `ScreenStateHost<FooScreen, FooState>`, implements `FooState buildState()` (pass the widget's params in) and reads everything through `state.x`; the mixin calls `onInit` / `onClose` and gives the state `context`, `mounted`, `vsync` (when the UI State has a ticker mixin) and `pop()`. Keep widgets, `Watch` builders and navigation targets in the UI file; keep anything that could be unit-tested in the state. Small leaf widgets (cards, tiles, charts) don't need one.
 - Always run `build_runner` after model/Isar changes; commit the regenerated `*.g.dart`.
   There is no `build.yaml`.
-- New user-facing strings → `app_en.arb` (+ `flutter gen-l10n`); use `getString.key`.
+- New user-facing strings → `app_en.arb` (+ `flutter gen-l10n`); use `getString.key` (never `const` around it; parameters get ICU placeholders, counts use `plural`). Section titles that double as identifiers (`'Trending Now'`, `'Continue Watching'`, …) stay English in the data layer and are translated at render time by `sectionLabel()` (`Core/Services/SectionTitles.dart`) — add a key + a case there for a new title. Locale files other than `app_en.arb` fall back to English for keys they lack.
 - `media_kit` (3 packages) and `flutter_discord_rpc_fork` are git deps; `flutter_web_auth_2`
   is a personal fork. `dependency_overrides` only pins `collection`. Treat `pubspec.yaml`
   changes as high-risk.
