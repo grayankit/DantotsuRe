@@ -1,12 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../Core/Services/MediaServiceController.dart';
 import '../../Core/Services/ServiceSwitcher.dart';
 import '../../Core/State/State.dart';
 import '../../Core/ThemeManager/LanguageSwitcher.dart';
-import '../../Utils/Function.dart';
 import '../../Utils/Functions/SnackBar.dart';
 import '../../Widgets/Components/AlertDialogBuilder.dart';
 import '../../Widgets/Components/ScreenState.dart';
@@ -24,7 +24,9 @@ void showTokenLogin(
 }) {
   final controller = TextEditingController();
   final url = auth.tokenLoginUrl;
-  if (url != null) unawaited(openLinkInBrowser(url));
+  if (url != null) {
+    unawaited(launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication));
+  }
   AlertDialogBuilder(context)
     ..setTitle(getString.loginWithToken)
     ..setOnDismissListener(controller.dispose)

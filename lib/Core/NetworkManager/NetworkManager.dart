@@ -157,6 +157,23 @@ class NetworkManager extends AppController {
     return _wrap(res);
   }
 
+  Future<NetworkResponse<dynamic>> patch(
+    String url, {
+    Object? data,
+    Map<String, String>? query,
+    Map<String, String>? headers,
+    CancelToken? cancelToken,
+  }) async {
+    final res = await client.patch(
+      url,
+      query: query,
+      headers: _mapHeaders(headers),
+      body: _mapBody(data),
+      cancelToken: cancelToken,
+    );
+    return _wrap(res);
+  }
+
   Future<NetworkResponse<dynamic>> delete(
     String url, {
     Map<String, String>? query,

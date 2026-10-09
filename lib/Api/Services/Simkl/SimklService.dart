@@ -6,7 +6,9 @@ import 'Screens/Feed.dart';
 import 'Screens/Search.dart';
 import 'Screens/Detail.dart';
 import 'Screens/Calendar.dart';
+import 'Screens/Entity.dart';
 import 'Screens/Settings.dart';
+import 'Screens/Social.dart';
 import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 
 const simklServiceId = 'simkl';
@@ -52,10 +54,16 @@ class SimklService extends MediaService {
   DetailScreenView get detailView => SimklDetailView(this);
 
   @override
+  EntityScreenView get entityView => SimklEntityView(this);
+
+  @override
   CalendarScreenView get calendarView => SimklCalendarView();
 
   @override
   SettingsScreenView get settingsView => SimklSettingsView();
+
+  @override
+  SocialScreenView get socialView => SimklSocialView(this);
 
   @override
   Set<String> get linkHosts => const {'simkl.com', 'www.simkl.com'};

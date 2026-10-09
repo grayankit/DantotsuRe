@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 
 import '../Preferences/PrefManager.dart';
@@ -57,5 +59,6 @@ Map<String, List<Media>> _decode(Map<String, dynamic> raw) => {
 };
 
 Map<String, dynamic> _encode(Map<String, List<Media>> data) => {
-  for (final e in data.entries) e.key: [for (final m in e.value) m.toJson()],
+  for (final e in data.entries)
+    e.key: jsonDecode(jsonEncode([for (final m in e.value) m.toJson()])),
 };

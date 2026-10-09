@@ -56,6 +56,10 @@ abstract class MediaService {
 
   String feedLabel(MediaType type) => type.label;
 
+  bool get hasVideo => feedTypes.isEmpty || feedTypes.any((t) => t.isVideo);
+
+  bool get hasReading => feedTypes.isEmpty || feedTypes.any((t) => !t.isVideo);
+
   /// Serves every tab in [feedTypes].
   FeedScreenView? get feedView => null;
 

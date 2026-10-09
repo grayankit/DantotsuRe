@@ -12,6 +12,12 @@ class MalUser implements ServiceUser {
   final int episodesWatched;
   @override
   final int chaptersRead;
+  final String? joinedAt;
+  final String? timeZone;
+  final String? location;
+  final bool supporter;
+  final double meanScore;
+  final double daysWatched;
 
   const MalUser({
     required this.id,
@@ -19,6 +25,12 @@ class MalUser implements ServiceUser {
     this.avatar,
     this.episodesWatched = 0,
     this.chaptersRead = 0,
+    this.joinedAt,
+    this.timeZone,
+    this.location,
+    this.supporter = false,
+    this.meanScore = 0,
+    this.daysWatched = 0,
   });
 
   @override
@@ -38,6 +50,12 @@ class MalUser implements ServiceUser {
     avatar: avatar,
     episodesWatched: episodesWatched,
     chaptersRead: chaptersRead ?? this.chaptersRead,
+    joinedAt: joinedAt,
+    timeZone: timeZone,
+    location: location,
+    supporter: supporter,
+    meanScore: meanScore,
+    daysWatched: daysWatched,
   );
 
   Map<String, dynamic> toJson() => {
@@ -46,6 +64,12 @@ class MalUser implements ServiceUser {
     'avatar': avatar,
     'episodes': episodesWatched,
     'chapters': chaptersRead,
+    'joinedAt': joinedAt,
+    'timeZone': timeZone,
+    'location': location,
+    'supporter': supporter,
+    'meanScore': meanScore,
+    'daysWatched': daysWatched,
   };
 
   factory MalUser.fromJson(Map<String, dynamic> j) => MalUser(
@@ -54,5 +78,11 @@ class MalUser implements ServiceUser {
     avatar: j['avatar'] as String?,
     episodesWatched: (j['episodes'] as num?)?.toInt() ?? 0,
     chaptersRead: (j['chapters'] as num?)?.toInt() ?? 0,
+    joinedAt: j['joinedAt'] as String?,
+    timeZone: j['timeZone'] as String?,
+    location: j['location'] as String?,
+    supporter: j['supporter'] as bool? ?? false,
+    meanScore: (j['meanScore'] as num?)?.toDouble() ?? 0,
+    daysWatched: (j['daysWatched'] as num?)?.toDouble() ?? 0,
   );
 }

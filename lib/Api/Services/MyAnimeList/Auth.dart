@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:flutter_web_auth_2/flutter_web_auth_2.dart';
+import '../../../Core/Services/Api/BrowserAuth.dart';
 import 'package:rhttp/rhttp.dart';
 
 import '../../../Core/NetworkManager/NetworkManager.dart';
@@ -20,7 +20,6 @@ import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 MalAuth get malAuth => find<MalAuth>();
 
 class MalAuth extends AppController implements ServiceAuth {
-  static const _callbackScheme = 'dantotsu';
   static const _tokenUrl = '$malWeb/v1/oauth2/token';
   static const _userCacheKey = 'malUser';
 
@@ -68,19 +67,23 @@ class MalAuth extends AppController implements ServiceAuth {
   String? get tokenLoginUrl => null;
 
   @override
+  bool get supportsTokenLogin => false;
+
+  @override
+  Future<bool> loginWithToken(String token) async => false;
+
+  @override
   Future<bool> login() async {
     try {
       final verifier = _verifier();
-      final result = await FlutterWebAuth2.authenticate(
+      final redirect = authRedirect('mal');
+      final result = await browserAuthenticate(
         url:
             '$malWeb/v1/oauth2/authorize?response_type=code'
             '&client_id=$malClientId&code_challenge=$verifier'
-            '&code_challenge_method=plain',
-        callbackUrlScheme: _callbackScheme,
-        options: const FlutterWebAuth2Options(
-          windowName: 'Dartotsu',
-          useWebview: true,
-        ),
+            '&code_challenge_method=plain'
+            '&redirect_uri=${Uri.encodeComponent(redirect)}',
+        redirect: redirect,
       );
       final code = Uri.parse(result).queryParameters['code'];
       if (code == null || code.isEmpty) {
@@ -92,6 +95,7 @@ class MalAuth extends AppController implements ServiceAuth {
         'code': code,
         'code_verifier': verifier,
         'grant_type': 'authorization_code',
+        'redirect_uri': redirect,
       });
       if (!ok) {
         snackString(getString.malLoginFailed);
@@ -103,19 +107,6 @@ class MalAuth extends AppController implements ServiceAuth {
       snackString(getString.loginFailed(e.toString()));
       return false;
     }
-  }
-
-  @override
-  Future<bool> loginWithToken(String newToken) async {
-    token.value = newToken.trim();
-    MalPref.expiresAt.value = DateTime.now().millisecondsSinceEpoch + 3600000;
-    await refreshUser();
-    final ok = user.value != null;
-    if (!ok) {
-      token.value = '';
-      snackString(getString.invalidToken);
-    }
-    return ok;
   }
 
   Future<bool> _exchange(Map<String, String> form) async {
@@ -173,6 +164,12 @@ class MalAuth extends AppController implements ServiceAuth {
         name: name,
         avatar: me['picture'] as String?,
         episodesWatched: (stats?['num_episodes'] as num?)?.toInt() ?? 0,
+        joinedAt: me['joined_at'] as String?,
+        timeZone: me['time_zone'] as String?,
+        location: me['location'] as String?,
+        supporter: me['is_supporter'] == true,
+        meanScore: (stats?['mean_score'] as num?)?.toDouble() ?? 0,
+        daysWatched: (stats?['num_days_watched'] as num?)?.toDouble() ?? 0,
       );
       user.value = parsed;
       _cache(parsed);

@@ -106,44 +106,50 @@ class HomeHeader extends StatelessWidget {
                 ],
               ),
             ),
-            if (user != null && (user.episodesWatched + user.chaptersRead) > 0)
+            if (user != null &&
+                ((service.hasVideo ? user.episodesWatched : 0) +
+                        (service.hasReading ? user.chaptersRead : 0)) >
+                    0)
               Padding(
                 padding: const EdgeInsets.only(top: 10, right: 8),
                 child: Row(
                   children: [
-                    HeaderStatPill(
-                      icon: Icons.smart_display_rounded,
-                      label: '${user.episodesWatched} ep',
-                      onTap: () => navigateToPage(
-                        context,
-                        MediaListScreen(service: service, anime: true),
+                    if (service.hasVideo)
+                      HeaderStatPill(
+                        icon: Icons.smart_display_rounded,
+                        label: '${user.episodesWatched} ep',
+                        onTap: () => navigateToPage(
+                          context,
+                          MediaListScreen(service: service, anime: true),
+                        ),
+                        onLongPress: service.socialView == null
+                            ? null
+                            : () => openProfile(
+                                context,
+                                service,
+                                id: '${user.id}',
+                                tab: 2,
+                              ),
                       ),
-                      onLongPress: service.socialView == null
-                          ? null
-                          : () => openProfile(
-                              context,
-                              service,
-                              id: '${user.id}',
-                              tab: 2,
-                            ),
-                    ),
-                    const SizedBox(width: 8),
-                    HeaderStatPill(
-                      icon: Icons.menu_book_rounded,
-                      label: '${user.chaptersRead} ch',
-                      onTap: () => navigateToPage(
-                        context,
-                        MediaListScreen(service: service, anime: false),
+                    if (service.hasVideo && service.hasReading)
+                      const SizedBox(width: 8),
+                    if (service.hasReading)
+                      HeaderStatPill(
+                        icon: Icons.menu_book_rounded,
+                        label: '${user.chaptersRead} ch',
+                        onTap: () => navigateToPage(
+                          context,
+                          MediaListScreen(service: service, anime: false),
+                        ),
+                        onLongPress: service.socialView == null
+                            ? null
+                            : () => openProfile(
+                                context,
+                                service,
+                                id: '${user.id}',
+                                tab: 2,
+                              ),
                       ),
-                      onLongPress: service.socialView == null
-                          ? null
-                          : () => openProfile(
-                              context,
-                              service,
-                              id: '${user.id}',
-                              tab: 2,
-                            ),
-                    ),
                   ],
                 ),
               ),

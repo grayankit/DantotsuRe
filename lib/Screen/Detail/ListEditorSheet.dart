@@ -6,6 +6,7 @@ import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../Core/Services/MediaService.dart';
 import '../../Core/Services/Model/Media.dart';
+import '../../Utils/Functions/NavigateToScreen.dart';
 import '../../Utils/Functions/SnackBar.dart';
 import '../../Widgets/Components/CustomBottomDialog.dart';
 import '../Widgets/ScreenWidgetView.dart';
@@ -59,11 +60,50 @@ void showListEditor(
   );
 }
 
+CustomBottomDialog _localRemoveDialog(
+  BuildContext context,
+  MediaService service,
+  Media media,
+) => CustomBottomDialog(
+  title: media.mainName,
+  viewList: [
+    Padding(
+      padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
+      child: Text(getString.localEntryNote),
+    ),
+  ],
+  positiveText: getString.syncToService(service.name),
+  positiveCallback: () async {
+    if (context.mounted) popPage(context);
+    try {
+      await service.apiMutations?.editList(media);
+      await LocalMutations(service).deleteFromList(media);
+      snackString(getString.syncedToService(service.name));
+    } catch (e) {
+      snackString('$e');
+    }
+  },
+  negativeText: getString.remove,
+  negativeCallback: () async {
+    if (context.mounted) popPage(context);
+    await LocalMutations(service).deleteFromList(media);
+    snackString(getString.removedFromYourList);
+  },
+);
+
 void showQuickListEditor(
   BuildContext context,
   MediaService service,
   Media media,
 ) {
+  if (media.isLocal && service.isLoggedIn) {
+    unawaited(HapticFeedback.mediumImpact());
+    showCustomBottomDialog(
+      context,
+      _localRemoveDialog(context, service, media),
+    );
+    return;
+  }
   final mutations = service.getMutations;
   if (mutations == null) {
     snackString(getString.noListToEdit(service.name));

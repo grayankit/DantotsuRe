@@ -35,9 +35,6 @@ class SimklDetailView extends DetailScreenView {
     final queries = simklAuth.queries;
     final characters = queries.characters(media);
     final staff = queries.staff(media);
-    await queries.enrich(media);
-    host.update(media);
-    yield _build(host);
     media.characters = await characters;
     host.update(media);
     yield _build(host);
@@ -67,7 +64,6 @@ class SimklDetailView extends DetailScreenView {
           getString.genres,
           ScreenData(chips: m.genres, onChipTap: host.search),
         ),
-      ..._episodes(extras),
       ...linkChips(getString.trailers, extras?.trailers),
       ...linkChips(getString.links, extras?.links),
       if ((m.characters ?? const []).isNotEmpty)
@@ -132,23 +128,6 @@ class SimklDetailView extends DetailScreenView {
   }
 
   String _money(int v) => '\$${DetailStats.compact(v)}';
-
-  List<ScreenWidget> _episodes(SimklExtras? extras) {
-    final episodes = extras?.episodes ?? const [];
-    if (episodes.isEmpty) return const [];
-    return [
-      ScreenWidget.data(
-        getString.latestEpisodes,
-        ScreenData(
-          rows: [
-            for (final (label, title, date) in episodes)
-              (label, date == null ? title : '$title  ·  $date'),
-          ],
-          columns: 1,
-        ),
-      ),
-    ];
-  }
 
   List<ScreenWidget> _ratings(SimklExtras? extras) {
     final ratings = extras?.ratings ?? const [];

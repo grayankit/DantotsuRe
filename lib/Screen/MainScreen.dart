@@ -9,6 +9,7 @@ import 'Navbar.dart';
 import '../Api/Discord/DiscordPresence.dart';
 import '../Core/State/State.dart';
 import '../Utils/Nav/DpadLayers.dart';
+import '../Utils/Nav/DpadNav.dart';
 import '../Widgets/Components/ScreenState.dart';
 import 'MainState.dart';
 
@@ -29,11 +30,11 @@ class MainScreenState extends BaseScreen<MainScreen>
   @override
   DiscordPresence? get presence => state.presence;
 
-  Widget get _navbar => Watch(() {
+  Widget _navbar(GlobalKey<DpadRegionState> key) => Watch(() {
     final service = _services.currentService.value;
     final tabs = feedTabsFor(service);
     return FloatingBottomNavBar(
-      laneKey: shellLaneKey,
+      laneKey: key,
       selectedIndex: state.tab.value.clamp(0, tabs.length - 1),
       items: [
         for (final (i, t) in tabs.indexed)
@@ -70,11 +71,12 @@ class MainScreenState extends BaseScreen<MainScreen>
       children: [
         Row(
           children: [
-            if (!context.isPhone) SizedBox(width: 100, child: _navbar),
+            if (!context.isPhone)
+              SizedBox(width: 100, child: _navbar(shellRailKey)),
             Expanded(child: body),
           ],
         ),
-        if (context.isPhone) _navbar,
+        if (context.isPhone) _navbar(shellLaneKey),
       ],
     );
   }

@@ -1,6 +1,13 @@
 import '../ThemeManager/LanguageSwitcher.dart';
+import 'Screens/ServiceScreens.dart' show localSectionPrefix;
 
-String sectionLabel(String title) => switch (title) {
+String sectionLabel(String title) => title.startsWith(localSectionPrefix)
+    ? getString.localSection(
+        sectionLabel(title.substring(localSectionPrefix.length)),
+      )
+    : _sectionLabel(title);
+
+String _sectionLabel(String title) => switch (title) {
   'Continue Watching' => getString.continueWatching,
   'Continue Reading' => getString.continueReading,
   'Favourite Anime' => getString.favouriteAnimeSection,
@@ -12,6 +19,8 @@ String sectionLabel(String title) => switch (title) {
   'Hidden Media' => getString.hiddenMedia,
   'Recent Updates' => getString.recentUpdates,
   'Trending Now' => getString.trendingNow,
+  'Latest Releases' => getString.latestReleases,
+  'Top Rated' => getString.topRated,
   'Popular This Season' => getString.popularThisSeason,
   'Trending Movies' => getString.trendingMovies,
   'Top Rated Series' => getString.topRatedSeries,
@@ -42,5 +51,12 @@ String sectionLabel(String title) => switch (title) {
   'Most Watched Shows This Month' => getString.mostWatchedShowsMonth,
   'Trending This Week' => getString.trendingThisWeek,
   'Most Watched This Month' => getString.mostWatchedThisMonth,
+  'Airing Now' => getString.airingNow,
+  'Top Rated Movies' => getString.topRatedMovies,
+  'Top Rated Shows' => getString.topRatedShows,
+  'Recommended' => getString.recommendedSection,
+  'On Hold' => getString.onHold,
+  'Completed' => getString.completed,
+  'Dropped' => getString.dropped,
   _ => title,
 };

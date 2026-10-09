@@ -758,9 +758,9 @@ packages:
     dependency: "direct main"
     description:
       path: flutter_web_auth_2
-      ref: patch_webview_all
-      resolved-ref: bc5182ae59b88b8fd9c7af783e470f80e0cea516
-      url: "https://github.com/roshancodespace/flutter_web_auth_2.git"
+      ref: "fix/webview-dialog-clip"
+      resolved-ref: "2fdeb1d75c7b7b60fe1fedea44a61be5d8e8c77a"
+      url: "https://github.com/aayush2622/flutter_web_auth.git"
     source: git
     version: "5.0.1"
   flutter_web_auth_2_platform_interface:

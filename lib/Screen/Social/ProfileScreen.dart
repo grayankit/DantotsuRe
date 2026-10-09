@@ -111,7 +111,7 @@ class _ProfileScreenState extends BaseScreen<ProfileScreen>
                   controller: state.tabs,
                   items: [
                     AppTabItem(getString.profile),
-                    AppTabItem(getString.feed),
+                    if (state.hasActivity) AppTabItem(getString.feed),
                     AppTabItem(getString.stats),
                   ],
                   glass: glass,
@@ -129,15 +129,16 @@ class _ProfileScreenState extends BaseScreen<ProfileScreen>
                         userId: userId,
                         bundle: state.bundle,
                       ),
-                      ActivityList(
-                        service: widget.service,
-                        scope: ActivityScope.user,
-                        userId: userId,
-                        filterable: true,
-                        composer: state.isSelf
-                            ? ComposerKind.activity
-                            : ComposerKind.message,
-                      ),
+                      if (state.hasActivity)
+                        ActivityList(
+                          service: widget.service,
+                          scope: ActivityScope.user,
+                          userId: userId,
+                          filterable: true,
+                          composer: state.isSelf
+                              ? ComposerKind.activity
+                              : ComposerKind.message,
+                        ),
                       ProfileStatsTab(
                         service: widget.service,
                         userId: userId,

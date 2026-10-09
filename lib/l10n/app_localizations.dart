@@ -209,6 +209,18 @@ abstract class AppLocalizations {
   /// **'Simkl'**
   String get simkl;
 
+  /// No description provided for @kitsu.
+  ///
+  /// In en, this message translates to:
+  /// **'Kitsu'**
+  String get kitsu;
+
+  /// No description provided for @mangaBaka.
+  ///
+  /// In en, this message translates to:
+  /// **'MangaBaka'**
+  String get mangaBaka;
+
   /// No description provided for @discord.
   ///
   /// In en, this message translates to:
@@ -1805,6 +1817,252 @@ abstract class AppLocalizations {
   /// **'MyAnimeList login failed'**
   String get malLoginFailed;
 
+  /// No description provided for @kitsuLoginFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Kitsu login failed. Check your email and password.'**
+  String get kitsuLoginFailed;
+
+  /// No description provided for @kitsuLoginTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to Kitsu'**
+  String get kitsuLoginTitle;
+
+  /// No description provided for @emailOrUsername.
+  ///
+  /// In en, this message translates to:
+  /// **'Email or username'**
+  String get emailOrUsername;
+
+  /// No description provided for @password.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get password;
+
+  /// No description provided for @kitsuProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Kitsu profile'**
+  String get kitsuProfile;
+
+  /// No description provided for @mangaBakaLoginFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'MangaBaka login failed'**
+  String get mangaBakaLoginFailed;
+
+  /// No description provided for @mangaBakaProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'MangaBaka profile'**
+  String get mangaBakaProfile;
+
+  /// No description provided for @refreshFromMangaBaka.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh from MangaBaka'**
+  String get refreshFromMangaBaka;
+
+  /// No description provided for @artistsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Artists'**
+  String get artistsLabel;
+
+  /// No description provided for @authorsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Authors'**
+  String get authorsLabel;
+
+  /// No description provided for @publishersLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Publishers'**
+  String get publishersLabel;
+
+  /// No description provided for @originalLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Original language'**
+  String get originalLanguage;
+
+  /// No description provided for @licensedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Licensed'**
+  String get licensedLabel;
+
+  /// No description provided for @contentRatingLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Content rating'**
+  String get contentRatingLabel;
+
+  /// No description provided for @yesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get yesLabel;
+
+  /// No description provided for @noLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get noLabel;
+
+  /// No description provided for @ratingSteps.
+  ///
+  /// In en, this message translates to:
+  /// **'Rating steps'**
+  String get ratingSteps;
+
+  /// No description provided for @hideNsfw.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide NSFW'**
+  String get hideNsfw;
+
+  /// No description provided for @hideNsfwDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep adult titles out of feeds and search, and list your own adult entries under Hidden Media.'**
+  String get hideNsfwDesc;
+
+  /// No description provided for @kitsuAccountOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Kitsu account options'**
+  String get kitsuAccountOptions;
+
+  /// No description provided for @couldNotUpdateKitsuSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not update your Kitsu settings'**
+  String get couldNotUpdateKitsuSettings;
+
+  /// No description provided for @titleCanonical.
+  ///
+  /// In en, this message translates to:
+  /// **'Canonical'**
+  String get titleCanonical;
+
+  /// No description provided for @titleRomanized.
+  ///
+  /// In en, this message translates to:
+  /// **'Romanized'**
+  String get titleRomanized;
+
+  /// No description provided for @titleLocalized.
+  ///
+  /// In en, this message translates to:
+  /// **'Localized'**
+  String get titleLocalized;
+
+  /// No description provided for @ratingSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'Rating system'**
+  String get ratingSystem;
+
+  /// No description provided for @ratingSimple.
+  ///
+  /// In en, this message translates to:
+  /// **'Simple (3 faces)'**
+  String get ratingSimple;
+
+  /// No description provided for @ratingRegular.
+  ///
+  /// In en, this message translates to:
+  /// **'Regular (5 stars)'**
+  String get ratingRegular;
+
+  /// No description provided for @ratingAdvanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced (10 points)'**
+  String get ratingAdvanced;
+
+  /// No description provided for @contentFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Content filter'**
+  String get contentFilter;
+
+  /// No description provided for @contentSfw.
+  ///
+  /// In en, this message translates to:
+  /// **'Safe for work only'**
+  String get contentSfw;
+
+  /// No description provided for @contentSometimes.
+  ///
+  /// In en, this message translates to:
+  /// **'Mature content in searches'**
+  String get contentSometimes;
+
+  /// No description provided for @contentEverywhere.
+  ///
+  /// In en, this message translates to:
+  /// **'Mature content everywhere'**
+  String get contentEverywhere;
+
+  /// No description provided for @shareToGlobal.
+  ///
+  /// In en, this message translates to:
+  /// **'Share to global feed'**
+  String get shareToGlobal;
+
+  /// No description provided for @shareToGlobalDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Let your activity appear in Kitsu\'s global feed.'**
+  String get shareToGlobalDesc;
+
+  /// No description provided for @memberSince.
+  ///
+  /// In en, this message translates to:
+  /// **'Member since'**
+  String get memberSince;
+
+  /// No description provided for @location.
+  ///
+  /// In en, this message translates to:
+  /// **'Location'**
+  String get location;
+
+  /// No description provided for @accountType.
+  ///
+  /// In en, this message translates to:
+  /// **'Account type'**
+  String get accountType;
+
+  /// No description provided for @accountSupporter.
+  ///
+  /// In en, this message translates to:
+  /// **'Supporter'**
+  String get accountSupporter;
+
+  /// No description provided for @accountFree.
+  ///
+  /// In en, this message translates to:
+  /// **'Free'**
+  String get accountFree;
+
+  /// No description provided for @accountDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Account details'**
+  String get accountDetails;
+
+  /// No description provided for @refreshFromKitsu.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh from Kitsu'**
+  String get refreshFromKitsu;
+
   /// No description provided for @simklReadOnly.
   ///
   /// In en, this message translates to:
@@ -2032,12 +2290,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Drop rate'**
   String get dropRate;
-
-  /// No description provided for @latestEpisodes.
-  ///
-  /// In en, this message translates to:
-  /// **'Latest episodes'**
-  String get latestEpisodes;
 
   /// No description provided for @simklAttribution.
   ///
@@ -4259,6 +4511,42 @@ abstract class AppLocalizations {
   /// **'Remove'**
   String get remove;
 
+  /// No description provided for @syncToService.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync to {service}'**
+  String syncToService(String service);
+
+  /// No description provided for @syncedToService.
+  ///
+  /// In en, this message translates to:
+  /// **'Synced to {service}'**
+  String syncedToService(String service);
+
+  /// No description provided for @latestReleases.
+  ///
+  /// In en, this message translates to:
+  /// **'Latest Releases'**
+  String get latestReleases;
+
+  /// No description provided for @topRated.
+  ///
+  /// In en, this message translates to:
+  /// **'Top Rated'**
+  String get topRated;
+
+  /// No description provided for @localSection.
+  ///
+  /// In en, this message translates to:
+  /// **'{title} · Local'**
+  String localSection(String title);
+
+  /// No description provided for @localEntryNote.
+  ///
+  /// In en, this message translates to:
+  /// **'This title is only in your local list on this device. Editing is turned off here because it could clash with your account list; you can still remove it.'**
+  String get localEntryNote;
+
   /// No description provided for @cardPresetPoster.
   ///
   /// In en, this message translates to:
@@ -5062,6 +5350,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **' · {count} already there'**
   String alreadyThere(int count);
+
+  /// No description provided for @airingNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Airing now'**
+  String get airingNow;
+
+  /// No description provided for @topRatedMovies.
+  ///
+  /// In en, this message translates to:
+  /// **'Top rated movies'**
+  String get topRatedMovies;
+
+  /// No description provided for @topRatedShows.
+  ///
+  /// In en, this message translates to:
+  /// **'Top rated shows'**
+  String get topRatedShows;
+
+  /// No description provided for @recommendedSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended'**
+  String get recommendedSection;
 }
 
 class _AppLocalizationsDelegate

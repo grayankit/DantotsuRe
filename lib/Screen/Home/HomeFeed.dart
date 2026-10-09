@@ -37,7 +37,7 @@ class HomeFeed extends StatelessWidget {
             ),
         ],
       ),
-      loader: view.screenStream,
+      loader: signedIn ? view.screenStreamWithLocal : view.screenStream,
       isHidden: view.isHiddenSection,
       cacheId: id,
       reloadOn: service.auth?.user.stream,

@@ -18,6 +18,8 @@ export '../Model/Calendar.dart';
 export '../Model/Review.dart';
 export '../Model/Social.dart';
 
+const localSectionPrefix = 'Local · ';
+
 class HomeScreenView {
   final MediaService service;
 
@@ -28,6 +30,19 @@ class HomeScreenView {
     final manga = service.localStore(anime: false);
     if (anime.serviceId == manga.serviceId) return anime.sections();
     return {...anime.sections(anime: true), ...manga.sections(anime: false)};
+  }
+
+  Stream<List<ScreenWidget>> screenStreamWithLocal() async* {
+    final local = await localSections();
+    final extra = [
+      for (final e in local.entries)
+        ScreenWidget.media('$localSectionPrefix${e.key}', [
+          for (final m in e.value) Media.fromJson(m.toJson())..isLocal = true,
+        ]),
+    ];
+    await for (final list in screenStream()) {
+      yield [...list, ...extra];
+    }
   }
 
   Stream<List<ScreenWidget>> screenStream() async* {
@@ -63,6 +78,10 @@ class FeedScreenView {
   /// How the list called [title] renders (see `ScreenWidget.sectionType`).
   /// Also used to paint the cached lists before the first fetch lands.
   int sectionType(MediaType type, String title) => 0;
+
+  /// The section types the enabled rows will have, in order, so the loading
+  /// skeleton can match the feed. Empty = a generic skeleton.
+  List<int> skeleton(MediaType type) => const [];
 
   Stream<List<ScreenWidget>> screenStream(MediaType type) async* {
     final anime = type.isVideo;
@@ -254,6 +273,10 @@ class SocialScreenView {
   bool get canInteract => service.isLoggedIn;
 
   bool get hasStories => false;
+
+  bool get hasActivity => true;
+
+  bool get hasFollows => true;
 
   bool get hasGlobalFeed => true;
 

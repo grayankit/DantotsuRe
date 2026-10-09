@@ -17,7 +17,7 @@ import '../../../../Screen/Settings/SubSettingsScreen.dart';
 import '../../../../Utils/Functions/NavigateToScreen.dart';
 import '../Prefs.dart';
 import '../Widgets/CustomListsSheet.dart';
-import '../Widgets/HomeLayoutSheet.dart';
+import '../../../../Widgets/Components/HomeLayoutSheet.dart';
 import '../Auth.dart';
 
 class AnilistSettingsView extends SettingsScreenView {

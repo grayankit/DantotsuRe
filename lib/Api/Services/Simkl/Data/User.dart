@@ -10,12 +10,20 @@ class SimklUser implements ServiceUser {
   final String? avatar;
   @override
   final int episodesWatched;
+  final String? joinedAt;
+  final String? location;
+  final String? timeZone;
+  final String? accountType;
 
   const SimklUser({
     required this.id,
     required this.name,
     this.avatar,
     this.episodesWatched = 0,
+    this.joinedAt,
+    this.location,
+    this.timeZone,
+    this.accountType,
   });
 
   @override
@@ -37,6 +45,10 @@ class SimklUser implements ServiceUser {
     name: name,
     avatar: avatar,
     episodesWatched: episodesWatched ?? this.episodesWatched,
+    joinedAt: joinedAt,
+    location: location,
+    timeZone: timeZone,
+    accountType: accountType,
   );
 
   Map<String, dynamic> toJson() => {
@@ -44,6 +56,10 @@ class SimklUser implements ServiceUser {
     'name': name,
     'avatar': avatar,
     'episodes': episodesWatched,
+    'joinedAt': joinedAt,
+    'location': location,
+    'timeZone': timeZone,
+    'accountType': accountType,
   };
 
   factory SimklUser.fromJson(Map<String, dynamic> j) => SimklUser(
@@ -51,5 +67,9 @@ class SimklUser implements ServiceUser {
     name: j['name'] as String,
     avatar: j['avatar'] as String?,
     episodesWatched: (j['episodes'] as num?)?.toInt() ?? 0,
+    joinedAt: j['joinedAt'] as String?,
+    location: j['location'] as String?,
+    timeZone: j['timeZone'] as String?,
+    accountType: j['accountType'] as String?,
   );
 }

@@ -9,9 +9,14 @@ class SimklFeedView extends FeedScreenView {
 
   @override
   int sectionType(MediaType type, String title) {
-    if (title.startsWith('Most Watched')) return 3;
+    if (title.startsWith('Most Watched') || title == 'Most Popular') return 3;
     return title == 'Trending Now' || title == 'Trending Movies Today' ? 1 : 0;
   }
+
+  @override
+  List<int> skeleton(MediaType type) => [
+    for (final s in simklLayoutSections(type)) sectionType(type, s.title),
+  ];
 
   @override
   List<FeedChip> chips(MediaType type) => type == MediaType.anime

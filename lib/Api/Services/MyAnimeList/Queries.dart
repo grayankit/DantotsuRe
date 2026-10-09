@@ -8,10 +8,13 @@ import '../../../Core/Preferences/PrefManager.dart';
 import '../../../Core/Services/Model/Author.dart';
 import '../../../Core/Services/Model/Character.dart';
 import '../../../Core/Services/Model/Media.dart';
+import '../../../Core/Services/Model/MediaListEntry.dart';
 import '../../../Core/Services/Model/Review.dart';
 import '../../../Model/SearchResults.dart';
+import '../../../Core/Services/LayoutPref.dart';
 import 'Client.dart';
 import 'Data/Mapper.dart';
+import 'Prefs.dart';
 import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 
 class MalSection {
@@ -126,7 +129,20 @@ class MalQueries extends Queries {
       section.path,
       query: {...section.query, 'page': '$page', 'limit': '25', 'sfw': 'true'},
     );
-    return _tenraiMedia(data, anime);
+    return _withList(_tenraiMedia(data, anime), anime);
+  }
+
+  Future<List<Media>> _withList(List<Media> items, bool anime) async {
+    if (!client.hasToken) return items;
+    try {
+      final mine = {for (final m in await library(anime: anime)) m.id: m};
+      for (final m in items) {
+        final entry = mine[m.id];
+        if (entry == null) continue;
+        m.takeListEntry(entry);
+      }
+    } catch (_) {}
+    return items;
   }
 
   List<Media> _tenraiMedia(Map<String, dynamic> data, bool anime) {
@@ -151,7 +167,7 @@ class MalQueries extends Queries {
         'sfw': 'true',
       },
     );
-    return _tenraiMedia(data, true);
+    return _withList(_tenraiMedia(data, true), true);
   }
 
   Future<List<Media>> topPicks(String type) async {
@@ -159,7 +175,7 @@ class MalQueries extends Queries {
       '/top/manga',
       query: {'type': type, 'limit': '12', 'sfw': 'true'},
     );
-    return _tenraiMedia(data, false);
+    return _withList(_tenraiMedia(data, false), false);
   }
 
   Future<Map<String, dynamic>?> entity(String path) async {
@@ -376,19 +392,35 @@ class MalQueries extends Queries {
       for (final m in await library(anime: anime))
         if (statuses.contains(m.userStatus)) m,
     ];
+    final jobs = <(String, SectionJob)>[
+      (
+        'Continue Watching',
+        () async => {
+          'Continue Watching': await pick(true, {'CURRENT', 'REPEATING'}),
+        },
+      ),
+      (
+        'Planned Anime',
+        () async => {
+          'Planned Anime': await pick(true, {'PLANNING'}),
+        },
+      ),
+      (
+        'Continue Reading',
+        () async => {
+          'Continue Reading': await pick(false, {'CURRENT', 'REPEATING'}),
+        },
+      ),
+      (
+        'Planned Manga',
+        () async => {
+          'Planned Manga': await pick(false, {'PLANNING'}),
+        },
+      ),
+    ];
     return [
-      () async => {
-        'Continue Watching': await pick(true, {'CURRENT', 'REPEATING'}),
-      },
-      () async => {
-        'Planned Anime': await pick(true, {'PLANNING'}),
-      },
-      () async => {
-        'Continue Reading': await pick(false, {'CURRENT', 'REPEATING'}),
-      },
-      () async => {
-        'Planned Manga': await pick(false, {'PLANNING'}),
-      },
+      for (final j in applyLayout(jobs, (j) => j.$1, MalPref.homeLayout.value))
+        j.$2,
     ];
   }
 
@@ -403,7 +435,11 @@ class MalQueries extends Queries {
 
   @override
   List<SectionJob> browseJobs({required bool anime}) => [
-    for (final section in malSections(anime: anime))
+    for (final section in applyLayout(
+      malSections(anime: anime),
+      (s) => s.title,
+      (anime ? MalPref.animeLayout : MalPref.mangaLayout).value,
+    ))
       () async => {section.title: await sectionPage(section, anime)},
   ];
 

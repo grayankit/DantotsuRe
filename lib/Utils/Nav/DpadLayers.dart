@@ -5,6 +5,10 @@ import '../Functions/NavigateToScreen.dart';
 import 'DpadNav.dart';
 
 final shellLaneKey = GlobalKey<DpadRegionState>(debugLabel: 'shell');
+final shellRailKey = GlobalKey<DpadRegionState>(debugLabel: 'shellRail');
+
+GlobalKey<DpadRegionState> get _activeShellKey =>
+    shellRailKey.currentState != null ? shellRailKey : shellLaneKey;
 
 bool _inRegion(GlobalKey<DpadRegionState> key, FocusNode? node) {
   final nodes = key.currentState?.focusNodes;
@@ -13,9 +17,10 @@ bool _inRegion(GlobalKey<DpadRegionState> key, FocusNode? node) {
 
 bool layerBack() {
   if (guardedBack()) return true;
-  final shell = shellLaneKey.currentState;
+  final shellKey = _activeShellKey;
+  final shell = shellKey.currentState;
   if (shell == null) return false;
-  if (_inRegion(shellLaneKey, FocusManager.instance.primaryFocus)) {
+  if (_inRegion(shellKey, FocusManager.instance.primaryFocus)) {
     return false;
   }
   final target = shell.lastFocused ?? shell.focusNodes.firstOrNull;
@@ -96,7 +101,6 @@ class DpadIcon extends StatelessWidget {
     onSelect: onSelect,
     onLongSelect: onLongSelect,
     autofocus: autofocus,
-    effects: const [],
     builder: (context, state, inner) {
       final focused = kDpadFocused(state);
       return AnimatedScale(

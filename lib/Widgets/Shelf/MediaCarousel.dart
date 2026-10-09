@@ -101,16 +101,9 @@ class _MediaCarouselState extends State<MediaCarousel> {
           horizontal: Dimens.pagePad,
           vertical: Dimens.gapSm,
         ),
-        child: Skeletonizer(
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(Dimens.radius),
-            child: SizedBox(
-              height: _height,
-              child: Skeleton.leaf(
-                child: ColoredBox(color: scheme.surfaceContainerHigh),
-              ),
-            ),
-          ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(Dimens.radius),
+          child: SizedBox(height: _height, child: const _SlideSkeleton()),
         ),
       );
     }
@@ -395,6 +388,111 @@ class _Slide extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _SlideSkeleton extends StatelessWidget {
+  const _SlideSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = context.colorScheme;
+    final coverH = responsive(mobile: 160.0, tablet: 190.0, desktop: 190.0);
+    final bone = scheme.onSurface.withValues(alpha: 0.12);
+
+    Widget block(double? width, double height, {double radius = 6}) =>
+        Skeleton.leaf(
+          child: Container(
+            width: width,
+            height: height,
+            decoration: BoxDecoration(
+              color: bone,
+              borderRadius: BorderRadius.circular(radius),
+            ),
+          ),
+        );
+
+    return Skeletonizer(
+      child: ColoredBox(
+        color: scheme.surfaceContainerHigh,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.transparent,
+                    scheme.surface.withValues(alpha: 0.5),
+                    scheme.surface,
+                  ],
+                  stops: const [0.0, 0.55, 1.0],
+                ),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.fromLTRB(
+                Dimens.cardPad,
+                Dimens.gapLg,
+                Dimens.cardPad,
+                Dimens.gapLg + 12,
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  block(coverH * 0.68, coverH, radius: Dimens.radius),
+                  SizedBox(width: Dimens.gap),
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        block(80, 12),
+                        const SizedBox(height: 10),
+                        block(double.infinity, 20),
+                        const SizedBox(height: 6),
+                        block(160, 20),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            block(54, 22, radius: 11),
+                            const SizedBox(width: 6),
+                            block(54, 22, radius: 11),
+                            const SizedBox(width: 6),
+                            block(54, 22, radius: 11),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Positioned(
+              right: Dimens.cardPad,
+              bottom: 12,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  for (var i = 0; i < 4; i++)
+                    Container(
+                      margin: const EdgeInsets.only(left: 4),
+                      width: i == 0 ? 18 : 6,
+                      height: 6,
+                      decoration: BoxDecoration(
+                        color: bone,
+                        borderRadius: BorderRadius.circular(3),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

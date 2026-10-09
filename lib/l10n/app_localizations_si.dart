@@ -25,6 +25,12 @@ class AppLocalizationsSi extends AppLocalizations {
   String get simkl => 'Simkl';
 
   @override
+  String get kitsu => 'Kitsu';
+
+  @override
+  String get mangaBaka => 'MangaBaka';
+
+  @override
   String get discord => 'Discord';
 
   @override
@@ -887,6 +893,133 @@ class AppLocalizationsSi extends AppLocalizations {
   String get malLoginFailed => 'MyAnimeList login failed';
 
   @override
+  String get kitsuLoginFailed =>
+      'Kitsu login failed. Check your email and password.';
+
+  @override
+  String get kitsuLoginTitle => 'Sign in to Kitsu';
+
+  @override
+  String get emailOrUsername => 'Email or username';
+
+  @override
+  String get password => 'Password';
+
+  @override
+  String get kitsuProfile => 'Kitsu profile';
+
+  @override
+  String get mangaBakaLoginFailed => 'MangaBaka login failed';
+
+  @override
+  String get mangaBakaProfile => 'MangaBaka profile';
+
+  @override
+  String get refreshFromMangaBaka => 'Refresh from MangaBaka';
+
+  @override
+  String get artistsLabel => 'Artists';
+
+  @override
+  String get authorsLabel => 'Authors';
+
+  @override
+  String get publishersLabel => 'Publishers';
+
+  @override
+  String get originalLanguage => 'Original language';
+
+  @override
+  String get licensedLabel => 'Licensed';
+
+  @override
+  String get contentRatingLabel => 'Content rating';
+
+  @override
+  String get yesLabel => 'Yes';
+
+  @override
+  String get noLabel => 'No';
+
+  @override
+  String get ratingSteps => 'Rating steps';
+
+  @override
+  String get hideNsfw => 'Hide NSFW';
+
+  @override
+  String get hideNsfwDesc =>
+      'Keep adult titles out of feeds and search, and list your own adult entries under Hidden Media.';
+
+  @override
+  String get kitsuAccountOptions => 'Kitsu account options';
+
+  @override
+  String get couldNotUpdateKitsuSettings =>
+      'Could not update your Kitsu settings';
+
+  @override
+  String get titleCanonical => 'Canonical';
+
+  @override
+  String get titleRomanized => 'Romanized';
+
+  @override
+  String get titleLocalized => 'Localized';
+
+  @override
+  String get ratingSystem => 'Rating system';
+
+  @override
+  String get ratingSimple => 'Simple (3 faces)';
+
+  @override
+  String get ratingRegular => 'Regular (5 stars)';
+
+  @override
+  String get ratingAdvanced => 'Advanced (10 points)';
+
+  @override
+  String get contentFilter => 'Content filter';
+
+  @override
+  String get contentSfw => 'Safe for work only';
+
+  @override
+  String get contentSometimes => 'Mature content in searches';
+
+  @override
+  String get contentEverywhere => 'Mature content everywhere';
+
+  @override
+  String get shareToGlobal => 'Share to global feed';
+
+  @override
+  String get shareToGlobalDesc =>
+      'Let your activity appear in Kitsu\'s global feed.';
+
+  @override
+  String get memberSince => 'Member since';
+
+  @override
+  String get location => 'Location';
+
+  @override
+  String get accountType => 'Account type';
+
+  @override
+  String get accountSupporter => 'Supporter';
+
+  @override
+  String get accountFree => 'Free';
+
+  @override
+  String get accountDetails => 'Account details';
+
+  @override
+  String get refreshFromKitsu => 'Refresh from Kitsu';
+
+  @override
   String get simklReadOnly => 'Simkl granted read-only access';
 
   @override
@@ -1008,9 +1141,6 @@ class AppLocalizationsSi extends AppLocalizations {
 
   @override
   String get dropRate => 'Drop rate';
-
-  @override
-  String get latestEpisodes => 'Latest episodes';
 
   @override
   String get simklAttribution =>
@@ -2214,6 +2344,31 @@ class AppLocalizationsSi extends AppLocalizations {
   String get remove => 'Remove';
 
   @override
+  String syncToService(String service) {
+    return 'Sync to $service';
+  }
+
+  @override
+  String syncedToService(String service) {
+    return 'Synced to $service';
+  }
+
+  @override
+  String get latestReleases => 'Latest Releases';
+
+  @override
+  String get topRated => 'null ඉහළව අගය කරන';
+
+  @override
+  String localSection(String title) {
+    return '$title · Local';
+  }
+
+  @override
+  String get localEntryNote =>
+      'This title is only in your local list on this device. Editing is turned off here because it could clash with your account list; you can still remove it.';
+
+  @override
   String get cardPresetPoster => 'Poster';
 
   @override
@@ -2709,4 +2864,16 @@ class AppLocalizationsSi extends AppLocalizations {
   String alreadyThere(int count) {
     return ' · $count already there';
   }
+
+  @override
+  String get airingNow => 'Airing now';
+
+  @override
+  String get topRatedMovies => 'Top rated movies';
+
+  @override
+  String get topRatedShows => 'Top rated shows';
+
+  @override
+  String get recommendedSection => 'Recommended';
 }

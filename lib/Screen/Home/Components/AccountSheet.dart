@@ -43,12 +43,13 @@ void showAccountSheet(BuildContext context, MediaServiceController controller) {
                   sheetContext: context,
                   open: ProfileScreen(service: service, id: me),
                 ),
-                _Destination(
-                  icon: Icons.forum_rounded,
-                  title: getString.activity,
-                  sheetContext: context,
-                  open: ActivityFeedScreen(service: service),
-                ),
+                if (service.socialView!.hasActivity)
+                  _Destination(
+                    icon: Icons.forum_rounded,
+                    title: getString.activity,
+                    sheetContext: context,
+                    open: ActivityFeedScreen(service: service),
+                  ),
               ],
               _Destination(
                 icon: Icons.extension_rounded,
@@ -134,7 +135,7 @@ class _Profile extends StatelessWidget {
                 ],
               ),
             ),
-            if (user != null && service.socialView != null)
+            if (user != null && (service.socialView?.hasActivity ?? false))
               IconButton(
                 tooltip: getString.activity,
                 icon: const Icon(Icons.forum_outlined),

@@ -1,6 +1,6 @@
-import '../../../../Core/Preferences/PrefManager.dart';
-import '../../../../Core/State/State.dart';
-import '../../../../Widgets/Components/ScreenState.dart';
+import '../../Core/Preferences/PrefManager.dart';
+import '../../Core/State/State.dart';
+import 'ScreenState.dart';
 
 class HomeLayoutState extends ScreenState {
   final Pref<Map<String, bool>> pref;

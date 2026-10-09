@@ -132,6 +132,9 @@ class AnilistQueries extends Queries {
   List<SectionJob> browseJobs({required bool anime}) =>
       _browseJobs(anime: anime);
 
+  List<String> browseTitles({required bool anime}) =>
+      _browseTitles(anime: anime);
+
   @override
   Future<Map<String, List<Media>>> getMediaLists({
     required bool anime,

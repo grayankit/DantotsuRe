@@ -1,3 +1,4 @@
+import '../../../Core/Services/Api/BrowserAuth.dart';
 import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
@@ -9,7 +10,11 @@ import '../../../Core/NetworkManager/NetworkManager.dart';
 import '../../../Core/State/State.dart';
 import '../../../Utils/Lru.dart';
 
-const malClientId = '86b35cf02205a0303da3aaea1c9e33f3';
+const _malMobileClientId = '3f7a941534770b28eceb68a58ea78856';
+const _malDesktopClientId = '';
+
+String get malClientId =>
+    authClientId(mobile: _malMobileClientId, desktop: _malDesktopClientId);
 const malApi = 'https://api.myanimelist.net/v2';
 const malWeb = 'https://myanimelist.net';
 

@@ -495,6 +495,12 @@ check_dependencies() {
         # webview_all renders with WebKitGTK 4.1 on Linux
         pkg-config --exists webkit2gtk-4.1 2>/dev/null || missing_deps+=("webkit2gtk")
 
+        # WebKitGTK needs glib-networking for HTTPS ("TLS support not available" without it)
+        if ! find /usr/lib /usr/lib64 /usr/lib/x86_64-linux-gnu /usr/lib/aarch64-linux-gnu \
+            -name 'libgiognutls.so' -o -name 'libgioopenssl.so' 2>/dev/null | grep -q .; then
+            missing_deps+=("glib-networking")
+        fi
+
         # Additional library checks for GUI applications
         pkg-config --exists gtk+-3.0 2>/dev/null || missing_deps+=("gtk3")
     else

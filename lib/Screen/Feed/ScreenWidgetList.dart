@@ -33,6 +33,8 @@ class ScreenWidgetList extends StatefulWidget {
   final bool Function(String title)? isHidden;
   final List<FeedChip> chips;
   final Future<List<Media>?> Function(FeedChip chip)? onChip;
+  final List<int> skeleton;
+  final bool verticalTail;
 
   const ScreenWidgetList({
     super.key,
@@ -46,6 +48,8 @@ class ScreenWidgetList extends StatefulWidget {
     this.isHidden,
     this.chips = const [],
     this.onChip,
+    this.skeleton = const [],
+    this.verticalTail = false,
   });
 
   @override
@@ -67,7 +71,11 @@ class _ScreenWidgetListState extends State<ScreenWidgetList>
     chips: widget.chips,
     onChipFn: widget.onChip,
     isVisible: () => _visibleNow,
+    verticalTail: widget.verticalTail,
   );
+
+  List<int> get _skeleton =>
+      widget.skeleton.isEmpty ? const [0, 0, 0, 0] : widget.skeleton;
 
   String get _heroPrefix => widget.cacheId ?? identityHashCode(this).toString();
 
@@ -158,6 +166,12 @@ class _ScreenWidgetListState extends State<ScreenWidgetList>
             children: [
               if (widget.header != null)
                 SliverToBoxAdapter(child: widget.header!),
+              if (showSkeleton && _skeleton.contains(1))
+                const SliverToBoxAdapter(
+                  child: MediaSection(
+                    data: MediaSectionData(type: 1, loading: true),
+                  ),
+                ),
               for (final item in list.where((e) => e.isCarousel))
                 if (item.media!.isNotEmpty)
                   SliverToBoxAdapter(
@@ -185,7 +199,7 @@ class _ScreenWidgetListState extends State<ScreenWidgetList>
               SliverToBoxAdapter(child: _chipRow()),
               const SliverToBoxAdapter(child: SizedBox(height: 8)),
               if (showSkeleton)
-                for (var i = 0; i < 4; i++)
+                for (var i = 0; i < _skeleton.where((t) => t != 1).length; i++)
                   SliverToBoxAdapter(
                     key: ValueKey('skeleton-$i'),
                     child: const MediaSection(data: MediaSectionData.loading()),

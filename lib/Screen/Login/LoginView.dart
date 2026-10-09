@@ -101,19 +101,21 @@ class _LoginViewState extends State<LoginView>
                 ),
                 const SizedBox(height: 10),
                 if (auth != null) ...[
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton(
-                      onPressed: state.busy.value
-                          ? null
-                          : () => state.tokenLogin(auth),
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
+                  if (auth.supportsTokenLogin) ...[
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton(
+                        onPressed: state.busy.value
+                            ? null
+                            : () => state.tokenLogin(auth),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                        ),
+                        child: Text(getString.loginWithToken),
                       ),
-                      child: Text(getString.loginWithToken),
                     ),
-                  ),
-                  const SizedBox(height: 10),
+                    const SizedBox(height: 10),
+                  ],
                   if (guest)
                     TextButton(
                       onPressed: state.busy.value ? null : widget.onDone,

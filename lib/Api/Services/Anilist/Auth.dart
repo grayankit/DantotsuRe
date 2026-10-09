@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter_web_auth_2/flutter_web_auth_2.dart';
+import '../../../Core/Services/Api/BrowserAuth.dart';
 
 import '../../../Core/Preferences/PrefManager.dart';
 import '../../../Core/Services/ServiceAuth.dart';
@@ -16,11 +16,14 @@ import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 AnilistAuth get anilistAuth => find<AnilistAuth>();
 
 class AnilistAuth extends AppController implements ServiceAuth {
-  static const _clientId = '14959';
-  static const _callbackScheme = 'dantotsu';
-  static const _authUrl =
+  static const _mobileClientId = '14959';
+  static const _desktopClientId = '53220';
+  static String get _clientId =>
+      authClientId(mobile: _mobileClientId, desktop: _desktopClientId);
+  static String _authUrl(String redirect) =>
       'https://anilist.co/api/v2/oauth/authorize'
-      '?client_id=$_clientId&response_type=token';
+      '?client_id=$_clientId&response_type=token'
+      '&redirect_uri=${Uri.encodeComponent(redirect)}';
   static const _userCacheKey = 'anilistUser';
 
   final token = AnilistPref.token.rx;
@@ -64,13 +67,10 @@ class AnilistAuth extends AppController implements ServiceAuth {
   @override
   Future<bool> login() async {
     try {
-      final result = await FlutterWebAuth2.authenticate(
-        url: _authUrl,
-        callbackUrlScheme: _callbackScheme,
-        options: const FlutterWebAuth2Options(
-          windowName: 'Dartotsu',
-          useWebview: true,
-        ),
+      final redirect = authRedirect('anilist');
+      final result = await browserAuthenticate(
+        url: _authUrl(redirect),
+        redirect: redirect,
       );
       final match = RegExp(r'access_token=([^&]+)').firstMatch(result);
       final token = match?.group(1);
@@ -88,6 +88,9 @@ class AnilistAuth extends AppController implements ServiceAuth {
   @override
   String get tokenLoginUrl =>
       'https://anilist.co/api/v2/oauth/authorize?client_id=21003&response_type=token';
+
+  @override
+  bool get supportsTokenLogin => true;
 
   @override
   Future<bool> loginWithToken(String newToken) async {

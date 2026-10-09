@@ -21,6 +21,7 @@ class ScreenWidgetListState extends ScreenState {
   final List<FeedChip> chips;
   final Future<List<Media>?> Function(FeedChip chip)? onChipFn;
   final bool Function() isVisible;
+  final bool verticalTail;
 
   ScreenWidgetListState({
     required this.loader,
@@ -31,9 +32,20 @@ class ScreenWidgetListState extends ScreenState {
     required this.chips,
     required this.onChipFn,
     required this.isVisible,
+    required this.verticalTail,
   });
 
   bool dirty = false;
+  bool tailReady = false;
+
+  int typeFor(String title) {
+    final raw = types[title] ?? 0;
+    if (raw == 1) return 1;
+    if (!verticalTail || !tailReady) return 0;
+    final last = order.lastWhereOrNull((t) => (types[t] ?? 0) != 1);
+    if (title != last) return 0;
+    return raw == 3 ? 3 : 2;
+  }
 
   late final SectionCache? cache = cacheId == null
       ? null
@@ -109,6 +121,7 @@ class ScreenWidgetListState extends ScreenState {
   Future<void> paintCached() async {
     final cached = await cache?.read();
     if (!mounted || cached == null || cached.isEmpty || loaded.value) return;
+    tailReady = true;
     mediaByTitle.addAll(cached);
     order.addAll(cached.keys);
     for (final title in cached.keys) {
@@ -116,7 +129,7 @@ class ScreenWidgetListState extends ScreenState {
     }
     current.value = [
       for (final e in cached.entries)
-        ScreenWidget.media(e.key, e.value, sectionType: types[e.key] ?? 0),
+        ScreenWidget.media(e.key, e.value, sectionType: typeFor(e.key)),
     ];
   }
 
@@ -182,6 +195,7 @@ class ScreenWidgetListState extends ScreenState {
   }
 
   void prune(List<ScreenWidget> finalList) {
+    tailReady = true;
     final keep = {
       for (final item in finalList)
         if (item.isMedia) item.title!,
@@ -226,7 +240,7 @@ class ScreenWidgetListState extends ScreenState {
         ScreenWidget.media(
           title,
           mediaByTitle[title]!,
-          sectionType: types[title] ?? 0,
+          sectionType: typeFor(title),
         ),
     ];
   }

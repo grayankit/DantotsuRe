@@ -1,0 +1,54 @@
+import '../../../../Core/Services/LayoutPref.dart';
+import '../../../../Core/Services/MediaService.dart';
+import '../../../../Core/Services/Model/Media.dart';
+import '../../../../Core/ThemeManager/LanguageSwitcher.dart';
+import '../Auth.dart';
+import '../Prefs.dart';
+import '../Queries.dart';
+
+class MangaBakaFeedView extends FeedScreenView {
+  MangaBakaFeedView(super.service);
+
+  @override
+  int sectionType(MediaType type, String title) =>
+      title == 'Trending Now' ? 1 : 0;
+
+  @override
+  List<int> skeleton(MediaType type) => [
+    for (final s in applyLayout(
+      mangaBakaSections,
+      (s) => s.title,
+      MangaBakaPref.feedLayout.value,
+    ))
+      sectionType(type, s.title),
+  ];
+
+  @override
+  List<FeedChip> chips(MediaType type) => [
+    FeedChip('manga', getString.manga),
+    FeedChip('manhwa', getString.manhwa),
+    FeedChip('manhua', getString.manhua),
+    FeedChip('novel', getString.novels),
+  ];
+
+  @override
+  Future<List<Media>?> chipMedia(MediaType type, FeedChip chip) =>
+      mangaBakaAuth.queries.typePicks(chip.id);
+
+  @override
+  Stream<List<ScreenWidget>> screenStream(MediaType type) {
+    final queries = mangaBakaAuth.queries;
+    return sectionWidgets(
+      queries.browseJobs(anime: false),
+      build: (title, media) {
+        final section = mangaBakaSections.firstWhere((s) => s.title == title);
+        return ScreenWidget.media(
+          title,
+          media,
+          sectionType: sectionType(type, title),
+          onLoadMore: (page) => queries.sectionPage(section, page: page),
+        );
+      },
+    );
+  }
+}

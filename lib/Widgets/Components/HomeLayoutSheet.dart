@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 
-import '../../../../Core/ThemeManager/ThemeController.dart';
-import '../../../../Utils/Extensions/ContextExtensions.dart';
-import '../../../../Utils/Extensions/Responsive.dart';
-import '../../../../Widgets/Components/CustomBottomDialog.dart';
-import '../../../../Widgets/Components/ThemedContainer.dart';
-import '../../../../Core/Preferences/PrefManager.dart';
-import '../../../../Core/State/State.dart';
-import '../../../../Core/ThemeManager/LanguageSwitcher.dart';
-import '../../../../Widgets/Components/ScreenState.dart';
+import '../../Core/ThemeManager/ThemeController.dart';
+import '../../Utils/Extensions/ContextExtensions.dart';
+import '../../Utils/Extensions/Responsive.dart';
+import 'CustomBottomDialog.dart';
+import 'ThemedContainer.dart';
+import '../../Core/Preferences/PrefManager.dart';
+import '../../Core/Services/SectionTitles.dart';
+import '../../Core/State/State.dart';
+import '../../Core/ThemeManager/LanguageSwitcher.dart';
+import 'ScreenState.dart';
 import 'HomeLayoutState.dart';
 
 class HomeLayoutSheet extends StatefulWidget {
@@ -120,7 +121,7 @@ class _HomeLayoutSheetState extends State<HomeLayoutSheet>
                                   ),
                                 ),
                                 title: Text(
-                                  entry.key,
+                                  sectionLabel(entry.key),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: context.textTheme.bodyLarge?.copyWith(

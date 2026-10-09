@@ -445,4 +445,12 @@ String tenraiHtml(String? text) => (text ?? '')
     .replaceAll('&', '&amp;')
     .replaceAll('<', '&lt;')
     .replaceAll('>', '&gt;')
+    .replaceAllMapped(
+      RegExp(
+        r'\[spoiler\](.*?)\[/spoiler\]',
+        caseSensitive: false,
+        dotAll: true,
+      ),
+      (m) => "<span class='markdown_spoiler'>${m[1]!.trim()}</span>",
+    )
     .replaceAll('\n', '<br>');

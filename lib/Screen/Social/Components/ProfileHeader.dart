@@ -177,7 +177,9 @@ class ProfileHeaderDelegate extends SliverPersistentHeaderDelegate {
                                             ),
                                       ),
                                     ),
-                                  if (canFollow && !isSelf)
+                                  if (canFollow &&
+                                      !isSelf &&
+                                      (service.socialView?.hasFollows ?? true))
                                     Padding(
                                       padding: const EdgeInsets.only(top: 8),
                                       child: _followButton(u),
@@ -190,20 +192,24 @@ class ProfileHeaderDelegate extends SliverPersistentHeaderDelegate {
                         const SizedBox(height: 14),
                         Row(
                           children: [
-                            _count(
-                              context,
-                              'Followers',
-                              u?.followers,
-                              onFollowers,
-                            ),
-                            _count(
-                              context,
-                              'Following',
-                              u?.following,
-                              onFollowing,
-                            ),
-                            _count(context, 'Anime', u?.animeCount, onAnime),
-                            _count(context, 'Manga', u?.mangaCount, onManga),
+                            if (service.socialView?.hasFollows ?? true) ...[
+                              _count(
+                                context,
+                                'Followers',
+                                u?.followers,
+                                onFollowers,
+                              ),
+                              _count(
+                                context,
+                                'Following',
+                                u?.following,
+                                onFollowing,
+                              ),
+                            ],
+                            if (service.hasVideo)
+                              _count(context, 'Anime', u?.animeCount, onAnime),
+                            if (service.hasReading)
+                              _count(context, 'Manga', u?.mangaCount, onManga),
                           ],
                         ),
                       ],

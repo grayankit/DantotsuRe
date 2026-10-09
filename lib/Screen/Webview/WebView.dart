@@ -46,12 +46,9 @@ class _WebViewState extends State<WebView>
           const SizedBox(width: 8),
         ],
       ),
-      body: ClipRRect(
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-        child: Container(
-          color: context.colorScheme.surface,
-          child: _buildWebView(),
-        ),
+      body: ColoredBox(
+        color: context.colorScheme.surface,
+        child: _buildWebView(),
       ),
     );
   }

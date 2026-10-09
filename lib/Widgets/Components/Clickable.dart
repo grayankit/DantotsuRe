@@ -59,7 +59,6 @@ class _ClickableState extends State<Clickable> {
       onSelect: widget.onTap,
       onLongSelect: widget.onLongPress,
       tapToSelect: false,
-      effects: const [],
       builder: dpadScaleFocus,
       child: tappable,
     );

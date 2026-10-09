@@ -1,6 +1,8 @@
 import '../../../../Core/Services/MediaService.dart';
 import '../../../../Core/Services/Model/Media.dart';
+import '../../../../Core/Services/LayoutPref.dart';
 import '../Auth.dart';
+import '../Prefs.dart';
 import '../Queries.dart';
 import '../../../../Core/ThemeManager/LanguageSwitcher.dart';
 
@@ -14,6 +16,16 @@ class MalFeedView extends FeedScreenView {
     'Upcoming' || 'Top Novels' => 2,
     _ => 0,
   };
+
+  @override
+  List<int> skeleton(MediaType type) => [
+    for (final s in applyLayout(
+      malSections(anime: type.isVideo),
+      (s) => s.title,
+      (type.isVideo ? MalPref.animeLayout : MalPref.mangaLayout).value,
+    ))
+      sectionType(type, s.title),
+  ];
 
   @override
   List<FeedChip> chips(MediaType type) => type.isVideo

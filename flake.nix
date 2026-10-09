@@ -255,6 +255,8 @@
             (pkgs.lib.splitString ":" libPath);
 
           LD_LIBRARY_PATH = libPath;
+
+          GIO_EXTRA_MODULES = "${pkgs.glib-networking}/lib/gio/modules";
         };
     };
 }

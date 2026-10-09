@@ -66,11 +66,12 @@ class _LoginPromptState extends State<LoginPrompt> {
                     )
                   : Row(
                       children: [
-                        IconButton(
-                          tooltip: getString.loginWithToken,
-                          icon: const Icon(Icons.vpn_key_rounded),
-                          onPressed: () => showTokenLogin(context, auth),
-                        ),
+                        if (auth.supportsTokenLogin)
+                          IconButton(
+                            tooltip: getString.loginWithToken,
+                            icon: const Icon(Icons.vpn_key_rounded),
+                            onPressed: () => showTokenLogin(context, auth),
+                          ),
                         FilledButton(
                           onPressed: _signIn,
                           child: Text(getString.login),

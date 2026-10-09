@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../Api/Services/Extension/Services.dart' show extensionServiceId;
 import '../../Core/Services/MediaService.dart';
 import '../../Widgets/Components/NotImplemented.dart';
 import 'FeedHeader.dart';
@@ -31,6 +32,8 @@ class BrowseFeed extends StatelessWidget {
       loader: () => view.screenStream(type),
       sectionTypeOf: (title) => view.sectionType(type, title),
       chips: view.chips(type),
+      skeleton: view.skeleton(type),
+      verticalTail: service.id != extensionServiceId,
       onChip: (chip) => view.chipMedia(type, chip),
       cacheId: '${service.id}/${type.name}',
       reloadOn: service.auth?.user.stream,

@@ -36,6 +36,12 @@ class AnilistFeedView extends FeedScreenView {
   int sectionType(MediaType type, String title) => _of(type).typeOf(title);
 
   @override
+  List<int> skeleton(MediaType type) => [
+    for (final t in anilistAuth.queries.browseTitles(anime: type.isVideo))
+      _of(type).typeOf(t),
+  ];
+
+  @override
   List<FeedChip> chips(MediaType type) => _of(type).chips;
 
   @override

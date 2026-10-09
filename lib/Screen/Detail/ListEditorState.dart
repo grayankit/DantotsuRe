@@ -26,7 +26,11 @@ class ListEditorSession {
 
   final ListEditorDraft draft;
 
-  bool get canRemove => media.userListId != null;
+  bool get canRemove {
+    final local = mutations;
+    return media.userListId != null ||
+        (local is LocalMutations && local.has(media));
+  }
 
   Future<void> _run(
     BuildContext context,

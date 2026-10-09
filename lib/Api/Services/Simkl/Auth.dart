@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:crypto/crypto.dart';
-import 'package:flutter_web_auth_2/flutter_web_auth_2.dart';
+import '../../../Core/Services/Api/BrowserAuth.dart';
 
 import '../../../Core/Preferences/PrefManager.dart';
 import '../../../Core/Services/ServiceAuth.dart';
@@ -18,9 +18,12 @@ import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 
 SimklAuth get simklAuth => find<SimklAuth>();
 
-const _clientId =
+const _mobileClientId =
     '9730a58f3b4fbdb233fd07cead1a042f105e1cf69a802e99e131b8586ee0bfff';
-const _redirect = 'dantotsu://simkl';
+const _desktopClientId = '';
+
+String get _clientId =>
+    authClientId(mobile: _mobileClientId, desktop: _desktopClientId);
 
 class SimklAuth extends AppController implements ServiceAuth {
   static const _userCacheKey = 'simklUser';
@@ -73,6 +76,12 @@ class SimklAuth extends AppController implements ServiceAuth {
   String? get tokenLoginUrl => null;
 
   @override
+  bool get supportsTokenLogin => false;
+
+  @override
+  Future<bool> loginWithToken(String token) async => false;
+
+  @override
   Future<bool> login() async {
     try {
       return await _login();
@@ -88,12 +97,13 @@ class SimklAuth extends AppController implements ServiceAuth {
       sha256.convert(utf8.encode(verifier)).bytes,
     ).replaceAll('=', '');
     final state = _random(24);
-    final result = await FlutterWebAuth2.authenticate(
+    final redirect = authRedirect('simkl');
+    final result = await browserAuthenticate(
       url: Uri.parse('$simklWeb/oauth2/authorize')
           .replace(
             queryParameters: {
               'client_id': _clientId,
-              'redirect_uri': _redirect,
+              'redirect_uri': redirect,
               'response_type': 'code',
               'scope': 'media:read media:write',
               'state': state,
@@ -102,11 +112,7 @@ class SimklAuth extends AppController implements ServiceAuth {
             },
           )
           .toString(),
-      callbackUrlScheme: Uri.parse(_redirect).scheme,
-      options: const FlutterWebAuth2Options(
-        windowName: 'Dartotsu',
-        useWebview: true,
-      ),
+      redirect: redirect,
     );
     final params = Uri.parse(result).queryParameters;
     if (params['state'] != state || (params['code'] ?? '').isEmpty) {
@@ -117,7 +123,7 @@ class SimklAuth extends AppController implements ServiceAuth {
       'grant_type': 'authorization_code',
       'code': params['code']!,
       'code_verifier': verifier,
-      'redirect_uri': _redirect,
+      'redirect_uri': redirect,
       'client_id': _clientId,
     });
     if (!_store(data)) return false;
@@ -126,19 +132,6 @@ class SimklAuth extends AppController implements ServiceAuth {
     }
     await refreshUser();
     return user.value != null;
-  }
-
-  @override
-  Future<bool> loginWithToken(String newToken) async {
-    token.value = newToken.trim();
-    SimklPref.expiresAt.value = 0;
-    await refreshUser();
-    final ok = user.value != null;
-    if (!ok) {
-      token.value = '';
-      snackString(getString.invalidToken);
-    }
-    return ok;
   }
 
   bool _store(Map<String, dynamic> data) {
@@ -191,6 +184,10 @@ class SimklAuth extends AppController implements ServiceAuth {
         id: (account['id'] as num?)?.toInt() ?? 0,
         name: u['name'] as String? ?? 'Simkl',
         avatar: u['avatar'] as String?,
+        joinedAt: u['joined_at'] as String?,
+        location: u['loc'] as String?,
+        timeZone: account['timezone'] as String?,
+        accountType: account['type'] as String?,
         episodesWatched: user.value is SimklUser
             ? (user.value as SimklUser).episodesWatched
             : 0,

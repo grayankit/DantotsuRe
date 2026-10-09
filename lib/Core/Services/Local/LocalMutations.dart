@@ -15,6 +15,8 @@ class LocalMutations extends Mutations {
   LocalListStore _store(Media media) =>
       service.localStore(anime: media.isAnime);
 
+  bool has(Media media) => _store(media).read().any((m) => m.id == media.id);
+
   @override
   Future<void> editList(Media media, {List<String>? customList}) async {
     if (incognitoBlocksEdits) {

@@ -29,10 +29,11 @@ class ProfileState extends ScreenState {
     this.onPresenceChanged,
   });
 
+  late final bool hasActivity = service.socialView!.hasActivity;
   late final tabs = TabController(
-    length: 3,
+    length: hasActivity ? 3 : 2,
     vsync: vsync,
-    initialIndex: initialTab,
+    initialIndex: hasActivity ? initialTab : (initialTab > 1 ? 1 : 0),
   );
   final user = Live<SocialUser?>(null);
   final followBusy = false.live;

@@ -170,6 +170,7 @@ Media? mapSimklItem(Map<String, dynamic> m, {SimklKind? kind}) {
 }
 
 class SimklExtras {
+  int? malId;
   List<(String, double, int)> ratings = const [];
   List<(String, String)> trailers = const [];
   List<(String, String)> links = const [];
@@ -180,10 +181,8 @@ class SimklExtras {
   String? director;
   String? dropRate;
   String? language;
-  int? malId;
   int? budget;
   int? revenue;
-  List<(String, String, String?)> episodes = const [];
 }
 
 final simklExtras = Expando<SimklExtras>('simklExtras');
@@ -219,9 +218,9 @@ SimklExtras _extrasOf(Map<String, dynamic> d, SimklKind kind) {
     ..network = d['network'] as String?
     ..certification = d['certification'] as String?
     ..director = d['director'] as String?
+    ..malId = _int(ids['mal'])
     ..dropRate = d['droprate'] as String?
     ..language = d['language'] as String?
-    ..malId = _int(ids['mal'])
     ..budget = _int(d['budget'])
     ..revenue = _int(d['revenue'])
     ..airs = airs == null
@@ -325,25 +324,4 @@ Media? mapSimklListEntry(Map<String, dynamic> e, SimklKind kind) {
     ..userListId = 1;
   if (total != null && total > 0) media.anime?.totalEpisodes = total;
   return media;
-}
-
-List<(String, String, String?)> mapSimklEpisodes(Object? data) {
-  if (data is! List) return const [];
-  final aired = [
-    for (final e in data)
-      if (e is Map && e['type'] == 'episode' && _int(e['episode']) != null) e,
-  ];
-  final shown = aired.length > 12 ? aired.sublist(aired.length - 12) : aired;
-  return [
-    for (final e in shown)
-      (
-        e['season'] == null || e['season'] == 0
-            ? 'Ep ${e['episode']}'
-            : 'S${e['season']} E${e['episode']}',
-        '${e['title'] ?? 'Episode ${e['episode']}'}',
-        parseSimklDate(
-          '${e['date'] ?? ''}'.split('T').first,
-        )?.getFormattedDate(),
-      ),
-  ];
 }
