@@ -10,6 +10,7 @@ import '../../Utils/Nav/DpadNav.dart';
 import 'AppControls.dart';
 import 'SectionCard.dart';
 import '../../Core/State/State.dart';
+import '../../Core/ThemeManager/LanguageSwitcher.dart';
 
 class ListEditorPad extends StatelessWidget {
   final Widget child;
@@ -39,7 +40,7 @@ class ListStatusField extends StatelessWidget {
   @override
   Widget build(BuildContext context) => ListEditorPad(
     child: LabeledField(
-      label: 'Status',
+      label: getString.status,
       child: Watch(
         () => AppChoiceChips<String>(
           options: [
@@ -102,7 +103,7 @@ class _ListProgressFieldState extends State<ListProgressField> {
               keyboardType: TextInputType.number,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               decoration: InputDecoration(
-                labelText: 'Progress',
+                labelText: getString.progress,
                 prefixIcon: const Icon(Icons.timelapse_rounded),
                 suffixText: '/ ${total ?? '??'}',
               ),
@@ -160,7 +161,7 @@ class _ListScoreFieldState extends State<ListScoreField> {
       return ListEditorPad(
         child: Watch(
           () => LabeledField(
-            label: 'Score',
+            label: getString.score,
             child: AppSegmented<int>(
               value: ScoreFormat.smileyStep(widget.draft.score.value),
               onChanged: (v) =>
@@ -182,7 +183,7 @@ class _ListScoreFieldState extends State<ListScoreField> {
         keyboardType: TextInputType.numberWithOptions(decimal: format.decimal),
         inputFormatters: [FilteringTextInputFormatter.allow(_allowed(format))],
         decoration: InputDecoration(
-          labelText: 'Score',
+          labelText: getString.score,
           prefixIcon: const Icon(Icons.star_rounded),
           suffixText: '/ ${format.max}',
         ),
@@ -202,11 +203,11 @@ class ListDatesField extends StatelessWidget {
     child: Row(
       children: [
         Expanded(
-          child: _DateTile(label: 'Started', date: draft.startedAt),
+          child: _DateTile(label: getString.started, date: draft.startedAt),
         ),
         SizedBox(width: Dimens.gapSm),
         Expanded(
-          child: _DateTile(label: 'Completed', date: draft.completedAt),
+          child: _DateTile(label: getString.completed, date: draft.completedAt),
         ),
       ],
     ),
@@ -275,14 +276,14 @@ class ListPrivateField extends StatelessWidget {
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
             secondary: const Icon(Icons.lock_outline_rounded),
-            title: const Text('Private'),
+            title: Text(getString.private),
             value: draft.isPrivate.value,
             onChanged: (v) => draft.isPrivate.value = v,
           ),
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
             secondary: const Icon(Icons.visibility_off_outlined),
-            title: const Text('Hide from status lists'),
+            title: Text(getString.hideFromStatusLists),
             value: draft.hiddenFromStatusLists.value,
             onChanged: (v) => draft.hiddenFromStatusLists.value = v,
           ),
@@ -294,13 +295,9 @@ class ListPrivateField extends StatelessWidget {
 
 class ListRepeatField extends StatelessWidget {
   final ListEditorDraft draft;
-  final String label;
+  final String? label;
 
-  const ListRepeatField({
-    super.key,
-    required this.draft,
-    this.label = 'Total repeats',
-  });
+  const ListRepeatField({super.key, required this.draft, this.label});
 
   @override
   Widget build(BuildContext context) => ListEditorPad(
@@ -309,7 +306,7 @@ class ListRepeatField extends StatelessWidget {
       keyboardType: TextInputType.number,
       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
       decoration: InputDecoration(
-        labelText: label,
+        labelText: label ?? getString.totalRepeats,
         prefixIcon: const Icon(Icons.redo_rounded),
       ),
       onChanged: (v) => draft.repeat.value = int.tryParse(v) ?? 0,
@@ -319,9 +316,9 @@ class ListRepeatField extends StatelessWidget {
 
 class ListNotesField extends StatelessWidget {
   final ListEditorDraft draft;
-  final String label;
+  final String? label;
 
-  const ListNotesField({super.key, required this.draft, this.label = 'Notes'});
+  const ListNotesField({super.key, required this.draft, this.label});
 
   @override
   Widget build(BuildContext context) => ListEditorPad(
@@ -331,7 +328,7 @@ class ListNotesField extends StatelessWidget {
       maxLines: null,
       keyboardType: TextInputType.multiline,
       decoration: InputDecoration(
-        labelText: label,
+        labelText: label ?? getString.notes,
         prefixIcon: const Icon(Icons.edit_note_rounded),
       ),
       onChanged: (v) => draft.notes.value = v,
@@ -347,7 +344,7 @@ class ListOtherSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) => ListEditorPad(
     child: SectionCard(
-      title: 'Other',
+      title: getString.other,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -355,9 +352,9 @@ class ListOtherSection extends StatelessWidget {
             initialValue: draft.repeat.value.toString(),
             keyboardType: TextInputType.number,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            decoration: const InputDecoration(
-              labelText: 'Total repeats',
-              prefixIcon: Icon(Icons.redo_rounded),
+            decoration: InputDecoration(
+              labelText: getString.totalRepeats,
+              prefixIcon: const Icon(Icons.redo_rounded),
             ),
             onChanged: (v) => draft.repeat.value = int.tryParse(v) ?? 0,
           ),
@@ -367,9 +364,9 @@ class ListOtherSection extends StatelessWidget {
             minLines: 2,
             maxLines: null,
             keyboardType: TextInputType.multiline,
-            decoration: const InputDecoration(
-              labelText: 'Notes',
-              prefixIcon: Icon(Icons.edit_note_rounded),
+            decoration: InputDecoration(
+              labelText: getString.notes,
+              prefixIcon: const Icon(Icons.edit_note_rounded),
             ),
             onChanged: (v) => draft.notes.value = v,
           ),
@@ -380,7 +377,7 @@ class ListOtherSection extends StatelessWidget {
               children: [
                 SizedBox(height: Dimens.gap),
                 Text(
-                  'Custom lists',
+                  getString.customLists,
                   style: context.textTheme.labelLarge?.copyWith(
                     color: context.colorScheme.onSurfaceVariant,
                   ),

@@ -9,7 +9,6 @@ import '../../../Core/Services/MediaService.dart';
 import '../../../Utils/Animation/WidgetAnimations.dart';
 import '../../../Utils/Extensions/ContextExtensions.dart';
 import '../../../Utils/Extensions/StringExtensions.dart';
-import '../../../Utils/Functions/SnackBar.dart';
 import '../../../Utils/Functions/TimeAgo.dart';
 import '../../../Widgets/Components/AniHtml.dart';
 import '../../../Widgets/Components/CachedNetworkImage.dart';
@@ -23,10 +22,13 @@ import '../Components/RepliesSheet.dart';
 import '../../../Widgets/Components/UserAvatar.dart';
 import '../Components/UserListSheet.dart';
 import '../SocialNavigation.dart';
-import 'StorySeen.dart';
 import '../../../Api/Discord/DiscordPresence.dart';
 import '../../../Api/Discord/PresenceScope.dart';
 import '../../../Core/State/State.dart';
+import '../../../Core/ThemeManager/LanguageSwitcher.dart';
+import '../../../Widgets/Components/ScreenState.dart';
+import 'StoryGroupState.dart';
+import 'StoryViewerState.dart';
 
 class StoryViewer extends StatefulWidget {
   final MediaService service;
@@ -46,46 +48,13 @@ class StoryViewer extends StatefulWidget {
   State<StoryViewer> createState() => _StoryViewerState();
 }
 
-class _StoryViewerState extends State<StoryViewer> {
-  late final PageController _pages = PageController(
-    initialPage: widget.initialGroup,
+class _StoryViewerState extends State<StoryViewer>
+    with ScreenStateHost<StoryViewer, StoryViewerState> {
+  @override
+  StoryViewerState buildState() => StoryViewerState(
+    initialGroup: widget.initialGroup,
+    groupCount: widget.groups.length,
   );
-  late final _current = widget.initialGroup.live;
-  final _drag = 0.0.live;
-  final _dragging = false.live;
-  final _hold = false.live;
-
-  @override
-  void initState() {
-    super.initState();
-    unawaited(
-      SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky),
-    );
-  }
-
-  @override
-  void dispose() {
-    unawaited(SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge));
-    _pages.dispose();
-    super.dispose();
-  }
-
-  void _close() => Navigator.of(context).maybePop();
-
-  void _goTo(int index) {
-    if (index < 0 || index >= widget.groups.length) {
-      if (index >= widget.groups.length) _close();
-      return;
-    }
-    unawaited(HapticFeedback.selectionClick());
-    unawaited(
-      _pages.animateToPage(
-        index,
-        duration: const Duration(milliseconds: 420),
-        curve: Curves.easeOutCubic,
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) => PresenceScope(
@@ -96,17 +65,17 @@ class _StoryViewerState extends State<StoryViewer> {
   Widget _buildViewer(BuildContext context) => Watch(() => _viewer(context));
 
   Widget _viewer(BuildContext context) {
-    final current = _current.value;
+    final current = state.current.value;
     final size = MediaQuery.sizeOf(context);
-    final progress = (_drag.value / (size.height * 0.5)).clamp(0.0, 1.0);
+    final progress = (state.drag.value / (size.height * 0.5)).clamp(0.0, 1.0);
     return Scaffold(
       backgroundColor: Colors.black.withValues(alpha: 1 - progress * 0.85),
       body: GestureDetector(
         behavior: HitTestBehavior.translucent,
-        onHorizontalDragStart: (_) => _hold.value = true,
+        onHorizontalDragStart: (_) => state.hold.value = true,
         onHorizontalDragUpdate: (d) {
-          if (!_pages.hasClients) return;
-          final position = _pages.position;
+          if (!state.pages.hasClients) return;
+          final position = state.pages.position;
           position.jumpTo(
             (position.pixels - d.delta.dx).clamp(
               position.minScrollExtent,
@@ -115,9 +84,9 @@ class _StoryViewerState extends State<StoryViewer> {
           );
         },
         onHorizontalDragEnd: (d) {
-          _hold.value = false;
-          if (!_pages.hasClients) return;
-          final page = _pages.page ?? _current.value.toDouble();
+          state.hold.value = false;
+          if (!state.pages.hasClients) return;
+          final page = state.pages.page ?? state.current.value.toDouble();
           final velocity = d.primaryVelocity ?? 0;
           var target = page.round();
           if (velocity < -350) {
@@ -126,55 +95,56 @@ class _StoryViewerState extends State<StoryViewer> {
             target = page.ceil() - 1;
           }
           target = target.clamp(0, widget.groups.length - 1);
-          if (target != _current.value) {
+          if (target != state.current.value) {
             unawaited(HapticFeedback.selectionClick());
           }
           unawaited(
-            _pages.animateToPage(
+            state.pages.animateToPage(
               target,
               duration: const Duration(milliseconds: 380),
               curve: Curves.easeOutCubic,
             ),
           );
         },
-        onVerticalDragStart: (_) => _dragging.value = true,
+        onVerticalDragStart: (_) => state.dragging.value = true,
         onVerticalDragUpdate: (d) =>
-            _drag.value = math.max(0, _drag.value + d.delta.dy),
+            state.drag.value = math.max(0, state.drag.value + d.delta.dy),
         onVerticalDragEnd: (d) {
           final fling = (d.primaryVelocity ?? 0) > 700;
-          if (fling || _drag.value > size.height * 0.22) {
-            _close();
+          if (fling || state.drag.value > size.height * 0.22) {
+            state.close();
           } else {
-            _drag.value = 0;
-            _dragging.value = false;
+            state.drag.value = 0;
+            state.dragging.value = false;
           }
         },
         child: AnimatedContainer(
-          duration: _dragging.value && _drag.value > 0
+          duration: state.dragging.value && state.drag.value > 0
               ? Duration.zero
               : const Duration(milliseconds: 260),
           curve: Curves.easeOutCubic,
           transform: Matrix4.identity()
-            ..translateByDouble(0, _drag.value, 0, 1)
+            ..translateByDouble(0, state.drag.value, 0, 1)
             ..scaleByDouble(1 - progress * 0.18, 1 - progress * 0.18, 1, 1),
           transformAlignment: Alignment.center,
           child: ClipRRect(
             borderRadius: BorderRadius.circular(progress * 32),
             child: PageView.builder(
-              controller: _pages,
+              controller: state.pages,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: widget.groups.length,
               onPageChanged: (i) {
-                _current.value = i;
+                state.current.value = i;
                 widget.onUserChanged?.call(widget.groups[i].user.id);
               },
               itemBuilder: (context, i) => AnimatedBuilder(
-                animation: _pages,
+                animation: state.pages,
                 builder: (context, child) {
                   final page =
-                      _pages.hasClients && _pages.position.haveDimensions
-                      ? _pages.page ?? _current.value.toDouble()
-                      : _current.value.toDouble();
+                      state.pages.hasClients &&
+                          state.pages.position.haveDimensions
+                      ? state.pages.page ?? state.current.value.toDouble()
+                      : state.current.value.toDouble();
                   final delta = (page - i).clamp(-1.0, 1.0);
                   return Opacity(
                     opacity: 1 - delta.abs() * 0.5,
@@ -194,10 +164,10 @@ class _StoryViewerState extends State<StoryViewer> {
                   service: widget.service,
                   group: widget.groups[i],
                   active: i == current,
-                  hold: _hold,
-                  onFinished: () => _goTo(i + 1),
-                  onBack: () => _goTo(i - 1),
-                  onClose: _close,
+                  hold: state.hold,
+                  onFinished: () => state.goTo(i + 1),
+                  onBack: () => state.goTo(i - 1),
+                  onClose: state.close,
                 ),
               ),
             ),
@@ -233,132 +203,23 @@ class _StoryGroupPage extends StatefulWidget {
 }
 
 class _StoryGroupPageState extends State<_StoryGroupPage>
-    with SingleTickerProviderStateMixin {
-  static const _duration = Duration(seconds: 7);
-
-  late final AnimationController _timer = AnimationController(
-    vsync: this,
-    duration: _duration,
-  )..addStatusListener(_onStatus);
-  final _index = 0.live;
-  final _forward = true.live;
-  int _holds = 0;
-
-  SocialScreenView get _view => widget.service.socialView!;
-  List<Activity> get _items => widget.group.activities;
-  Activity get _story => _items[_index.value];
-
+    with
+        SingleTickerProviderStateMixin,
+        ScreenStateHost<_StoryGroupPage, StoryGroupState> {
   @override
-  void initState() {
-    super.initState();
-    final seen = StorySeen.read(widget.service);
-    final first = _items.indexWhere((a) => !seen.contains(a.id));
-    _index.value = first < 0 ? 0 : first;
-    _holdSub = onChange(widget.hold, (_) => _onSwipeHold());
-    if (widget.active) _start();
-  }
-
-  final _version = Trigger();
-  Disposer? _holdSub;
-  bool _swipeHeld = false;
-
-  void _onSwipeHold() {
-    final want = widget.hold.value;
-    if (want == _swipeHeld) return;
-    _swipeHeld = want;
-    want ? _hold() : _release();
-  }
+  StoryGroupState buildState() => StoryGroupState(
+    service: widget.service,
+    group: widget.group,
+    hold: widget.hold,
+    onFinished: widget.onFinished,
+    onBack: widget.onBack,
+    active: widget.active,
+  );
 
   @override
   void didUpdateWidget(_StoryGroupPage old) {
     super.didUpdateWidget(old);
-    if (widget.active && !old.active) {
-      _start();
-    } else if (!widget.active && old.active) {
-      _timer.stop();
-    }
-  }
-
-  @override
-  void dispose() {
-    _holdSub?.dispose();
-    _timer.dispose();
-    super.dispose();
-  }
-
-  void _start() {
-    StorySeen.mark(widget.service, _story.id);
-    _timer
-      ..stop()
-      ..value = 0;
-    if (_holds == 0) unawaited(_timer.forward());
-  }
-
-  void _onStatus(AnimationStatus status) {
-    if (status == AnimationStatus.completed && widget.active) _next();
-  }
-
-  void _hold() {
-    _holds++;
-    _timer.stop();
-  }
-
-  void _release() {
-    if (_holds > 0) _holds--;
-    if (_holds == 0 && mounted && widget.active && !_timer.isCompleted) {
-      unawaited(_timer.forward());
-    }
-  }
-
-  void _next() {
-    if (!mounted) return;
-    if (_index.value < _items.length - 1) {
-      _forward.value = true;
-      _index.value++;
-      _start();
-    } else {
-      widget.onFinished();
-    }
-  }
-
-  void _previous() {
-    if (_index.value > 0) {
-      _forward.value = false;
-      _index.value--;
-      _start();
-    } else {
-      widget.onBack();
-      _start();
-    }
-  }
-
-  Future<void> _like() async {
-    if (!_view.canInteract) return snackString('Log in to like');
-    final a = _story;
-    final was = a.isLiked;
-    a.isLiked = !was;
-    a.likeCount += was ? -1 : 1;
-    _version.fire();
-    unawaited(HapticFeedback.selectionClick());
-    final ok = await _view.toggleLike(a.id);
-    if (!ok && mounted) {
-      a.isLiked = was;
-      a.likeCount += was ? 1 : -1;
-      _version.fire();
-      snackString('Failed to like');
-    }
-  }
-
-  Future<T?> _paused<T>(Future<T> Function() action) async {
-    _hold();
-    try {
-      return await action();
-    } finally {
-      if (mounted) {
-        _version.fire();
-        _release();
-      }
-    }
+    state.activeChanged(old.active, widget.active);
   }
 
   @override
@@ -366,12 +227,21 @@ class _StoryGroupPageState extends State<_StoryGroupPage>
 
   Widget _build(BuildContext context) {
     final width = MediaQuery.sizeOf(context).width;
-    _version.track();
+    state.version.track();
+    return Focus(
+      autofocus: widget.active,
+      onKeyEvent: state.onKey,
+      child: _tapZones(width),
+    );
+  }
+
+  Widget _tapZones(double width) {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTapUp: (d) => d.localPosition.dx < width / 3 ? _previous() : _next(),
-      onLongPressStart: (_) => _hold(),
-      onLongPressEnd: (_) => _release(),
+      onTapUp: (d) =>
+          d.localPosition.dx < width / 3 ? state.previous() : state.next(),
+      onLongPressStart: (_) => state.holdNow(),
+      onLongPressEnd: (_) => state.release(),
       child: MouseRegion(
         cursor: SystemMouseCursors.click,
         child: Stack(
@@ -388,7 +258,7 @@ class _StoryGroupPageState extends State<_StoryGroupPage>
   }
 
   Widget _background() {
-    final a = _story;
+    final a = state.story;
     final scheme = context.colorScheme;
     final url =
         a.media?.banner ?? a.media?.cover ?? a.user?.banner ?? a.user?.avatar;
@@ -414,9 +284,9 @@ class _StoryGroupPageState extends State<_StoryGroupPage>
             ),
             if (url != null)
               AnimatedBuilder(
-                animation: _timer,
+                animation: state.timer,
                 builder: (_, child) => Transform.scale(
-                  scale: 1.04 + 0.1 * _timer.value,
+                  scale: 1.04 + 0.1 * state.timer.value,
                   child: child,
                 ),
                 child: ImageFiltered(
@@ -440,7 +310,7 @@ class _StoryGroupPageState extends State<_StoryGroupPage>
   }
 
   Widget _content(BuildContext context) {
-    final a = _story;
+    final a = state.story;
     final top = MediaQuery.paddingOf(context).top;
     final bottom = MediaQuery.paddingOf(context).bottom;
     return Positioned.fill(
@@ -453,7 +323,7 @@ class _StoryGroupPageState extends State<_StoryGroupPage>
           opacity: animation,
           child: SlideTransition(
             position: Tween<Offset>(
-              begin: Offset(_forward.value ? 0.12 : -0.12, 0),
+              begin: Offset(state.forward.value ? 0.12 : -0.12, 0),
               end: Offset.zero,
             ).animate(animation),
             child: ScaleTransition(
@@ -471,7 +341,7 @@ class _StoryGroupPageState extends State<_StoryGroupPage>
   }
 
   Widget _header(BuildContext context) {
-    final a = _story;
+    final a = state.story;
     final user = widget.group.user;
     final top = MediaQuery.paddingOf(context).top;
     return Positioned(
@@ -482,7 +352,7 @@ class _StoryGroupPageState extends State<_StoryGroupPage>
         children: [
           Row(
             children: [
-              for (var i = 0; i < _items.length; i++)
+              for (var i = 0; i < state.items.length; i++)
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 2),
@@ -490,17 +360,17 @@ class _StoryGroupPageState extends State<_StoryGroupPage>
                       borderRadius: BorderRadius.circular(4),
                       child: SizedBox(
                         height: 4,
-                        child: i == _index.value
+                        child: i == state.index.value
                             ? AnimatedBuilder(
-                                animation: _timer,
+                                animation: state.timer,
                                 builder: (_, _) => LinearProgressIndicator(
-                                  value: _timer.value,
+                                  value: state.timer.value,
                                   backgroundColor: Colors.white24,
                                   color: Colors.white,
                                 ),
                               )
                             : LinearProgressIndicator(
-                                value: i < _index.value ? 1 : 0,
+                                value: i < state.index.value ? 1 : 0,
                                 backgroundColor: Colors.white24,
                                 color: Colors.white,
                               ),
@@ -514,7 +384,7 @@ class _StoryGroupPageState extends State<_StoryGroupPage>
           Row(
             children: [
               Clickable(
-                onTap: () => _paused(
+                onTap: () => state.paused(
                   () => pushProfile(
                     context,
                     widget.service,
@@ -579,7 +449,7 @@ class _StoryGroupPageState extends State<_StoryGroupPage>
   }
 
   Widget _footer(BuildContext context) {
-    final a = _story;
+    final a = state.story;
     final bottom = MediaQuery.paddingOf(context).bottom;
     return Positioned(
       left: 16,
@@ -595,13 +465,13 @@ class _StoryGroupPageState extends State<_StoryGroupPage>
                   ? Icons.favorite_rounded
                   : Icons.favorite_border_rounded,
               '${a.likeCount}',
-              _like,
+              state.like,
               color: a.isLiked ? Colors.redAccent : Colors.white,
-              onLongPress: () => _paused(
+              onLongPress: () => state.paused(
                 () => showUserListSheet(
                   context,
                   widget.service,
-                  'Liked by',
+                  getString.likedBy,
                   a.likes,
                 ),
               ),
@@ -609,15 +479,17 @@ class _StoryGroupPageState extends State<_StoryGroupPage>
             _stat(
               Icons.chat_bubble_outline_rounded,
               '${a.replyCount}',
-              () => _paused(() => showRepliesSheet(context, widget.service, a)),
+              () => state.paused(
+                () => showRepliesSheet(context, widget.service, a),
+              ),
             ),
             const Spacer(),
-            if (_view.canInteract)
+            if (state.view.canInteract)
               Clickable(
-                onTap: () => _paused(
+                onTap: () => state.paused(
                   () => showActivityComposer(
                     context,
-                    _view,
+                    state.view,
                     kind: ComposerKind.reply,
                     activityId: a.id,
                   ),
@@ -631,14 +503,18 @@ class _StoryGroupPageState extends State<_StoryGroupPage>
                     color: Colors.white.withValues(alpha: 0.16),
                     borderRadius: BorderRadius.circular(24),
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.reply_rounded, color: Colors.white, size: 18),
-                      SizedBox(width: 6),
+                      const Icon(
+                        Icons.reply_rounded,
+                        color: Colors.white,
+                        size: 18,
+                      ),
+                      const SizedBox(width: 6),
                       Text(
-                        'Reply',
-                        style: TextStyle(
+                        getString.reply,
+                        style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w700,
                         ),
@@ -741,7 +617,7 @@ class _StoryGroupPageState extends State<_StoryGroupPage>
           children: [
             if (media != null)
               Clickable(
-                onTap: () => _paused(
+                onTap: () => state.paused(
                   () => navigateToPage(
                     context,
                     DetailScreen(
@@ -825,15 +701,17 @@ class _StoryGroupPageState extends State<_StoryGroupPage>
                   text: a.text ?? '',
                   collapsible: false,
                   color: Colors.white,
-                  onLink: (url) =>
-                      _paused(() => openAppLink(context, widget.service, url)),
+                  onLink: (url) => state.paused(
+                    () => openAppLink(context, widget.service, url),
+                  ),
                 )
               : AniHtml(
                   html: a.html!,
                   color: Colors.white,
                   fontSize: 16,
-                  onLink: (url) =>
-                      _paused(() => openAppLink(context, widget.service, url)),
+                  onLink: (url) => state.paused(
+                    () => openAppLink(context, widget.service, url),
+                  ),
                   linkCard: aniLinkCards(widget.service),
                 ),
         ),

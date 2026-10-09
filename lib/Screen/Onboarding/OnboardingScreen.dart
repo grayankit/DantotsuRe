@@ -13,10 +13,11 @@ import '../../Utils/Functions/LinkSettings.dart';
 import '../../Widgets/Components/CachedNetworkImage.dart';
 import '../../Widgets/Components/ScrollConfig.dart';
 import '../../Widgets/Components/AppControls.dart';
-import '../Login/LoginScreen.dart';
 import '../Settings/Widgets/ThemeDropdown.dart';
 import '../../Core/ThemeManager/GlassBackgroundSource.dart';
 import '../../Core/State/State.dart';
+import '../../Widgets/Components/ScreenState.dart';
+import 'OnboardingState.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -25,15 +26,14 @@ class OnboardingScreen extends StatefulWidget {
   State<OnboardingScreen> createState() => _OnboardingScreenState();
 }
 
-class _OnboardingScreenState extends State<OnboardingScreen> {
-  ThemeController get _theme => find();
-  final _page = 0.live;
+class _OnboardingScreenState extends State<OnboardingScreen>
+    with ScreenStateHost<OnboardingScreen, OnboardingState> {
+  @override
+  OnboardingState buildState() => OnboardingState();
+
+  ThemeController get _theme => state.theme;
 
   ThemeData get theme => Theme.of(context);
-
-  void _finish() => Navigator.of(
-    context,
-  ).pushReplacement(MaterialPageRoute(builder: (_) => const LoginScreen()));
 
   @override
   Widget build(BuildContext context) => Watch(() => _build(context));
@@ -72,9 +72,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   _navButton(cb, getString.onboardingNext, autoFocus: true),
               overrideSkip: (c, cb) => _navButton(cb, getString.onboardingSkip),
               overrideDone: (c, cb) => _navButton(cb, getString.getStarted),
-              onDone: _finish,
-              onSkip: _finish,
-              onChange: (v) => _page.value = v,
+              onDone: state.finish,
+              onSkip: state.finish,
+              onChange: (v) => state.page.value = v,
               pages: [_page0(), _page1(), _page2()],
             ),
           ),
@@ -101,7 +101,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     required Widget title,
     required List<Widget> body,
   }) {
-    final active = _page.value == index;
+    final active = state.page.value == index;
     return PageViewModel(
       decoration: const PageDecoration(
         imageFlex: 0,
@@ -262,11 +262,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           color: theme.colorScheme.primary,
                         ),
                         const SizedBox(width: 12),
-                        const Flexible(
-                          child: Text(
-                            'Open AniList and repo links in Dartotsu',
-                          ),
-                        ),
+                        Flexible(child: Text(getString.onboardingOpenLinks)),
                         const SizedBox(width: 6),
                         Icon(
                           Icons.chevron_right_rounded,

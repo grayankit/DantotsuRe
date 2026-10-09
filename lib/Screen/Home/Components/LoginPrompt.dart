@@ -48,7 +48,7 @@ class _LoginPromptState extends State<LoginPrompt> {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    'Everything below is saved on this device until you do.',
+                    getString.savedOnDeviceUntilLogin,
                     style: context.textTheme.bodySmall?.copyWith(
                       color: scheme.onSurfaceVariant,
                     ),

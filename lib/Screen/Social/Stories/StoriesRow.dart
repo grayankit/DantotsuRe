@@ -19,6 +19,7 @@ import '../SocialNavigation.dart';
 import 'StorySeen.dart';
 import 'StoryViewer.dart';
 import '../../../Core/State/State.dart';
+import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 
 class StoriesRow extends StatefulWidget {
   final MediaService service;
@@ -101,7 +102,7 @@ class _StoriesRowState extends State<StoriesRow> {
         own = StoryGroup(
           UserBrief(
             id: _view.currentUserId ?? '',
-            name: 'Your story',
+            name: getString.yourStory,
             avatar: user.avatar,
             banner: user.banner,
           ),

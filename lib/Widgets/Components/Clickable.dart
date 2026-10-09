@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../Core/State/State.dart';
+import '../../Utils/Nav/DpadNav.dart';
 
 class Clickable extends StatefulWidget {
   final VoidCallback? onTap;
@@ -41,7 +42,7 @@ class _ClickableState extends State<Clickable> {
             ),
           )
         : widget.child;
-    return MouseRegion(
+    final tappable = MouseRegion(
       cursor: enabled ? SystemMouseCursors.click : MouseCursor.defer,
       child: GestureDetector(
         behavior: widget.behavior,
@@ -52,6 +53,15 @@ class _ClickableState extends State<Clickable> {
         onTapCancel: enabled ? () => _set(false) : null,
         child: child,
       ),
+    );
+    if (!enabled) return tappable;
+    return DpadFocusable(
+      onSelect: widget.onTap,
+      onLongSelect: widget.onLongPress,
+      tapToSelect: false,
+      effects: const [],
+      builder: dpadScaleFocus,
+      child: tappable,
     );
   }
 }

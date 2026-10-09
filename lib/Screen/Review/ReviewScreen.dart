@@ -6,7 +6,6 @@ import '../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../Utils/Extensions/ContextExtensions.dart';
 import '../../Utils/Extensions/Responsive.dart';
 import '../../Utils/Function.dart';
-import '../../Utils/Functions/SnackBar.dart';
 import '../../Widgets/Components/AniHtml.dart';
 import '../../Widgets/Components/AppBars.dart';
 import '../../Widgets/Components/BaseScreen.dart';
@@ -19,6 +18,8 @@ import '../Social/Components/AniMediaCard.dart';
 import '../Social/SocialNavigation.dart';
 import 'ReviewCard.dart';
 import '../../Core/State/State.dart';
+import '../../Widgets/Components/ScreenState.dart';
+import 'ReviewState.dart';
 
 class ReviewScreen extends StatefulWidget {
   final Review review;
@@ -36,34 +37,14 @@ class ReviewScreen extends StatefulWidget {
   State<ReviewScreen> createState() => _ReviewScreenState();
 }
 
-class _ReviewScreenState extends BaseScreen<ReviewScreen> {
-  late final _review = widget.review.live;
-  final _busy = false.live;
-
-  bool get _canVote =>
-      (widget.view?.canRateReviews ?? false) &&
-      (widget.service.auth?.isLoggedIn ?? false);
-
-  Future<void> _vote(ReviewVote tap) async {
-    if (_busy.value) return;
-    final review = _review.value;
-    final target = review.vote == tap ? ReviewVote.none : tap;
-    _busy.value = true;
-    try {
-      final result = await widget.view!.rateReview(review, target);
-      if (result == null) {
-        snackString(getString.reviewVoteFailed);
-        return;
-      }
-      review
-        ..rating = result.rating
-        ..ratingAmount = result.ratingAmount
-        ..userRating = result.userRating;
-      _review.refresh();
-    } finally {
-      _busy.value = false;
-    }
-  }
+class _ReviewScreenState extends BaseScreen<ReviewScreen>
+    with ScreenStateHost<ReviewScreen, ReviewState> {
+  @override
+  ReviewState buildState() => ReviewState(
+    initial: widget.review,
+    service: widget.service,
+    view: widget.view,
+  );
 
   @override
   Widget buildContent(BuildContext context) {
@@ -210,7 +191,7 @@ class _ReviewScreenState extends BaseScreen<ReviewScreen> {
                       linkCard: aniLinkCards(widget.service),
                     ),
                   ),
-                  if (_canVote) ...[
+                  if (state.canVote) ...[
                     SizedBox(height: Dimens.gapSm),
                     _votes(context),
                   ],
@@ -224,8 +205,8 @@ class _ReviewScreenState extends BaseScreen<ReviewScreen> {
   }
 
   Widget _votes(BuildContext context) => Watch(() {
-    final review = _review.value;
-    final busy = _busy.value;
+    final review = state.review.value;
+    final busy = state.busy.value;
     final total = review.ratingAmount ?? 0;
     return SectionCard(
       child: Row(
@@ -252,14 +233,14 @@ class _ReviewScreenState extends BaseScreen<ReviewScreen> {
             isSelected: review.vote == ReviewVote.up,
             icon: const Icon(Icons.thumb_up_outlined),
             selectedIcon: const Icon(Icons.thumb_up_rounded),
-            onPressed: busy ? null : () => _vote(ReviewVote.up),
+            onPressed: busy ? null : () => state.vote(ReviewVote.up),
           ),
           const SizedBox(width: 6),
           IconButton.filledTonal(
             isSelected: review.vote == ReviewVote.down,
             icon: const Icon(Icons.thumb_down_outlined),
             selectedIcon: const Icon(Icons.thumb_down_rounded),
-            onPressed: busy ? null : () => _vote(ReviewVote.down),
+            onPressed: busy ? null : () => state.vote(ReviewVote.down),
           ),
         ],
       ),

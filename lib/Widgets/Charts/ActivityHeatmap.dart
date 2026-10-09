@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../Core/Services/Model/Social.dart';
 import '../../Utils/Extensions/ContextExtensions.dart';
 import '../../Core/State/State.dart';
+import '../../Core/ThemeManager/LanguageSwitcher.dart';
 
 class ActivityHeatmap extends StatefulWidget {
   final List<ActivityDay> days;
@@ -135,9 +136,9 @@ class _ActivityHeatmapState extends State<ActivityHeatmap> {
           runSpacing: 10,
           children: [
             _tile(context, 'Activities', '${summary.total}'),
-            _tile(context, 'Active days', '${summary.active}'),
-            _tile(context, 'Longest streak', '${summary.longest} d'),
-            _tile(context, 'Current streak', '${summary.current} d'),
+            _tile(context, getString.activeDays, '${summary.active}'),
+            _tile(context, getString.longestStreak, '${summary.longest} d'),
+            _tile(context, getString.currentStreak, '${summary.current} d'),
           ],
         ),
         const SizedBox(height: 14),
@@ -187,7 +188,7 @@ class _ActivityHeatmapState extends State<ActivityHeatmap> {
                 duration: const Duration(milliseconds: 150),
                 child: Text(
                   hover == null
-                      ? 'Tap or hover a day'
+                      ? getString.tapOrHoverDay
                       : '${_months[hover.month - 1]} ${hover.day}, ${hover.year} · '
                             '${hoverDay?.amount ?? 0} '
                             '${(hoverDay?.amount ?? 0) == 1 ? 'activity' : 'activities'}',
@@ -201,7 +202,7 @@ class _ActivityHeatmapState extends State<ActivityHeatmap> {
                 ),
               ),
             ),
-            Text('Less', style: context.textTheme.labelSmall),
+            Text(getString.less, style: context.textTheme.labelSmall),
             const SizedBox(width: 6),
             for (final level in const [0, 2, 4, 7, 10])
               Container(
@@ -216,7 +217,7 @@ class _ActivityHeatmapState extends State<ActivityHeatmap> {
                 ),
               ),
             const SizedBox(width: 3),
-            Text('More', style: context.textTheme.labelSmall),
+            Text(getString.more, style: context.textTheme.labelSmall),
           ],
         ),
       ],

@@ -17,6 +17,7 @@ import 'Components/HeaderBanner.dart';
 import 'Components/HeaderStatPill.dart';
 import 'Components/IncognitoBadge.dart';
 import '../../Core/State/State.dart';
+import '../../Utils/Nav/DpadLayers.dart';
 
 class HomeHeader extends StatelessWidget {
   const HomeHeader({super.key});
@@ -57,51 +58,53 @@ class HomeHeader extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        greeting,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: context.textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.w700,
+            DpadRow(
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          greeting,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: context.textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
-                      ),
-                      Watch(
-                        () => PrefName.incognito.rx.value
-                            ? Padding(
-                                padding: const EdgeInsets.only(top: 4),
-                                child: IncognitoBadge(
-                                  onTap: () =>
-                                      showAccountSheet(context, _controller),
-                                ),
-                              )
-                            : const SizedBox.shrink(),
-                      ),
-                    ],
+                        Watch(
+                          () => PrefName.incognito.rx.value
+                              ? Padding(
+                                  padding: const EdgeInsets.only(top: 4),
+                                  child: IncognitoBadge(
+                                    onTap: () =>
+                                        showAccountSheet(context, _controller),
+                                  ),
+                                )
+                              : const SizedBox.shrink(),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                if (service.searchView != null)
-                  IconButton(
-                    icon: const Icon(Icons.search_rounded),
-                    onPressed: () => openSearch(context, service),
+                  if (service.searchView != null)
+                    IconButton(
+                      icon: const Icon(Icons.search_rounded),
+                      onPressed: () => openSearch(context, service),
+                    ),
+                  const SizedBox(width: 6),
+                  HeaderAvatar(
+                    url: user?.avatar,
+                    onTap: () => showAccountSheet(context, _controller),
+                    onLongPress: user == null || service.socialView == null
+                        ? null
+                        : () {
+                            unawaited(HapticFeedback.mediumImpact());
+                            openProfile(context, service, id: '${user.id}');
+                          },
                   ),
-                const SizedBox(width: 6),
-                HeaderAvatar(
-                  url: user?.avatar,
-                  onTap: () => showAccountSheet(context, _controller),
-                  onLongPress: user == null || service.socialView == null
-                      ? null
-                      : () {
-                          unawaited(HapticFeedback.mediumImpact());
-                          openProfile(context, service, id: '${user.id}');
-                        },
-                ),
-              ],
+                ],
+              ),
             ),
             if (user != null && (user.episodesWatched + user.chaptersRead) > 0)
               Padding(

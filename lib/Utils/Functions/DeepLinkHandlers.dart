@@ -6,6 +6,7 @@ import '../../Core/Services/MediaServiceController.dart';
 import '../../Screen/Social/SocialNavigation.dart';
 import 'SnackBar.dart';
 import '../../Core/State/State.dart';
+import '../../Core/ThemeManager/LanguageSwitcher.dart';
 
 const appSchemes = {'dartotsu'};
 
@@ -29,7 +30,7 @@ class ExtensionRepoLinks extends DeepLinkHandler {
       (m) => m.schemes.contains(uri.scheme.toLowerCase()),
     );
     handler.handleSchemes(uri);
-    snackString('Added Repo Links Successfully!');
+    snackString(getString.repoLinksAdded);
   }
 }
 

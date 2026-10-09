@@ -11,6 +11,7 @@ import '../../../Utils/Functions/NavigateToScreen.dart';
 import '../../../Widgets/Components/CachedNetworkImage.dart';
 import 'StatusChip.dart';
 import '../../../Core/State/State.dart';
+import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 
 const _toolbarHeight = 56.0;
 const _actionsHeight = 60.0;
@@ -332,7 +333,7 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
                 onList ? Icons.edit_rounded : Icons.add_rounded,
                 size: 18,
               ),
-              label: Text(listLabel?.call(m) ?? 'Add to List'),
+              label: Text(listLabel?.call(m) ?? getString.addToList),
             ),
           if (onEditList != null && m.trailer != null)
             SizedBox(width: Dimens.gapSm),
@@ -340,7 +341,7 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
             OutlinedButton.icon(
               onPressed: () => openLinkInBrowser(m.trailer!),
               icon: const Icon(Icons.play_arrow_rounded, size: 18),
-              label: const Text('Trailer'),
+              label: Text(getString.trailer),
             ),
         ],
       ),
@@ -383,40 +384,40 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
     onSelected: (v) {
       if (v == 'browser') openLinkInBrowser(m.shareLink);
       if (v == 'copyTitle') {
-        copyToClipboard(m.mainName, message: 'Title copied');
+        copyToClipboard(m.mainName, message: getString.titleCopied);
       }
       if (v == 'copyLink') {
-        copyToClipboard(m.shareLink, message: 'Link copied');
+        copyToClipboard(m.shareLink, message: getString.linkCopied);
       }
       if (v == 'trailer' && m.trailer != null) openLinkInBrowser(m.trailer!);
     },
     itemBuilder: (_) => [
       if (m.trailer != null)
-        const PopupMenuItem(
+        PopupMenuItem(
           value: 'trailer',
           child: ListTile(
             dense: true,
             contentPadding: EdgeInsets.zero,
-            leading: Icon(Icons.play_circle_outline_rounded),
-            title: Text('Watch trailer'),
+            leading: const Icon(Icons.play_circle_outline_rounded),
+            title: Text(getString.watchTrailer),
           ),
         ),
-      const PopupMenuItem(
+      PopupMenuItem(
         value: 'copyTitle',
         child: ListTile(
           dense: true,
           contentPadding: EdgeInsets.zero,
-          leading: Icon(Icons.title_rounded),
-          title: Text('Copy title'),
+          leading: const Icon(Icons.title_rounded),
+          title: Text(getString.copyTitle),
         ),
       ),
-      const PopupMenuItem(
+      PopupMenuItem(
         value: 'copyLink',
         child: ListTile(
           dense: true,
           contentPadding: EdgeInsets.zero,
-          leading: Icon(Icons.link_rounded),
-          title: Text('Copy link'),
+          leading: const Icon(Icons.link_rounded),
+          title: Text(getString.copyLink),
         ),
       ),
       PopupMenuItem(
@@ -426,7 +427,9 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
           contentPadding: EdgeInsets.zero,
           leading: const Icon(Icons.open_in_new_rounded),
           title: Text(
-            sourceName == null ? 'Open in browser' : 'View on $sourceName',
+            sourceName == null
+                ? getString.openInBrowser
+                : getString.viewOnSource(sourceName!),
           ),
         ),
       ),

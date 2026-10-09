@@ -3,6 +3,7 @@ import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../Utils/Extensions/ContextExtensions.dart';
 import '../../Utils/Functions/NavigateToScreen.dart';
+import '../../Utils/Nav/DpadLayers.dart';
 
 class AppBackButton extends StatelessWidget {
   final VoidCallback? onPressed;
@@ -13,13 +14,11 @@ class AppBackButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return IconButton(
       style: IconButton.styleFrom(
-        backgroundColor: Colors.transparent,
         padding: EdgeInsets.zero,
         minimumSize: Size.zero,
-        fixedSize: const Size(24, 24),
+        fixedSize: const Size(32, 32),
         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
         visualDensity: VisualDensity.compact,
-        foregroundColor: Colors.transparent,
       ),
       icon: Icon(
         Icons.arrow_back_ios_new_rounded,
@@ -72,18 +71,20 @@ class AppScreenBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppBar(
-      automaticallyImplyLeading: false,
-      backgroundColor: Colors.transparent,
-      scrolledUnderElevation: 0,
-      elevation: 0,
-      titleSpacing: showBack ? 4 : null,
-      leadingWidth: showBack ? 44 : null,
-      leading: showBack ? const AppBackButton() : null,
-      title: titleWidget ?? (title == null ? null : AppScreenTitle(title!)),
-      iconTheme: IconThemeData(color: context.colorScheme.primary),
-      actions: actions,
-      bottom: bottom,
+    return DpadRow(
+      child: AppBar(
+        automaticallyImplyLeading: false,
+        backgroundColor: Colors.transparent,
+        scrolledUnderElevation: 0,
+        elevation: 0,
+        titleSpacing: showBack ? 4 : null,
+        leadingWidth: showBack ? 44 : null,
+        leading: showBack ? const AppBackButton() : null,
+        title: titleWidget ?? (title == null ? null : AppScreenTitle(title!)),
+        iconTheme: IconThemeData(color: context.colorScheme.primary),
+        actions: actions,
+        bottom: bottom,
+      ),
     );
   }
 }

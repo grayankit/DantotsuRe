@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../Utils/Extensions/ContextExtensions.dart';
 import '../../Utils/Extensions/Responsive.dart';
+import '../../Core/ThemeManager/LanguageSwitcher.dart';
 
 class EmptyState extends StatelessWidget {
   final IconData icon;
@@ -68,7 +69,7 @@ class EmptyState extends StatelessWidget {
               FilledButton.tonalIcon(
                 onPressed: onAction,
                 icon: const Icon(Icons.refresh_rounded, size: 18),
-                label: Text(actionLabel ?? 'Retry'),
+                label: Text(actionLabel ?? getString.retry),
               ),
             ],
           ],

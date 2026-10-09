@@ -12,6 +12,7 @@ import '../../Utils/Extensions/ContextExtensions.dart';
 import '../../Utils/Function.dart';
 import 'Clickable.dart';
 import '../../Core/State/State.dart';
+import '../../Core/ThemeManager/LanguageSwitcher.dart';
 
 typedef AniLinkCardBuilder =
     Widget? Function(BuildContext context, String url, bool centered);
@@ -255,7 +256,9 @@ class _AniHtmlState extends State<AniHtml> {
               minimumSize: const Size(0, 36),
             ),
             onPressed: () => _expanded.value = !_expanded.value,
-            child: Text(_expanded.value ? 'Show less' : 'Read more'),
+            child: Text(
+              _expanded.value ? getString.showLess : getString.readMore,
+            ),
           ),
       ],
     );
@@ -915,7 +918,7 @@ class _BrokenImage extends StatelessWidget {
             const SizedBox(width: 8),
             Flexible(
               child: Text(
-                label.isEmpty ? 'Open image' : label,
+                label.isEmpty ? getString.openImage : label,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(color: scheme.onSurfaceVariant),
@@ -1037,7 +1040,9 @@ class _SpoilerBlockState extends State<_SpoilerBlock> {
                     ),
                     const SizedBox(width: 10),
                     Text(
-                      _open.value ? 'Hide spoiler' : 'Show spoiler',
+                      _open.value
+                          ? getString.hideSpoiler
+                          : getString.showSpoiler,
                       style: TextStyle(
                         color: scheme.primary,
                         fontWeight: FontWeight.w700,

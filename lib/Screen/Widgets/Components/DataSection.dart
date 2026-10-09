@@ -11,6 +11,7 @@ import '../../Social/Components/AniMediaCard.dart';
 import '../../Social/SocialNavigation.dart';
 import 'ExpandableText.dart';
 import '../../../Core/State/State.dart';
+import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 
 const kStatusRowLabel = 'Status';
 
@@ -128,7 +129,9 @@ class DataSection extends StatelessWidget {
               style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
               onPressed: () => _expanded.value = !_expanded.value,
               child: Text(
-                _expanded.value ? 'Show less' : '+${chips.length - limit} more',
+                _expanded.value
+                    ? getString.showLess
+                    : '+${chips.length - limit} more',
               ),
             ),
         ],

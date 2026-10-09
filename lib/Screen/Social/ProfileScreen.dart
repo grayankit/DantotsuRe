@@ -1,25 +1,23 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 
 import '../../Core/Services/MediaService.dart';
 import '../../Core/ThemeManager/ThemeController.dart';
 import '../../Utils/Extensions/ContextExtensions.dart';
-import '../../Utils/Functions/SnackBar.dart';
 import '../../Widgets/Components/AppBars.dart';
 import '../../Widgets/Components/AppTabs.dart';
 import '../../Widgets/Components/BaseScreen.dart';
 import '../../Widgets/Components/EmptyState.dart';
 import '../../Widgets/Components/ScrollConfig.dart';
-import '../MediaList/MediaListScreen.dart';
 import 'Components/ActivityComposer.dart';
 import 'Components/ActivityList.dart';
 import 'Components/ProfileHeader.dart';
 import 'Components/ProfileInfoTab.dart';
 import 'Components/ProfileStatsTab.dart';
-import 'SocialNavigation.dart';
 import '../../Api/Discord/DiscordPresence.dart';
 import '../../Core/State/State.dart';
+import '../../Core/ThemeManager/LanguageSwitcher.dart';
+import '../../Widgets/Components/ScreenState.dart';
+import 'ProfileState.dart';
 
 class ProfileScreen extends StatefulWidget {
   final MediaService service;
@@ -44,149 +42,36 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends BaseScreen<ProfileScreen>
-    with SingleTickerProviderStateMixin {
-  late final TabController _tabs = TabController(
-    length: 3,
-    vsync: this,
-    initialIndex: widget.initialTab,
+    with
+        SingleTickerProviderStateMixin,
+        ScreenStateHost<ProfileScreen, ProfileState> {
+  @override
+  ProfileState buildState() => ProfileState(
+    service: widget.service,
+    id: widget.id,
+    name: widget.name,
+    seedArg: widget.seed,
+    initialTab: widget.initialTab,
+    onPresenceChanged: refreshPresence,
   );
-  final _user = Live<SocialUser?>(null);
-  final _followBusy = false.live;
-  final _failed = false.live;
-  final _scroll = ScrollController();
-  Timer? _snapTimer;
-
-  SocialScreenView get _view => widget.service.socialView!;
-
-  late final UserBrief _seed =
-      widget.seed ?? UserBrief(id: widget.id ?? '', name: widget.name ?? '');
 
   @override
-  String? get glassBackgroundUrl =>
-      _user.value?.banner ??
-      _seed.banner ??
-      _user.value?.avatar ??
-      _seed.avatar;
+  String? get glassBackgroundUrl => state.glassBackgroundUrl;
 
   @override
-  void initState() {
-    super.initState();
-    _scroll.addListener(_scheduleSnap);
-    _userSub = _user.stream.listen((_) => refreshPresence());
-    final id = widget.id ?? (_seed.id.isEmpty ? null : _seed.id);
-    final cached = id == null ? null : _view.cachedProfile(id);
-    if (cached != null) {
-      _user.value = cached.user;
-      _cachedBundle = Future.value(cached);
-    }
-    unawaited(_load());
-  }
-
-  void _scheduleSnap() {
-    _snapTimer?.cancel();
-    _snapTimer = Timer(const Duration(milliseconds: 140), _snapHeader);
-  }
-
-  void _snapHeader() {
-    if (!mounted || !_scroll.hasClients) return;
-    final position = _scroll.position;
-    if (position.isScrollingNotifier.value) return _scheduleSnap();
-    const range = ProfileHeaderDelegate.collapseRange;
-    final pixels = position.pixels;
-    if (pixels <= 0 || pixels >= range) return;
-    unawaited(
-      _scroll.animateTo(
-        pixels < range / 2 ? 0 : range,
-        duration: const Duration(milliseconds: 180),
-        curve: Curves.easeOut,
-      ),
-    );
-  }
-
-  @override
-  void dispose() {
-    _snapTimer?.cancel();
-    _userSub?.cancel();
-    _scroll.dispose();
-    _tabs.dispose();
-    super.dispose();
-  }
-
-  StreamSubscription<SocialUser?>? _userSub;
-  Future<SocialProfile?> _bundle = Future.value();
-  Future<SocialProfile?>? _cachedBundle;
-
-  Future<void> _load() async {
-    _failed.value = false;
-    try {
-      final pending = _view.profileBundle(
-        id: widget.id ?? (_seed.id.isEmpty ? null : _seed.id),
-        name: widget.id == null && _seed.id.isEmpty ? widget.name : null,
-      );
-      final network = pending.catchError((_) => null);
-      _bundle = _cachedBundle ?? network;
-      _cachedBundle = null;
-      final bundle = await pending;
-      if (!mounted) return;
-      if (bundle == null) {
-        _failed.value = true;
-        snackString('User not found');
-        return;
-      }
-      _user.value = bundle.user;
-    } catch (_) {
-      if (mounted) _failed.value = true;
-    }
-  }
-
-  bool get _isSelf {
-    final id = _user.value?.id ?? widget.id ?? _seed.id;
-    return id.isNotEmpty && id == _view.currentUserId;
-  }
-
-  Future<void> _toggleFollow() async {
-    final user = _user.value;
-    if (user == null) return;
-    _followBusy.value = true;
-    final next = await _view.toggleFollow(user.id);
-    _followBusy.value = false;
-    if (next == null) return snackString('Could not update follow');
-    user.isFollowing = next;
-    _user.refresh();
-    snackString(next ? 'Followed ${user.name}' : 'Unfollowed ${user.name}');
-  }
-
-  void _openList(bool anime) {
-    final user = _user.value;
-    if (user == null) return;
-    navigateToList(
-      context,
-      MediaListScreen(
-        service: widget.service,
-        anime: anime,
-        userId: user.id,
-        userName: user.name,
-      ),
-    );
-  }
-
-  @override
-  DiscordPresence? get presence => DiscordPresence.browsing(
-    'Viewing a profile',
-    state: _user.value?.name ?? widget.name,
-  );
+  DiscordPresence? get presence => state.presence;
 
   @override
   Widget buildContent(BuildContext context) {
-    if (_failed.value && _user.value == null) {
+    if (state.failed.value && state.user.value == null) {
       return Scaffold(
         backgroundColor: Colors.transparent,
         appBar: const AppScreenBar(),
         body: EmptyState(
           icon: Icons.person_off_rounded,
           failed: true,
-          title: "Couldn't load this profile",
-          onAction: _load,
+          title: getString.couldntLoadProfile,
+          onAction: state.load,
         ),
       );
     }
@@ -195,51 +80,39 @@ class _ProfileScreenState extends BaseScreen<ProfileScreen>
       backgroundColor: Colors.transparent,
       body: Watch(() {
         final glass = find<ThemeController>().useGlassMode.value;
-        final userId = _user.value?.id ?? widget.id ?? _seed.id;
+        final userId = state.userId;
         return ScrollConfig(
           context,
           child: NestedScrollView(
-            controller: _scroll,
+            controller: state.scroll,
             headerSliverBuilder: (context, _) => [
               SliverPersistentHeader(
                 pinned: true,
                 delegate: ProfileHeaderDelegate(
                   service: widget.service,
                   heroTag: widget.heroTag,
-                  seed: _seed,
-                  user: _user,
+                  seed: state.seed,
+                  user: state.user,
                   top: top,
                   glass: glass,
-                  isSelf: _isSelf,
-                  canFollow: _view.canInteract,
-                  followBusy: _followBusy,
-                  onFollow: _toggleFollow,
-                  onFollowers: () => openFollows(
-                    context,
-                    widget.service,
-                    userId,
-                    followers: true,
-                    title: _user.value?.name,
-                  ),
-                  onFollowing: () => openFollows(
-                    context,
-                    widget.service,
-                    userId,
-                    followers: false,
-                    title: _user.value?.name,
-                  ),
-                  onAnime: () => _openList(true),
-                  onManga: () => _openList(false),
+                  isSelf: state.isSelf,
+                  canFollow: state.view.canInteract,
+                  followBusy: state.followBusy,
+                  onFollow: state.toggleFollow,
+                  onFollowers: state.openFollowers,
+                  onFollowing: state.openFollowing,
+                  onAnime: () => state.openList(true),
+                  onManga: () => state.openList(false),
                 ),
               ),
               SliverPersistentHeader(
                 pinned: true,
                 delegate: _TabsDelegate(
-                  controller: _tabs,
-                  items: const [
-                    AppTabItem('Profile'),
-                    AppTabItem('Feed'),
-                    AppTabItem('Stats'),
+                  controller: state.tabs,
+                  items: [
+                    AppTabItem(getString.profile),
+                    AppTabItem(getString.feed),
+                    AppTabItem(getString.stats),
                   ],
                   glass: glass,
                 ),
@@ -248,27 +121,27 @@ class _ProfileScreenState extends BaseScreen<ProfileScreen>
             body: userId.isEmpty
                 ? const Center(child: CircularProgressIndicator())
                 : TabBarView(
-                    controller: _tabs,
+                    controller: state.tabs,
                     children: [
                       ProfileInfoTab(
                         service: widget.service,
-                        user: _user.value,
+                        user: state.user.value,
                         userId: userId,
-                        bundle: _bundle,
+                        bundle: state.bundle,
                       ),
                       ActivityList(
                         service: widget.service,
                         scope: ActivityScope.user,
                         userId: userId,
                         filterable: true,
-                        composer: _isSelf
+                        composer: state.isSelf
                             ? ComposerKind.activity
                             : ComposerKind.message,
                       ),
                       ProfileStatsTab(
                         service: widget.service,
                         userId: userId,
-                        bundle: _bundle,
+                        bundle: state.bundle,
                       ),
                     ],
                   ),

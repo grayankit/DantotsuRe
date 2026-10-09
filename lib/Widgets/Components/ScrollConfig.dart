@@ -15,6 +15,10 @@ const _dragDevices = {
   PointerDeviceKind.mouse,
 };
 
+const bouncingPhysics = BouncingScrollPhysics(
+  parent: AlwaysScrollableScrollPhysics(),
+);
+
 class AppScrollBehavior extends CupertinoScrollBehavior {
   const AppScrollBehavior();
 
@@ -36,7 +40,7 @@ Widget ScrollConfig(
 }) {
   return ScrollConfiguration(
     behavior: ScrollConfiguration.of(context).copyWith(
-      physics: physics ?? const BouncingScrollPhysics(),
+      physics: physics ?? bouncingPhysics,
       scrollbars: false,
       dragDevices: _dragDevices,
     ),
@@ -58,7 +62,7 @@ Widget CustomScrollConfig(
       context,
     ).copyWith(scrollbars: false, dragDevices: _dragDevices),
     shrinkWrap: shrinkWrap,
-    physics: physics,
+    physics: physics ?? (shrinkWrap ? null : bouncingPhysics),
     scrollDirection: scrollDirection,
     slivers: children,
   );

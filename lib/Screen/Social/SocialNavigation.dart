@@ -12,6 +12,7 @@ import 'ActivityFeedScreen.dart';
 import 'FollowScreen.dart';
 import 'InboxScreen.dart';
 import 'ProfileScreen.dart';
+import '../../Core/ThemeManager/LanguageSwitcher.dart';
 
 void navigateToList(BuildContext context, Widget screen) =>
     navigateToPage(context, screen);
@@ -120,7 +121,7 @@ Future<void> openAppLink(
     case AppLinkKind.manga:
       final media = await service.getQueries?.getMedia(link.value);
       if (!context.mounted) return;
-      if (media == null) return snackString('Could not open this title');
+      if (media == null) return snackString(getString.couldNotOpenTitle);
       openDetail(context, service, media);
     case AppLinkKind.user:
       openProfile(

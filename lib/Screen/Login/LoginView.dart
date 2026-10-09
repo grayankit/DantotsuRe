@@ -1,54 +1,12 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 
-import '../../Core/Services/MediaServiceController.dart';
-import '../../Core/Services/ServiceSwitcher.dart';
 import '../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../Utils/Extensions/ContextExtensions.dart';
-import '../../Utils/Function.dart';
-import '../../Utils/Functions/SnackBar.dart';
-import '../../Widgets/Components/AlertDialogBuilder.dart';
 import '../../Widgets/Components/LoadSvg.dart';
 import '../../Core/State/State.dart';
-
-String _cleanToken(String raw) {
-  final text = raw.trim();
-  final match = RegExp(r'access_token=([^&\s]+)').firstMatch(text);
-  return (match?.group(1) ?? text).replaceAll(RegExp(r'\s'), '');
-}
-
-void showTokenLogin(
-  BuildContext context,
-  ServiceAuth auth, {
-  void Function(bool ok)? onResult,
-}) {
-  final controller = TextEditingController();
-  final url = auth.tokenLoginUrl;
-  if (url != null) unawaited(openLinkInBrowser(url));
-  AlertDialogBuilder(context)
-    ..setTitle(getString.loginWithToken)
-    ..setOnDismissListener(controller.dispose)
-    ..setCustomView(
-      TextField(
-        controller: controller,
-        autofocus: true,
-        decoration: InputDecoration(hintText: getString.pasteTokenHint),
-      ),
-    )
-    ..setPositiveButton(getString.login, () async {
-      final token = _cleanToken(controller.text);
-      if (token.isEmpty) {
-        snackString(getString.pasteTokenHint);
-        return;
-      }
-      final ok = await auth.loginWithToken(token);
-      if (ok) snackString('Logged in');
-      onResult?.call(ok);
-    })
-    ..setNegativeButton(getString.cancel, null)
-    ..show();
-}
+import '../../Widgets/Components/ScreenState.dart';
+import 'LoginViewState.dart';
+export 'LoginViewState.dart' show showTokenLogin;
 
 class LoginView extends StatefulWidget {
   final VoidCallback? onDone;
@@ -60,20 +18,11 @@ class LoginView extends StatefulWidget {
   State<LoginView> createState() => _LoginViewState();
 }
 
-class _LoginViewState extends State<LoginView> {
-  final _busy = false.live;
-
-  MediaServiceController get _services => find();
-
-  Future<void> _run(Future<bool> Function() action) async {
-    _busy.value = true;
-    try {
-      final ok = await action();
-      if (ok && mounted) widget.onDone?.call();
-    } finally {
-      _busy.value = false;
-    }
-  }
+class _LoginViewState extends State<LoginView>
+    with ScreenStateHost<LoginView, LoginViewState> {
+  @override
+  LoginViewState buildState() =>
+      LoginViewState(onDone: widget.onDone, embedded: widget.embedded);
 
   @override
   Widget build(BuildContext context) {
@@ -85,9 +34,9 @@ class _LoginViewState extends State<LoginView> {
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 380),
           child: Watch(() {
-            final service = _services.currentService.value;
+            final service = state.services.currentService.value;
             final auth = service.auth;
-            final guest = !widget.embedded;
+            final guest = state.guest;
 
             return Column(
               mainAxisSize: MainAxisSize.min,
@@ -127,12 +76,8 @@ class _LoginViewState extends State<LoginView> {
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton.icon(
-                    onPressed: _busy.value
-                        ? null
-                        : (auth == null
-                              ? widget.onDone
-                              : () => _run(auth.login)),
-                    icon: _busy.value
+                    onPressed: state.loginAction(auth),
+                    icon: state.busy.value
                         ? const SizedBox(
                             width: 18,
                             height: 18,
@@ -159,15 +104,9 @@ class _LoginViewState extends State<LoginView> {
                   SizedBox(
                     width: double.infinity,
                     child: OutlinedButton(
-                      onPressed: _busy.value
+                      onPressed: state.busy.value
                           ? null
-                          : () => showTokenLogin(
-                              context,
-                              auth,
-                              onResult: (ok) {
-                                if (ok && mounted) widget.onDone?.call();
-                              },
-                            ),
+                          : () => state.tokenLogin(auth),
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
@@ -177,13 +116,13 @@ class _LoginViewState extends State<LoginView> {
                   const SizedBox(height: 10),
                   if (guest)
                     TextButton(
-                      onPressed: _busy.value ? null : widget.onDone,
+                      onPressed: state.busy.value ? null : widget.onDone,
                       child: Text(getString.continueAsGuest),
                     ),
                 ],
                 const SizedBox(height: 4),
                 TextButton.icon(
-                  onPressed: () => serviceSwitcher(context),
+                  onPressed: state.switchService,
                   icon: loadSvg(
                     service.iconPath,
                     width: 16,

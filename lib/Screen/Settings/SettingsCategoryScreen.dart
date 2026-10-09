@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../Widgets/Components/BaseScreen.dart';
 import 'SettingsListView.dart';
 import 'SettingsCategories.dart';
+import '../../Widgets/Components/ScreenState.dart';
+import 'SettingsCategoryState.dart';
 
 class SettingsCategoryScreen extends StatefulWidget {
   final SettingsCategory category;
@@ -14,15 +15,19 @@ class SettingsCategoryScreen extends StatefulWidget {
   State<SettingsCategoryScreen> createState() => _SettingsCategoryScreenState();
 }
 
-class _SettingsCategoryScreenState extends BaseScreen<SettingsCategoryScreen> {
+class _SettingsCategoryScreenState extends BaseScreen<SettingsCategoryScreen>
+    with ScreenStateHost<SettingsCategoryScreen, SettingsCategoryState> {
+  @override
+  SettingsCategoryState buildState() => SettingsCategoryState(widget.category);
+
   @override
   Widget buildContent(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: SettingsListView(
-        title: widget.category.title,
+        title: state.title,
         searchable: widget.category.build,
-        hint: getString.searchCategory(widget.category.title.toLowerCase()),
+        hint: state.hint,
       ),
     );
   }

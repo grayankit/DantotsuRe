@@ -7,7 +7,8 @@ import '../../Widgets/Components/BaseScreen.dart';
 import '../../Widgets/Components/LoadSvg.dart';
 import 'Components/ServiceSettingsBody.dart';
 import '../../Widgets/Components/AppTabs.dart';
-import '../../Core/State/State.dart';
+import '../../Widgets/Components/ScreenState.dart';
+import 'ServiceSettingsState.dart';
 
 class ServiceSettingsScreen extends StatefulWidget {
   final MediaService initial;
@@ -19,29 +20,11 @@ class ServiceSettingsScreen extends StatefulWidget {
 }
 
 class _ServiceSettingsScreenState extends BaseScreen<ServiceSettingsScreen>
-    with SingleTickerProviderStateMixin {
-  late final List<MediaService> _services;
-  late final TabController _tab;
-
+    with
+        SingleTickerProviderStateMixin,
+        ScreenStateHost<ServiceSettingsScreen, ServiceSettingsState> {
   @override
-  void initState() {
-    super.initState();
-    _services = find<MediaServiceController>().services
-        .where((s) => s.settingsView != null)
-        .toList();
-    final start = _services.indexWhere((s) => s.id == widget.initial.id);
-    _tab = TabController(
-      length: _services.length,
-      vsync: this,
-      initialIndex: start < 0 ? 0 : start,
-    );
-  }
-
-  @override
-  void dispose() {
-    _tab.dispose();
-    super.dispose();
-  }
+  ServiceSettingsState buildState() => ServiceSettingsState(widget.initial);
 
   @override
   Widget buildContent(BuildContext context) {
@@ -49,12 +32,12 @@ class _ServiceSettingsScreenState extends BaseScreen<ServiceSettingsScreen>
       backgroundColor: Colors.transparent,
       appBar: AppScreenBar(
         title: getString.settings,
-        bottom: _services.length < 2
+        bottom: !state.hasTabs
             ? null
             : AppTabs(
-                controller: _tab,
+                controller: state.tab,
                 items: [
-                  for (final service in _services)
+                  for (final service in state.services)
                     AppTabItem(
                       service.name,
                       icon: (color) => loadSvg(
@@ -68,9 +51,9 @@ class _ServiceSettingsScreenState extends BaseScreen<ServiceSettingsScreen>
               ),
       ),
       body: TabBarView(
-        controller: _tab,
+        controller: state.tab,
         children: [
-          for (final service in _services)
+          for (final service in state.services)
             ServiceSettingsBody(service: service),
         ],
       ),

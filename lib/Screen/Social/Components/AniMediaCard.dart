@@ -12,6 +12,7 @@ import '../../../Widgets/Components/CachedNetworkImage.dart';
 import '../../../Widgets/Components/Clickable.dart';
 import '../../Feed/FeedNavigation.dart';
 import '../../../Core/State/State.dart';
+import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 
 class AniMediaCard extends StatefulWidget {
   final MediaService service;
@@ -111,7 +112,7 @@ class _AniMediaCardState extends State<AniMediaCard> {
                           const SizedBox(height: 6),
                           Text(
                             [
-                              media.isAnime ? 'Anime' : 'Manga',
+                              media.isAnime ? getString.anime : getString.manga,
                               if (media.format != null) media.format!.titleCase,
                               if (media.status != null)
                                 media.status!.replaceAll('_', ' ').titleCase,

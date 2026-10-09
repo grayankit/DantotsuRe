@@ -15,6 +15,7 @@ import 'WindowProtocol.dart';
 
 export 'DeepLinkHandlers.dart';
 import '../../Core/State/State.dart';
+import '../../Core/ThemeManager/LanguageSwitcher.dart';
 
 class DeepLink {
   static final handlers = <DeepLinkHandler>[
@@ -34,7 +35,7 @@ class DeepLink {
   static void openFiles(List<String> paths) {
     if (paths.isEmpty) return;
     final play = playFiles;
-    if (play == null) return snackString('The player is not available yet');
+    if (play == null) return snackString(getString.playerNotAvailable);
     play(paths);
   }
 
@@ -90,12 +91,13 @@ class DeepLink {
       final initialUri = await appLink.getInitialLink();
       if (initialUri != null) unawaited(_dispatch(initialUri));
     } catch (err) {
-      snackString('Error getting initial deep link: $err');
+      snackString(getString.deepLinkInitialError(err.toString()));
     }
 
     appLink.uriLinkStream.listen(
       (uri) => unawaited(_dispatch(uri)),
-      onError: (err) => snackString('Error Opening link: $err'),
+      onError: (err) =>
+          snackString(getString.deepLinkOpenError(err.toString())),
     );
   }
 
@@ -106,11 +108,13 @@ class DeepLink {
     final context = appContext;
     if (context == null || !context.mounted) return;
     final handler = handlers.firstWhereOrNull((h) => h.matches(uri));
-    if (handler == null) return snackString('This link can\'t be opened: $uri');
+    if (handler == null) {
+      return snackString(getString.linkCantBeOpened(uri.toString()));
+    }
     try {
       await handler.handle(context, uri);
     } catch (err) {
-      snackString('Error opening link: $err');
+      snackString(getString.linkOpenError(err.toString()));
     }
   }
 }

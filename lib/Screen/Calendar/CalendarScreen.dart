@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:skeletonizer/skeletonizer.dart';
@@ -20,6 +18,8 @@ import '../../Widgets/Components/SectionCard.dart';
 import '../../Utils/Nav/DpadNav.dart';
 import '../Feed/FeedNavigation.dart';
 import '../../Core/State/State.dart';
+import '../../Widgets/Components/ScreenState.dart';
+import 'CalendarState.dart';
 
 class CalendarScreen extends StatefulWidget {
   final CalendarScreenView view;
@@ -29,68 +29,25 @@ class CalendarScreen extends StatefulWidget {
   State<CalendarScreen> createState() => _CalendarScreenState();
 }
 
-class _CalendarScreenState extends BaseScreen<CalendarScreen> {
-  final _entries = <CalendarEntry>[].liveList;
-  final _loading = true.live;
-  final _failed = false.live;
-  final _day = 0.live;
-
-  static DateTime _dayOf(DateTime t) => DateTime(t.year, t.month, t.day);
-
-  final _today = _dayOf(DateTime.now());
+class _CalendarScreenState extends BaseScreen<CalendarScreen>
+    with ScreenStateHost<CalendarScreen, CalendarState> {
+  @override
+  CalendarState buildState() => CalendarState(widget.view);
 
   @override
-  void initState() {
-    super.initState();
-    _load();
-  }
-
-  StreamSubscription<List<CalendarEntry>>? _sub;
-
-  Future<void> _load() async {
-    await _sub?.cancel();
-    _loading.value = true;
-    _failed.value = false;
-    final done = Completer<void>();
-    _sub = widget.view.schedule().listen(
-      (entries) {
-        _entries.value = entries;
-        _loading.value = false;
-      },
-      onError: (_) {
-        _failed.value = _entries.isEmpty;
-        _loading.value = false;
-        if (!done.isCompleted) done.complete();
-      },
-      onDone: () {
-        _loading.value = false;
-        if (!done.isCompleted) done.complete();
-      },
-    );
-    await done.future;
-  }
-
-  @override
-  void dispose() {
-    unawaited(_sub?.cancel());
-    super.dispose();
-  }
-
-  @override
-  DiscordPresence? get presence =>
-      DiscordPresence.browsing(getString.calendarTitle);
+  DiscordPresence? get presence => state.presence;
 
   @override
   Widget buildContent(BuildContext context) {
     final locale = Localizations.localeOf(context).toString();
-    final days = [for (var i = -1; i <= 5; i++) _today.add(Duration(days: i))];
+    final days = state.days;
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppScreenBar(title: getString.calendarTitle),
       body: Column(
         children: [
           Watch(() {
-            final selected = _day.value;
+            final selected = state.day.value;
             return ScrollConfig(
               context,
               child: SingleChildScrollView(
@@ -101,7 +58,7 @@ class _CalendarScreenState extends BaseScreen<CalendarScreen> {
                 ),
                 child: AppChoiceChips<int>(
                   value: selected,
-                  onChanged: (v) => _day.value = v,
+                  onChanged: (v) => state.day.value = v,
                   options: [
                     for (var i = 0; i < days.length; i++)
                       AppSegment(
@@ -117,16 +74,12 @@ class _CalendarScreenState extends BaseScreen<CalendarScreen> {
           }),
           Expanded(
             child: RefreshIndicator(
-              onRefresh: _load,
+              onRefresh: state.load,
               child: Watch(() {
-                final day = _today.add(Duration(days: _day.value));
-                final loading = _loading.value;
-                final failed = _failed.value;
-                final items = [
-                  for (final e in _entries)
-                    if (_dayOf(e.airingAt) == day) e,
-                ];
-                if (loading && _entries.isEmpty) return _skeleton();
+                final loading = state.loading.value;
+                final failed = state.failed.value;
+                final items = state.selectedEntries;
+                if (loading && state.entries.isEmpty) return _skeleton();
                 if (items.isEmpty) {
                   return ScrollConfig(
                     context,
@@ -140,7 +93,7 @@ class _CalendarScreenState extends BaseScreen<CalendarScreen> {
                                 ? getString.calendarFailed
                                 : getString.calendarEmpty,
                             failed: failed,
-                            onAction: failed ? _load : null,
+                            onAction: failed ? state.load : null,
                           ),
                         ),
                       ],
@@ -171,7 +124,7 @@ class _CalendarScreenState extends BaseScreen<CalendarScreen> {
   Widget _row(CalendarEntry e) {
     final scheme = context.colorScheme;
     final aired = e.airingAt.isBefore(DateTime.now());
-    final service = find<MediaServiceController>().currentService.value;
+    final service = state.service;
     return Padding(
       padding: EdgeInsets.symmetric(vertical: Dimens.gapXs),
       child: SectionCard(

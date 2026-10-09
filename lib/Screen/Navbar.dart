@@ -66,64 +66,67 @@ class _FloatingBottomNavBarState extends State<FloatingBottomNavBar> {
         child: ThemedContainer(
           borderRadius: BorderRadius.circular(48),
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (!widget.standalone)
-                _navButton(
-                  context: context,
-                  onTap: () => serviceSwitcher(context),
-                  iconBuilder: () => CircleAvatar(
-                    radius: 24,
-                    backgroundColor: Colors.transparent,
-                    child: loadSvg(
-                      service.iconPath,
-                      width: 26,
-                      height: 26,
-                      color: theme.onSurface,
-                    ),
-                  ).animateNavAvatar(),
-                ),
-
-              ..._items.map(
-                (item) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4),
-                  child: Watch(() {
-                    final hovered = hoveredIndex.value == item.index;
-                    final selected = widget.selectedIndex == item.index;
-
-                    return MouseRegion(
-                      cursor: SystemMouseCursors.click,
-                      onEnter: (_) => !(widget.selectedIndex == item.index)
-                          ? hoveredIndex.value = item.index
-                          : null,
-                      onExit: (_) {
-                        if (hoveredIndex.value == item.index) {
-                          hoveredIndex.value = -1;
-                        }
-                      },
-                      child: _buildItem(
-                        item,
-                        context,
-                        hovered: hovered,
-                        selected: selected,
+          child: _lane(
+            vertical: true,
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (!widget.standalone)
+                  _navButton(
+                    context: context,
+                    onTap: () => serviceSwitcher(context),
+                    iconBuilder: () => CircleAvatar(
+                      radius: 24,
+                      backgroundColor: Colors.transparent,
+                      child: loadSvg(
+                        service.iconPath,
+                        width: 26,
+                        height: 26,
+                        color: theme.onSurface,
                       ),
-                    );
-                  }),
-                ),
-              ),
+                    ).animateNavAvatar(),
+                  ),
 
-              if (!widget.standalone)
-                _navButton(
-                  context: context,
-                  onTap: () => showAccountSheet(context, _services),
-                  iconBuilder: () => Icon(
-                    Icons.settings_rounded,
-                    size: 24,
-                    color: theme.onSurface.withValues(alpha: .72),
+                ..._items.map(
+                  (item) => Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Watch(() {
+                      final hovered = hoveredIndex.value == item.index;
+                      final selected = widget.selectedIndex == item.index;
+
+                      return MouseRegion(
+                        cursor: SystemMouseCursors.click,
+                        onEnter: (_) => !(widget.selectedIndex == item.index)
+                            ? hoveredIndex.value = item.index
+                            : null,
+                        onExit: (_) {
+                          if (hoveredIndex.value == item.index) {
+                            hoveredIndex.value = -1;
+                          }
+                        },
+                        child: _buildItem(
+                          item,
+                          context,
+                          hovered: hovered,
+                          selected: selected,
+                        ),
+                      );
+                    }),
                   ),
                 ),
-            ],
+
+                if (!widget.standalone)
+                  _navButton(
+                    context: context,
+                    onTap: () => showAccountSheet(context, _services),
+                    iconBuilder: () => Icon(
+                      Icons.settings_rounded,
+                      size: 24,
+                      color: theme.onSurface.withValues(alpha: .72),
+                    ),
+                  ),
+              ],
+            ),
           ),
         ).animateDropIn(),
       ),
@@ -195,12 +198,16 @@ class _FloatingBottomNavBarState extends State<FloatingBottomNavBar> {
     );
   }
 
-  Widget _lane(Widget child) => widget.laneKey == null
+  Widget _lane(Widget child, {bool vertical = false}) => widget.laneKey == null
       ? child
       : DpadLane(
           laneKey: widget.laneKey,
-          verticalEdge: DpadEdgeBehavior.leave,
-          horizontalEdge: DpadEdgeBehavior.stop,
+          verticalEdge: vertical
+              ? DpadEdgeBehavior.stop
+              : DpadEdgeBehavior.leave,
+          horizontalEdge: vertical
+              ? DpadEdgeBehavior.leave
+              : DpadEdgeBehavior.stop,
           child: child,
         );
 

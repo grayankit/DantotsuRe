@@ -27,6 +27,7 @@ import 'RepliesSheet.dart';
 import '../../../Widgets/Components/UserAvatar.dart';
 import 'UserListSheet.dart';
 import '../../../Core/State/State.dart';
+import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 
 class ActivityCard extends StatefulWidget {
   final MediaService service;
@@ -55,7 +56,7 @@ class _ActivityCardState extends State<ActivityCard> {
   bool get _mine => _a.user?.id == _view.currentUserId;
 
   Future<void> _like() async {
-    if (!_view.canInteract) return snackString('Log in to like');
+    if (!_view.canInteract) return snackString(getString.logInToLike);
     final was = _a.isLiked;
     _a.isLiked = !was;
     _a.likeCount += was ? -1 : 1;
@@ -66,7 +67,7 @@ class _ActivityCardState extends State<ActivityCard> {
       _a.isLiked = was;
       _a.likeCount += was ? 1 : -1;
       _version.fire();
-      snackString('Failed to like activity');
+      snackString(getString.failedToLikeActivity);
     }
   }
 
@@ -74,10 +75,13 @@ class _ActivityCardState extends State<ActivityCard> {
     final confirmed = Completer<bool>();
     unawaited(
       (AlertDialogBuilder(context)
-            ..setTitle('Delete activity?')
+            ..setTitle(getString.deleteActivityConfirm)
             ..setMessage("This can't be undone.")
             ..setNegativeButton('Cancel', () => confirmed.complete(false))
-            ..setPositiveButton('Delete', () => confirmed.complete(true))
+            ..setPositiveButton(
+              getString.delete,
+              () => confirmed.complete(true),
+            )
             ..setOnDismissListener(() {
               if (!confirmed.isCompleted) confirmed.complete(false);
             }))
@@ -87,10 +91,10 @@ class _ActivityCardState extends State<ActivityCard> {
     final ok = await _view.deleteActivity(_a.id);
     if (!mounted) return;
     if (ok) {
-      snackString('Deleted activity');
+      snackString(getString.deletedActivity);
       widget.onDeleted?.call();
     } else {
-      snackString('Failed to delete activity');
+      snackString(getString.failedToDeleteActivity);
     }
   }
 
@@ -114,9 +118,9 @@ class _ActivityCardState extends State<ActivityCard> {
     if (ok) {
       _a.isSubscribed = next;
       _version.fire();
-      snackString(next ? 'Subscribed' : 'Unsubscribed');
+      snackString(next ? getString.subscribed : getString.unsubscribed);
     } else {
-      snackString('Failed to update subscription');
+      snackString(getString.failedToUpdateSubscription);
     }
   }
 
@@ -132,7 +136,7 @@ class _ActivityCardState extends State<ActivityCard> {
         if (_a.siteUrl != null) unawaited(openLinkInBrowser(_a.siteUrl!));
       case 'copy':
         if (_a.siteUrl != null) {
-          copyToClipboard(_a.siteUrl!, message: 'Link copied');
+          copyToClipboard(_a.siteUrl!, message: getString.linkCopied);
         }
       case 'share':
         if (_a.siteUrl != null) shareLink(_a.siteUrl!);
@@ -235,9 +239,12 @@ class _ActivityCardState extends State<ActivityCard> {
                 onSelected: _menu,
                 itemBuilder: (_) => [
                   if (canEdit)
-                    const PopupMenuItem(value: 'edit', child: Text('Edit')),
+                    PopupMenuItem(value: 'edit', child: Text(getString.edit)),
                   if (canDelete)
-                    const PopupMenuItem(value: 'delete', child: Text('Delete')),
+                    PopupMenuItem(
+                      value: 'delete',
+                      child: Text(getString.delete),
+                    ),
                   if (_view.canInteract && !_mine)
                     PopupMenuItem(
                       value: 'subscribe',
@@ -245,13 +252,16 @@ class _ActivityCardState extends State<ActivityCard> {
                         _a.isSubscribed ? 'Unsubscribe' : 'Subscribe',
                       ),
                     ),
-                  if (_a.siteUrl != null) ...const [
-                    PopupMenuItem(value: 'share', child: Text('Share')),
+                  if (_a.siteUrl != null) ...[
+                    PopupMenuItem(value: 'share', child: Text(getString.share)),
                     PopupMenuItem(
                       value: 'browser',
-                      child: Text('Open in browser'),
+                      child: Text(getString.openInBrowser),
                     ),
-                    PopupMenuItem(value: 'copy', child: Text('Copy link')),
+                    PopupMenuItem(
+                      value: 'copy',
+                      child: Text(getString.copyLink),
+                    ),
                   ],
                 ],
               ),
@@ -275,7 +285,7 @@ class _ActivityCardState extends State<ActivityCard> {
                 onLongPress: () => showUserListSheet(
                   context,
                   widget.service,
-                  'Liked by',
+                  getString.likedBy,
                   _a.likes,
                 ),
               ),

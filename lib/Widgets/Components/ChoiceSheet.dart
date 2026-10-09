@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../Utils/Functions/NavigateToScreen.dart';
+
 import 'AppSheet.dart';
 import 'CustomBottomDialog.dart';
 import 'SheetTile.dart';
@@ -31,7 +33,7 @@ Future<T?> showChoiceSheet<T>(
             trailing: option.value == selected
                 ? const Icon(Icons.check_rounded)
                 : null,
-            onTap: () => Navigator.of(context).pop(option.value),
+            onTap: () => popPage(context, option.value),
           ),
       ],
     ),

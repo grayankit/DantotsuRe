@@ -1,12 +1,8 @@
-import 'dart:async';
-
 import 'package:dartotsu_extension_bridge/dartotsu_extension_bridge.dart';
 import 'package:flutter/material.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../Api/Services/Extension/Widgets/SourceBadge.dart';
-import '../../Api/Services/Extension/Services.dart';
-import '../../Core/Services/MediaServiceController.dart';
 import '../../Core/Services/Model/Media.dart';
 import '../../Core/ThemeManager/CardStyleController.dart';
 import '../../Model/CardStyle.dart';
@@ -19,11 +15,12 @@ import '../../Widgets/Components/BaseScreen.dart';
 import '../../Widgets/Components/CachedNetworkImage.dart';
 import '../../Widgets/Components/ScrollConfig.dart';
 import '../../Widgets/Shelf/PosterCard.dart';
-import '../Feed/FeedNavigation.dart';
 import '../../Widgets/Components/EmptyState.dart';
 import '../../Core/State/State.dart';
-
-enum SourceFeed { saved, popular, latest }
+import '../../Core/ThemeManager/LanguageSwitcher.dart';
+import '../../Utils/Nav/DpadLayers.dart';
+import '../../Widgets/Components/ScreenState.dart';
+import 'SourceBrowseState.dart';
 
 class SourceBrowseScreen extends StatefulWidget {
   final Source source;
@@ -39,88 +36,11 @@ class SourceBrowseScreen extends StatefulWidget {
   State<SourceBrowseScreen> createState() => _SourceBrowseScreenState();
 }
 
-class _SourceBrowseScreenState extends BaseScreen<SourceBrowseScreen> {
-  final _controller = TextEditingController();
-  final _items = <Media>[].liveList;
-  final _loading = false.live;
-  late final _feed = _defaultFeed().live;
-  final _error = Live<String?>(null);
-  final _searching = false.live;
-
-  Timer? _debounce;
-  int _page = 1;
-  bool _hasMore = true;
-
-  bool get _anime => widget.type == ItemType.anime;
-
-  static SourceFeed _defaultFeed() =>
-      extensionDefaultFeedPref.rx.value == 'latest'
-      ? SourceFeed.latest
-      : SourceFeed.popular;
-
+class _SourceBrowseScreenState extends BaseScreen<SourceBrowseScreen>
+    with ScreenStateHost<SourceBrowseScreen, SourceBrowseState> {
   @override
-  void initState() {
-    super.initState();
-    _reload();
-  }
-
-  @override
-  void dispose() {
-    _debounce?.cancel();
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _reload() {
-    _page = 1;
-    _hasMore = true;
-    _error.value = null;
-    _items.clear();
-    _fetch();
-  }
-
-  Future<void> _fetch() async {
-    if (_loading.value || !_hasMore) return;
-    _loading.value = true;
-    try {
-      if (!_searching.value && _feed.value == SourceFeed.saved) {
-        _items.value = extensionStore(
-          widget.type,
-        ).read().where(_fromThisSource).toList();
-        _hasMore = false;
-        return;
-      }
-
-      final methods = widget.source.methods;
-      final query = _controller.text.trim();
-      final pages = _searching.value
-          ? await methods.search(query, _page, const [])
-          : _feed.value == SourceFeed.latest
-          ? await methods.getLatestUpdates(_page)
-          : await methods.getPopular(_page);
-
-      _items.addAll(pages.toMedia(isAnime: _anime, source: widget.source));
-      _hasMore = pages.hasNextPage;
-      _page++;
-    } catch (e) {
-      _hasMore = false;
-      if (_items.isEmpty) _error.value = e.toString();
-    } finally {
-      _loading.value = false;
-    }
-  }
-
-  bool _fromThisSource(Media media) =>
-      media.sourceData?.id == widget.source.id ||
-      media.relation == widget.source.name;
-
-  void _onQueryChanged(String value) {
-    _debounce?.cancel();
-    _debounce = Timer(const Duration(milliseconds: 450), () {
-      _searching.value = value.trim().isNotEmpty;
-      _reload();
-    });
-  }
+  SourceBrowseState buildState() =>
+      SourceBrowseState(source: widget.source, type: widget.type);
 
   @override
   Widget buildContent(BuildContext context) {
@@ -164,7 +84,7 @@ class _SourceBrowseScreenState extends BaseScreen<SourceBrowseScreen> {
                     ),
                   ),
                   Text(
-                    _anime ? 'Anime source' : 'Manga source',
+                    state.anime ? getString.animeSource : getString.mangaSource,
                     style: context.textTheme.labelMedium?.copyWith(
                       color: scheme.onSurfaceVariant,
                     ),
@@ -186,8 +106,8 @@ class _SourceBrowseScreenState extends BaseScreen<SourceBrowseScreen> {
             ),
             child: Watch(
               () => SearchBar(
-                controller: _controller,
-                hintText: 'Search ${widget.source.name}',
+                controller: state.controller,
+                hintText: getString.searchSource(widget.source.name ?? ''),
                 elevation: const WidgetStatePropertyAll(0),
                 backgroundColor: WidgetStatePropertyAll(
                   scheme.surfaceContainerHigh,
@@ -197,23 +117,19 @@ class _SourceBrowseScreenState extends BaseScreen<SourceBrowseScreen> {
                 ),
                 leading: const Icon(Icons.search_rounded),
                 trailing: [
-                  if (_searching.value)
+                  if (state.searching.value)
                     IconButton(
                       icon: const Icon(Icons.close_rounded),
-                      onPressed: () {
-                        _controller.clear();
-                        _searching.value = false;
-                        _reload();
-                      },
+                      onPressed: state.clearSearch,
                     ),
                 ],
-                onChanged: _onQueryChanged,
+                onChanged: state.onQueryChanged,
                 textInputAction: TextInputAction.search,
               ),
             ),
           ),
           Watch(
-            () => _searching.value
+            () => state.searching.value
                 ? const SizedBox.shrink()
                 : Padding(
                     padding: EdgeInsets.fromLTRB(
@@ -223,25 +139,22 @@ class _SourceBrowseScreenState extends BaseScreen<SourceBrowseScreen> {
                       Dimens.gapSm,
                     ),
                     child: AppSegmented<SourceFeed>(
-                      value: _feed.value,
-                      onChanged: (v) {
-                        _feed.value = v;
-                        _reload();
-                      },
-                      segments: const [
+                      value: state.feed.value,
+                      onChanged: state.selectFeed,
+                      segments: [
                         AppSegment(
                           SourceFeed.popular,
-                          label: 'Popular',
+                          label: getString.popular,
                           icon: Icons.local_fire_department_rounded,
                         ),
                         AppSegment(
                           SourceFeed.latest,
-                          label: 'Latest',
+                          label: getString.latest,
                           icon: Icons.update_rounded,
                         ),
                         AppSegment(
                           SourceFeed.saved,
-                          label: 'Saved',
+                          label: getString.saved,
                           icon: Icons.bookmark_rounded,
                         ),
                       ],
@@ -249,27 +162,21 @@ class _SourceBrowseScreenState extends BaseScreen<SourceBrowseScreen> {
                   ),
           ),
           Watch(
-            () => _loading.value && _items.isNotEmpty
+            () => state.loading.value && state.items.isNotEmpty
                 ? const LinearProgressIndicator(minHeight: 2)
                 : const SizedBox(height: 2),
           ),
           Expanded(
             child: Watch(() {
-              if (_loading.value && _items.isEmpty) {
+              if (state.loading.value && state.items.isEmpty) {
                 return _grid(_skeletons(), skeleton: true);
               }
-              if (_items.isEmpty) return _empty();
+              if (state.items.isEmpty) return _empty();
               return RefreshIndicator(
-                onRefresh: () async => _reload(),
+                onRefresh: () async => state.reload(),
                 child: NotificationListener<ScrollNotification>(
-                  onNotification: (n) {
-                    if (_hasMore &&
-                        n.metrics.pixels > n.metrics.maxScrollExtent - 600) {
-                      _fetch();
-                    }
-                    return false;
-                  },
-                  child: _grid([for (final m in _items) _card(m)]),
+                  onNotification: state.onScroll,
+                  child: _grid([for (final m in state.items) _card(m)]),
                 ),
               );
             }),
@@ -280,35 +187,36 @@ class _SourceBrowseScreenState extends BaseScreen<SourceBrowseScreen> {
   }
 
   Widget _card(Media media, {bool skeleton = false}) {
-    final service = find<MediaServiceController>().currentService.value;
     return PosterCard(
       imageUrl: media.cover,
       title: media.mainName,
       overlay: skeleton ? null : extensionSourceBadge(media),
       progressText: media.userProgress == null ? null : '${media.userProgress}',
-      onTap: skeleton ? null : () => openDetail(context, service, media),
+      onTap: skeleton ? null : () => state.open(media),
     );
   }
 
   Widget _grid(List<Widget> children, {bool skeleton = false}) {
     final style = tryFind<CardStyleController>()?.current ?? const CardStyle();
-    final grid = GridView.builder(
-      padding: EdgeInsets.fromLTRB(
-        Dimens.pagePad,
-        Dimens.gapSm,
-        Dimens.pagePad,
-        Dimens.gapXl,
+    final grid = DpadColumn(
+      child: GridView.builder(
+        padding: EdgeInsets.fromLTRB(
+          Dimens.pagePad,
+          Dimens.gapSm,
+          Dimens.pagePad,
+          Dimens.gapXl,
+        ),
+        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+          maxCrossAxisExtent: style.itemWidth + Dimens.cardGap + 6,
+          childAspectRatio: style.itemWidth / style.itemHeight,
+          crossAxisSpacing: Dimens.cardGap,
+          mainAxisSpacing: Dimens.gap,
+        ),
+        physics: const AlwaysScrollableScrollPhysics(),
+        itemCount: children.length,
+        itemBuilder: (_, i) =>
+            Align(alignment: Alignment.topCenter, child: children[i]),
       ),
-      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-        maxCrossAxisExtent: style.itemWidth + Dimens.cardGap + 6,
-        childAspectRatio: style.itemWidth / style.itemHeight,
-        crossAxisSpacing: Dimens.cardGap,
-        mainAxisSpacing: Dimens.gap,
-      ),
-      physics: const AlwaysScrollableScrollPhysics(),
-      itemCount: children.length,
-      itemBuilder: (_, i) =>
-          Align(alignment: Alignment.topCenter, child: children[i]),
     );
     final scrolling = ScrollConfig(context, child: grid);
     return skeleton ? Skeletonizer(child: scrolling) : scrolling;
@@ -319,25 +227,13 @@ class _SourceBrowseScreenState extends BaseScreen<SourceBrowseScreen> {
   ];
 
   Widget _empty() {
-    final failed = _error.value != null;
+    final failed = state.failed;
     return EmptyState(
       icon: failed ? Icons.cloud_off_rounded : Icons.inbox_rounded,
       failed: failed,
-      title: failed
-          ? "Couldn't load this source"
-          : _searching.value
-          ? 'Nothing matched'
-          : _feed.value == SourceFeed.saved
-          ? 'Nothing saved from this source yet'
-          : 'This source returned nothing',
-      message: failed
-          ? 'Check your connection or try another source.'
-          : _searching.value
-          ? 'Try a different search term.'
-          : _feed.value == SourceFeed.saved
-          ? 'Titles you add to your list appear here.'
-          : 'Try the other feed or search instead.',
-      onAction: failed ? _reload : null,
+      title: state.emptyTitle,
+      message: state.emptyMessage,
+      onAction: failed ? state.reload : null,
     );
   }
 }

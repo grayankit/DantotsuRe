@@ -6,6 +6,7 @@ import '../../../Utils/Extensions/ContextExtensions.dart';
 import '../../../Utils/Extensions/IntExtensions.dart';
 import '../../../Utils/Extensions/Responsive.dart';
 import '../../../Core/State/State.dart';
+import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 
 class DetailStats extends StatelessWidget {
   final DetailHost host;
@@ -120,8 +121,8 @@ class DetailStats extends StatelessWidget {
         Expanded(
           child: Text(
             ep != null
-                ? 'Episode $ep airs in ${_countdown(until)}'
-                : 'Next episode in ${_countdown(until)}',
+                ? getString.episodeAirsIn(ep, _countdown(until))
+                : getString.nextEpisodeIn(_countdown(until)),
             style: context.textTheme.bodyMedium?.copyWith(
               color: scheme.onSurface,
             ),

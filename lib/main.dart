@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:dartotsu_extension_bridge/dartotsu_extension_bridge.dart';
+import 'Utils/Nav/DpadLayers.dart';
 import 'Utils/Nav/DpadNav.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/foundation.dart';
@@ -32,7 +33,6 @@ import 'Screen/Onboarding/OnboardingScreen.dart';
 import 'Utils/Functions/AppShortcuts.dart';
 import 'Utils/Functions/DeepLink.dart';
 import 'Utils/Functions/LinkSettings.dart';
-import 'Utils/Functions/NavigateToScreen.dart';
 import 'Api/Discord/DiscordPresenceController.dart';
 import 'Core/Services/ActivityAlerts.dart';
 import 'Utils/Functions/SnackBar.dart';
@@ -183,7 +183,7 @@ class _MyAppState extends State<MyApp> {
     super.dispose();
   }
 
-  bool _handleBack() => guardedBack();
+  bool _handleBack() => layerBack();
 
   @override
   Widget build(BuildContext context) {

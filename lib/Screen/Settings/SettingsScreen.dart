@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../Utils/Animation/WidgetAnimations.dart';
 import '../../Utils/Extensions/ContextExtensions.dart';
@@ -12,7 +11,8 @@ import '../../Widgets/Components/ThemedContainer.dart';
 import 'SettingsListView.dart';
 import 'SettingsCategories.dart';
 import 'SettingsCategoryScreen.dart';
-import 'Widgets/DonateSheet.dart';
+import 'SettingsState.dart';
+import '../../Widgets/Components/ScreenState.dart';
 import '../../Api/Discord/DiscordPresence.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -22,23 +22,13 @@ class SettingsScreen extends StatefulWidget {
   State<SettingsScreen> createState() => _SettingsScreenState();
 }
 
-class _SettingsScreenState extends BaseScreen<SettingsScreen> {
+class _SettingsScreenState extends BaseScreen<SettingsScreen>
+    with ScreenStateHost<SettingsScreen, SettingsState> {
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) maybeShowDonateSheet(context);
-    });
-    if (settingsAppVersion.value.isEmpty) {
-      PackageInfo.fromPlatform().then(
-        (i) => settingsAppVersion.value = 'v${i.version}+${i.buildNumber}',
-      );
-    }
-  }
+  SettingsState buildState() => SettingsState();
 
   @override
-  DiscordPresence? get presence =>
-      DiscordPresence.browsing('Tweaking settings');
+  DiscordPresence? get presence => state.presence;
 
   @override
   Widget buildContent(BuildContext context) {

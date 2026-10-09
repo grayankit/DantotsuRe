@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../Utils/Extensions/ContextExtensions.dart';
 import '../../../Core/State/State.dart';
+import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 
 class ExpandableText extends StatefulWidget {
   final String text;
@@ -45,7 +46,9 @@ class _ExpandableTextState extends State<ExpandableText> {
               minimumSize: const Size(0, 36),
             ),
             onPressed: () => _expanded.value = !_expanded.value,
-            child: Text(_expanded.value ? 'Show less' : 'Read more'),
+            child: Text(
+              _expanded.value ? getString.showLess : getString.readMore,
+            ),
           ),
       ],
     );

@@ -11,6 +11,7 @@ import '../../Utils/Extensions/StringExtensions.dart';
 import '../../Utils/Nav/DpadNav.dart';
 import '../Components/CachedNetworkImage.dart';
 import '../../Core/State/State.dart';
+import '../../Core/ThemeManager/LanguageSwitcher.dart';
 
 class MediaRowFacts {
   final Media media;
@@ -51,7 +52,7 @@ class MediaRowFacts {
     final h = (secs % 86400) ~/ 3600;
     final m = (secs % 3600) ~/ 60;
     final left = d > 0 ? '${d}d ${h}h' : (h > 0 ? '${h}h ${m}m' : '${m}m');
-    return 'Ep $ep in $left';
+    return getString.epIn(ep, left);
   }
 
   double? get progress {

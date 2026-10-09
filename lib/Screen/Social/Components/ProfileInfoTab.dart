@@ -16,6 +16,7 @@ import '../../Widgets/ScreenWidgetView.dart';
 import '../SocialNavigation.dart';
 import 'AniMediaCard.dart';
 import '../../../Core/State/State.dart';
+import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 
 class ProfileInfoTab extends StatefulWidget {
   final MediaService service;
@@ -78,7 +79,7 @@ class _ProfileInfoTabState extends State<ProfileInfoTab>
         children: [
           if (user?.about?.trim().isNotEmpty ?? false)
             SectionCard(
-              title: 'About',
+              title: getString.about,
               margin: _margin,
               child: AniHtml(
                 html: user!.about!,
@@ -158,14 +159,14 @@ class _ProfileInfoTabState extends State<ProfileInfoTab>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           group('Anime', [
-            ('Episodes watched', '${u.episodesWatched}'),
-            ('Days watched', u.daysWatched.toStringAsFixed(1)),
-            ('Mean score', u.animeMeanScore.toStringAsFixed(1)),
+            (getString.episodesWatched, '${u.episodesWatched}'),
+            (getString.daysWatched, u.daysWatched.toStringAsFixed(1)),
+            (getString.meanScore, u.animeMeanScore.toStringAsFixed(1)),
           ]),
           group('Manga', [
-            ('Chapters read', '${u.chaptersRead}'),
-            ('Volumes read', '${u.volumesRead}'),
-            ('Mean score', u.mangaMeanScore.toStringAsFixed(1)),
+            (getString.chaptersRead, '${u.chaptersRead}'),
+            (getString.volumesRead, '${u.volumesRead}'),
+            (getString.meanScore, u.mangaMeanScore.toStringAsFixed(1)),
           ]),
         ],
       ),
@@ -198,16 +199,18 @@ class _ProfileInfoTabState extends State<ProfileInfoTab>
     final entity = service.entityView != null;
     return [
       if (f.anime.isNotEmpty)
-        view(ScreenWidget.media('Favourite anime', f.anime)),
+        view(ScreenWidget.media(getString.favouriteAnime, f.anime)),
       if (f.manga.isNotEmpty)
-        view(ScreenWidget.media('Favourite manga', f.manga)),
+        view(ScreenWidget.media(getString.favouriteManga, f.manga)),
       if (f.characters.isNotEmpty && entity)
-        view(ScreenWidget.characters('Favourite characters', f.characters)),
+        view(
+          ScreenWidget.characters(getString.favouriteCharacters, f.characters),
+        ),
       if (f.staff.isNotEmpty && entity)
-        view(ScreenWidget.staff('Favourite staff', f.staff)),
+        view(ScreenWidget.staff(getString.favouriteStaff, f.staff)),
       if (f.studios.isNotEmpty && entity)
         SectionCard(
-          title: 'Favourite studios',
+          title: getString.favouriteStudios,
           margin: _margin,
           child: Wrap(
             spacing: 8,
@@ -234,7 +237,7 @@ class _ProfileInfoTabState extends State<ProfileInfoTab>
           padding: const EdgeInsets.all(32),
           child: Center(
             child: Text(
-              'No favourites yet',
+              getString.noFavouritesYet,
               style: context.textTheme.bodyMedium?.copyWith(
                 color: context.colorScheme.onSurfaceVariant,
               ),

@@ -10,6 +10,7 @@ import '../../../Utils/Functions/CopyToClip.dart';
 import '../../../Widgets/Components/AppBars.dart';
 import '../../../Widgets/Components/CachedNetworkImage.dart';
 import '../../../Core/State/State.dart';
+import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 
 const _toolbarHeight = 56.0;
 
@@ -308,7 +309,9 @@ class EntityHeaderDelegate extends SliverPersistentHeaderDelegate {
               : Icons.favorite_border_rounded,
           size: 18,
         ),
-        label: Text(profile.isFavourite ? 'Favourited' : 'Favourite'),
+        label: Text(
+          profile.isFavourite ? getString.favourited : getString.favourite,
+        ),
       ),
     );
   }
@@ -319,12 +322,12 @@ class EntityHeaderDelegate extends SliverPersistentHeaderDelegate {
       onSelected: (v) {
         if (v == 'share') shareLink(url);
         if (v == 'browser') openLinkInBrowser(url);
-        if (v == 'copy') copyToClipboard(url, message: 'Link copied');
+        if (v == 'copy') copyToClipboard(url, message: getString.linkCopied);
       },
-      itemBuilder: (_) => const [
-        PopupMenuItem(value: 'share', child: Text('Share')),
-        PopupMenuItem(value: 'browser', child: Text('Open in browser')),
-        PopupMenuItem(value: 'copy', child: Text('Copy link')),
+      itemBuilder: (_) => [
+        PopupMenuItem(value: 'share', child: Text(getString.share)),
+        PopupMenuItem(value: 'browser', child: Text(getString.openInBrowser)),
+        PopupMenuItem(value: 'copy', child: Text(getString.copyLink)),
       ],
     );
   }

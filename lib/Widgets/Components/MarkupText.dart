@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../Utils/Extensions/ContextExtensions.dart';
 import '../../Utils/Function.dart';
 import '../../Core/State/State.dart';
+import '../../Core/ThemeManager/LanguageSwitcher.dart';
 
 class MarkupText extends StatefulWidget {
   final String text;
@@ -260,7 +261,9 @@ class _MarkupTextState extends State<MarkupText> {
               minimumSize: const Size(0, 36),
             ),
             onPressed: () => _expanded.value = !_expanded.value,
-            child: Text(_expanded.value ? 'Show less' : 'Read more'),
+            child: Text(
+              _expanded.value ? getString.showLess : getString.readMore,
+            ),
           ),
       ],
     );

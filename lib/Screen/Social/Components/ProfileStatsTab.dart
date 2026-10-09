@@ -19,6 +19,7 @@ import '../../../Widgets/Charts/LineChart.dart';
 import '../../../Widgets/Charts/RadarChart.dart';
 import '../../Feed/FeedNavigation.dart';
 import '../../../Core/State/State.dart';
+import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 
 enum _Metric { count, time, score }
 
@@ -134,16 +135,16 @@ class _ProfileStatsTabState extends State<ProfileStatsTab>
             child: AppSegmented<bool>(
               value: _anime.value,
               onChanged: (v) => _anime.value = v,
-              segments: const [
-                AppSegment(true, label: 'Anime'),
-                AppSegment(false, label: 'Manga'),
+              segments: [
+                AppSegment(true, label: getString.anime),
+                AppSegment(false, label: getString.manga),
               ],
             ),
           ),
           SizedBox(height: Dimens.gapSm),
           if (_history.value.isNotEmpty)
             SectionCard(
-              title: 'Activity',
+              title: getString.activity,
               margin: EdgeInsets.symmetric(
                 horizontal: Dimens.pagePad,
                 vertical: Dimens.gapSm / 2,
@@ -161,21 +162,23 @@ class _ProfileStatsTabState extends State<ProfileStatsTab>
               value: _metric.value,
               onChanged: (m) => _metric.value = m,
               options: [
-                const AppSegment(_Metric.count, label: 'Count'),
+                AppSegment(_Metric.count, label: getString.count),
                 AppSegment(
                   _Metric.time,
-                  label: _anime.value ? 'Hours watched' : 'Chapters read',
+                  label: _anime.value
+                      ? getString.hoursWatched
+                      : getString.chaptersRead,
                 ),
-                const AppSegment(_Metric.score, label: 'Mean score'),
+                AppSegment(_Metric.score, label: getString.meanScore),
               ],
             ),
           ),
           if (set.categories.isEmpty)
-            const SizedBox(
+            SizedBox(
               height: 260,
               child: EmptyState(
                 icon: Icons.bar_chart_rounded,
-                title: 'No stats yet',
+                title: getString.noStatsYet,
               ),
             ),
           for (final category in set.categories) _category(context, category),
@@ -187,16 +190,16 @@ class _ProfileStatsTabState extends State<ProfileStatsTab>
   Widget _overview(BuildContext context, UserStatSet s) {
     final scheme = context.colorScheme;
     final tiles = <(String, String)>[
-      ('Total entries', '${s.count}'),
+      (getString.totalEntries, '${s.count}'),
       if (_anime.value) ...[
-        ('Episodes watched', '${s.episodesWatched}'),
-        ('Days watched', (s.minutesWatched / 1440).toStringAsFixed(1)),
+        (getString.episodesWatched, '${s.episodesWatched}'),
+        (getString.daysWatched, (s.minutesWatched / 1440).toStringAsFixed(1)),
       ] else ...[
-        ('Chapters read', '${s.chaptersRead}'),
-        ('Volumes read', '${s.volumesRead}'),
+        (getString.chaptersRead, '${s.chaptersRead}'),
+        (getString.volumesRead, '${s.volumesRead}'),
       ],
-      ('Mean score', s.meanScore.toStringAsFixed(1)),
-      ('Standard deviation', s.standardDeviation.toStringAsFixed(1)),
+      (getString.meanScore, s.meanScore.toStringAsFixed(1)),
+      (getString.standardDeviation, s.standardDeviation.toStringAsFixed(1)),
     ];
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: Dimens.pagePad),
@@ -267,7 +270,7 @@ class _ProfileStatsTabState extends State<ProfileStatsTab>
               onPressed: () => _expanded.value = open
                   ? ({..._expanded.value}..remove(category.key))
                   : {..._expanded.value, category.key},
-              child: Text(open ? 'Show less' : 'Show more'),
+              child: Text(open ? getString.showLess : getString.showMore),
             )
           : null,
       child: AnimatedSize(
@@ -299,7 +302,7 @@ class _ProfileStatsTabState extends State<ProfileStatsTab>
     final unit = switch (_metric.value) {
       _Metric.count => 'Entries',
       _Metric.time => _anime.value ? 'Hours' : 'Chapters',
-      _Metric.score => 'Mean score',
+      _Metric.score => getString.meanScore,
     };
     switch (category.key) {
       case 'formats' || 'statuses' || 'countries':

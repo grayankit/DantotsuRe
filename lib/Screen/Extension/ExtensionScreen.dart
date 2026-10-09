@@ -5,7 +5,6 @@ import 'package:dartotsu_extension_bridge/dartotsu_extension_bridge.dart';
 import 'package:flutter/material.dart';
 
 import '../../Core/ThemeManager/LanguageSwitcher.dart';
-import '../../Core/ThemeManager/language.dart';
 import '../../Utils/Extensions/ContextExtensions.dart';
 import '../../Utils/Functions/NavigateToScreen.dart';
 import '../../Utils/Functions/SnackBar.dart';
@@ -22,6 +21,8 @@ import '../../Widgets/Components/AppTabs.dart';
 import '../../Api/Discord/DiscordPresence.dart';
 import '../../Core/State/State.dart';
 import '../../Utils/Extensions/StringExtensions.dart';
+import '../../Widgets/Components/ScreenState.dart';
+import 'ExtensionBrowserState.dart';
 
 class ExtensionScreen extends StatefulWidget {
   const ExtensionScreen({super.key});
@@ -31,51 +32,16 @@ class ExtensionScreen extends StatefulWidget {
 }
 
 class ExtensionScreenState extends BaseScreen<ExtensionScreen>
-    with TickerProviderStateMixin {
-  late TabController _tabBarController;
+    with
+        TickerProviderStateMixin,
+        ScreenStateHost<ExtensionScreen, ExtensionBrowserState> {
+  @override
+  ExtensionBrowserState buildState() => ExtensionBrowserState();
 
-  final manager = find<ExtensionManager>();
-
-  final _searchQuery = ''.live;
-
-  final _textEditingController = TextEditingController();
-  final _currentIndex = 0.live;
-  final _focusedTabIndex = Live<int?>(null);
-  final _appBarLaneKey = GlobalKey<DpadRegionState>();
-  final _tabsLaneKey = GlobalKey<DpadRegionState>();
-  final _searchLaneKey = GlobalKey<DpadRegionState>();
-  final Map<int, GlobalKey<DpadRegionState>> _firstRowKeys = {
-    for (var i = 0; i < ItemType.values.length * 2; i++)
-      i: GlobalKey<DpadRegionState>(),
-  };
+  ExtensionManager get manager => state.manager;
 
   @override
-  void initState() {
-    super.initState();
-    manager.initializeAvailable();
-    _tabBarController = TabController(
-      length: ItemType.values.length * 2,
-      vsync: this,
-    );
-
-    _tabBarController.addListener(() {
-      _currentIndex.value = _tabBarController.index;
-    });
-  }
-
-  @override
-  void dispose() {
-    _tabBarController.dispose();
-    _textEditingController.dispose();
-    _searchQuery.close();
-    super.dispose();
-  }
-
-  ItemType get _currentType => _tabOrder[_currentIndex.value ~/ 2];
-
-  @override
-  DiscordPresence? get presence =>
-      DiscordPresence.browsing('Browsing extensions');
+  DiscordPresence? get presence => state.presence;
 
   @override
   Widget buildContent(BuildContext context) {
@@ -84,13 +50,9 @@ class ExtensionScreenState extends BaseScreen<ExtensionScreen>
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(kToolbarHeight),
         child: DpadLane(
-          laneKey: _appBarLaneKey,
+          laneKey: state.appBarLaneKey,
           verticalEdge: DpadEdgeBehavior.stop,
-          onEdge: (direction) {
-            if (direction == TraversalDirection.down) {
-              DpadLane.focusFirst(_tabsLaneKey);
-            }
-          },
+          onEdge: state.onAppBarEdge,
           child: AppScreenBar(
             title: getString.extension(2),
             actions: [
@@ -102,47 +64,29 @@ class ExtensionScreenState extends BaseScreen<ExtensionScreen>
       body: Column(
         children: [
           DpadLane(
-            laneKey: _tabsLaneKey,
+            laneKey: state.tabsLaneKey,
             verticalEdge: DpadEdgeBehavior.stop,
-            onEdge: (direction) {
-              if (direction == TraversalDirection.up) {
-                DpadLane.focusFirst(_appBarLaneKey);
-              } else if (direction == TraversalDirection.down) {
-                DpadLane.focusFirst(_searchLaneKey);
-              }
-            },
+            onEdge: state.onTabsEdge,
             child: Watch(
               () => AppTabBar(
-                controller: _tabBarController,
-                onFocusChange: (focused, index) =>
-                    _focusedTabIndex.value = focused
-                    ? index
-                    : (_focusedTabIndex.value == index
-                          ? null
-                          : _focusedTabIndex.value),
+                controller: state.tabs,
+                onFocusChange: state.onTabFocus,
                 tabs: _buildTabs(context),
               ),
             ),
           ),
           const SizedBox(height: 8),
           DpadLane(
-            laneKey: _searchLaneKey,
+            laneKey: state.searchLaneKey,
             verticalEdge: DpadEdgeBehavior.stop,
-            onEdge: (direction) {
-              if (direction == TraversalDirection.up) {
-                DpadLane.focusFirst(_tabsLaneKey);
-              } else if (direction == TraversalDirection.down) {
-                final key = _firstRowKeys[_currentIndex.value];
-                if (key != null) DpadLane.focusFirst(key);
-              }
-            },
+            onEdge: state.onSearchEdge,
             child: _searchBar(),
           ),
           Watch(
             () => Expanded(
               child: TabBarView(
-                controller: _tabBarController,
-                children: _buildTabViews(_searchQuery.value),
+                controller: state.tabs,
+                children: _buildTabViews(state.searchQuery.value),
               ),
             ),
           ),
@@ -158,40 +102,16 @@ class ExtensionScreenState extends BaseScreen<ExtensionScreen>
       _buildRepoManager(),
       IconButton(
         icon: Icon(Icons.language_rounded, color: theme.primary),
-        onPressed: () {
-          final type = _currentType;
-          final extension = manager[type];
-          final languages = extension.getLanguages(type);
-          final state = extension.state(type);
-          AlertDialogBuilder(context)
-            ..setTitle(getString.language)
-            ..multiChoiceItems(
-              languages.map(completeLanguageName).toList(),
-              languages.map(state.selectedLanguages.contains).toList(),
-              (checked) {
-                final selected = <String>{
-                  for (var i = 0; i < languages.length; i++)
-                    if (checked[i]) languages[i],
-                };
-
-                extension.saveSelectedLanguages(type, selected);
-              },
-            )
-            ..setNegativeButton(
-              getString.reset,
-              () => extension.saveSelectedLanguages(type, {}),
-            )
-            ..show();
-        },
+        onPressed: state.chooseLanguages,
       ),
     ];
   }
 
   Widget _buildServiceManager() {
     return AnimatedBuilder(
-      animation: _tabBarController,
+      animation: state.tabs,
       builder: (_, _) {
-        final type = _currentType;
+        final type = state.currentType;
 
         return Watch(() {
           final currentManager = manager[type];
@@ -223,42 +143,15 @@ class ExtensionScreenState extends BaseScreen<ExtensionScreen>
         color: theme.primary,
       ),
       onPressed: () {
-        final type = _currentType;
+        final type = state.currentType;
         showCustomBottomDialog(
           context,
           CustomBottomDialog(
-            title: "${type.name.capitalizeFirst} Repositories",
+            title: getString.repositoriesTitle(type.name.capitalizeFirst),
             positiveText: getString.ok,
             positiveCallback: () => popPage(context),
-            negativeText: "Add Repository",
-            negativeCallback: () {
-              final controller = TextEditingController();
-
-              AlertDialogBuilder(context)
-                ..setTitle("Add Repository")
-                ..setCustomView(
-                  TextField(
-                    controller: controller,
-                    decoration: const InputDecoration(
-                      hintText: "Repository URL",
-                    ),
-                  ),
-                )
-                ..setPositiveButton(getString.ok, () async {
-                  try {
-                    // addRepo() now streams progress (see the loading
-                    // banner in viewList below) - drain() subscribes,
-                    // waits for completion, and still surfaces the same
-                    // error a plain await would have.
-                    await manager[type]
-                        .addRepo(controller.text, type)
-                        .drain<void>();
-                  } catch (e) {
-                    snackString('Failed to add repository: $e');
-                  }
-                })
-                ..show();
-            },
+            negativeText: getString.addRepository,
+            negativeCallback: () => state.addRepository(type),
             viewList: [
               // Some repos (e.g. Kotatsu's shared parsers jar) are large
               // enough that a bare "Add Repository" tap with no feedback
@@ -312,7 +205,7 @@ class ExtensionScreenState extends BaseScreen<ExtensionScreen>
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        "Downloading repository…",
+                                        getString.downloadingRepository,
                                         style: textStyle?.copyWith(
                                           fontWeight: FontWeight.w600,
                                         ),
@@ -352,9 +245,9 @@ class ExtensionScreenState extends BaseScreen<ExtensionScreen>
                 final active = extension.state(type).activeRepo.value;
 
                 if (repos.isEmpty) {
-                  return const Padding(
-                    padding: EdgeInsets.all(24),
-                    child: Center(child: Text("No repositories added")),
+                  return Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Center(child: Text(getString.noRepositories)),
                   );
                 }
 
@@ -381,9 +274,7 @@ class ExtensionScreenState extends BaseScreen<ExtensionScreen>
                           hoverColor: Colors.transparent,
 
                           onTap: () async {
-                            if (!selected) {
-                              await extension.selectRepo(repo, type);
-                            }
+                            if (!selected) await state.selectRepo(type, repo);
                           },
                           leading: repo.iconUrl != null
                               ? ClipRRect(
@@ -427,7 +318,9 @@ class ExtensionScreenState extends BaseScreen<ExtensionScreen>
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                "${repo.extensions ?? "?"} extensions",
+                                getString.repoExtensionsCount(
+                                  repo.extensions ?? '?',
+                                ),
                                 style: context.textTheme.bodySmall?.copyWith(
                                   color: theme.primary,
                                 ),
@@ -438,7 +331,7 @@ class ExtensionScreenState extends BaseScreen<ExtensionScreen>
                           trailing: IconButton(
                             icon: const Icon(Icons.delete_rounded),
                             onPressed: () async {
-                              await extension.removeRepo(repo.url, type);
+                              await state.removeRepo(type, repo.url);
                             },
                           ),
                         ),
@@ -463,12 +356,12 @@ class ExtensionScreenState extends BaseScreen<ExtensionScreen>
         borderRadius: BorderRadius.circular(16),
         padding: const EdgeInsets.symmetric(horizontal: 8),
         child: TextField(
-          controller: _textEditingController,
+          controller: state.textController,
           style: context.textTheme.bodyLarge?.copyWith(
             fontWeight: FontWeight.w500,
           ),
           decoration: InputDecoration(
-            hintText: "Search extensions...",
+            hintText: getString.searchExtensions,
             prefixIcon: Icon(
               Icons.search_rounded,
               color: theme.onSurfaceVariant,
@@ -484,7 +377,7 @@ class ExtensionScreenState extends BaseScreen<ExtensionScreen>
               vertical: 16,
             ),
           ),
-          onChanged: (v) => _searchQuery.value = v,
+          onChanged: state.onSearchChanged,
         ),
       ),
     );
@@ -492,69 +385,38 @@ class ExtensionScreenState extends BaseScreen<ExtensionScreen>
 
   List<Widget> _buildTabs(BuildContext context) {
     final tabs = <Widget>[];
-    int index = 0;
-
-    for (final type in _tabOrder) {
-      final manager = this.manager[type].state(type);
-
+    var index = 0;
+    for (final type in ExtensionBrowserState.tabOrder) {
       final installedIndex = index++;
       tabs.add(
-        Watch(() {
-          final count = manager.installed.value.where((source) {
-            final matchesSearch =
-                source.name?.toLowerCase().contains(_searchQuery.value) ??
-                false;
-
-            final matchesLanguage =
-                manager.selectedLanguages.isEmpty ||
-                manager.selectedLanguages.contains(source.lang);
-
-            return matchesSearch && matchesLanguage;
-          }).length;
-
-          return AppTab(
-            label: 'Installed ${type.name}',
-            count: count,
-            selected: _currentIndex.value == installedIndex,
-            focused: kFocused(_focusedTabIndex.value == installedIndex),
-          );
-        }),
+        Watch(
+          () => AppTab(
+            label: getString.installedType(type.name),
+            count: state.count(type, installed: true),
+            selected: state.currentIndex.value == installedIndex,
+            focused: kFocused(state.focusedTabIndex.value == installedIndex),
+          ),
+        ),
       );
-
       final availableIndex = index++;
       tabs.add(
-        Watch(() {
-          final count = manager.available.value.where((source) {
-            final matchesSearch =
-                source.name?.toLowerCase().contains(_searchQuery.value) ??
-                false;
-
-            final matchesLanguage =
-                manager.selectedLanguages.isEmpty ||
-                manager.selectedLanguages.contains(source.lang);
-
-            return matchesSearch && matchesLanguage;
-          }).length;
-
-          return AppTab(
-            label: 'Available ${type.name}',
-            count: count,
-            selected: _currentIndex.value == availableIndex,
-            focused: kFocused(_focusedTabIndex.value == availableIndex),
-          );
-        }),
+        Watch(
+          () => AppTab(
+            label: getString.availableType(type.name),
+            count: state.count(type, installed: false),
+            selected: state.currentIndex.value == availableIndex,
+            focused: kFocused(state.focusedTabIndex.value == availableIndex),
+          ),
+        ),
       );
     }
-
     return tabs;
   }
-
-  static const _tabOrder = [ItemType.anime, ItemType.manga, ItemType.novel];
 
   List<Widget> _buildTabViews(String query) {
     final views = <Widget>[];
 
-    for (final type in _tabOrder) {
+    for (final type in ExtensionBrowserState.tabOrder) {
       final manager = this.manager[type].state(type);
 
       final installed = manager.installed.value;
@@ -562,13 +424,13 @@ class ExtensionScreenState extends BaseScreen<ExtensionScreen>
 
       views.add(
         installed.isEmpty
-            ? _emptyMessage('No installed ${type.name} extensions')
+            ? _emptyMessage(getString.noInstalledExtensions(type.name))
             : ExtensionList(
                 itemType: type,
                 isInstalled: true,
                 searchQuery: query,
-                onFirstRowUp: () => DpadLane.focusFirst(_searchLaneKey),
-                firstRowKey: _firstRowKeys[views.length],
+                onFirstRowUp: state.focusSearch,
+                firstRowKey: state.firstRowKeys[views.length],
               ),
       );
 
@@ -582,13 +444,13 @@ class ExtensionScreenState extends BaseScreen<ExtensionScreen>
                 ),
               )
             : available.isEmpty
-            ? _emptyMessage('No available ${type.name} extensions')
+            ? _emptyMessage(getString.noAvailableExtensions(type.name))
             : ExtensionList(
                 itemType: type,
                 isInstalled: false,
                 searchQuery: query,
-                onFirstRowUp: () => DpadLane.focusFirst(_searchLaneKey),
-                firstRowKey: _firstRowKeys[views.length],
+                onFirstRowUp: state.focusSearch,
+                firstRowKey: state.firstRowKeys[views.length],
               ),
       );
     }
@@ -613,11 +475,11 @@ void showDeleteDialog(
   String name,
 ) {
   AlertDialogBuilder(context)
-    ..setTitle("Delete $name?")
-    ..setMessage("Are you sure you want to delete this plugin?")
+    ..setTitle(getString.deletePluginTitle(name))
+    ..setMessage(getString.deletePluginMessage)
     ..setPositiveButton(getString.yes, () async {
       await plugin.delete();
-      snackString("$name deleted");
+      snackString(getString.pluginDeleted(name));
     })
     ..setNegativeButton(getString.no, () {})
     ..show();
@@ -634,12 +496,12 @@ Future<void> showInstallDialog(
   try {
     remote = await plugin.fetchRemote();
     if (remote == null) {
-      snackString("$name is not available in the configured repo");
+      snackString(getString.pluginNotInRepo(name));
       return;
     }
     if (plugin.installed.value) hasUpdate = await plugin.checkForUpdate();
   } catch (_) {
-    snackString("Failed to fetch plugin info");
+    snackString(getString.pluginFetchFailed);
     return;
   }
 
@@ -657,7 +519,7 @@ Future<void> showInstallDialog(
     showCustomBottomDialog(
       context,
       CustomBottomDialog(
-        title: "Install $name",
+        title: getString.installPluginTitle(name),
         viewList: [
           const SizedBox(height: 8),
           Center(
@@ -720,7 +582,7 @@ Future<void> showInstallDialog(
                           color: scheme.primary,
                         ),
                         const SizedBox(width: 6),
-                        Text("Size: $sizeMB", style: textStyle),
+                        Text(getString.sizeLabel(sizeMB), style: textStyle),
                         const SizedBox(width: 16),
                         if (author.isNotEmpty) ...[
                           Icon(
@@ -758,12 +620,12 @@ Future<void> showInstallDialog(
           ),
           const SizedBox(height: 20),
         ],
-        negativeText: "Cancel",
+        negativeText: getString.cancel,
         positiveText: !plugin.installed.value
-            ? "Install"
+            ? getString.install
             : hasUpdate
-            ? "Update"
-            : "Installed",
+            ? getString.update
+            : getString.installedState,
         negativeCallback: () {
           popPage(context);
         },

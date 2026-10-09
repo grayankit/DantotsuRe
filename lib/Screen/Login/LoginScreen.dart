@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../../Core/Preferences/PrefManager.dart';
 import '../../Widgets/Components/BaseScreen.dart';
-import '../MainScreen.dart';
 import 'LoginView.dart';
+import '../../Widgets/Components/ScreenState.dart';
+import 'LoginState.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -12,14 +12,11 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends BaseScreen<LoginScreen> {
-  void _enter() {
-    PrefName.hasCompletedOnboarding.value = true;
-    Navigator.of(
-      context,
-    ).pushReplacement(MaterialPageRoute(builder: (_) => const MainScreen()));
-  }
+class _LoginScreenState extends BaseScreen<LoginScreen>
+    with ScreenStateHost<LoginScreen, LoginState> {
+  @override
+  LoginState buildState() => LoginState();
 
   @override
-  Widget buildContent(BuildContext context) => LoginView(onDone: _enter);
+  Widget buildContent(BuildContext context) => LoginView(onDone: state.enter);
 }

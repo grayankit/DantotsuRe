@@ -5,13 +5,14 @@ import 'package:flutter/services.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../Core/Services/MediaService.dart';
-import '../../Core/Services/Screens/DetailCache.dart';
 import '../../Core/Services/Model/Media.dart';
 import '../../Utils/Functions/SnackBar.dart';
 import '../../Widgets/Components/CustomBottomDialog.dart';
 import '../Widgets/ScreenWidgetView.dart';
-import '../../Utils/Functions/NavigateToScreen.dart';
 import '../../Core/State/State.dart';
+import '../../Core/ThemeManager/LanguageSwitcher.dart';
+import '../../Widgets/Components/ScreenState.dart';
+import 'ListEditorState.dart';
 
 CustomBottomDialog _editorDialog(
   BuildContext context, {
@@ -20,36 +21,22 @@ CustomBottomDialog _editorDialog(
   required Mutations mutations,
   required Future<void> Function() onSaved,
 }) {
-  final draft = ListEditorDraft(media, customLists: view.customLists(media));
-
-  Future<void> run(Future<void> Function() action, String done) async {
-    if (context.mounted) popPage(context);
-    try {
-      await action();
-      await onSaved();
-      snackString(done);
-    } catch (e) {
-      snackString('$e');
-    }
-  }
-
+  final session = ListEditorSession(
+    media: media,
+    view: view,
+    mutations: mutations,
+    onSaved: onSaved,
+  );
   return CustomBottomDialog(
     title: media.mainName,
     viewList: [
-      for (final w in view.build(media, draft)) ScreenWidgetView(w),
+      for (final w in view.build(media, session.draft)) ScreenWidgetView(w),
       const SizedBox(height: 12),
     ],
-    positiveText: 'Save',
-    positiveCallback: () => run(() async {
-      draft.applyTo(media);
-      await mutations.editList(
-        media,
-        customList: view.advanced ? draft.selectedCustomLists : null,
-      );
-    }, 'Saved to your list'),
-    negativeText: media.userListId == null ? null : 'Remove',
-    negativeCallback: () =>
-        run(() => mutations.deleteFromList(media), 'Removed from your list'),
+    positiveText: getString.save,
+    positiveCallback: () => session.save(context),
+    negativeText: session.canRemove ? getString.remove : null,
+    negativeCallback: () => session.remove(context),
   );
 }
 
@@ -79,7 +66,7 @@ void showQuickListEditor(
 ) {
   final mutations = service.getMutations;
   if (mutations == null) {
-    snackString('${service.name} has no list to edit');
+    snackString(getString.noListToEdit(service.name));
     return;
   }
   unawaited(HapticFeedback.mediumImpact());
@@ -104,44 +91,32 @@ class _QuickListEditor extends StatefulWidget {
   State<_QuickListEditor> createState() => _QuickListEditorState();
 }
 
-class _QuickListEditorState extends State<_QuickListEditor> {
-  late final String _key = '${widget.service.id}/${widget.media.id}';
-  late final ListEditorScreenView _view = widget.service.detailView.listEditor;
-  final _full = Live<Media?>(null);
-
+class _QuickListEditorState extends State<_QuickListEditor>
+    with ScreenStateHost<_QuickListEditor, QuickListEditorState> {
   @override
-  void initState() {
-    super.initState();
-    _full.value = DetailCache.get(_key);
-    if (_full.value == null) unawaited(_load());
-  }
-
-  Future<void> _load() async {
-    Media? loaded;
-    try {
-      loaded = await widget.service.getQueries?.mediaDetails(widget.media);
-      if (loaded != null) DetailCache.put(_key, loaded);
-    } catch (_) {}
-    if (mounted) _full.value = loaded ?? widget.media;
-  }
+  QuickListEditorState buildState() => QuickListEditorState(
+    service: widget.service,
+    media: widget.media,
+    mutations: widget.mutations,
+  );
 
   @override
   Widget build(BuildContext context) => Watch(() => _build(context));
 
   Widget _build(BuildContext context) {
-    final full = _full.value;
+    final full = state.full.value;
     if (full != null) {
       return _editorDialog(
         context,
         media: full,
-        view: _view,
+        view: state.view,
         mutations: widget.mutations,
-        onSaved: () async => DetailCache.remove(_key),
+        onSaved: state.invalidate,
       );
     }
     final draft = ListEditorDraft(
       widget.media,
-      customLists: _view.customLists(widget.media),
+      customLists: state.view.customLists(widget.media),
     );
     return CustomBottomDialog(
       title: widget.media.mainName,
@@ -149,7 +124,7 @@ class _QuickListEditorState extends State<_QuickListEditor> {
         Skeletonizer(
           child: Column(
             children: [
-              for (final w in _view.build(widget.media, draft))
+              for (final w in state.view.build(widget.media, draft))
                 ScreenWidgetView(w),
               const SizedBox(height: 12),
             ],

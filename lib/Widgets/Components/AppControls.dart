@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../Utils/Extensions/ClickCursor.dart';
 
 import '../../Utils/Extensions/ContextExtensions.dart';
+import '../../Utils/Nav/DpadNav.dart';
 
 class AppSegment<T> {
   final T value;
@@ -112,20 +113,23 @@ class AppChoiceChips<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: [
-        for (final o in options)
-          ChoiceChip(
-            mouseCursor: kClickCursor,
-            label: Text(o.label ?? '$o'),
-            avatar: o.icon == null ? null : Icon(o.icon, size: 16),
-            selected: value == o.value,
-            showCheckmark: false,
-            onSelected: (_) => onChanged(o.value),
-          ),
-      ],
+    return DpadRegion(
+      horizontalEdge: DpadEdgeBehavior.stop,
+      child: Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: [
+          for (final o in options)
+            ChoiceChip(
+              mouseCursor: kClickCursor,
+              label: Text(o.label ?? '$o'),
+              avatar: o.icon == null ? null : Icon(o.icon, size: 16),
+              selected: value == o.value,
+              showCheckmark: false,
+              onSelected: (_) => onChanged(o.value),
+            ),
+        ],
+      ),
     );
   }
 }

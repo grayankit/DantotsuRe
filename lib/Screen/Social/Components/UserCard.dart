@@ -9,6 +9,7 @@ import '../../../Utils/Functions/SnackBar.dart';
 import '../../../Widgets/Components/ProfileCard.dart';
 import '../SocialNavigation.dart';
 import '../../../Core/State/State.dart';
+import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 
 class UserCard extends StatefulWidget {
   final MediaService service;
@@ -45,15 +46,15 @@ class _UserCardState extends State<UserCard> {
     final next = await _view.toggleFollow(_u.id);
     if (!mounted) return;
     _busy.value = false;
-    if (next == null) return snackString('Could not update follow');
+    if (next == null) return snackString(getString.couldNotUpdateFollow);
     _u.isFollowing = next;
     _version.fire();
   }
 
   String get _relation {
     if (_u.isFollowing && _u.isFollower) return 'Mutual';
-    if (_u.isFollowing) return 'Following';
-    if (_u.isFollower) return 'Follows you';
+    if (_u.isFollowing) return getString.following;
+    if (_u.isFollower) return getString.followsYou;
     return '';
   }
 
@@ -104,7 +105,7 @@ class _UserCardState extends State<UserCard> {
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                 ),
                 onPressed: _busy.value ? null : _toggle,
-                child: const Text('Following'),
+                child: Text(getString.following),
               )
             : FilledButton(
                 key: const ValueKey('follow'),
@@ -114,7 +115,7 @@ class _UserCardState extends State<UserCard> {
                   padding: const EdgeInsets.symmetric(horizontal: 14),
                 ),
                 onPressed: _busy.value ? null : _toggle,
-                child: const Text('Follow'),
+                child: Text(getString.follow),
               ),
       ),
     );

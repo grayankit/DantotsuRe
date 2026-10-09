@@ -11,13 +11,8 @@ import '../../../Widgets/Components/ThemedContainer.dart';
 import 'Components/ForkTile.dart';
 import 'Forks.dart';
 import '../../../Widgets/Components/EmptyState.dart';
-
-const _skeletonFork = AppFork(
-  ownerName: 'owner',
-  ownerAvatar: '',
-  repoName: 'Dartotsu',
-  uri: '',
-);
+import '../../../Widgets/Components/ScreenState.dart';
+import 'ForksState.dart';
 
 class ForksPage extends StatefulWidget {
   const ForksPage({super.key});
@@ -26,19 +21,20 @@ class ForksPage extends StatefulWidget {
   State<ForksPage> createState() => _ForksPageState();
 }
 
-class _ForksPageState extends BaseScreen<ForksPage> {
-  late final _future = loadForks();
+class _ForksPageState extends BaseScreen<ForksPage>
+    with ScreenStateHost<ForksPage, ForksState> {
+  @override
+  ForksState buildState() => ForksState();
 
   @override
   Widget buildContent(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: FutureBuilder<List<AppFork>>(
-        future: _future,
+        future: state.future,
         builder: (context, snapshot) {
           final loading = snapshot.connectionState != ConnectionState.done;
-          final forks = snapshot.data ?? const [];
-          final items = loading ? List.filled(8, _skeletonFork) : forks;
+          final items = state.itemsFor(loading: loading, forks: snapshot.data);
 
           final scaffold = CustomScrollConfig(
             context,

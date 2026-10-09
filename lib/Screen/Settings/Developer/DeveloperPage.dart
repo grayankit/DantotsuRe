@@ -6,21 +6,12 @@ import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../../Utils/Extensions/Responsive.dart';
 import '../../../Widgets/Components/BaseScreen.dart';
 import '../../../Widgets/Components/ScrollConfig.dart';
-import '../../../Core/Preferences/PrefManager.dart';
 import '../../../Widgets/Components/ProfileCard.dart';
 import 'Components/DeveloperCard.dart';
 import 'Developer.dart';
 import '../../../Widgets/Components/EmptyState.dart';
-import '../../../Core/State/State.dart';
-
-const _skeletonDeveloper = Developer(
-  name: 'Loading name',
-  githubId: '',
-  pfp: '',
-  banner: '',
-  uri: '',
-  role: 'Loading role',
-);
+import '../../../Widgets/Components/ScreenState.dart';
+import 'DeveloperState.dart';
 
 class DeveloperPage extends StatefulWidget {
   const DeveloperPage({super.key});
@@ -29,23 +20,20 @@ class DeveloperPage extends StatefulWidget {
   State<DeveloperPage> createState() => _DeveloperPageState();
 }
 
-class _DeveloperPageState extends BaseScreen<DeveloperPage> {
-  late final _future = loadDevelopers();
-  late final _wide =
-      (PrefManager.getCustomVal<bool>('followWide') ?? false).live;
+class _DeveloperPageState extends BaseScreen<DeveloperPage>
+    with ScreenStateHost<DeveloperPage, DeveloperState> {
+  @override
+  DeveloperState buildState() => DeveloperState();
 
   @override
   Widget buildContent(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: FutureBuilder<List<Developer>>(
-        future: _future,
+        future: state.future,
         builder: (context, snapshot) {
           final loading = snapshot.connectionState != ConnectionState.done;
-          final developers = snapshot.data ?? const [];
-          final items = loading
-              ? List.filled(8, _skeletonDeveloper)
-              : developers;
+          final items = state.itemsFor(loading: loading, list: snapshot.data);
 
           final grid = CustomScrollConfig(
             context,
@@ -54,16 +42,15 @@ class _DeveloperPageState extends BaseScreen<DeveloperPage> {
                 title: getString.contributors,
                 actions: [
                   IconButton(
-                    tooltip: _wide.value ? 'Grid view' : 'Full width',
+                    tooltip: state.wide.value
+                        ? getString.gridView
+                        : getString.fullWidth,
                     icon: Icon(
-                      _wide.value
+                      state.wide.value
                           ? Icons.grid_view_rounded
                           : Icons.view_agenda_rounded,
                     ),
-                    onPressed: () {
-                      _wide.value = !_wide.value;
-                      PrefManager.setCustomVal<bool>('followWide', _wide.value);
-                    },
+                    onPressed: state.toggleWide,
                   ),
                 ],
               ),
@@ -77,7 +64,7 @@ class _DeveloperPageState extends BaseScreen<DeveloperPage> {
                     Dimens.pagePad,
                     Dimens.gapXl,
                   ),
-                  sliver: _wide.value
+                  sliver: state.wide.value
                       ? SliverList.separated(
                           itemCount: items.length,
                           separatorBuilder: (_, _) =>

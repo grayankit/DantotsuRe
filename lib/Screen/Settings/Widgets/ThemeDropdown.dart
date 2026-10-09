@@ -13,9 +13,10 @@ import '../../../Utils/Functions/NavigateToScreen.dart';
 import '../../../Widgets/Components/CustomBottomDialog.dart';
 import '../../../Widgets/Components/ThemedContainer.dart';
 import '../../../Core/State/State.dart';
+import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 
 String themeLabel(ThemeController t) {
-  if (t.useCustomColor.value) return 'Custom';
+  if (t.useCustomColor.value) return getString.colorPickerCustom;
   return AppTheme.byName(t.themeName.value).label;
 }
 
@@ -120,7 +121,7 @@ class _ThemePickerSheet extends StatelessWidget {
                               }
                             },
                             child: _ThemeCell(
-                              label: 'Custom',
+                              label: getString.colorPickerCustom,
                               previewScheme: previewScheme,
                               selected: selected,
                               isCustom: true,
@@ -161,7 +162,7 @@ class _ThemePickerSheet extends StatelessWidget {
                   alignment: Alignment.centerRight,
                   child: FilledButton(
                     onPressed: () => popPage(context),
-                    child: const Text('Done'),
+                    child: Text(getString.done),
                   ),
                 ),
               ),

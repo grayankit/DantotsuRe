@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
@@ -16,6 +14,10 @@ import '../../Widgets/Components/ScrollConfig.dart';
 import '../../Widgets/Shelf/CardShelfState.dart';
 import '../../Widgets/Shelf/PosterCard.dart';
 import '../../Core/State/State.dart';
+import '../../Core/ThemeManager/LanguageSwitcher.dart';
+import '../../Utils/Nav/DpadLayers.dart';
+import '../../Widgets/Components/ScreenState.dart';
+import 'ShelfState.dart';
 
 class ShelfScreen extends StatefulWidget {
   final String title;
@@ -36,99 +38,67 @@ class ShelfScreen extends StatefulWidget {
   State<ShelfScreen> createState() => _ShelfScreenState();
 }
 
-class _ShelfScreenState extends BaseScreen<ShelfScreen> {
-  late final _items = [...widget.media].liveList;
-  late final Set<String> _known = {for (final m in _items) m.id};
-  final _loading = false.live;
-  late final _more = (widget.loadMore != null).live;
-
-  Future<void> _next() async {
-    final loader = widget.loadMore;
-    if (loader == null || _loading.value || !_more.value) return;
-    _loading.value = true;
-    try {
-      final batch = await loader();
-      if (!mounted) return;
-      final fresh = [
-        for (final m in batch ?? const <Media>[])
-          if (_known.add(m.id)) m,
-      ];
-      _items.addAll(fresh);
-      _more.value = fresh.isNotEmpty;
-    } catch (_) {
-      if (mounted) _more.value = false;
-    } finally {
-      if (mounted) _loading.value = false;
-    }
-    if (mounted && _more.value && _items.length < 24) unawaited(_next());
-  }
-
-  bool _onScroll(ScrollNotification n) {
-    if (n.metrics.axis == Axis.vertical && n.metrics.extentAfter < 700) {
-      unawaited(_next());
-    }
-    return false;
-  }
+class _ShelfScreenState extends BaseScreen<ShelfScreen>
+    with ScreenStateHost<ShelfScreen, ShelfState> {
+  @override
+  ShelfState buildState() => ShelfState(
+    title: widget.title,
+    media: widget.media,
+    loader: widget.loadMore,
+  );
 
   @override
-  void initState() {
-    super.initState();
-    if (_more.value && _items.length < 24) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => unawaited(_next()));
-    }
-  }
-
-  @override
-  DiscordPresence? get presence =>
-      DiscordPresence.browsing('Browsing a list', state: widget.title);
+  DiscordPresence? get presence => state.presence;
 
   @override
   Widget buildContent(BuildContext context) => Scaffold(
     backgroundColor: Colors.transparent,
     appBar: AppScreenBar(title: widget.title),
-    body: _items.isEmpty ? _empty() : _grid(context),
+    body: state.items.isEmpty ? _empty() : _grid(context),
   );
 
   Widget _empty() =>
-      const EmptyState(icon: Icons.inbox_rounded, title: 'Nothing here yet');
+      EmptyState(icon: Icons.inbox_rounded, title: getString.nothingHereYet);
 
   Widget _grid(BuildContext context) {
     final style = tryFind<CardStyleController>()?.current ?? const CardStyle();
-    final tail = _more.value ? 8 : 0;
+    final tail = state.more.value ? 8 : 0;
     return NotificationListener<ScrollNotification>(
-      onNotification: _onScroll,
+      onNotification: state.onScroll,
       child: ScrollConfig(
         context,
-        child: GridView.builder(
-          padding: EdgeInsets.fromLTRB(
-            Dimens.pagePad,
-            Dimens.gapSm,
-            Dimens.pagePad,
-            Dimens.gapXl,
-          ),
-          gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-            maxCrossAxisExtent: style.itemWidth + Dimens.cardGap + 6,
-            childAspectRatio: style.itemWidth / style.itemHeight,
-            crossAxisSpacing: Dimens.cardGap,
-            mainAxisSpacing: Dimens.gap,
-          ),
-          itemCount: _items.length + (_loading.value ? tail : 0),
-          itemBuilder: (context, i) {
-            if (i >= _items.length) {
-              return Skeletonizer(
-                child: Align(
-                  alignment: Alignment.topCenter,
-                  child: _card(ShelfCardItem.skeleton(), skeleton: true),
-                ),
+        child: DpadColumn(
+          child: GridView.builder(
+            padding: EdgeInsets.fromLTRB(
+              Dimens.pagePad,
+              Dimens.gapSm,
+              Dimens.pagePad,
+              Dimens.gapXl,
+            ),
+            gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+              maxCrossAxisExtent: style.itemWidth + Dimens.cardGap + 6,
+              childAspectRatio: style.itemWidth / style.itemHeight,
+              crossAxisSpacing: Dimens.cardGap,
+              mainAxisSpacing: Dimens.gap,
+            ),
+            itemCount: state.items.length + (state.loading.value ? tail : 0),
+            itemBuilder: (context, i) {
+              if (i >= state.items.length) {
+                return Skeletonizer(
+                  child: Align(
+                    alignment: Alignment.topCenter,
+                    child: _card(ShelfCardItem.skeleton(), skeleton: true),
+                  ),
+                );
+              }
+              final item = widget.itemFor(context, i, state.items[i]);
+              return Align(
+                key: ValueKey('shelf:${state.items[i].id}'),
+                alignment: Alignment.topCenter,
+                child: _card(item),
               );
-            }
-            final item = widget.itemFor(context, i, _items[i]);
-            return Align(
-              key: ValueKey('shelf:${_items[i].id}'),
-              alignment: Alignment.topCenter,
-              child: _card(item),
-            );
-          },
+            },
+          ),
         ),
       ),
     );

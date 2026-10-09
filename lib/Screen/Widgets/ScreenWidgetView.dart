@@ -10,6 +10,7 @@ import '../../Widgets/Shelf/PeopleShelf.dart';
 import '../../Utils/Extensions/Responsive.dart';
 import '../Settings/Widgets/SettingsGroup.dart';
 import 'Components/DataSection.dart';
+import '../../Core/ThemeManager/LanguageSwitcher.dart';
 
 class ScreenWidgetView extends StatelessWidget {
   final ScreenWidget item;
@@ -31,7 +32,7 @@ class ScreenWidgetView extends StatelessWidget {
   Widget build(BuildContext context) => switch (item.type) {
     ScreenWidgetType.media => _media(),
     ScreenWidgetType.character => PeopleShelf(
-      title: item.title ?? 'Characters',
+      title: item.title ?? getString.characters,
       onTap: onCharacterTap == null
           ? null
           : (p) => onCharacterTap!(p.tag! as Character),
@@ -46,7 +47,7 @@ class ScreenWidgetView extends StatelessWidget {
       ],
     ),
     ScreenWidgetType.staff => PeopleShelf(
-      title: item.title ?? 'Staff',
+      title: item.title ?? getString.staff,
       onTap: onStaffTap == null ? null : (p) => onStaffTap!(p.tag! as Author),
       people: [
         for (final Author s in item.staff ?? const <Author>[])

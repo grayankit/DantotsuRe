@@ -5,8 +5,11 @@ import '../../Widgets/Components/AppBars.dart';
 import '../../Widgets/Components/AppTabs.dart';
 import '../../Widgets/Components/BaseScreen.dart';
 import '../../Widgets/Components/EmptyState.dart';
+import '../../Widgets/Components/ScreenState.dart';
 import 'Components/ActivityList.dart';
+import 'InboxState.dart';
 import '../../Api/Discord/DiscordPresence.dart';
+import '../../Core/ThemeManager/LanguageSwitcher.dart';
 
 class InboxScreen extends StatefulWidget {
   final MediaService service;
@@ -18,42 +21,39 @@ class InboxScreen extends StatefulWidget {
 }
 
 class _InboxScreenState extends BaseScreen<InboxScreen>
-    with SingleTickerProviderStateMixin {
-  late final TabController _tabs = TabController(length: 2, vsync: this);
+    with
+        SingleTickerProviderStateMixin,
+        ScreenStateHost<InboxScreen, InboxState> {
+  @override
+  InboxState buildState() => InboxState(widget.service);
 
   @override
-  void dispose() {
-    _tabs.dispose();
-    super.dispose();
-  }
-
-  @override
-  DiscordPresence? get presence => DiscordPresence.browsing('Reading messages');
+  DiscordPresence? get presence => state.presence;
 
   @override
   Widget buildContent(BuildContext context) {
-    final me = widget.service.socialView!.currentUserId;
+    final me = state.currentUserId;
     if (me == null) {
-      return const Scaffold(
+      return Scaffold(
         backgroundColor: Colors.transparent,
-        appBar: AppScreenBar(title: 'Messages'),
+        appBar: AppScreenBar(title: getString.messages),
         body: EmptyState(
           icon: Icons.mail_outline_rounded,
-          title: 'Log in to see your messages',
+          title: getString.logInToSeeMessages,
         ),
       );
     }
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppScreenBar(
-        title: 'Messages',
+        title: getString.messages,
         bottom: AppTabs(
-          controller: _tabs,
-          items: const [AppTabItem('Received'), AppTabItem('Sent')],
+          controller: state.tabs,
+          items: [AppTabItem(getString.received), AppTabItem(getString.sent)],
         ),
       ),
       body: TabBarView(
-        controller: _tabs,
+        controller: state.tabs,
         children: [
           ActivityList(
             service: widget.service,

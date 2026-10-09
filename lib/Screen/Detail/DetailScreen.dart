@@ -1,19 +1,14 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 
 import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../Core/Services/MediaServiceController.dart';
 import '../../Core/Services/Model/Media.dart';
-import '../../Core/Services/Screens/DetailCache.dart';
-import '../../Utils/Functions/NavigateToScreen.dart';
 import '../../Widgets/Components/BaseScreen.dart';
 import '../../Utils/Extensions/ContextExtensions.dart';
 import '../../Utils/Animation/WidgetAnimations.dart';
 import '../../Utils/Extensions/IntExtensions.dart';
 import '../../Utils/Extensions/Responsive.dart';
-import '../../Utils/Functions/AppShortcuts.dart';
 import '../../Utils/Nav/DpadNav.dart';
 import '../Navbar.dart';
 import '../../Widgets/Components/ScrollConfig.dart';
@@ -23,10 +18,11 @@ import '../../Core/ThemeManager/ThemeController.dart';
 import '../../Widgets/Shelf/ShelfFrame.dart';
 import '../Widgets/Components/DataSection.dart';
 import 'Components/DetailHeader.dart';
-import '../Feed/FeedNavigation.dart';
-import 'ListEditorSheet.dart';
 import '../../Api/Discord/DiscordPresence.dart';
 import '../../Core/State/State.dart';
+import '../../Core/ThemeManager/LanguageSwitcher.dart';
+import '../../Widgets/Components/ScreenState.dart';
+import 'DetailState.dart';
 
 class DetailScreen extends StatefulWidget {
   final Media media;
@@ -46,217 +42,47 @@ class DetailScreen extends StatefulWidget {
   State<DetailScreen> createState() => _DetailScreenState();
 }
 
-class _DetailScreenState extends BaseScreen<DetailScreen> {
-  late final DetailHost _host = DetailHost(
+class _DetailScreenState extends BaseScreen<DetailScreen>
+    with ScreenStateHost<DetailScreen, DetailState> {
+  @override
+  DetailState buildState() => DetailState(
     media: widget.media,
-    loading: true.live,
+    view: widget.view,
+    mutations: widget.mutations,
     heroTag: widget.heroTag,
-    open: _open,
-    search: _search,
-    refresh: () => _load(force: true),
   );
-  Disposer? _coverSub;
-  final _widgets = <ScreenWidget>[].liveList;
-  final _ready = false.live;
-  final _tab = 0.live;
-  final _error = Live<String?>(null);
-  bool _focusedOnce = false;
-  final _scroll = ScrollController();
-  Timer? _snapTimer;
-  final _actionFocus = FocusNode();
-  final _lanes = <GlobalKey<DpadRegionState>>[];
-  final _navLane = GlobalKey<DpadRegionState>();
-
-  GlobalKey<DpadRegionState> _lane(int i) {
-    while (_lanes.length <= i) {
-      _lanes.add(GlobalKey<DpadRegionState>());
-    }
-    return _lanes[i];
-  }
-
-  DpadEdgeBehavior get _horizontalEdge =>
-      context.isPhone ? DpadEdgeBehavior.stop : DpadEdgeBehavior.leave;
-
-  void _laneEdge(int from, TraversalDirection direction) {
-    final step = switch (direction) {
-      TraversalDirection.up => -1,
-      TraversalDirection.down => 1,
-      _ => 0,
-    };
-    if (step == 0) return;
-    for (var i = from + step; i >= 0 && i < _lanes.length; i += step) {
-      final nodes = _lanes[i].currentState?.focusNodes;
-      if (nodes != null && nodes.any((_) => true)) {
-        DpadLane.focusFirst(_lanes[i]);
-        return;
-      }
-    }
-    if (direction == TraversalDirection.down && context.isPhone) {
-      DpadLane.focusFirst(_navLane);
-    }
-  }
-
-  String get _cacheKey => '${widget.view.service.id}/${widget.media.id}';
-
-  bool get _isAnime => _host.media.value.anime != null;
 
   @override
   String? get glassBackgroundUrl =>
-      _host.media.value.banner ??
-      _host.media.value.cover ??
-      super.glassBackgroundUrl;
+      state.glassImage ?? super.glassBackgroundUrl;
 
   @override
-  void initState() {
-    super.initState();
-    FocusManager.instance.addListener(_keepFocusVisible);
-    _scroll.addListener(_scheduleSnap);
-    final theme = find<ThemeController>();
-    theme.cover.set(this, _host.media.value.cover);
-    _coverSub = onChange(
-      _host.media,
-      (media) => theme.cover.set(this, media.cover),
-    );
-    unawaited(_load());
-  }
-
-  @override
-  void dispose() {
-    _coverSub?.dispose();
-    find<ThemeController>().cover.clear(this);
-    FocusManager.instance.removeListener(_keepFocusVisible);
-    _snapTimer?.cancel();
-    _scroll.dispose();
-    _actionFocus.dispose();
-    super.dispose();
-  }
-
-  void _keepFocusVisible() {
-    if (!mounted || !usingKeyboard || !_scroll.hasClients) return;
-    final ctx = FocusManager.instance.primaryFocus?.context;
-    if (ctx == null || !ctx.mounted) return;
-    if (Scrollable.maybeOf(ctx)?.position != _scroll.position) return;
-    if (DetailHeaderScope.contains(ctx)) return;
-    final box = ctx.findRenderObject();
-    if (box is! RenderBox || !box.attached || !box.hasSize) return;
-    final rect = box.localToGlobal(Offset.zero) & box.size;
-    final media = MediaQuery.of(context);
-    final topInset = media.padding.top + 56 + 12;
-    final bottomInset = context.isPhone ? 110.0 + media.padding.bottom : 24.0;
-    final limit = media.size.height - bottomInset;
-    var delta = 0.0;
-    if (rect.top < topInset) {
-      delta = rect.top - topInset;
-    } else if (rect.bottom > limit) {
-      delta = rect.bottom - limit;
-    }
-    if (delta == 0) return;
-    final pos = _scroll.position;
-    unawaited(
-      _scroll.animateTo(
-        (pos.pixels + delta).clamp(pos.minScrollExtent, pos.maxScrollExtent),
-        duration: const Duration(milliseconds: 180),
-        curve: Curves.easeOut,
-      ),
-    );
-  }
-
-  Future<void> _load({bool force = false}) async {
-    final cached = force ? null : DetailCache.get(_cacheKey);
-    _host.cached = cached != null;
-    if (cached != null) _host.update(cached);
-    _host.loading.value = cached == null;
-    if (cached == null && _widgets.isEmpty) _ready.value = false;
-    var failed = false;
-    _error.value = null;
-    try {
-      await for (final list in widget.view.screenStream(_host)) {
-        _widgets.value = list;
-      }
-    } catch (e) {
-      failed = true;
-      _error.value = e.toString();
-    } finally {
-      if (!failed) DetailCache.put(_cacheKey, _host.media.value);
-      _host.loading.value = false;
-      _ready.value = true;
-      if (usingKeyboard && !_focusedOnce) {
-        _focusedOnce = true;
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted && _actionFocus.canRequestFocus) {
-            _actionFocus.requestFocus();
-          }
-        });
-      }
-    }
-  }
-
-  void _search(String query) => openSearch(
-    context,
-    widget.view.service,
-    type: _isAnime ? MediaType.anime : MediaType.manga,
-    query: query,
-  );
-
-  void _open(Media media, String? heroTag) => navigateToPage(
-    context,
-    DetailScreen(
-      media: media,
-      view: widget.view,
-      mutations: widget.mutations,
-      heroTag: heroTag,
-    ),
-    hero: true,
-  );
-
-  void _scheduleSnap() {
-    _snapTimer?.cancel();
-    _snapTimer = Timer(const Duration(milliseconds: 140), _snapHeader);
-  }
-
-  void _snapHeader() {
-    if (!mounted || !_scroll.hasClients) return;
-    final position = _scroll.position;
-    if (position.isScrollingNotifier.value) return _scheduleSnap();
-    final range = detailHeaderCollapseRange();
-    final pixels = position.pixels;
-    if (pixels <= 0 || pixels >= range) return;
-    unawaited(
-      _scroll.animateTo(
-        pixels < range / 2 ? 0 : range,
-        duration: const Duration(milliseconds: 180),
-        curve: Curves.easeOut,
-      ),
-    );
-  }
-
-  @override
-  DiscordPresence? get presence => DiscordPresence.viewing(widget.media);
+  DiscordPresence? get presence => state.presence;
 
   @override
   Widget buildContent(BuildContext context) {
     final content = RefreshIndicator(
-      onRefresh: () => _load(force: true),
+      onRefresh: () => state.load(force: true),
       child: Watch(
         () => CustomScrollConfig(
           context,
           physics: const AlwaysScrollableScrollPhysics(),
-          controller: _scroll,
+          controller: state.scroll,
           children: [
             SliverPersistentHeader(
               pinned: true,
               delegate: DetailHeaderDelegate(
-                host: _host,
+                host: state.host,
                 top: MediaQuery.paddingOf(context).top,
                 glass: find<ThemeController>().useGlassMode.value,
-                listLabel: (m) => _statusLabel(m.userStatus),
-                sourceName: widget.view.sourceName,
-                onEditList: widget.mutations == null ? null : _editList,
-                actionFocus: _actionFocus,
-                toolbarLane: _lane(0),
-                actionsLane: _lane(1),
-                onLaneEdge: _laneEdge,
-                horizontalEdge: _horizontalEdge,
+                listLabel: (m) => state.statusLabel(m.userStatus),
+                sourceName: state.view.sourceName,
+                onEditList: state.mutations == null ? null : state.editList,
+                actionFocus: state.actionFocus,
+                toolbarLane: state.lane(0),
+                actionsLane: state.lane(1),
+                onLaneEdge: state.laneEdge,
+                horizontalEdge: state.horizontalEdge,
               ),
             ),
             SliverToBoxAdapter(
@@ -278,22 +104,23 @@ class _DetailScreenState extends BaseScreen<DetailScreen> {
     final nav = Watch(
       () => FloatingBottomNavBar(
         standalone: true,
-        laneKey: _navLane,
-        selectedIndex: _tab.value,
-        onTabSelected: (i) => _tab.value = i,
+        laneKey: state.navLane,
+        selectedIndex: state.tab.value,
+        onTabSelected: (i) => state.tab.value = i,
         items: [
-          const NavItem(index: 0, icon: Icons.info_rounded, label: 'INFO'),
+          NavItem(index: 0, icon: Icons.info_rounded, label: getString.navInfo),
           NavItem(
             index: 1,
-            icon: _isAnime
+            icon: state.isAnime
                 ? Icons.movie_filter_rounded
                 : Icons.import_contacts_rounded,
-            label: _isAnime ? 'WATCH' : 'READ',
+            label: (state.isAnime ? getString.watch : getString.read)
+                .toUpperCase(),
           ),
-          const NavItem(
+          NavItem(
             index: 2,
             icon: Icons.chat_bubble_rounded,
-            label: 'COMMENTS',
+            label: getString.navComments,
           ),
         ],
       ),
@@ -341,51 +168,39 @@ class _DetailScreenState extends BaseScreen<DetailScreen> {
   }
 
   Widget _body() {
-    if (_tab.value != 0) {
+    if (state.tab.value != 0) {
       return NotImplemented(
-        service: widget.view.service.name,
-        area: _tab.value == 1 ? (_isAnime ? 'Watch' : 'Read') : 'Comments',
+        service: state.view.service.name,
+        area: state.tab.value == 1
+            ? (state.isAnime ? getString.watch : getString.read)
+            : getString.comments,
       );
     }
-    if (!_ready.value) return _skeleton();
+    if (!state.ready.value) return _skeleton();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (_error.value != null) ...[
+        if (state.error.value != null) ...[
           _errorCard(),
           SizedBox(height: Dimens.gapLg),
         ],
-        for (final (i, item) in _widgets.indexed) ...[
+        for (final (i, item) in state.widgets.indexed) ...[
           if (i > 0) SizedBox(height: Dimens.gapLg),
           KeyedSubtree(
             key: ValueKey('detail-$i-${item.title ?? item.type}'),
             child: DpadLane(
-              laneKey: _lane(i + 2),
-              memoryKey: 'detail-${_host.media.value.id}-$i',
+              laneKey: state.lane(i + 2),
+              memoryKey: 'detail-${state.host.media.value.id}-$i',
               verticalEdge: DpadEdgeBehavior.stop,
-              horizontalEdge: _horizontalEdge,
-              onEdge: (d) => _laneEdge(i + 2, d),
+              horizontalEdge: state.horizontalEdge,
+              onEdge: (d) => state.laneEdge(i + 2, d),
               child:
                   ScreenWidgetView(
                     item,
-                    heroPrefix: 'detail:${_host.media.value.id}',
-                    onMediaTap: _open,
-                    onCharacterTap: (c) => openEntity(
-                      context,
-                      widget.view.service,
-                      EntityKind.character,
-                      c.id,
-                      name: c.name,
-                      image: c.image,
-                    ),
-                    onStaffTap: (s) => openEntity(
-                      context,
-                      widget.view.service,
-                      EntityKind.staff,
-                      s.id,
-                      name: s.name,
-                      image: s.image,
-                    ),
+                    heroPrefix: 'detail:${state.host.media.value.id}',
+                    onMediaTap: state.open,
+                    onCharacterTap: state.openCharacter,
+                    onStaffTap: state.openStaff,
                   ).animateFadeUp(
                     begin: 0.06,
                     delay: Duration(milliseconds: 40 * i),
@@ -411,12 +226,12 @@ class _DetailScreenState extends BaseScreen<DetailScreen> {
           color: context.colorScheme.onErrorContainer,
         ),
         title: Text(
-          "Couldn't load all details",
+          getString.couldntLoadAllDetails,
           style: TextStyle(color: context.colorScheme.onErrorContainer),
         ),
         trailing: FilledButton.tonal(
-          onPressed: () => _load(force: true),
-          child: const Text('Retry'),
+          onPressed: () => state.load(force: true),
+          child: Text(getString.retry),
         ),
       ),
     ),
@@ -458,7 +273,7 @@ class _DetailScreenState extends BaseScreen<DetailScreen> {
         ),
         SizedBox(height: Dimens.gapLg),
         DataSection(
-          title: 'Synopsis',
+          title: getString.synopsis,
           data: const ScreenData(
             text:
                 'Loading the details for this title, this should only take a '
@@ -468,7 +283,7 @@ class _DetailScreenState extends BaseScreen<DetailScreen> {
         ),
         SizedBox(height: Dimens.gapLg),
         DataSection(
-          title: 'Details',
+          title: getString.details,
           data: const ScreenData(
             rows: [
               ('Episodes', '12'),
@@ -483,26 +298,4 @@ class _DetailScreenState extends BaseScreen<DetailScreen> {
       ],
     ),
   );
-
-  void _editList() {
-    final mutations = widget.mutations;
-    if (mutations == null) return;
-    showListEditor(
-      context,
-      media: _host.media.value,
-      view: widget.view.listEditor,
-      mutations: mutations,
-      onSaved: _load,
-    );
-  }
-
-  String _statusLabel(String? status) => switch (status) {
-    'CURRENT' => _isAnime ? 'Watching' : 'Reading',
-    'PLANNING' => 'Planned',
-    'COMPLETED' => 'Completed',
-    'PAUSED' => 'Paused',
-    'DROPPED' => 'Dropped',
-    'REPEATING' => _isAnime ? 'Rewatching' : 'Rereading',
-    _ => 'Add to List',
-  };
 }

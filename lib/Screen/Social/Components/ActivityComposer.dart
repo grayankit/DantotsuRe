@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 
 import '../../../Core/Services/MediaService.dart';
 import '../../../Utils/Extensions/ContextExtensions.dart';
-import '../../../Utils/Functions/SnackBar.dart';
 import '../../../Widgets/Components/AppSheet.dart';
 import '../../../Widgets/Components/CustomBottomDialog.dart';
 import '../../../Widgets/Components/MarkupText.dart';
-import '../../../Utils/Functions/NavigateToScreen.dart';
 import '../../../Core/State/State.dart';
-
-enum ComposerKind { activity, message, reply }
+import '../../../Core/ThemeManager/LanguageSwitcher.dart';
+import '../../../Widgets/Components/ScreenState.dart';
+import 'ComposerState.dart';
+export 'ComposerState.dart' show ComposerKind;
 
 class ActivityComposer extends StatefulWidget {
   final SocialScreenView view;
@@ -35,73 +35,18 @@ class ActivityComposer extends StatefulWidget {
   State<ActivityComposer> createState() => _ActivityComposerState();
 }
 
-class _ActivityComposerState extends State<ActivityComposer> {
-  late final _controller = TextEditingController(text: widget.initial);
-  final _preview = false.live;
-  final _busy = false.live;
-  late final _private = widget.initialPrivate.live;
-
+class _ActivityComposerState extends State<ActivityComposer>
+    with ScreenStateHost<ActivityComposer, ComposerState> {
   @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  String get _title {
-    final editing = widget.editId != null;
-    return switch (widget.kind) {
-      ComposerKind.activity => editing ? 'Edit activity' : 'New activity',
-      ComposerKind.message => editing ? 'Edit message' : 'Write a message',
-      ComposerKind.reply => editing ? 'Edit reply' : 'Reply',
-    };
-  }
-
-  void _wrap(String before, [String? after]) {
-    final value = _controller.value;
-    final selection = value.selection;
-    final start = selection.isValid ? selection.start : value.text.length;
-    final end = selection.isValid ? selection.end : value.text.length;
-    final text = value.text;
-    final inner = text.substring(start, end);
-    final closing = after ?? before;
-    final next = text.replaceRange(start, end, '$before$inner$closing');
-    _controller.value = TextEditingValue(
-      text: next,
-      selection: TextSelection.collapsed(
-        offset: start + before.length + inner.length,
-      ),
-    );
-  }
-
-  Future<void> _submit() async {
-    final text = _controller.text.trim();
-    if (text.isEmpty || _busy.value) return;
-    _busy.value = true;
-    final view = widget.view;
-    final edit = widget.editId;
-    final ok = switch (widget.kind) {
-      ComposerKind.activity => await view.postActivity(text, edit: edit),
-      ComposerKind.message => await view.postMessage(
-        widget.userId!,
-        text,
-        edit: edit,
-        isPrivate: _private.value,
-      ),
-      ComposerKind.reply => await view.postReply(
-        widget.activityId!,
-        text,
-        edit: edit,
-      ),
-    };
-    if (!mounted) return;
-    if (ok) {
-      snackString(edit == null ? 'Posted' : 'Saved');
-      popPage(context, true);
-    } else {
-      _busy.value = false;
-      snackString('Could not post');
-    }
-  }
+  ComposerState buildState() => ComposerState(
+    view: widget.view,
+    kind: widget.kind,
+    userId: widget.userId,
+    activityId: widget.activityId,
+    editId: widget.editId,
+    initial: widget.initial,
+    initialPrivate: widget.initialPrivate,
+  );
 
   @override
   Widget build(BuildContext context) => Watch(() => _build(context));
@@ -109,13 +54,13 @@ class _ActivityComposerState extends State<ActivityComposer> {
   Widget _build(BuildContext context) {
     final scheme = context.colorScheme;
     return AppSheet(
-      title: _title,
+      title: state.title,
       trailing: IconButton(
-        tooltip: _preview.value ? 'Edit' : 'Preview',
+        tooltip: state.preview.value ? getString.edit : getString.preview,
         icon: Icon(
-          _preview.value ? Icons.edit_rounded : Icons.visibility_rounded,
+          state.preview.value ? Icons.edit_rounded : Icons.visibility_rounded,
         ),
-        onPressed: () => _preview.value = !_preview.value,
+        onPressed: () => state.preview.value = !state.preview.value,
       ),
       child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
@@ -123,7 +68,7 @@ class _ActivityComposerState extends State<ActivityComposer> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (_preview.value)
+            if (state.preview.value)
               Container(
                 constraints: const BoxConstraints(minHeight: 120),
                 padding: const EdgeInsets.all(14),
@@ -131,44 +76,55 @@ class _ActivityComposerState extends State<ActivityComposer> {
                   color: scheme.surfaceContainerHigh,
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: _controller.text.trim().isEmpty
+                child: state.controller.text.trim().isEmpty
                     ? Text(
-                        'Nothing to preview',
+                        getString.nothingToPreview,
                         style: TextStyle(color: scheme.onSurfaceVariant),
                       )
-                    : MarkupText(text: _controller.text, collapsible: false),
+                    : MarkupText(
+                        text: state.controller.text,
+                        collapsible: false,
+                      ),
               )
             else ...[
               Wrap(
                 spacing: 2,
                 children: [
-                  _tool(Icons.format_bold_rounded, 'Bold', () => _wrap('__')),
+                  _tool(
+                    Icons.format_bold_rounded,
+                    'Bold',
+                    () => state.wrap('__'),
+                  ),
                   _tool(
                     Icons.format_italic_rounded,
                     'Italic',
-                    () => _wrap('_'),
+                    () => state.wrap('_'),
                   ),
                   _tool(
                     Icons.visibility_off_rounded,
                     'Spoiler',
-                    () => _wrap('~!', '!~'),
+                    () => state.wrap('~!', '!~'),
                   ),
                   _tool(
                     Icons.link_rounded,
                     'Link',
-                    () => _wrap('[', '](https://)'),
+                    () => state.wrap('[', '](https://)'),
                   ),
-                  _tool(Icons.image_rounded, 'Image', () => _wrap('img(', ')')),
+                  _tool(
+                    Icons.image_rounded,
+                    'Image',
+                    () => state.wrap('img(', ')'),
+                  ),
                 ],
               ),
               TextField(
-                controller: _controller,
+                controller: state.controller,
                 autofocus: true,
                 minLines: 4,
                 maxLines: 10,
                 keyboardType: TextInputType.multiline,
-                decoration: const InputDecoration(
-                  hintText: 'Write something… AniList markdown works here',
+                decoration: InputDecoration(
+                  hintText: getString.writeSomethingHint,
                 ),
               ),
             ],
@@ -178,23 +134,25 @@ class _ActivityComposerState extends State<ActivityComposer> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
                 ),
-                title: const Text('Private message'),
-                value: _private.value,
-                onChanged: (v) => _private.value = v,
+                title: Text(getString.privateMessage),
+                value: state.private.value,
+                onChanged: (v) => state.private.value = v,
               ),
             const SizedBox(height: 12),
             Align(
               alignment: Alignment.centerRight,
               child: FilledButton.icon(
-                onPressed: _busy.value ? null : _submit,
-                icon: _busy.value
+                onPressed: state.busy.value ? null : state.submit,
+                icon: state.busy.value
                     ? const SizedBox(
                         width: 16,
                         height: 16,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : const Icon(Icons.send_rounded, size: 18),
-                label: Text(widget.editId == null ? 'Post' : 'Save'),
+                label: Text(
+                  widget.editId == null ? getString.post : getString.save,
+                ),
               ),
             ),
           ],

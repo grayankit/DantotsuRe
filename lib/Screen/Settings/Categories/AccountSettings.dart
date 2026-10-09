@@ -54,7 +54,7 @@ List<Setting> accountSettings(BuildContext context) {
       isActivity: true,
       onClick: () => navigateToPage(
         context,
-        const SubSettingsScreen(title: 'Discord', settings: discordSettings),
+        SubSettingsScreen(title: getString.discord, settings: discordSettings),
       ),
     ),
   ];

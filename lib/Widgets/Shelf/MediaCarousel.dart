@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../Core/Services/Model/Media.dart';
@@ -58,6 +59,35 @@ class _MediaCarouselState extends State<MediaCarousel> {
     super.dispose();
   }
 
+  int? _focusPage;
+
+  KeyEventResult _onKey(FocusNode node, KeyEvent event) {
+    if (event is! KeyDownEvent ||
+        _items.length < 2 ||
+        !_controller.hasClients) {
+      return KeyEventResult.ignored;
+    }
+    final step = switch (event.logicalKey) {
+      LogicalKeyboardKey.arrowRight => 1,
+      LogicalKeyboardKey.arrowLeft => -1,
+      _ => 0,
+    };
+    if (step == 0) return KeyEventResult.ignored;
+    final target = (_controller.page ?? _controller.initialPage).round() + step;
+    _pausedUntil = DateTime.now().add(const Duration(seconds: 12));
+    _focusPage = target;
+    unawaited(
+      _controller
+          .animateToPage(
+            target,
+            duration: const Duration(milliseconds: 420),
+            curve: Curves.fastOutSlowIn,
+          )
+          .whenComplete(() => _focusPage = null),
+    );
+    return KeyEventResult.handled;
+  }
+
   double get _height =>
       responsive(mobile: 400.0, tablet: 340.0, desktop: 340.0);
 
@@ -109,23 +139,31 @@ class _MediaCarouselState extends State<MediaCarousel> {
                 },
                 child: ScrollConfig(
                   context,
-                  child: PageView.builder(
-                    controller: _controller,
-                    onPageChanged: (p) => _page.value = p % items.length,
-                    itemBuilder: (context, page) {
-                      final index = page % items.length;
-                      return _Slide(
-                        media: items[index],
-                        tag:
-                            'spotlight:${widget.data.heroPrefix}:$index:${items[index].id}',
-                        onTap: (tag) => widget.data.onMediaTap?.call(
-                          context,
-                          index,
-                          items[index],
-                          tag,
-                        ),
-                      );
-                    },
+                  child: Focus(
+                    canRequestFocus: false,
+                    onKeyEvent: _onKey,
+                    child: DpadRegion(
+                      horizontalEdge: DpadEdgeBehavior.stop,
+                      child: PageView.builder(
+                        controller: _controller,
+                        onPageChanged: (p) => _page.value = p % items.length,
+                        itemBuilder: (context, page) {
+                          final index = page % items.length;
+                          return _Slide(
+                            media: items[index],
+                            tag:
+                                'spotlight:${widget.data.heroPrefix}:$index:${items[index].id}',
+                            onTap: (tag) => widget.data.onMediaTap?.call(
+                              context,
+                              index,
+                              items[index],
+                              tag,
+                            ),
+                            autofocus: _focusPage == page,
+                          );
+                        },
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -167,8 +205,14 @@ class _Slide extends StatelessWidget {
   final Media media;
   final String tag;
   final void Function(String tag) onTap;
+  final bool autofocus;
 
-  const _Slide({required this.media, required this.tag, required this.onTap});
+  const _Slide({
+    required this.media,
+    required this.tag,
+    required this.onTap,
+    this.autofocus = false,
+  });
 
   static String _count(Media m) {
     final anime = m.anime;
@@ -193,6 +237,7 @@ class _Slide extends StatelessWidget {
 
     return DpadTap(
       ripple: false,
+      autofocus: autofocus,
       borderRadius: BorderRadius.zero,
       onTap: () => onTap(tag),
       child: Stack(

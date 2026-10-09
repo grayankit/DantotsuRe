@@ -16,8 +16,8 @@ List<Setting> addonSettings(BuildContext context) {
         description: addon.downloading.value
             ? '${(addon.progress.value * 100).toStringAsFixed(0)}%'
             : addon.installed.value
-            ? (addon.hasUpdate.value ? 'Update available' : 'Installed')
-            : 'Not installed',
+            ? (addon.hasUpdate.value ? getString.updateAvailable : 'Installed')
+            : getString.notInstalled,
         icon: addon.icon,
         trailingIcon: addon.hasUpdate.value
             ? Icons.update_rounded

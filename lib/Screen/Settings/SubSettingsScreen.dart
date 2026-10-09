@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../Model/Setting.dart';
 import '../../Widgets/Components/BaseScreen.dart';
 import 'SettingsListView.dart';
+import '../../Widgets/Components/ScreenState.dart';
+import 'SubSettingsState.dart';
 
 class SubSettingsScreen extends StatefulWidget {
   final String title;
@@ -18,12 +20,17 @@ class SubSettingsScreen extends StatefulWidget {
   State<SubSettingsScreen> createState() => _SubSettingsScreenState();
 }
 
-class _SubSettingsScreenState extends BaseScreen<SubSettingsScreen> {
+class _SubSettingsScreenState extends BaseScreen<SubSettingsScreen>
+    with ScreenStateHost<SubSettingsScreen, SubSettingsState> {
+  @override
+  SubSettingsState buildState() =>
+      SubSettingsState(widget.title, widget.settings);
+
   @override
   Widget buildContent(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: SettingsListView(title: widget.title, searchable: widget.settings),
+      body: SettingsListView(title: state.title, searchable: state.build),
     );
   }
 }

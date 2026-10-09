@@ -1,19 +1,18 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 
 import '../../Core/Analytics/AnalyticsManager.dart';
-import '../../Core/Preferences/StorageManager.dart';
 import '../../Logger.dart';
 import '../../Utils/Animation/WidgetAnimations.dart';
 import '../../Utils/Extensions/ContextExtensions.dart';
 import '../../Utils/Extensions/NumExtensions.dart';
-import '../../Utils/Function.dart';
-import '../../Utils/Functions/CopyToClip.dart';
 import 'Widgets/AppButton.dart';
 import '../../Widgets/Components/ScrollConfig.dart';
 import '../../Core/State/State.dart';
+import '../../Core/ThemeManager/LanguageSwitcher.dart';
+import '../../Widgets/Components/ScreenState.dart';
+import 'ErrorState.dart';
 
 class ErrorScreen extends StatefulWidget {
   final String error;
@@ -33,14 +32,14 @@ class ErrorScreen extends StatefulWidget {
   createState() => _ErrorScreenState();
 }
 
-class _ErrorScreenState extends State<ErrorScreen> {
-  late final List<TextSpan> _stackSpans = _colorizeErrorText(widget.stackTrace);
-
+class _ErrorScreenState extends State<ErrorScreen>
+    with ScreenStateHost<ErrorScreen, ErrorState> {
   @override
-  void dispose() {
-    widget.onClose?.call();
-    super.dispose();
-  }
+  ErrorState buildState() => ErrorState(
+    error: widget.error,
+    stackTrace: widget.stackTrace,
+    onClosed: widget.onClose,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -99,24 +98,11 @@ class _ErrorScreenState extends State<ErrorScreen> {
                 color: theme.primary,
                 size: 18,
               ),
-              onPressed: () {
-                if (appNavigator?.canPop() ?? false) {
-                  appNavigator?.pop();
-                }
-              },
+              onPressed: state.goBack,
             ),
             Expanded(
               child: Text(
-                ([
-                  "Oopsie Woopsie (≧◡≦)",
-                  "Something Broke (ﾉ≧ڡ≦)",
-                  "Unexpected Ouch! (ಥ﹏ಥ)",
-                  "Error Vibes Only (✧∀✧)",
-                  "Plot Twist Error (•◡•) /",
-                  "Software Sadness (╥﹏╥)",
-                  "Skill Issue? (¬‿¬)",
-                  "Gremlins Did It (ᵔ◡ᵔ)",
-                ]..shuffle()).first,
+                state.title,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: context.textTheme.labelLarge?.copyWith(
@@ -133,13 +119,7 @@ class _ErrorScreenState extends State<ErrorScreen> {
 
   Widget _buildFactBox(ColorScheme theme, TextTheme textTheme) {
     return Text(
-      ([
-        "Fun Fact: 98% of bugs can be solved by a restart.",
-        "This is not a bug, it's an undocumented feature.",
-        "Programmer tears detected.",
-        "Your code tried its best. It failed.",
-        "Oops. Flutter tripped over itself again.",
-      ]..shuffle()).first,
+      state.fact,
       style: textTheme.bodyMedium?.copyWith(
         color: theme.primary,
         fontStyle: FontStyle.italic,
@@ -148,9 +128,9 @@ class _ErrorScreenState extends State<ErrorScreen> {
   }
 
   Widget _buildErrorTitle() {
-    return const Text(
-      "Error :",
-      style: TextStyle(fontWeight: FontWeight.w600),
+    return Text(
+      getString.errorLabel,
+      style: const TextStyle(fontWeight: FontWeight.w600),
     ).animateFadeSlideX(begin: -0.2, delay: 200.ms);
   }
 
@@ -171,9 +151,9 @@ class _ErrorScreenState extends State<ErrorScreen> {
   Widget _buildStackTrace(ColorScheme theme) {
     return ExpansionTile(
       tilePadding: EdgeInsets.zero,
-      title: const Text(
-        "Details (Stack Trace)",
-        style: TextStyle(fontWeight: FontWeight.w600),
+      title: Text(
+        getString.stackTraceDetails,
+        style: const TextStyle(fontWeight: FontWeight.w600),
       ),
       children: [
         Container(
@@ -183,7 +163,7 @@ class _ErrorScreenState extends State<ErrorScreen> {
             borderRadius: BorderRadius.circular(10),
           ),
           child: SelectableText.rich(
-            TextSpan(children: _stackSpans),
+            TextSpan(children: state.stackSpans),
             style: TextStyle(
               fontFamily: "monospace",
               fontSize: 13,
@@ -202,24 +182,9 @@ class _ErrorScreenState extends State<ErrorScreen> {
         Expanded(
           child: AppButton(
             context: context,
-            onPressed: () async {
-              final dir = await StorageManager.getDirectory(
-                useSystemPath: false,
-                useCustomPath: true,
-              );
-              final logPath = '${dir?.path ?? ''}/appLogs.txt'.fixSeparator;
-
-              if (Platform.isLinux) {
-                copyToClipboard(
-                  logPath,
-                  message: 'Log file path copied to clipboard',
-                );
-              } else {
-                shareFile(logPath, 'LogFile');
-              }
-            },
+            onPressed: state.shareLogFile,
             iconWidget: const Icon(Icons.share_rounded, size: 18),
-            label: "Share log file",
+            label: getString.shareLogFile,
             padding: const EdgeInsets.only(),
           ).animateFadeSlideX(begin: -0.2, delay: 300.ms),
         ),
@@ -227,13 +192,9 @@ class _ErrorScreenState extends State<ErrorScreen> {
         Expanded(
           child: AppButton(
             context: context,
-            onPressed: () {
-              copyToClipboard(
-                "Error: ${widget.error}\n\nStack Trace:\n${widget.stackTrace}",
-              );
-            },
+            onPressed: state.copyLogs,
             iconWidget: const Icon(Icons.copy_rounded, size: 18),
-            label: "Copy Logs",
+            label: getString.copyLogs,
             padding: const EdgeInsets.only(),
           ).animateFadeSlideX(begin: -0.2, delay: 300.ms),
         ),
@@ -284,76 +245,4 @@ void handleError(
   } else {
     debugPrint("Navigator not ready");
   }
-}
-
-List<TextSpan> _colorizeErrorText(String text) {
-  final patterns = {
-    RegExp(r'\bv?\d+(?:\.\d+)*\b'): const TextStyle(color: Colors.amberAccent),
-    RegExp(r'\b(?:dart:[\w/.]+|package:[\w./_]+|https?://\S+)\b'):
-        const TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.w500),
-    RegExp(r'(/[\w./_-]+\.\w+|\w+\.java:\d+)'): const TextStyle(
-      color: Colors.lightGreen,
-      fontStyle: FontStyle.italic,
-    ),
-    RegExp(r'\b(?:[a-z_]+\.)*[A-Z][a-zA-Z0-9_]*(?:\.[a-zA-Z0-9_]+)*\b'):
-        const TextStyle(color: Colors.tealAccent, fontWeight: FontWeight.w300),
-    RegExp(r'\b(Exception|Error|Failure|Failed|Unhandled)\b'): const TextStyle(
-      color: Colors.redAccent,
-      fontWeight: FontWeight.bold,
-    ),
-    RegExp(r'\bnull\b'): const TextStyle(color: Colors.deepOrangeAccent),
-    RegExp(r'\bawait|async|Future\b'): const TextStyle(
-      color: Colors.cyanAccent,
-    ),
-    RegExp(r'\bmissing|not found\b'): const TextStyle(
-      color: Colors.orangeAccent,
-    ),
-  };
-
-  final spans = <TextSpan>[];
-
-  while (text.isNotEmpty) {
-    RegExpMatch? earliestMatch;
-    RegExp? matchedPattern;
-
-    for (final entry in patterns.entries) {
-      final match = entry.key.firstMatch(text);
-      if (match != null &&
-          (earliestMatch == null || match.start < earliestMatch.start)) {
-        earliestMatch = match;
-        matchedPattern = entry.key;
-      }
-    }
-
-    if (earliestMatch == null) {
-      spans.add(
-        TextSpan(
-          text: text,
-          style: const TextStyle(color: Colors.white70),
-        ),
-      );
-      break;
-    }
-
-    if (earliestMatch.start > 0) {
-      spans.add(
-        TextSpan(
-          text: text.substring(0, earliestMatch.start),
-          style: const TextStyle(color: Colors.white70),
-        ),
-      );
-    }
-
-    spans.add(
-      TextSpan(
-        text: earliestMatch.group(0),
-        style:
-            patterns[matchedPattern] ?? const TextStyle(color: Colors.white70),
-      ),
-    );
-
-    text = text.substring(earliestMatch.end);
-  }
-
-  return spans;
 }

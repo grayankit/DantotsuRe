@@ -6,8 +6,10 @@ import '../../Widgets/Components/AppTabs.dart';
 import '../../Widgets/Components/BaseScreen.dart';
 import 'Components/ActivityComposer.dart';
 import 'Components/ActivityList.dart';
-import 'SocialNavigation.dart';
+import '../../Widgets/Components/ScreenState.dart';
+import 'ActivityFeedState.dart';
 import '../../Api/Discord/DiscordPresence.dart';
+import '../../Core/ThemeManager/LanguageSwitcher.dart';
 
 class ActivityFeedScreen extends StatefulWidget {
   final MediaService service;
@@ -20,30 +22,23 @@ class ActivityFeedScreen extends StatefulWidget {
 }
 
 class _ActivityFeedScreenState extends BaseScreen<ActivityFeedScreen>
-    with SingleTickerProviderStateMixin {
-  late final bool _global = widget.service.socialView!.hasGlobalFeed;
-  late final TabController _tabs = TabController(
-    length: _global ? 2 : 1,
-    vsync: this,
-  );
+    with
+        SingleTickerProviderStateMixin,
+        ScreenStateHost<ActivityFeedScreen, ActivityFeedState> {
+  @override
+  ActivityFeedState buildState() =>
+      ActivityFeedState(widget.service, widget.activityId);
 
   @override
-  void dispose() {
-    _tabs.dispose();
-    super.dispose();
-  }
-
-  @override
-  DiscordPresence? get presence =>
-      DiscordPresence.browsing('Reading the activity feed');
+  DiscordPresence? get presence => state.presence;
 
   @override
   Widget buildContent(BuildContext context) {
     final service = widget.service;
-    if (widget.activityId != null) {
+    if (state.single) {
       return Scaffold(
         backgroundColor: Colors.transparent,
-        appBar: const AppScreenBar(title: 'Activity'),
+        appBar: AppScreenBar(title: getString.activity),
         body: ActivityList(
           service: service,
           scope: ActivityScope.single,
@@ -54,24 +49,27 @@ class _ActivityFeedScreenState extends BaseScreen<ActivityFeedScreen>
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppScreenBar(
-        title: 'Activity',
+        title: getString.activity,
         actions: [
-          if (service.socialView!.currentUserId != null)
+          if (state.canMessage)
             IconButton(
-              tooltip: 'Messages',
+              tooltip: getString.messages,
               icon: const Icon(Icons.mail_outline_rounded),
-              onPressed: () => openInbox(context, service),
+              onPressed: state.openMessages,
             ),
         ],
-        bottom: _global
+        bottom: state.hasGlobal
             ? AppTabs(
-                controller: _tabs,
-                items: const [AppTabItem('Following'), AppTabItem('Global')],
+                controller: state.tabs,
+                items: [
+                  AppTabItem(getString.following),
+                  AppTabItem(getString.global),
+                ],
               )
             : null,
       ),
       body: TabBarView(
-        controller: _tabs,
+        controller: state.tabs,
         children: [
           ActivityList(
             service: service,
@@ -79,7 +77,7 @@ class _ActivityFeedScreenState extends BaseScreen<ActivityFeedScreen>
             composer: ComposerKind.activity,
             filterable: true,
           ),
-          if (_global)
+          if (state.hasGlobal)
             ActivityList(service: service, scope: ActivityScope.global),
         ],
       ),

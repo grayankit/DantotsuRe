@@ -12,6 +12,9 @@ import '../../../Widgets/Components/CustomBottomDialog.dart';
 import '../../../Widgets/Components/ScrollConfig.dart';
 import '../../../Utils/Functions/NavigateToScreen.dart';
 import '../../../Core/State/State.dart';
+import '../../../Core/ThemeManager/LanguageSwitcher.dart';
+import '../../../Widgets/Components/ScreenState.dart';
+import 'SearchFilterState.dart';
 
 /// Edits [current] against [spec] in a bottom sheet; [onApply] gets the new
 /// query (page reset to 1). Every control is driven by the service's spec.
@@ -24,7 +27,7 @@ void showSearchFilterSheet(
   showCustomBottomDialog(
     context,
     CustomBottomDialog(
-      title: 'Filters',
+      title: getString.filters,
       viewList: [_FilterBody(spec: spec, start: current, onApply: onApply)],
     ),
   );
@@ -45,67 +48,22 @@ class _FilterBody extends StatefulWidget {
   State<_FilterBody> createState() => _FilterBodyState();
 }
 
-class _FilterBodyState extends State<_FilterBody> {
-  late final _sort = Live<String?>(widget.start.sort);
-  late final _format = Live<String?>(widget.start.format);
-  late final _status = Live<String?>(widget.start.status);
-  late final _source = Live<String?>(widget.start.source);
-  late final _country = Live<String?>(widget.start.countryOfOrigin);
-  late final _season = Live<String?>(widget.start.season);
-  late final _year = Live<int?>(
-    widget.start.seasonYear ?? widget.start.startYear,
+class _FilterBodyState extends State<_FilterBody>
+    with ScreenStateHost<_FilterBody, SearchFilterState> {
+  @override
+  SearchFilterState buildState() => SearchFilterState(
+    spec: widget.spec,
+    start: widget.start,
+    onApply: widget.onApply,
   );
-  late final Set<String> _genres = {...?widget.start.genres};
-  late final Set<String> _noGenres = {...?widget.start.excludedGenres};
-  late final Set<String> _tags = {...?widget.start.tags};
-  late final Set<String> _noTags = {...?widget.start.excludedTags};
-  final _allTags = false.live;
 
-  final _selection = Trigger();
-
-  SearchFilterSpec get s => widget.spec;
-
-  void _apply() {
-    final q = widget.start
-      ..sort = _sort.value
-      ..format = _format.value
-      ..status = _status.value
-      ..source = _source.value
-      ..countryOfOrigin = _country.value?.isEmpty == true
-          ? null
-          : _country.value
-      ..season = _season.value
-      ..seasonYear = s.season ? _year.value : null
-      ..startYear = s.season ? null : _year.value
-      ..genres = _genres.isEmpty ? null : _genres.toList()
-      ..tags = _tags.isEmpty ? null : _tags.toList()
-      ..excludedGenres = _noGenres.isEmpty ? null : _noGenres.toList()
-      ..excludedTags = _noTags.isEmpty ? null : _noTags.toList()
-      ..page = 1;
-    widget.onApply(q);
-    popPage(context);
-  }
-
-  void _clear() {
-    _sort.value = null;
-    _format.value = null;
-    _status.value = null;
-    _source.value = null;
-    _country.value = null;
-    _season.value = null;
-    _year.value = null;
-    _genres.clear();
-    _noGenres.clear();
-    _tags.clear();
-    _noTags.clear();
-    _selection.fire();
-  }
+  SearchFilterSpec get s => state.spec;
 
   @override
   Widget build(BuildContext context) => Watch(() => _build(context));
 
   Widget _build(BuildContext context) {
-    _selection.track();
+    state.selection.track();
     final years = [for (var y = DateTime.now().year + 1; y >= 1970; y--) '$y'];
     return ConstrainedBox(
       constraints: BoxConstraints(
@@ -129,16 +87,16 @@ class _FilterBodyState extends State<_FilterBody> {
                         'Source',
                         Icons.menu_book_rounded,
                         s.sources,
-                        _source.value,
-                        (v) => _source.value = v,
+                        state.source.value,
+                        (v) => state.source.value = v,
                       ),
                     if (s.formats.isNotEmpty)
                       _drop(
                         'Format',
                         Icons.movie_filter_rounded,
                         s.formats,
-                        _format.value,
-                        (v) => _format.value = v,
+                        state.format.value,
+                        (v) => state.format.value = v,
                       ),
                   ]),
                   _dropRow([
@@ -147,44 +105,48 @@ class _FilterBodyState extends State<_FilterBody> {
                         'Status',
                         Icons.podcasts_rounded,
                         s.statuses,
-                        _status.value,
-                        (v) => _status.value = v,
+                        state.status.value,
+                        (v) => state.status.value = v,
                       ),
                     if (s.season)
                       _drop(
                         'Season',
                         Icons.wb_sunny_rounded,
                         const ['WINTER', 'SPRING', 'SUMMER', 'FALL'],
-                        _season.value,
-                        (v) => _season.value = v,
+                        state.season.value,
+                        (v) => state.season.value = v,
                       ),
                     if (s.year)
                       _drop(
                         'Year',
                         Icons.calendar_month_rounded,
                         years,
-                        _year.value?.toString(),
-                        (v) => _year.value = v == null ? null : int.parse(v),
+                        state.year.value?.toString(),
+                        (v) =>
+                            state.year.value = v == null ? null : int.parse(v),
                       ),
                   ]),
                   if (s.genres.isNotEmpty) ...[
                     _title('Genres'),
-                    _chipWrap(s.genres, _genres, exclude: _noGenres),
+                    _chipWrap(s.genres, state.genres, exclude: state.noGenres),
                   ],
                   if (s.tags.isNotEmpty) ...[
                     _title('Tags'),
                     _chipWrap(
-                      _allTags.value ? s.tags : s.tags.take(30).toList(),
-                      _tags,
-                      exclude: _noTags,
+                      state.allTags.value ? s.tags : s.tags.take(30).toList(),
+                      state.tags,
+                      exclude: state.noTags,
                     ),
                     if (s.tags.length > 30)
                       Align(
                         alignment: Alignment.centerLeft,
                         child: TextButton(
-                          onPressed: () => _allTags.value = !_allTags.value,
+                          onPressed: () =>
+                              state.allTags.value = !state.allTags.value,
                           child: Text(
-                            _allTags.value ? 'Show less' : 'Show all',
+                            state.allTags.value
+                                ? getString.showLess
+                                : getString.showAll,
                           ),
                         ),
                       ),
@@ -206,14 +168,14 @@ class _FilterBodyState extends State<_FilterBody> {
                 Expanded(
                   child: OutlinedButton(
                     onPressed: () => popPage(context),
-                    child: const Text('Cancel'),
+                    child: Text(getString.cancel),
                   ),
                 ),
                 SizedBox(width: Dimens.gap),
                 Expanded(
                   child: FilledButton(
-                    onPressed: _apply,
-                    child: const Text('Apply'),
+                    onPressed: state.apply,
+                    child: Text(getString.apply),
                   ),
                 ),
               ],
@@ -230,8 +192,8 @@ class _FilterBodyState extends State<_FilterBody> {
       child: Row(
         children: [
           IconButton(
-            tooltip: 'Reset',
-            onPressed: _clear,
+            tooltip: getString.reset,
+            onPressed: state.clear,
             icon: const Icon(Icons.close_rounded, size: 28),
           ),
           Expanded(
@@ -245,15 +207,15 @@ class _FilterBodyState extends State<_FilterBody> {
           ),
           if (s.countries.isNotEmpty)
             PopupMenuButton<String>(
-              tooltip: 'Country',
+              tooltip: getString.country,
               icon: Icon(
                 Icons.public_rounded,
                 size: 28,
-                color: (_country.value?.isNotEmpty ?? false)
+                color: (state.country.value?.isNotEmpty ?? false)
                     ? context.colorScheme.primary
                     : null,
               ),
-              onSelected: (v) => _country.value = v.isEmpty ? null : v,
+              onSelected: (v) => state.country.value = v.isEmpty ? null : v,
               itemBuilder: (_) => [
                 for (final e in s.countries.entries)
                   PopupMenuItem(value: e.key, child: Text(e.value)),
@@ -261,15 +223,17 @@ class _FilterBodyState extends State<_FilterBody> {
             ),
           if (s.sorts.isNotEmpty)
             PopupMenuButton<String>(
-              tooltip: 'Sort',
+              tooltip: getString.sort,
               icon: Icon(
                 Icons.filter_list_rounded,
                 size: 28,
-                color: _sort.value != null ? context.colorScheme.primary : null,
+                color: state.sort.value != null
+                    ? context.colorScheme.primary
+                    : null,
               ),
-              onSelected: (v) => _sort.value = v.isEmpty ? null : v,
+              onSelected: (v) => state.sort.value = v.isEmpty ? null : v,
               itemBuilder: (_) => [
-                const PopupMenuItem(value: '', child: Text('Default')),
+                PopupMenuItem(value: '', child: Text(getString.settingDefault)),
                 for (final e in s.sorts.entries)
                   PopupMenuItem(value: e.key, child: Text(e.value)),
               ],
@@ -357,7 +321,7 @@ class _FilterBodyState extends State<_FilterBody> {
                   } else {
                     selected.add(o);
                   }
-                  _selection.fire();
+                  state.selection.fire();
                 },
               );
             },

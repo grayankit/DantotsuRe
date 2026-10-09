@@ -2,7 +2,6 @@ import 'package:dartotsu_extension_bridge/dartotsu_extension_bridge.dart';
 import 'package:flutter/material.dart';
 import '../../Core/ThemeManager/ThemeController.dart';
 
-import '../../Core/Preferences/PrefManager.dart';
 import '../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../Core/ThemeManager/language.dart';
 import '../../Utils/Animation/WidgetAnimations.dart';
@@ -11,10 +10,11 @@ import '../../Utils/Extensions/Responsive.dart';
 import '../../Utils/Functions/AppShortcuts.dart';
 import '../../Utils/Functions/NavigateToScreen.dart';
 import 'SourcePreferenceScreen.dart';
-import '../../Utils/Functions/SnackBar.dart';
 import '../../Utils/Nav/DpadNav.dart';
 import '../../Widgets/Components/CachedNetworkImage.dart';
 import '../../Core/State/State.dart';
+import '../../Widgets/Components/ScreenState.dart';
+import 'ExtensionListState.dart';
 
 class ExtensionList extends StatefulWidget {
   final ItemType itemType;
@@ -36,72 +36,27 @@ class ExtensionList extends StatefulWidget {
   State<ExtensionList> createState() => _ExtensionListState();
 }
 
-class _ExtensionListState extends State<ExtensionList> {
-  final ScrollController controller = ScrollController();
-
-  final ExtensionManager manager = find();
-
-  Extension get extension => manager[widget.itemType];
-
-  Set<String> get selectedLanguages => state.selectedLanguages;
-
-  ExtensionState get state => extension.state(widget.itemType);
-
-  String get _search => widget.searchQuery.trim().toLowerCase();
-
-  Pref<List<String>> get _orderPref =>
-      PrefName.extensionOrder(extension.name, widget.itemType.name);
-
-  final bool _showIcons = PrefName.loadExtensionIcon.value;
-
-  final _secondRowKey = GlobalKey<DpadRegionState>();
-
+class _ExtensionListState extends State<ExtensionList>
+    with ScreenStateHost<ExtensionList, ExtensionListState> {
   @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
-  }
+  ExtensionListState buildState() => ExtensionListState(
+    itemType: widget.itemType,
+    isInstalled: widget.isInstalled,
+    onFirstRowUp: widget.onFirstRowUp,
+    firstRowKey: widget.firstRowKey,
+  );
 
-  Future<void> _refreshData() async {
-    if (widget.isInstalled) {
-      await extension.initializeInstalled(widget.itemType);
-
-      switch (widget.itemType) {
-        case ItemType.anime:
-          await extension.fetchInstalledAnimeExtensions();
-          break;
-        case ItemType.manga:
-          await extension.fetchInstalledMangaExtensions();
-          break;
-        case ItemType.novel:
-          await extension.fetchInstalledNovelExtensions();
-          break;
-      }
-    } else {
-      await extension.initializeAvailable(widget.itemType);
-
-      switch (widget.itemType) {
-        case ItemType.anime:
-          await extension.fetchAnimeExtensions();
-          break;
-        case ItemType.manga:
-          await extension.fetchMangaExtensions();
-          break;
-        case ItemType.novel:
-          await extension.fetchNovelExtensions();
-          break;
-      }
-    }
-  }
+  ExtensionManager get manager => state.manager;
 
   @override
   Widget build(BuildContext context) {
+    state.searchQuery = widget.searchQuery;
     final theme = Theme.of(context).colorScheme;
     return Watch(
       () => RefreshIndicator(
         backgroundColor: theme.primary,
         color: theme.onPrimary,
-        onRefresh: _refreshData,
+        onRefresh: state.refreshData,
         child: widget.isInstalled
             ? _buildInstalledList()
             : _buildAvailableList(),
@@ -110,22 +65,15 @@ class _ExtensionListState extends State<ExtensionList> {
   }
 
   Widget _buildInstalledList() {
-    final installed = _filteredInstalled();
+    final installed = state.filteredInstalled();
 
     return ReorderableListView.builder(
-      scrollController: controller,
+      scrollController: state.controller,
       padding: const EdgeInsets.all(8),
       itemCount: installed.length,
       buildDefaultDragHandles: false,
-      onReorder: (oldIndex, newIndex) {
-        if (newIndex > oldIndex) newIndex--;
-
-        final item = installed.removeAt(oldIndex);
-        installed.insert(newIndex, item);
-
-        state.installed.value = List<Source>.from(installed);
-        _saveOrder(installed);
-      },
+      onReorder: (oldIndex, newIndex) =>
+          state.reorder(installed, oldIndex, newIndex),
       itemBuilder: (context, index) {
         final source = installed[index];
 
@@ -145,7 +93,7 @@ class _ExtensionListState extends State<ExtensionList> {
   }
 
   Widget _buildAvailableList() {
-    final items = _filteredAvailable();
+    final items = state.filteredAvailable();
     final sourceIndices = [
       for (var i = 0; i < items.length; i++)
         if (!items[i].isHeader) i,
@@ -154,7 +102,7 @@ class _ExtensionListState extends State<ExtensionList> {
     final secondSourceIndex = sourceIndices.length > 1 ? sourceIndices[1] : -1;
 
     return CustomScrollView(
-      controller: controller,
+      controller: state.controller,
       slivers: [
         SliverPadding(
           padding: const EdgeInsets.all(8),
@@ -209,11 +157,13 @@ class _ExtensionListState extends State<ExtensionList> {
     return _SourceCardShell(
       isFirst: isFirst,
       isLast: isLast,
-      onEdgeUp: isVeryFirst ? widget.onFirstRowUp : null,
-      onEdgeDown: isVeryFirst ? () => DpadLane.focusFirst(_secondRowKey) : null,
+      onEdgeUp: isVeryFirst ? state.onFirstRowUp : null,
+      onEdgeDown: isVeryFirst
+          ? () => DpadLane.focusFirst(state.secondRowKey)
+          : null,
       regionKey: isVeryFirst
-          ? widget.firstRowKey
-          : (isVerySecond ? _secondRowKey : null),
+          ? state.firstRowKey
+          : (isVerySecond ? state.secondRowKey : null),
       child: Column(
         children: [
           if (!isFirst)
@@ -254,95 +204,10 @@ class _ExtensionListState extends State<ExtensionList> {
     );
   }
 
-  List<Source> _filteredInstalled() {
-    final installed = _applySavedOrder(_dedupeById(state.installed.value));
-
-    return installed.where((source) {
-      final matchesSearch =
-          source.name?.toLowerCase().contains(_search) ?? false;
-
-      final matchesLanguage =
-          selectedLanguages.isEmpty || selectedLanguages.contains(source.lang);
-
-      return matchesSearch && matchesLanguage;
-    }).toList();
-  }
-
-  List<_ListItem> _filteredAvailable() {
-    final grouped = <String, List<Source>>{};
-
-    for (final source in state.available.value) {
-      final lang = source.lang?.toLowerCase() ?? 'Unknown';
-
-      if (selectedLanguages.isNotEmpty && !selectedLanguages.contains(lang)) {
-        continue;
-      }
-
-      if (_search.isNotEmpty &&
-          !(source.name?.toLowerCase().contains(_search) ?? false)) {
-        continue;
-      }
-
-      grouped.putIfAbsent(lang, () => []).add(source);
-    }
-
-    final entries = grouped.entries.toList()
-      ..sort((a, b) {
-        const priority = {'all': 0, 'en': 1};
-
-        final pa = priority[a.key] ?? 999;
-        final pb = priority[b.key] ?? 999;
-
-        if (pa != pb) {
-          return pa.compareTo(pb);
-        }
-
-        return a.key.compareTo(b.key);
-      });
-
-    return [
-      for (final entry in entries) ...[
-        _ListItem.header(entry.key),
-        ...entry.value.map(_ListItem.source),
-      ],
-    ];
-  }
-
-  // Backend bugs can surface two installed Sources sharing an id (e.g. a
-  // stale leftover file from an update that failed to clean up). Each item
-  // is keyed by ValueKey(source.id) in the ReorderableListView below, so a
-  // duplicate id crashes with "Multiple widgets used the same GlobalKey"
-  // instead of just showing a stale entry - dedupe defensively here.
-  List<Source> _dedupeById(List<Source> list) {
-    final seen = <String?>{};
-    return list.where((s) => seen.add(s.id)).toList();
-  }
-
-  void _saveOrder(List<Source> list) {
-    _orderPref.value = list.map((e) => e.id).whereType<String>().toList();
-  }
-
-  List<Source> _applySavedOrder(List<Source> list) {
-    final saved = _orderPref.value;
-    if (saved.isEmpty) return list;
-
-    final order = <String, int>{
-      for (var i = 0; i < saved.length; i++) saved[i]: i,
-    };
-
-    list.sort((a, b) {
-      final ai = order[a.id] ?? 1 << 30;
-      final bi = order[b.id] ?? 1 << 30;
-      return ai.compareTo(bi);
-    });
-
-    return list;
-  }
-
   Widget _buildIcon(Source source) {
     final iconUrl = source.iconUrl;
 
-    if (iconUrl == null || iconUrl.isEmpty || !_showIcons) {
+    if (iconUrl == null || iconUrl.isEmpty || !state.showIcons) {
       return const ColoredBox(
         color: Colors.transparent,
         child: Icon(Icons.extension_rounded),
@@ -445,23 +310,11 @@ class _ExtensionListState extends State<ExtensionList> {
     ).animatePopIn();
   }
 
-  /// installSource/updateSource return a broadcast `Stream<double>` that
-  /// starts eagerly on its own regardless of whether anything listens (see
-  /// progressStream() in the bridge). An unlistened stream's addError is a
-  /// silent no-op though, so a plain `repo.installSource(source)` fire-and-
-  /// forget - as before this screen tracked progress - would swallow
-  /// install/update failures entirely. Drain it here so errors surface.
-  void _runProgressOp(Stream<double> Function() op, String failureLabel) {
-    op().drain<void>().catchError((e) {
-      snackString('$failureLabel: $e');
-    });
-  }
-
   Widget _buildTrailing(Source source, int index) {
     final repo = manager[source.itemType!];
     final installProgress = source.id == null
         ? null
-        : state.installProgress[source.id];
+        : state.bridgeState.installProgress[source.id];
     final isInstalling = installProgress != null;
 
     if (!widget.isInstalled) {
@@ -473,7 +326,7 @@ class _ExtensionListState extends State<ExtensionList> {
                 key: const ValueKey('install'),
                 icon: const Icon(Icons.download_rounded),
                 tooltip: getString.install,
-                onPressed: () => _runProgressOp(
+                onPressed: () => state.runProgressOp(
                   () => repo.installSource(source),
                   getString.installFailed,
                 ),
@@ -493,7 +346,7 @@ class _ExtensionListState extends State<ExtensionList> {
                     key: const ValueKey('update'),
                     icon: const Icon(Icons.update_rounded),
                     tooltip: getString.update,
-                    onPressed: () => _runProgressOp(
+                    onPressed: () => state.runProgressOp(
                       () => repo.updateSource(source),
                       getString.updateFailed,
                     ),
@@ -523,20 +376,6 @@ class _ExtensionListState extends State<ExtensionList> {
       ],
     );
   }
-}
-
-class _ListItem {
-  final bool isHeader;
-  final String? language;
-  final Source? source;
-
-  const _ListItem._({required this.isHeader, this.language, this.source});
-
-  const _ListItem.header(String language)
-    : this._(isHeader: true, language: language);
-
-  const _ListItem.source(Source source)
-    : this._(isHeader: false, source: source);
 }
 
 class _SourceCardShell extends StatefulWidget {

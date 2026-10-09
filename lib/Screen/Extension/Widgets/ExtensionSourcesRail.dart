@@ -11,6 +11,7 @@ import '../../../Widgets/Components/ScrollConfig.dart';
 import '../../../Widgets/Shelf/ShelfFrame.dart';
 import '../SourceBrowseScreen.dart';
 import '../../../Core/State/State.dart';
+import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 
 class ExtensionSourcesRail extends StatefulWidget {
   const ExtensionSourcesRail({super.key});
@@ -32,8 +33,8 @@ class _ExtensionSourcesRailState extends State<ExtensionSourcesRail> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        _rail(context, ItemType.anime, 'Anime Extensions'),
-        _rail(context, ItemType.manga, 'Manga Extensions'),
+        _rail(context, ItemType.anime, getString.animeExtensions),
+        _rail(context, ItemType.manga, getString.mangaExtensions),
       ],
     );
   }

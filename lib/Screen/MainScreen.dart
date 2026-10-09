@@ -8,6 +8,9 @@ import 'Feed/FeedTabs.dart';
 import 'Navbar.dart';
 import '../Api/Discord/DiscordPresence.dart';
 import '../Core/State/State.dart';
+import '../Utils/Nav/DpadLayers.dart';
+import '../Widgets/Components/ScreenState.dart';
+import 'MainState.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -16,58 +19,27 @@ class MainScreen extends StatefulWidget {
   MainScreenState createState() => MainScreenState();
 }
 
-class MainScreenState extends BaseScreen<MainScreen> {
-  MediaServiceController get _services => find();
+class MainScreenState extends BaseScreen<MainScreen>
+    with ScreenStateHost<MainScreen, MainState> {
+  @override
+  MainState buildState() => MainState(onPresenceChanged: refreshPresence);
 
-  late final _tab = homeTabIndex(_services.currentService.value).live;
-  final _built = <int>{};
-  Disposer? _serviceSub;
-  Disposer? _tabSub;
+  MediaServiceController get _services => state.services;
 
   @override
-  DiscordPresence? get presence {
-    final tabs = feedTabsFor(_services.currentService.value);
-    final label = tabs[_tab.value.clamp(0, tabs.length - 1)].label;
-    return DiscordPresence.browsing(
-      label.toLowerCase() == 'home'
-          ? 'On the home screen'
-          : 'Browsing ${label.toLowerCase()}',
-    );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _built.add(_tab.value);
-    _tabSub = onChange(_tab, (_) => refreshPresence());
-    _serviceSub = onChange(_services.currentService, (_) {
-      _built
-        ..clear()
-        ..add(homeTabIndex(_services.currentService.value));
-      _tab.value = homeTabIndex(_services.currentService.value);
-    });
-  }
-
-  @override
-  void dispose() {
-    _serviceSub?.dispose();
-    _tabSub?.dispose();
-    super.dispose();
-  }
+  DiscordPresence? get presence => state.presence;
 
   Widget get _navbar => Watch(() {
     final service = _services.currentService.value;
     final tabs = feedTabsFor(service);
     return FloatingBottomNavBar(
-      selectedIndex: _tab.value.clamp(0, tabs.length - 1),
+      laneKey: shellLaneKey,
+      selectedIndex: state.tab.value.clamp(0, tabs.length - 1),
       items: [
         for (final (i, t) in tabs.indexed)
           NavItem(index: i, icon: t.icon, label: t.label.toUpperCase()),
       ],
-      onTabSelected: (i) {
-        _built.add(i);
-        _tab.value = i;
-      },
+      onTabSelected: state.select,
     );
   });
 
@@ -76,12 +48,12 @@ class MainScreenState extends BaseScreen<MainScreen> {
     final body = Watch(() {
       final service = _services.currentService.value;
       final tabs = feedTabsFor(service);
-      final index = _tab.value.clamp(0, tabs.length - 1);
+      final index = state.tab.value.clamp(0, tabs.length - 1);
       return IndexedStack(
         index: index,
         children: [
           for (final (i, t) in tabs.indexed)
-            _built.contains(i)
+            state.built.contains(i)
                 ? KeyedSubtree(
                     key: ValueKey('${service.id}-$i-${t.type?.name}'),
                     child: Watch(() {

@@ -19,8 +19,6 @@ import '../../Utils/Extensions/CardStyleMetrics.dart';
 import '../../Utils/Extensions/ContextExtensions.dart';
 import '../../Utils/Extensions/Responsive.dart';
 import '../../Utils/Extensions/StringExtensions.dart';
-import '../../Utils/Function.dart';
-import '../../Utils/Functions/NavigateToScreen.dart';
 import '../../Utils/Nav/DpadNav.dart';
 import '../../Widgets/Components/AppBars.dart';
 import '../../Widgets/Components/BaseScreen.dart';
@@ -28,19 +26,15 @@ import '../../Widgets/Components/CachedNetworkImage.dart';
 import '../../Widgets/Components/ScrollConfig.dart';
 import '../../Widgets/Shelf/MediaRows.dart';
 import '../../Widgets/Shelf/PosterCard.dart';
-import '../Detail/DetailScreen.dart';
-import '../Feed/FeedNavigation.dart';
 import '../Social/Components/UserCard.dart';
-import '../Social/SocialNavigation.dart';
-import 'Components/SearchFilterSheet.dart';
 import '../../Widgets/Components/EmptyState.dart';
 import '../Detail/ListEditorSheet.dart';
 import '../../Api/Discord/DiscordPresence.dart';
 import '../../Core/State/State.dart';
-
-enum _ResultView { grid, list, banner }
-
-const _viewPref = Pref('searchResultView', 'grid', PrefLocation.OTHER);
+import '../../Core/ThemeManager/LanguageSwitcher.dart';
+import '../../Utils/Nav/DpadLayers.dart';
+import '../../Widgets/Components/ScreenState.dart';
+import 'SearchState.dart';
 
 class SearchScreen extends StatefulWidget {
   final MediaType type;
@@ -58,226 +52,14 @@ class SearchScreen extends StatefulWidget {
   State<SearchScreen> createState() => _SearchScreenState();
 }
 
-class _SearchScreenState extends BaseScreen<SearchScreen> {
-  final _controller = TextEditingController();
-  final _scroll = ScrollController();
-  final _items = <Object>[].liveList;
-  final _loading = false.live;
-  final _showTop = false.live;
-  final _historyTick = 0.live;
-  late final _type = widget.type.searchType.live;
-  late final _mode = _ResultView.values
-      .firstWhere(
-        (v) => v.name == _viewPref.rx.value,
-        orElse: () => _ResultView.grid,
-      )
-      .live;
-
-  late final _query = SearchResults(
-    type: widget.type.searchType,
-    perPage: 30,
-  ).live;
-
-  Timer? _debounce;
-  bool _hasMore = true;
-
-  bool get _isMedia => switch (_type.value) {
-    SearchType.CHARACTER ||
-    SearchType.STAFF ||
-    SearchType.STUDIO ||
-    SearchType.USER => false,
-    _ => true,
-  };
-
-  MediaType get _mediaType =>
-      _type.value == SearchType.ANIME ? MediaType.anime : MediaType.manga;
-
-  SearchFilterSpec get _spec =>
-      _isMedia ? widget.view.filters(_mediaType) : SearchFilterSpec.none;
-
-  bool get _hasCriteria =>
-      (_query.value.search?.isNotEmpty ?? false) ||
-      (_isMedia && _query.value.toChipList().isNotEmpty);
-
+class _SearchScreenState extends BaseScreen<SearchScreen>
+    with ScreenStateHost<SearchScreen, SearchState> {
   @override
-  void initState() {
-    super.initState();
-    unawaited(widget.view.prepare());
-    if (widget.query != null && widget.query!.isNotEmpty) {
-      _controller.text = widget.query!;
-      _query.value.search = widget.query;
-      _restart();
-    }
-  }
-
-  @override
-  void dispose() {
-    _debounce?.cancel();
-    _scroll.dispose();
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _onTermChanged(String value) {
-    _debounce?.cancel();
-    _debounce = Timer(const Duration(milliseconds: 400), () {
-      _query.value.search = value.trim();
-      _restart();
-    });
-  }
-
-  void _restart() {
-    _query.value.page = 1;
-    _hasMore = true;
-    _items.clear();
-    _query.refresh();
-    if (_hasCriteria) unawaited(_search());
-  }
-
-  List<Object> _pick(SearchResults res) => switch (_type.value) {
-    SearchType.CHARACTER => [...?res.characters],
-    SearchType.STAFF => [...?res.staff],
-    SearchType.STUDIO => [...?res.studios],
-    SearchType.USER => [...?res.users],
-    _ => [...?res.results],
-  };
-
-  Future<void> _search() async {
-    if (_loading.value || !_hasMore || !_hasCriteria) return;
-    _loading.value = true;
-    try {
-      final res = await widget.view.search(_query.value);
-      _query.value.page = (_query.value.page ?? 1) + 1;
-      _hasMore = res?.hasNextPage ?? false;
-      if (res != null) _items.addAll(_pick(res));
-    } catch (_) {
-      _hasMore = false;
-    } finally {
-      _loading.value = false;
-    }
-  }
-
-  void _setType(SearchType t) {
-    if (t == _type.value) return;
-    _type.value = t;
-    _query.value
-      ..type = t
-      ..genres = null
-      ..excludedGenres = null
-      ..tags = null
-      ..excludedTags = null;
-    _restart();
-  }
-
-  void _openFilters() => showSearchFilterSheet(
-    context,
-    spec: _spec,
-    current: _query.value,
-    onApply: (_) => _restart(),
+  SearchState buildState() => SearchState(
+    initialType: widget.type,
+    view: widget.view,
+    initialQuery: widget.query,
   );
-
-  void _removeChip(SearchChip chip) {
-    _query.value.removeChip(chip);
-    _restart();
-  }
-
-  String get _historyKey =>
-      'search_history/${find<MediaServiceController>().currentService.value.id}/${_type.value.name}';
-
-  List<String> get _history =>
-      loadCustomData<List<String>>(_historyKey, location: PrefLocation.CACHE) ??
-      const <String>[];
-
-  void _remember(String term) {
-    final t = term.trim();
-    if (t.length < 2) return;
-    final next = [
-      t,
-      ..._history.where((e) => e.toLowerCase() != t.toLowerCase()),
-    ];
-    saveCustomData<List<String>>(
-      _historyKey,
-      next.take(20).toList(),
-      location: PrefLocation.CACHE,
-    );
-    _historyTick.value++;
-  }
-
-  void _forget(String term) {
-    saveCustomData<List<String>>(
-      _historyKey,
-      _history.where((e) => e != term).toList(),
-      location: PrefLocation.CACHE,
-    );
-    _historyTick.value++;
-  }
-
-  void _useTerm(String term) {
-    _controller.text = term;
-    _controller.selection = TextSelection.collapsed(offset: term.length);
-    _debounce?.cancel();
-    _query.value.search = term;
-    _restart();
-  }
-
-  void _open(Object item, String tag) {
-    _remember(_controller.text);
-    if (item is Media) {
-      final service = find<MediaServiceController>().currentService.value;
-      navigateToPage(
-        context,
-        DetailScreen(
-          media: item,
-          view: service.detailView,
-          mutations: service.getMutations,
-          heroTag: tag,
-        ),
-        hero: true,
-      );
-      return;
-    }
-    final service = find<MediaServiceController>().currentService.value;
-    if (service.entityView != null && item is Studio) {
-      openEntity(context, service, EntityKind.studio, item.id, name: item.name);
-      return;
-    }
-    if (service.entityView != null && (item is Character || item is Author)) {
-      final character = item is Character ? item : null;
-      final staff = item is Author ? item : null;
-      openEntity(
-        context,
-        service,
-        character != null ? EntityKind.character : EntityKind.staff,
-        (character?.id ?? staff!.id),
-        name: character?.name ?? staff?.name,
-        image: character?.image ?? staff?.image,
-      );
-      return;
-    }
-    if (service.socialView != null && item is User) {
-      openProfile(
-        context,
-        service,
-        id: '${item.id}',
-        user: UserBrief(id: '${item.id}', name: item.name, avatar: item.pfp),
-      );
-      return;
-    }
-    final url = widget.view.entityUrl(_type.value, item);
-    if (url != null) unawaited(openLinkInBrowser(url));
-  }
-
-  static String _label(SearchType t) => switch (t) {
-    SearchType.ANIME => 'Anime',
-    SearchType.MANGA => 'Manga',
-    SearchType.NOVEL => 'Novel',
-    SearchType.MOVIES => 'Movies',
-    SearchType.SERIES => 'Series',
-    SearchType.CHARACTER => 'Characters',
-    SearchType.STAFF => 'Staff',
-    SearchType.STUDIO => 'Studios',
-    SearchType.USER => 'Users',
-  };
 
   // --- header -------------------------------------------------------------
 
@@ -295,9 +77,9 @@ class _SearchScreenState extends BaseScreen<SearchScreen> {
           const AppBackButton(),
           Expanded(
             child: Watch(() {
-              final hint = _label(_type.value);
+              final hint = SearchState.label(state.type.value);
               return TextField(
-                controller: _controller,
+                controller: state.controller,
                 autofocus: true,
                 textInputAction: TextInputAction.search,
                 style: context.textTheme.bodyLarge?.copyWith(
@@ -334,10 +116,10 @@ class _SearchScreenState extends BaseScreen<SearchScreen> {
                     borderSide: BorderSide(color: scheme.primary, width: 2),
                   ),
                 ),
-                onChanged: _onTermChanged,
+                onChanged: state.onTermChanged,
                 onSubmitted: (v) {
-                  _remember(v);
-                  _useTerm(v.trim());
+                  state.remember(v);
+                  state.useTerm(v.trim());
                 },
               );
             }),
@@ -355,7 +137,7 @@ class _SearchScreenState extends BaseScreen<SearchScreen> {
       child: ScrollConfig(
         context,
         child: Watch(() {
-          final selected = _type.value;
+          final selected = state.type.value;
           return ListView.separated(
             scrollDirection: Axis.horizontal,
             padding: EdgeInsets.symmetric(horizontal: Dimens.gap, vertical: 6),
@@ -363,10 +145,10 @@ class _SearchScreenState extends BaseScreen<SearchScreen> {
             separatorBuilder: (_, _) => const SizedBox(width: 8),
             itemBuilder: (_, i) => ChoiceChip(
               mouseCursor: kClickCursor,
-              label: Text(_label(types[i])),
+              label: Text(SearchState.label(types[i])),
               selected: selected == types[i],
               showCheckmark: false,
-              onSelected: (_) => _setType(types[i]),
+              onSelected: (_) => state.setType(types[i]),
             ),
           );
         }),
@@ -396,9 +178,9 @@ class _SearchScreenState extends BaseScreen<SearchScreen> {
       );
 
   Widget _mediaHeader() => Watch(() {
-    if (!_isMedia) return const SizedBox.shrink();
-    final spec = _spec;
-    final q = _query.value;
+    if (!state.isMedia) return const SizedBox.shrink();
+    final spec = state.spec;
+    final q = state.query.value;
     final chips = q.toChipList();
     return Column(
       children: [
@@ -408,15 +190,15 @@ class _SearchScreenState extends BaseScreen<SearchScreen> {
             child: Row(
               children: [
                 if (spec.onList)
-                  _checkbox('List Only', q.onList ?? false, (v) {
+                  _checkbox(getString.listOnly, q.onList ?? false, (v) {
                     q.onList = v ? true : null;
-                    _restart();
+                    state.restart();
                   }),
                 const Spacer(),
                 if (spec.adult)
                   _checkbox('Adult', q.isAdult ?? false, (v) {
                     q.isAdult = v ? true : null;
-                    _restart();
+                    state.restart();
                   }),
               ],
             ),
@@ -441,7 +223,7 @@ class _SearchScreenState extends BaseScreen<SearchScreen> {
                           itemBuilder: (_, i) => InputChip(
                             mouseCursor: kClickCursor,
                             label: Text(chips[i].text.replaceAll('_', ' ')),
-                            onDeleted: () => _removeChip(chips[i]),
+                            onDeleted: () => state.removeChip(chips[i]),
                             visualDensity: VisualDensity.compact,
                           ),
                         ),
@@ -452,9 +234,9 @@ class _SearchScreenState extends BaseScreen<SearchScreen> {
               Padding(
                 padding: EdgeInsets.only(right: Dimens.pagePad),
                 child: FilledButton.tonalIcon(
-                  onPressed: _openFilters,
+                  onPressed: state.openFilters,
                   icon: const Icon(Icons.filter_alt_rounded),
-                  label: const Text('Filter'),
+                  label: Text(getString.filter),
                 ),
               ),
           ],
@@ -464,7 +246,7 @@ class _SearchScreenState extends BaseScreen<SearchScreen> {
   });
 
   Widget _resultsHeader() => Watch(() {
-    if (!_hasCriteria) return const SizedBox.shrink();
+    if (!state.hasCriteria) return const SizedBox.shrink();
     final scheme = context.colorScheme;
     return Padding(
       padding: EdgeInsets.fromLTRB(
@@ -476,25 +258,25 @@ class _SearchScreenState extends BaseScreen<SearchScreen> {
       child: Row(
         children: [
           Text(
-            'Search Results',
+            getString.searchResults,
             style: context.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.w800,
             ),
           ),
           const Spacer(),
-          if (_isMedia)
+          if (state.isMedia)
             for (final (mode, icon) in const [
-              (_ResultView.grid, Icons.grid_view_rounded),
-              (_ResultView.list, Icons.view_list_rounded),
-              (_ResultView.banner, Icons.view_agenda_rounded),
+              (ResultView.grid, Icons.grid_view_rounded),
+              (ResultView.list, Icons.view_list_rounded),
+              (ResultView.banner, Icons.view_agenda_rounded),
             ])
               IconButton(
                 onPressed: () {
-                  _mode.value = mode;
-                  _viewPref.rx.value = mode.name;
+                  state.mode.value = mode;
+                  viewPref.rx.value = mode.name;
                 },
                 icon: Icon(icon),
-                color: _mode.value == mode
+                color: state.mode.value == mode
                     ? scheme.onSurface
                     : scheme.onSurface.withValues(alpha: 0.33),
               ),
@@ -506,8 +288,8 @@ class _SearchScreenState extends BaseScreen<SearchScreen> {
   // --- body ---------------------------------------------------------------
 
   Widget _historyView() => Watch(() {
-    _historyTick.value;
-    final items = _history;
+    state.historyTick.value;
+    final items = state.history;
     if (items.isEmpty) return _empty();
     final scheme = context.colorScheme;
     return ScrollConfig(
@@ -523,7 +305,7 @@ class _SearchScreenState extends BaseScreen<SearchScreen> {
           Row(
             children: [
               Text(
-                'Recent searches',
+                getString.recentSearches,
                 style: context.textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.w800,
                 ),
@@ -532,13 +314,13 @@ class _SearchScreenState extends BaseScreen<SearchScreen> {
               TextButton(
                 onPressed: () {
                   saveCustomData<List<String>>(
-                    _historyKey,
+                    state.historyKey,
                     <String>[],
                     location: PrefLocation.CACHE,
                   );
-                  _historyTick.value++;
+                  state.historyTick.value++;
                 },
-                child: const Text('Clear'),
+                child: Text(getString.clear),
               ),
             ],
           ),
@@ -560,9 +342,9 @@ class _SearchScreenState extends BaseScreen<SearchScreen> {
                   ),
                   trailing: IconButton(
                     icon: const Icon(Icons.close_rounded, size: 18),
-                    onPressed: () => _forget(term),
+                    onPressed: () => state.forget(term),
                   ),
-                  onTap: () => _useTerm(term),
+                  onTap: () => state.useTerm(term),
                 ),
               ),
             ),
@@ -572,33 +354,34 @@ class _SearchScreenState extends BaseScreen<SearchScreen> {
   });
 
   Widget _body() => Watch(() {
-    if (!_hasCriteria) return _historyView();
-    if (_loading.value && _items.isEmpty) {
+    if (!state.hasCriteria) return _historyView();
+    if (state.loading.value && state.items.isEmpty) {
       return _grid(_skeletons(), skeleton: true);
     }
-    if (_items.isEmpty) return _empty();
+    if (state.items.isEmpty) return _empty();
     return NotificationListener<ScrollNotification>(
       onNotification: (n) {
         if (n.depth == 0) {
-          _showTop.value = n.metrics.pixels > 700;
-          if (_hasMore && n.metrics.pixels > n.metrics.maxScrollExtent - 600) {
-            unawaited(_search());
+          state.showTop.value = n.metrics.pixels > 700;
+          if (state.hasMore &&
+              n.metrics.pixels > n.metrics.maxScrollExtent - 600) {
+            unawaited(state.search());
           }
         }
         return false;
       },
-      child: _isMedia && _mode.value != _ResultView.grid
-          ? _rows(banner: _mode.value == _ResultView.banner)
-          : _grid([for (final item in _items) _card(item)]),
+      child: state.isMedia && state.mode.value != ResultView.grid
+          ? _rows(banner: state.mode.value == ResultView.banner)
+          : _grid([for (final item in state.items) _card(item)]),
     );
   });
 
   Widget _rows({required bool banner}) {
-    final items = _items.whereType<Media>().toList();
+    final items = state.items.whereType<Media>().toList();
     return ScrollConfig(
       context,
       child: ListView.separated(
-        controller: _scroll,
+        controller: state.scroll,
         padding: EdgeInsets.fromLTRB(
           Dimens.pagePad,
           Dimens.gapSm,
@@ -611,8 +394,16 @@ class _SearchScreenState extends BaseScreen<SearchScreen> {
           final m = items[i];
           final tag = 'search:${m.id}';
           return banner
-              ? MediaBannerTile(media: m, tag: tag, onTap: () => _open(m, tag))
-              : MediaListTile(media: m, tag: tag, onTap: () => _open(m, tag));
+              ? MediaBannerTile(
+                  media: m,
+                  tag: tag,
+                  onTap: () => state.open(m, tag),
+                )
+              : MediaListTile(
+                  media: m,
+                  tag: tag,
+                  onTap: () => state.open(m, tag),
+                );
         },
       ),
     );
@@ -632,7 +423,7 @@ class _SearchScreenState extends BaseScreen<SearchScreen> {
           if (year != null) '$year',
         ].join(' · '),
         score: (item.meanScore ?? 0) > 0 ? item.meanScore! / 10 : null,
-        onTap: skeleton ? null : () => _open(item, tag!),
+        onTap: skeleton ? null : () => state.open(item, tag!),
         onLongPress: skeleton
             ? null
             : () => showQuickListEditor(
@@ -647,18 +438,18 @@ class _SearchScreenState extends BaseScreen<SearchScreen> {
         imageUrl: c.image,
         title: c.name ?? '',
         subtitle: c.gender,
-        onTap: () => _open(c, ''),
+        onTap: () => state.open(c, ''),
       ),
       Author a => PosterCard(
         imageUrl: a.image,
         title: a.name ?? '',
-        onTap: () => _open(a, ''),
+        onTap: () => state.open(a, ''),
       ),
       Studio s => _entityTile(
         icon: Icons.business_rounded,
         title: s.name,
         subtitle: s.favourites == null ? null : '${s.favourites} favourites',
-        onTap: () => _open(s, ''),
+        onTap: () => state.open(s, ''),
       ),
       User u =>
         find<MediaServiceController>().currentService.value.socialView != null
@@ -729,7 +520,7 @@ class _SearchScreenState extends BaseScreen<SearchScreen> {
   Widget _userTile(User u) {
     final scheme = context.colorScheme;
     return DpadTap(
-      onTap: () => _open(u, ''),
+      onTap: () => state.open(u, ''),
       borderRadius: BorderRadius.circular(Dimens.radius),
       child: Container(
         padding: const EdgeInsets.all(10),
@@ -769,7 +560,8 @@ class _SearchScreenState extends BaseScreen<SearchScreen> {
   }
 
   bool get _tileResults =>
-      _type.value == SearchType.STUDIO || _type.value == SearchType.USER;
+      state.type.value == SearchType.STUDIO ||
+      state.type.value == SearchType.USER;
 
   Widget _grid(List<Widget> children, {bool skeleton = false}) {
     final style = tryFind<CardStyleController>()?.current ?? const CardStyle();
@@ -780,30 +572,34 @@ class _SearchScreenState extends BaseScreen<SearchScreen> {
       Dimens.gapXl,
     );
     final grid = _tileResults && !skeleton
-        ? GridView.builder(
-            controller: _scroll,
-            padding: padding,
-            gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-              maxCrossAxisExtent: 360,
-              mainAxisExtent: _type.value == SearchType.USER ? 92 : 72,
-              crossAxisSpacing: Dimens.gap,
-              mainAxisSpacing: Dimens.gapSm,
+        ? DpadColumn(
+            child: GridView.builder(
+              controller: state.scroll,
+              padding: padding,
+              gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                maxCrossAxisExtent: 360,
+                mainAxisExtent: state.type.value == SearchType.USER ? 92 : 72,
+                crossAxisSpacing: Dimens.gap,
+                mainAxisSpacing: Dimens.gapSm,
+              ),
+              itemCount: children.length,
+              itemBuilder: (_, i) => children[i],
             ),
-            itemCount: children.length,
-            itemBuilder: (_, i) => children[i],
           )
-        : GridView.builder(
-            controller: _scroll,
-            padding: padding,
-            gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-              maxCrossAxisExtent: style.itemWidth + Dimens.cardGap + 6,
-              childAspectRatio: style.itemWidth / style.itemHeight,
-              crossAxisSpacing: Dimens.cardGap,
-              mainAxisSpacing: Dimens.gap,
+        : DpadColumn(
+            child: GridView.builder(
+              controller: state.scroll,
+              padding: padding,
+              gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                maxCrossAxisExtent: style.itemWidth + Dimens.cardGap + 6,
+                childAspectRatio: style.itemWidth / style.itemHeight,
+                crossAxisSpacing: Dimens.cardGap,
+                mainAxisSpacing: Dimens.gap,
+              ),
+              itemCount: children.length,
+              itemBuilder: (_, i) =>
+                  Align(alignment: Alignment.topCenter, child: children[i]),
             ),
-            itemCount: children.length,
-            itemBuilder: (_, i) =>
-                Align(alignment: Alignment.topCenter, child: children[i]),
           );
     final scrolling = ScrollConfig(context, child: grid);
     return skeleton ? Skeletonizer(child: scrolling) : scrolling;
@@ -814,10 +610,10 @@ class _SearchScreenState extends BaseScreen<SearchScreen> {
   ];
 
   Widget _empty() {
-    final searched = _hasCriteria && !_loading.value;
+    final searched = state.hasCriteria && !state.loading.value;
     return EmptyState(
       icon: searched ? Icons.search_off_rounded : Icons.search_rounded,
-      title: searched ? 'Nothing matched' : 'Search or set a filter',
+      title: searched ? getString.nothingMatched : getString.searchOrSetFilter,
     );
   }
 
@@ -829,9 +625,9 @@ class _SearchScreenState extends BaseScreen<SearchScreen> {
     return Scaffold(
       backgroundColor: Colors.transparent,
       floatingActionButton: Watch(
-        () => _showTop.value
+        () => state.showTop.value
             ? FloatingActionButton.small(
-                onPressed: () => _scroll.animateTo(
+                onPressed: () => state.scroll.animateTo(
                   0,
                   duration: const Duration(milliseconds: 400),
                   curve: Curves.easeOut,

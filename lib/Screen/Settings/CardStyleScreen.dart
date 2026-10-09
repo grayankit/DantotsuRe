@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../Utils/Extensions/ClickCursor.dart';
 
-import '../../Core/ThemeManager/CardStyleController.dart';
 import '../../Model/CardStyle.dart';
 import '../../Utils/Extensions/CardStyleMetrics.dart';
 import '../../Utils/Extensions/ContextExtensions.dart';
@@ -14,6 +13,9 @@ import '../../Widgets/Components/ScrollConfig.dart';
 import '../../Widgets/Components/SectionCard.dart';
 import '../../Widgets/Shelf/PosterCard.dart';
 import '../../Core/State/State.dart';
+import '../../Core/ThemeManager/LanguageSwitcher.dart';
+import '../../Widgets/Components/ScreenState.dart';
+import 'CardStyleState.dart';
 
 class CardStyleScreen extends StatefulWidget {
   const CardStyleScreen({super.key});
@@ -22,28 +24,19 @@ class CardStyleScreen extends StatefulWidget {
   State<CardStyleScreen> createState() => _CardStyleScreenState();
 }
 
-class _CardStyleScreenState extends BaseScreen<CardStyleScreen> {
-  CardStyleController get _c => find();
-  late final _draft = _c.current.live;
-
-  void _set(CardStyle next) {
-    _draft.value = next;
-    _c.apply(next);
-  }
-
-  void _edit(CardStyle Function(CardStyle) f) => _set(f(_draft.value).asCustom);
+class _CardStyleScreenState extends BaseScreen<CardStyleScreen>
+    with ScreenStateHost<CardStyleScreen, CardStyleState> {
+  @override
+  CardStyleState buildState() => CardStyleState();
 
   @override
   Widget buildContent(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppScreenBar(
-        title: 'Card style',
+        title: getString.cardStyle,
         actions: [
-          TextButton(
-            onPressed: () => _set(const CardStyle()),
-            child: const Text('Reset'),
-          ),
+          TextButton(onPressed: state.reset, child: Text(getString.reset)),
         ],
       ),
       body: CustomScrollConfig(
@@ -60,7 +53,7 @@ class _CardStyleScreenState extends BaseScreen<CardStyleScreen> {
               child: Watch(
                 () => Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: _bodyChildren(_draft.value),
+                  children: _bodyChildren(state.draft.value),
                 ),
               ),
             ),
@@ -108,7 +101,7 @@ class _CardStyleScreenState extends BaseScreen<CardStyleScreen> {
   Widget _preview(CardStyle s) {
     final cards = _previewCards(s);
     return SectionCard(
-      title: 'Preview',
+      title: getString.preview,
       child: SizedBox(
         height: s.itemHeight + 8,
         child: ScrollConfig(
@@ -125,14 +118,14 @@ class _CardStyleScreenState extends BaseScreen<CardStyleScreen> {
   }
 
   Widget _presets(CardStyle s) {
-    const names = {
-      'poster': 'Poster',
-      'card': 'Card',
-      'cozy': 'Cozy',
-      'compact': 'Compact',
+    final names = {
+      'poster': getString.cardPresetPoster,
+      'card': getString.cardPresetCard,
+      'cozy': getString.cardPresetCozy,
+      'compact': getString.compact,
     };
     return SectionCard(
-      title: 'Preset',
+      title: getString.preset,
       child: Wrap(
         spacing: 8,
         runSpacing: 8,
@@ -143,12 +136,12 @@ class _CardStyleScreenState extends BaseScreen<CardStyleScreen> {
               label: Text(names[id]!),
               selected: s.preset == id,
               showCheckmark: false,
-              onSelected: (_) => _set(CardStyle.presetById(id)),
+              onSelected: (_) => state.set(CardStyle.presetById(id)),
             ),
           if (s.preset == 'custom')
-            const ChoiceChip(
+            ChoiceChip(
               mouseCursor: kClickCursor,
-              label: Text('Custom'),
+              label: Text(getString.colorPickerCustom),
               selected: true,
               showCheckmark: false,
               onSelected: null,
@@ -160,30 +153,30 @@ class _CardStyleScreenState extends BaseScreen<CardStyleScreen> {
 
   Widget _layout(CardStyle s) {
     return SectionCard(
-      title: 'Style',
+      title: getString.sectionStyle,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ...[
             LabeledField(
-              label: 'Mode',
+              label: getString.mode,
               child: AppSegmented<CardMode>(
                 value: s.mode,
-                onChanged: (v) => _edit((c) => c.copyWith(mode: v)),
-                segments: const [
+                onChanged: (v) => state.edit((c) => c.copyWith(mode: v)),
+                segments: [
                   AppSegment(
                     CardMode.normal,
-                    label: 'Normal',
+                    label: getString.cardNormal,
                     icon: Icons.crop_portrait_rounded,
                   ),
                   AppSegment(
                     CardMode.onCard,
-                    label: 'On card',
+                    label: getString.cardOnCard,
                     icon: Icons.vertical_align_bottom_rounded,
                   ),
                   AppSegment(
                     CardMode.inCard,
-                    label: 'In card',
+                    label: getString.cardInCard,
                     icon: Icons.dashboard_rounded,
                   ),
                 ],
@@ -192,50 +185,51 @@ class _CardStyleScreenState extends BaseScreen<CardStyleScreen> {
             SizedBox(height: Dimens.gap),
           ],
           LabeledField(
-            label: 'Size',
+            label: getString.size,
             child: AppSegmented<CardSize>(
               value: s.size,
-              onChanged: (v) => _edit((c) => c.copyWith(size: v)),
-              segments: const [
-                AppSegment(CardSize.small, label: 'S'),
-                AppSegment(CardSize.medium, label: 'M'),
-                AppSegment(CardSize.large, label: 'L'),
-                AppSegment(CardSize.custom, label: 'Custom'),
+              onChanged: (v) => state.edit((c) => c.copyWith(size: v)),
+              segments: [
+                const AppSegment(CardSize.small, label: 'S'),
+                const AppSegment(CardSize.medium, label: 'M'),
+                const AppSegment(CardSize.large, label: 'L'),
+                AppSegment(CardSize.custom, label: getString.colorPickerCustom),
               ],
             ),
           ),
           if (s.size == CardSize.custom) ...[
             const SizedBox(height: 4),
             LabeledSlider(
-              label: 'Card width',
+              label: getString.cardWidth,
               value: s.customScale,
               min: 0.7,
               max: 1.5,
               valueLabel: '${(s.customScale * 100).round()}%',
-              onChanged: (v) => _edit((c) => c.copyWith(customScale: v)),
+              onChanged: (v) => state.edit((c) => c.copyWith(customScale: v)),
             ),
           ],
           SizedBox(height: Dimens.gapSm),
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
-            title: const Text('Compact'),
-            subtitle: const Text('Cover and title only'),
+            title: Text(getString.compact),
+            subtitle: Text(getString.coverAndTitleOnly),
             value: s.compact,
-            onChanged: (v) => _edit((c) => c.copyWith(compact: v)),
+            onChanged: (v) => state.edit((c) => c.copyWith(compact: v)),
           ),
           if (!s.compact)
             Row(
               children: [
                 Expanded(
                   child: Text(
-                    'Title lines',
+                    getString.titleLines,
                     style: context.textTheme.bodyMedium,
                   ),
                 ),
                 AppSegmented<int>(
                   expand: false,
                   value: s.titleLines,
-                  onChanged: (v) => _edit((c) => c.copyWith(titleLines: v)),
+                  onChanged: (v) =>
+                      state.edit((c) => c.copyWith(titleLines: v)),
                   segments: const [
                     AppSegment(1, label: '1'),
                     AppSegment(2, label: '2'),
@@ -250,24 +244,24 @@ class _CardStyleScreenState extends BaseScreen<CardStyleScreen> {
 
   Widget _shape(CardStyle s) {
     return SectionCard(
-      title: 'Shape',
+      title: getString.shape,
       child: Column(
         children: [
           LabeledSlider(
-            label: 'Poster shape',
+            label: getString.posterShape,
             value: s.aspect,
             min: 1.2,
             max: 1.62,
             valueLabel: s.aspect.toStringAsFixed(2),
-            onChanged: (v) => _edit((c) => c.copyWith(aspect: v)),
+            onChanged: (v) => state.edit((c) => c.copyWith(aspect: v)),
           ),
           LabeledSlider(
-            label: 'Corner radius',
+            label: getString.cornerRadius,
             value: s.radius,
             min: 2,
             max: 28,
             valueLabel: '${s.radius.round()}',
-            onChanged: (v) => _edit((c) => c.copyWith(radius: v)),
+            onChanged: (v) => state.edit((c) => c.copyWith(radius: v)),
           ),
         ],
       ),
@@ -276,44 +270,46 @@ class _CardStyleScreenState extends BaseScreen<CardStyleScreen> {
 
   Widget _overlays(CardStyle s) {
     final cornerOptions = [
-      const AppSegment(CardCorner.none, label: 'Off'),
-      const AppSegment(CardCorner.topLeft, label: 'Top left'),
-      const AppSegment(CardCorner.topRight, label: 'Top right'),
+      AppSegment(CardCorner.none, label: getString.off),
+      AppSegment(CardCorner.topLeft, label: getString.topLeft),
+      AppSegment(CardCorner.topRight, label: getString.topRight),
       if (s.bottomCornersUsable) ...[
-        const AppSegment(CardCorner.bottomLeft, label: 'Bottom left'),
-        const AppSegment(CardCorner.bottomRight, label: 'Bottom right'),
+        AppSegment(CardCorner.bottomLeft, label: getString.bottomLeft),
+        AppSegment(CardCorner.bottomRight, label: getString.bottomRight),
       ],
     ];
     return SectionCard(
-      title: 'Overlays',
+      title: getString.overlays,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           LabeledField(
-            label: 'Progress / count',
+            label: getString.progressCount,
             child: AppSegmented<CardProgressStyle>(
               value: s.effectiveProgress,
-              onChanged: (v) => _edit((c) => c.copyWith(progress: v)),
+              onChanged: (v) => state.edit((c) => c.copyWith(progress: v)),
               segments: [
-                const AppSegment(CardProgressStyle.pill, label: 'Pill'),
-                const AppSegment(CardProgressStyle.bar, label: 'Bar'),
+                AppSegment(CardProgressStyle.pill, label: getString.pill),
+                AppSegment(CardProgressStyle.bar, label: getString.bar),
                 if (s.mode != CardMode.onCard)
-                  const AppSegment(CardProgressStyle.outside, label: 'Outside'),
-                const AppSegment(CardProgressStyle.none, label: 'Off'),
+                  AppSegment(
+                    CardProgressStyle.outside,
+                    label: getString.outside,
+                  ),
+                AppSegment(CardProgressStyle.none, label: getString.off),
               ],
             ),
           ),
           SizedBox(height: Dimens.gapXs),
           Text(
-            'Pill and bar overlay the poster; outside shows the same count '
-            'as plain text instead — pick one.',
+            getString.progressStyleHint,
             style: context.textTheme.bodySmall?.copyWith(
               color: context.colorScheme.onSurfaceVariant,
             ),
           ),
           SizedBox(height: Dimens.gap),
           LabeledField(
-            label: 'Score badge',
+            label: getString.scoreBadge,
             child: AppChoiceChips<CardCorner>(
               value: s.bottomCornersUsable
                   ? s.scoreCorner
@@ -322,17 +318,17 @@ class _CardStyleScreenState extends BaseScreen<CardStyleScreen> {
                       CardCorner.bottomRight => CardCorner.topRight,
                       final c => c,
                     },
-              onChanged: (v) => _edit((c) => c.copyWith(scoreCorner: v)),
+              onChanged: (v) => state.edit((c) => c.copyWith(scoreCorner: v)),
               options: cornerOptions,
             ),
           ),
           SizedBox(height: Dimens.gapSm),
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
-            title: const Text('Airing dot'),
-            subtitle: const Text('for currently releasing titles'),
+            title: Text(getString.airingDot),
+            subtitle: Text(getString.forReleasingTitles),
             value: s.airingDot,
-            onChanged: (v) => _edit((c) => c.copyWith(airingDot: v)),
+            onChanged: (v) => state.edit((c) => c.copyWith(airingDot: v)),
           ),
         ],
       ),

@@ -1,23 +1,19 @@
-import 'dart:io';
-import 'dart:typed_data';
-
 import 'package:dartotsu_extension_bridge/dartotsu_extension_bridge.dart';
-import 'package:file_picker/file_picker.dart';
+
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
 
 import '../../../Core/Backup/ExternalLists/ExternalList.dart';
 import '../../../Core/Backup/ExternalLists/ExternalListService.dart';
 import '../../../Core/Services/MediaService.dart';
 import '../../../Utils/Extensions/ContextExtensions.dart';
-import '../../../Utils/Function.dart';
-import '../../../Utils/Functions/SnackBar.dart';
 import '../../../Widgets/Components/AppControls.dart';
 import '../../../Widgets/Components/AppSheet.dart';
 import '../../../Widgets/Components/CustomBottomDialog.dart';
 import '../../../Widgets/Components/SheetTile.dart';
-import '../../../Utils/Functions/NavigateToScreen.dart';
 import '../../../Core/State/State.dart';
+import '../../../Core/ThemeManager/LanguageSwitcher.dart';
+import '../../../Widgets/Components/ScreenState.dart';
+import 'ListTransferState.dart';
 
 Future<void> showListImportSheet(
   BuildContext context,
@@ -41,84 +37,33 @@ class _ImportSheet extends StatefulWidget {
   State<_ImportSheet> createState() => _ImportSheetState();
 }
 
-class _ImportSheetState extends State<_ImportSheet> {
-  final _lists = Live<ExternalLists?>(null);
-  final _name = Live<String?>(null);
-  final _error = Live<String?>(null);
-  final _busy = false.live;
-  final _anime = true.live;
-  final _manga = true.live;
-  final _merge = true.live;
-
-  Future<void> _pick() async {
-    final picked = await FilePicker.pickFile(
-      dialogTitle: 'Choose an Aniyomi, Mihon or Kotatsu backup',
-      type: FileType.custom,
-      allowedExtensions: const ['tachibk', 'gz', 'zip', 'proto'],
-    );
-    if (picked == null) return;
-    _busy.value = true;
-    _error.value = null;
-    try {
-      final path = picked.path;
-      if (path == null) throw const FormatException('Could not read that file');
-      final Uint8List bytes = await File(path).readAsBytes();
-      final lists = await parseExternalFile(bytes);
-      if (!mounted) return;
-      _lists.value = lists;
-      _name.value = picked.name;
-      _anime.value = lists.anime.isNotEmpty;
-      _manga.value = lists.manga.isNotEmpty;
-    } catch (e) {
-      if (mounted) {
-        _lists.value = null;
-        _error.value = e is FormatException ? e.message : '$e';
-      }
-    } finally {
-      if (mounted) _busy.value = false;
-    }
-  }
-
-  void _import() {
-    final lists = _lists.value;
-    if (lists == null) return;
-    final summary = ExternalListService.import(
-      widget.service,
-      lists,
-      anime: _anime.value,
-      manga: _manga.value,
-      merge: _merge.value,
-      sourceFor: widget.sourceFor,
-    );
-    snackString(
-      'Imported ${summary.anime} anime and ${summary.manga} manga'
-      '${summary.skipped > 0 ? ' · ${summary.skipped} already there' : ''}',
-    );
-    popPage(context);
-  }
+class _ImportSheetState extends State<_ImportSheet>
+    with ScreenStateHost<_ImportSheet, ImportListsState> {
+  @override
+  ImportListsState buildState() =>
+      ImportListsState(service: widget.service, sourceFor: widget.sourceFor);
 
   @override
   Widget build(BuildContext context) => Watch(() => _build(context));
 
   Widget _build(BuildContext context) {
     final scheme = context.colorScheme;
-    final lists = _lists.value;
+    final lists = state.lists.value;
     return AppSheet(
-      title: 'Import lists',
+      title: getString.importLists,
       child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'Bring a library over from Aniyomi, Mihon / Tachiyomi or Kotatsu. '
-              'Titles, covers, progress and categories are kept.',
+              getString.importListsHint,
               style: context.textTheme.bodyMedium?.copyWith(
                 color: scheme.onSurfaceVariant,
               ),
             ),
             const SizedBox(height: 14),
-            if (_error.value != null)
+            if (state.error.value != null)
               Container(
                 padding: const EdgeInsets.all(12),
                 margin: const EdgeInsets.only(bottom: 12),
@@ -127,21 +72,21 @@ class _ImportSheetState extends State<_ImportSheet> {
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: Text(
-                  _error.value!,
+                  state.error.value!,
                   style: TextStyle(color: scheme.onErrorContainer),
                 ),
               ),
             if (lists == null)
               FilledButton.icon(
-                onPressed: _busy.value ? null : _pick,
-                icon: _busy.value
+                onPressed: state.busy.value ? null : state.pick,
+                icon: state.busy.value
                     ? const SizedBox(
                         width: 16,
                         height: 16,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : const Icon(Icons.upload_file_rounded),
-                label: const Text('Choose backup file'),
+                label: Text(getString.chooseBackupFile),
               )
             else ...[
               _summary(context, lists),
@@ -152,9 +97,9 @@ class _ImportSheetState extends State<_ImportSheet> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),
-                  title: Text('Import ${lists.anime.length} anime'),
-                  value: _anime.value,
-                  onChanged: (v) => _anime.value = v,
+                  title: Text(getString.importAnimeCount(lists.anime.length)),
+                  value: state.anime.value,
+                  onChanged: (v) => state.anime.value = v,
                 ),
               if (lists.manga.isNotEmpty)
                 SwitchListTile(
@@ -162,34 +107,34 @@ class _ImportSheetState extends State<_ImportSheet> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),
-                  title: Text('Import ${lists.manga.length} manga'),
-                  value: _manga.value,
-                  onChanged: (v) => _manga.value = v,
+                  title: Text(getString.importMangaCount(lists.manga.length)),
+                  value: state.manga.value,
+                  onChanged: (v) => state.manga.value = v,
                 ),
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
                 ),
-                title: const Text('Merge with existing lists'),
-                subtitle: const Text(
-                  'Keeps what you already have; off replaces matching titles',
-                ),
-                value: _merge.value,
-                onChanged: (v) => _merge.value = v,
+                title: Text(getString.mergeWithExisting),
+                subtitle: Text(getString.mergeWithExistingDesc),
+                value: state.merge.value,
+                onChanged: (v) => state.merge.value = v,
               ),
               const SizedBox(height: 8),
               Row(
                 children: [
                   TextButton(
-                    onPressed: _busy.value ? null : _pick,
-                    child: const Text('Choose another'),
+                    onPressed: state.busy.value ? null : state.pick,
+                    child: Text(getString.chooseAnother),
                   ),
                   const Spacer(),
                   FilledButton.icon(
-                    onPressed: (_anime.value || _manga.value) ? _import : null,
+                    onPressed: (state.anime.value || state.manga.value)
+                        ? state.import
+                        : null,
                     icon: const Icon(Icons.download_done_rounded),
-                    label: const Text('Import'),
+                    label: Text(getString.import),
                   ),
                 ],
               ),
@@ -226,7 +171,7 @@ class _ImportSheetState extends State<_ImportSheet> {
                       ),
                     ),
                     Text(
-                      _name.value ?? '',
+                      state.name.value ?? '',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: context.textTheme.bodySmall?.copyWith(
@@ -244,9 +189,9 @@ class _ImportSheetState extends State<_ImportSheet> {
             runSpacing: 8,
             children: [
               if (lists.anime.isNotEmpty)
-                Chip(label: Text('${lists.anime.length} anime')),
+                Chip(label: Text(getString.animeCount(lists.anime.length))),
               if (lists.manga.isNotEmpty)
-                Chip(label: Text('${lists.manga.length} manga')),
+                Chip(label: Text(getString.mangaCount(lists.manga.length))),
               for (final c in lists.categories.take(10))
                 Chip(
                   label: Text(c),
@@ -269,32 +214,10 @@ class _ExportSheet extends StatefulWidget {
   State<_ExportSheet> createState() => _ExportSheetState();
 }
 
-class _ExportSheetState extends State<_ExportSheet> {
-  late final _share = (Platform.isAndroid || Platform.isIOS).live;
-  final _busy = false.live;
-
-  Future<void> _export(ExternalFormat format) async {
-    _busy.value = true;
-    try {
-      final bytes = ExternalListService.export(widget.service, format);
-      if (_share.value) {
-        final dir = await getTemporaryDirectory();
-        final file = await ExternalListService.save(dir.path, format, bytes);
-        shareFile(file.path, 'Dartotsu library');
-      } else {
-        final dir = await FilePicker.getDirectoryPath(
-          dialogTitle: 'Choose where to save the backup',
-        );
-        if (dir == null) return;
-        final file = await ExternalListService.save(dir, format, bytes);
-        snackString('Saved ${file.path}');
-      }
-    } catch (e) {
-      snackString('Export failed: $e');
-    } finally {
-      if (mounted) _busy.value = false;
-    }
-  }
+class _ExportSheetState extends State<_ExportSheet>
+    with ScreenStateHost<_ExportSheet, ExportListsState> {
+  @override
+  ExportListsState buildState() => ExportListsState(widget.service);
 
   @override
   Widget build(BuildContext context) => Watch(() => _build(context));
@@ -305,7 +228,7 @@ class _ExportSheetState extends State<_ExportSheet> {
     final anime = media.where((m) => m.isAnime).length;
     final manga = media.length - anime;
     return AppSheet(
-      title: 'Export lists',
+      title: getString.exportLists,
       child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(12, 0, 12, 24),
         child: Column(
@@ -315,9 +238,8 @@ class _ExportSheetState extends State<_ExportSheet> {
               padding: const EdgeInsets.fromLTRB(8, 0, 8, 12),
               child: Text(
                 media.isEmpty
-                    ? 'Nothing in your local lists yet.'
-                    : 'Exports $anime anime and $manga manga from your local '
-                          'lists. Kotatsu only supports manga.',
+                    ? getString.nothingInLocalLists
+                    : getString.exportsSummary(anime, manga),
                 style: context.textTheme.bodyMedium?.copyWith(
                   color: scheme.onSurfaceVariant,
                 ),
@@ -326,29 +248,29 @@ class _ExportSheetState extends State<_ExportSheet> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8),
               child: AppSegmented<bool>(
-                value: _share.value,
-                onChanged: (v) => _share.value = v,
-                segments: const [
-                  AppSegment(false, label: 'Save to folder'),
-                  AppSegment(true, label: 'Share'),
+                value: state.share.value,
+                onChanged: (v) => state.share.value = v,
+                segments: [
+                  AppSegment(false, label: getString.saveToFolder),
+                  AppSegment(true, label: getString.share),
                 ],
               ),
             ),
             const SizedBox(height: 8),
-            for (final (format, note, icon) in const [
+            for (final (format, note, icon) in [
               (
                 ExternalFormat.aniyomi,
-                'Anime and manga · .tachibk',
+                getString.formatAnimeManga,
                 Icons.movie_filter_rounded,
               ),
               (
                 ExternalFormat.mihon,
-                'Manga only · .tachibk',
+                getString.formatMangaTachibk,
                 Icons.menu_book_rounded,
               ),
               (
                 ExternalFormat.kotatsu,
-                'Manga only · .zip',
+                getString.formatMangaZip,
                 Icons.auto_stories_rounded,
               ),
             ])
@@ -356,15 +278,15 @@ class _ExportSheetState extends State<_ExportSheet> {
                 leading: Icon(icon, color: scheme.primary),
                 title: Text(format.label),
                 subtitle: Text(note),
-                trailing: _busy.value
+                trailing: state.busy.value
                     ? const SizedBox(
                         width: 18,
                         height: 18,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : const Icon(Icons.chevron_right_rounded),
-                enabled: !_busy.value && media.isNotEmpty,
-                onTap: () => _export(format),
+                enabled: !state.busy.value && media.isNotEmpty,
+                onTap: () => state.export(format),
               ),
           ],
         ),

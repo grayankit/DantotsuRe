@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 
 import '../../Core/Services/MediaServiceController.dart';
@@ -14,6 +12,8 @@ import '../../Widgets/Components/ScrollConfig.dart';
 import 'ReviewCard.dart';
 import 'ReviewScreen.dart';
 import '../../Core/State/State.dart';
+import '../../Widgets/Components/ScreenState.dart';
+import 'ReviewsState.dart';
 
 class ReviewsScreen extends StatefulWidget {
   final Media media;
@@ -31,69 +31,37 @@ class ReviewsScreen extends StatefulWidget {
   State<ReviewsScreen> createState() => _ReviewsScreenState();
 }
 
-class _ReviewsScreenState extends BaseScreen<ReviewsScreen> {
-  late final _items = widget.initial.liveList;
-  final _loadingMore = false.live;
-  final _failed = false.live;
-  var _page = 0;
-  var _hasMore = true;
-
+class _ReviewsScreenState extends BaseScreen<ReviewsScreen>
+    with ScreenStateHost<ReviewsScreen, ReviewsState> {
   @override
-  void initState() {
-    super.initState();
-    unawaited(_more());
-  }
-
-  Future<void> _more() async {
-    if (_loadingMore.value || !_hasMore) return;
-    _loadingMore.value = true;
-    try {
-      final next = await widget.view.reviews(widget.media, page: _page + 1);
-      final known = {for (final r in _items) r.id};
-      final fresh = next.where((r) => !known.contains(r.id)).toList();
-      if (fresh.isEmpty) {
-        _hasMore = false;
-      } else {
-        _items.addAll(fresh);
-        _page++;
-      }
-    } catch (_) {
-      _hasMore = false;
-      _failed.value = _items.isEmpty;
-    } finally {
-      _loadingMore.value = false;
-    }
-  }
-
-  bool _onScroll(ScrollNotification n) {
-    if (n.metrics.axis == Axis.vertical && n.metrics.extentAfter < 500) {
-      unawaited(_more());
-    }
-    return false;
-  }
+  ReviewsState buildState() => ReviewsState(
+    media: widget.media,
+    view: widget.view,
+    initial: widget.initial,
+  );
 
   @override
   Widget buildContent(BuildContext context) {
-    final service = find<MediaServiceController>().currentService.value;
+    final service = state.service;
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppScreenBar(title: getString.reviewsTitle),
       body: Watch(() {
-        final loading = _loadingMore.value;
-        if (_items.isEmpty) {
+        final loading = state.loadingMore.value;
+        if (state.items.isEmpty) {
           return loading
               ? const Center(child: CircularProgressIndicator())
               : EmptyState(
                   icon: Icons.rate_review_outlined,
-                  title: _failed.value
+                  title: state.failed.value
                       ? getString.reviewsFailed
                       : getString.reviewsEmpty,
-                  failed: _failed.value,
+                  failed: state.failed.value,
                 );
         }
-        final items = _items.toList();
+        final items = state.items.toList();
         return NotificationListener<ScrollNotification>(
-          onNotification: _onScroll,
+          onNotification: state.onScroll,
           child: ScrollConfig(
             context,
             child: ListView.separated(

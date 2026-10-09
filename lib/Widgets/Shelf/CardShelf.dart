@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import '../../Utils/Nav/DpadLayers.dart';
 import '../../Utils/Nav/DpadNav.dart';
 import 'package:flutter/material.dart';
 import 'package:skeletonizer/skeletonizer.dart';
@@ -156,48 +157,50 @@ class _CardShelfState extends State<CardShelf> {
         ),
       );
     }
-    return SizedBox(
-      height: _railH,
-      child: NotificationListener<ScrollNotification>(
-        onNotification: (scroll) =>
-            state.scrollListener(scroll, widget.onLoadMore),
-        child: CustomScrollConfig(
-          context,
-          scrollDirection: Axis.horizontal,
-          controller: widget.scrollController,
-          physics: const BouncingScrollPhysics(
-            parent: AlwaysScrollableScrollPhysics(),
-          ),
-          children: [
-            Watch(() {
-              final list = state.items;
-              return SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    if (index == list.length) return _loadMoreTrailer();
+    return DpadRow(
+      child: SizedBox(
+        height: _railH,
+        child: NotificationListener<ScrollNotification>(
+          onNotification: (scroll) =>
+              state.scrollListener(scroll, widget.onLoadMore),
+          child: CustomScrollConfig(
+            context,
+            scrollDirection: Axis.horizontal,
+            controller: widget.scrollController,
+            physics: const BouncingScrollPhysics(
+              parent: AlwaysScrollableScrollPhysics(),
+            ),
+            children: [
+              Watch(() {
+                final list = state.items;
+                return SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      if (index == list.length) return _loadMoreTrailer();
 
-                    final item = list[index];
-                    return RepaintBoundary(
-                      key: ValueKey('item:${item.id}'),
-                      child: Align(
-                        alignment: Alignment.topCenter,
-                        child: Padding(
-                          padding: _horizontalPadding(index, list.length),
-                          child: _cardFor(index, item),
+                      final item = list[index];
+                      return RepaintBoundary(
+                        key: ValueKey('item:${item.id}'),
+                        child: Align(
+                          alignment: Alignment.topCenter,
+                          child: Padding(
+                            padding: _horizontalPadding(index, list.length),
+                            child: _cardFor(index, item),
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                  childCount: list.length + 1,
-                  findChildIndexCallback: (key) {
-                    final id = (key as ValueKey<String>).value.substring(5);
-                    final i = list.indexWhere((it) => it.id == id);
-                    return i < 0 ? null : i;
-                  },
-                ),
-              );
-            }),
-          ],
+                      );
+                    },
+                    childCount: list.length + 1,
+                    findChildIndexCallback: (key) {
+                      final id = (key as ValueKey<String>).value.substring(5);
+                      final i = list.indexWhere((it) => it.id == id);
+                      return i < 0 ? null : i;
+                    },
+                  ),
+                );
+              }),
+            ],
+          ),
         ),
       ),
     );

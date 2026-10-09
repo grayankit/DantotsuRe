@@ -1,11 +1,12 @@
 import 'package:dartotsu_extension_bridge/dartotsu_extension_bridge.dart';
 import 'package:flutter/material.dart';
 
-import '../../Model/Setting.dart';
 import '../../Utils/Functions/NavigateToScreen.dart';
 import '../../Utils/Functions/SnackBar.dart';
 import '../../Widgets/Components/BaseScreen.dart';
 import 'SettingsListView.dart';
+import '../../Widgets/Components/ScreenState.dart';
+import 'ExtensionSourceSettingsState.dart';
 
 void openExtensionSettings(BuildContext context, Extension extension) {
   if (extension.settings(context).isEmpty) {
@@ -35,41 +36,21 @@ class ExtensionSourceSettingsScreen extends StatefulWidget {
 }
 
 class _ExtensionSourceSettingsScreenState
-    extends BaseScreen<ExtensionSourceSettingsScreen> {
-  List<Setting> _settings(BuildContext context) => [
-    for (final s in widget.extension.settings(context))
-      Setting(
-        type: SettingType.values.firstWhere((t) => t.name == s.type.name),
-        name: s.name,
-        description: s.description,
-        icon: s.icon,
-        iconWidget: s.iconWidget,
-        isVisible: s.isVisible,
-        isActivity: s.isActivity,
-        isChecked: s.isChecked,
-        trailingIcon: s.trailingIcon,
-        onClick: s.onClick == null ? null : () => s.onClick!(),
-        onLongClick: s.onLongClick == null ? null : () => s.onLongClick!(),
-        onSwitchChange: s.onSwitchChange == null
-            ? null
-            : (v) => s.onSwitchChange!(v),
-        attach: s.attach,
-        minValue: s.minValue,
-        maxValue: s.maxValue,
-        initialValue: s.initialValue,
-        onSliderChange: s.onSliderChange,
-        onInputChange: s.onInputChange,
-      ),
-  ];
+    extends BaseScreen<ExtensionSourceSettingsScreen>
+    with
+        ScreenStateHost<
+          ExtensionSourceSettingsScreen,
+          ExtensionSourceSettingsState
+        > {
+  @override
+  ExtensionSourceSettingsState buildState() =>
+      ExtensionSourceSettingsState(widget.extension);
 
   @override
   Widget buildContent(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: SettingsListView(
-        title: widget.extension.name,
-        searchable: _settings,
-      ),
+      body: SettingsListView(title: state.title, searchable: state.settings),
     );
   }
 }

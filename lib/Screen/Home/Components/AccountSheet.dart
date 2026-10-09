@@ -19,6 +19,7 @@ import '../../Social/SocialNavigation.dart';
 import 'BellButton.dart';
 import 'HeaderAvatar.dart';
 import '../../../Core/State/State.dart';
+import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 
 void showAccountSheet(BuildContext context, MediaServiceController controller) {
   final service = controller.currentService.value;
@@ -38,26 +39,26 @@ void showAccountSheet(BuildContext context, MediaServiceController controller) {
               if (social) ...[
                 _Destination(
                   icon: Icons.person_rounded,
-                  title: 'Your profile',
+                  title: getString.yourProfile,
                   sheetContext: context,
                   open: ProfileScreen(service: service, id: me),
                 ),
                 _Destination(
                   icon: Icons.forum_rounded,
-                  title: 'Activity',
+                  title: getString.activity,
                   sheetContext: context,
                   open: ActivityFeedScreen(service: service),
                 ),
               ],
               _Destination(
                 icon: Icons.extension_rounded,
-                title: 'Extensions',
+                title: getString.extensions,
                 sheetContext: context,
                 open: const ExtensionScreen(),
               ),
               _Destination(
                 icon: Icons.settings_rounded,
-                title: 'Settings',
+                title: getString.settings,
                 sheetContext: context,
                 open: const SettingsScreen(),
               ),
@@ -123,7 +124,9 @@ class _Profile extends StatelessWidget {
                         loggedIn ? Icons.logout_rounded : Icons.login_rounded,
                         size: 18,
                       ),
-                      label: Text(loggedIn ? 'Log out' : 'Log in'),
+                      label: Text(
+                        loggedIn ? getString.logOut : getString.logIn,
+                      ),
                       onPressed: () =>
                           _authAction(service.name, auth, loggedIn),
                     ),
@@ -133,7 +136,7 @@ class _Profile extends StatelessWidget {
             ),
             if (user != null && service.socialView != null)
               IconButton(
-                tooltip: 'Activity',
+                tooltip: getString.activity,
                 icon: const Icon(Icons.forum_outlined),
                 onPressed: () {
                   popPage(sheet);
@@ -161,8 +164,8 @@ class _Profile extends StatelessWidget {
       return;
     }
     AlertDialogBuilder(context)
-      ..setTitle('Log out of $name')
-      ..setMessage('Are you sure you want to log out?')
+      ..setTitle(getString.logOutOf(name))
+      ..setMessage(getString.logOutConfirm)
       ..setPositiveButton('Yes', auth.logout)
       ..setNegativeButton('No', null)
       ..show();
@@ -180,7 +183,7 @@ class _Toggles extends StatelessWidget {
       child: _Group(
         children: [
           _SwitchRow(
-            title: 'Incognito mode',
+            title: getString.incognitoMode,
             rx: PrefName.incognito.rx,
             icon: loadSvg(
               'assets/svg/incognito.svg',
@@ -192,14 +195,14 @@ class _Toggles extends StatelessWidget {
           Watch(
             () => PrefName.incognito.rx.value
                 ? _SwitchRow(
-                    title: 'Also block list edits',
+                    title: getString.alsoBlockListEdits,
                     rx: PrefName.incognitoBlockEdits.rx,
                     icon: Icon(Icons.edit_off_rounded, color: scheme.primary),
                   )
                 : const SizedBox.shrink(),
           ),
           _SwitchRow(
-            title: 'Offline mode',
+            title: getString.offlineMode,
             rx: PrefName.offlineMode.rx,
             icon: Icon(Icons.download_rounded, color: scheme.primary),
           ),
@@ -295,7 +298,7 @@ class _SwitchService extends StatelessWidget {
           height: 22,
           color: sheet.colorScheme.primary,
         ),
-        title: const Text('Switch service'),
+        title: Text(getString.switchService),
         subtitle: Text(service.name),
         trailing: Icon(
           Icons.chevron_right_rounded,

@@ -4,6 +4,7 @@ import '../../Utils/Extensions/ContextExtensions.dart';
 import '../../Utils/Nav/DpadNav.dart';
 import 'ThemedContainer.dart';
 import '../../Core/State/State.dart';
+import '../../Utils/Nav/DpadLayers.dart';
 
 class AppTab extends StatelessWidget {
   final String label;
@@ -154,21 +155,23 @@ class _AppTabsState extends State<AppTabs> {
   Widget build(BuildContext context) => Watch(() => _build(context));
 
   Widget _build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: widget.controller,
-      builder: (_, _) => AppTabBar(
-        controller: widget.controller,
-        onFocusChange: _onFocus,
-        tabs: [
-          for (final (i, item) in widget.items.indexed)
-            AppTab(
-              label: item.label,
-              count: item.count,
-              icon: item.icon,
-              selected: widget.controller.index == i,
-              focused: kFocused(_focused.value == i),
-            ),
-        ],
+    return DpadRow(
+      child: AnimatedBuilder(
+        animation: widget.controller,
+        builder: (_, _) => AppTabBar(
+          controller: widget.controller,
+          onFocusChange: _onFocus,
+          tabs: [
+            for (final (i, item) in widget.items.indexed)
+              AppTab(
+                label: item.label,
+                count: item.count,
+                icon: item.icon,
+                selected: widget.controller.index == i,
+                focused: kFocused(_focused.value == i),
+              ),
+          ],
+        ),
       ),
     );
   }

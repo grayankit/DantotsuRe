@@ -18,6 +18,10 @@ import '../Detail/ListEditorSheet.dart';
 import '../../Widgets/Components/AppTabs.dart';
 import '../../Api/Discord/DiscordPresence.dart';
 import '../../Core/State/State.dart';
+import '../../Core/ThemeManager/LanguageSwitcher.dart';
+import '../../Utils/Nav/DpadLayers.dart';
+import '../../Widgets/Components/ScreenState.dart';
+import 'MediaListState.dart';
 
 class MediaListScreen extends StatefulWidget {
   final MediaService service;
@@ -38,87 +42,36 @@ class MediaListScreen extends StatefulWidget {
 }
 
 class _MediaListScreenState extends BaseScreen<MediaListScreen>
-    with TickerProviderStateMixin {
-  static const _loadingKey = 'Loading';
-  final _lists = Live<Map<String, List<Media>>?>(null);
-  final _failed = false.live;
-  TabController? _tabs;
-
-  static final _skeletonLists = <String, List<Media>>{
-    for (var i = 0; i < 4; i++)
-      '$_loadingKey $i': [for (var j = 0; j < 12; j++) Media.skeleton()],
-  };
-
+    with
+        TickerProviderStateMixin,
+        ScreenStateHost<MediaListScreen, MediaListState> {
   @override
-  void initState() {
-    super.initState();
-    _load();
-  }
-
-  Future<void> _load() async {
-    final user = widget.service.auth?.user.value;
-    final queries = widget.service.getQueries;
-    if (queries == null) {
-      if (mounted) _failed.value = true;
-      return;
-    }
-    try {
-      final lists = await queries.getMediaLists(
-        anime: widget.anime,
-        userId: widget.userId == null ? user?.id : int.tryParse(widget.userId!),
-      );
-      if (!mounted) return;
-      _lists.value = lists;
-      _failed.value = false;
-    } catch (_) {
-      if (mounted) _failed.value = true;
-    }
-  }
-
-  Map<String, List<Media>> get _shown => _lists.value ?? _skeletonLists;
-
-  TabController _controllerFor(int length) {
-    final current = _tabs;
-    if (current != null && current.length == length) return current;
-    final index = current == null ? 0 : current.index.clamp(0, length - 1);
-    current?.dispose();
-    return _tabs = TabController(
-      length: length,
-      vsync: this,
-      initialIndex: index,
-    );
-  }
-
-  @override
-  void dispose() {
-    _tabs?.dispose();
-    super.dispose();
-  }
-
-  @override
-  DiscordPresence? get presence => DiscordPresence.browsing(
-    'Browsing a ${widget.anime ? 'anime' : 'manga'} list',
+  MediaListState buildState() => MediaListState(
+    service: widget.service,
+    anime: widget.anime,
+    userId: widget.userId,
+    userName: widget.userName,
   );
 
   @override
+  DiscordPresence? get presence => state.presence;
+
+  @override
   Widget buildContent(BuildContext context) {
-    final owner = widget.userName ?? widget.service.auth?.user.value?.name;
-    final kind = widget.anime ? 'Anime' : 'Manga';
-    final title = owner == null ? '$kind list' : "$owner's $kind list";
     return Scaffold(
       backgroundColor: Colors.transparent,
-      appBar: AppScreenBar(title: title),
+      appBar: AppScreenBar(title: state.title),
       body: _body(context),
     );
   }
 
   Widget _body(BuildContext context) {
-    final loading = _lists.value == null && !_failed.value;
-    final lists = _failed.value ? <String, List<Media>>{} : _shown;
+    final loading = state.loading;
+    final lists = state.shown;
     if (lists.isEmpty) return _empty(context);
 
     final keys = lists.keys.toList();
-    final controller = _controllerFor(keys.length);
+    final controller = state.controllerFor(keys.length);
     return Column(
       children: [
         ScrollConfig(
@@ -130,7 +83,7 @@ class _MediaListScreenState extends BaseScreen<MediaListScreen>
               items: [
                 for (final key in keys)
                   AppTabItem(
-                    loading ? 'Loading list' : key,
+                    loading ? getString.loadingList : key,
                     count: loading ? 0 : lists[key]!.length,
                   ),
               ],
@@ -155,19 +108,19 @@ class _MediaListScreenState extends BaseScreen<MediaListScreen>
 
   Widget _empty(BuildContext context) {
     return RefreshIndicator(
-      onRefresh: _load,
+      onRefresh: state.load,
       child: ListView(
         children: [
           SizedBox(
             height: 360,
             child: EmptyState(
-              icon: _failed.value
+              icon: state.failed.value
                   ? Icons.cloud_off_rounded
                   : Icons.inbox_rounded,
-              failed: _failed.value,
-              title: _failed.value
-                  ? 'Could not load the list'
-                  : 'Nothing here yet',
+              failed: state.failed.value,
+              title: state.failed.value
+                  ? getString.couldNotLoadList
+                  : getString.nothingHereYet,
             ),
           ),
         ],
@@ -181,23 +134,25 @@ class _MediaListScreenState extends BaseScreen<MediaListScreen>
     required bool skeleton,
   }) {
     final style = tryFind<CardStyleController>()?.current ?? const CardStyle();
-    final grid = GridView.builder(
-      padding: EdgeInsets.fromLTRB(
-        Dimens.pagePad,
-        Dimens.gapSm,
-        Dimens.pagePad,
-        Dimens.gapXl,
-      ),
-      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-        maxCrossAxisExtent: style.itemWidth + Dimens.cardGap + 6,
-        childAspectRatio: style.itemWidth / style.itemHeight,
-        crossAxisSpacing: Dimens.cardGap,
-        mainAxisSpacing: Dimens.gap,
-      ),
-      itemCount: media.length,
-      itemBuilder: (_, i) => Align(
-        alignment: Alignment.topCenter,
-        child: _card(media[i], i, skeleton: skeleton),
+    final grid = DpadColumn(
+      child: GridView.builder(
+        padding: EdgeInsets.fromLTRB(
+          Dimens.pagePad,
+          Dimens.gapSm,
+          Dimens.pagePad,
+          Dimens.gapXl,
+        ),
+        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+          maxCrossAxisExtent: style.itemWidth + Dimens.cardGap + 6,
+          childAspectRatio: style.itemWidth / style.itemHeight,
+          crossAxisSpacing: Dimens.cardGap,
+          mainAxisSpacing: Dimens.gap,
+        ),
+        itemCount: media.length,
+        itemBuilder: (_, i) => Align(
+          alignment: Alignment.topCenter,
+          child: _card(media[i], i, skeleton: skeleton),
+        ),
       ),
     );
     final scrolling = ScrollConfig(context, child: grid);

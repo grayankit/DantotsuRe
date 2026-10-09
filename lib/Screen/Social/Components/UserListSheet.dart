@@ -8,11 +8,12 @@ import '../../../Widgets/Components/SheetTile.dart';
 import '../SocialNavigation.dart';
 import '../../../Widgets/Components/UserAvatar.dart';
 import '../../../Utils/Functions/NavigateToScreen.dart';
+import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 
 String followLabel(UserBrief user) {
   if (user.isFollowing && user.isFollower) return 'Mutual';
   if (user.isFollowing) return 'Following';
-  if (user.isFollower) return 'Follows you';
+  if (user.isFollower) return getString.followsYou;
   return '';
 }
 
@@ -30,7 +31,7 @@ Future<void> showUserListSheet(
         ? Padding(
             padding: const EdgeInsets.all(32),
             child: Text(
-              'Nobody yet',
+              getString.nobodyYet,
               style: context.textTheme.bodyMedium?.copyWith(
                 color: context.colorScheme.onSurfaceVariant,
               ),

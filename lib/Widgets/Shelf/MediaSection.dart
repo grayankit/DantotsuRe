@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../Core/Services/Model/Media.dart';
+import '../../Core/Services/SectionTitles.dart';
 import '../../Screen/Feed/ShelfScreen.dart';
 import '../../Utils/Extensions/Responsive.dart';
 import '../../Utils/Functions/NavigateToScreen.dart';
@@ -225,7 +226,7 @@ class MediaSection extends StatelessWidget {
       navigateToPage(
         context,
         ShelfScreen(
-          title: title,
+          title: sectionLabel(title),
           media: media,
           loadMore: data.onLoadMore,
           itemFor: toItem,
@@ -241,7 +242,7 @@ class MediaSection extends StatelessWidget {
     if (data.type == 3) return _rows(context, banner: true);
     final open = _openShelf(context);
     return CardShelf(
-      title: data.title,
+      title: data.title == null ? null : sectionLabel(data.title!),
       trailingIcon:
           data.trailingIcon ??
           (open == null ? null : Icons.arrow_forward_rounded),

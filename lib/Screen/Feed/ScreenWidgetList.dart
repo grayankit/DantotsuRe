@@ -1,20 +1,16 @@
-import 'package:collection/collection.dart';
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../../Core/Services/Model/Media.dart';
 import '../../Core/Services/Screens/ServiceScreens.dart';
-import '../../Core/Services/SectionCache.dart';
 import '../../Widgets/Shelf/MediaRows.dart';
 import '../../Utils/Animation/WidgetAnimations.dart';
 import '../../Utils/Extensions/ContextExtensions.dart';
 import '../../Utils/Extensions/IntExtensions.dart';
 import '../../Utils/Extensions/Responsive.dart';
-import '../../Utils/Functions/RefreshController.dart'
-    show RefreshController, routeObserver;
+import '../../Utils/Functions/RefreshController.dart' show routeObserver;
 import '../../Widgets/Components/AppControls.dart';
 import '../../Widgets/Components/ScrollConfig.dart';
 import '../../Widgets/Components/ThemedContainer.dart';
@@ -22,6 +18,9 @@ import '../../Widgets/Components/SectionCard.dart';
 import '../../Widgets/Shelf/MediaSection.dart';
 import '../Widgets/ScreenWidgetView.dart';
 import '../../Core/State/State.dart';
+import '../../Core/ThemeManager/LanguageSwitcher.dart';
+import '../../Widgets/Components/ScreenState.dart';
+import 'ScreenWidgetListState.dart';
 
 class ScreenWidgetList extends StatefulWidget {
   final Stream<List<ScreenWidget>> Function() loader;
@@ -54,84 +53,40 @@ class ScreenWidgetList extends StatefulWidget {
 }
 
 class _ScreenWidgetListState extends State<ScreenWidgetList>
-    with AutomaticKeepAliveClientMixin, RouteAware {
-  final _current = <ScreenWidget>[].liveList;
-  final _error = Live<String?>(null);
-  final _scroll = ScrollController();
-  final _showTop = false.live;
-  final _chip = Live<String?>(null);
-  final _chipMedia = Live<List<Media>?>(null);
-  final _chipLoading = false.live;
-  final _showHidden = false.live;
-  String? _firstTitle;
-
-  final _seen = <String>{};
-  final _mediaByTitle = <String, List<Media>>{};
-  final _pages = <String, int>{};
-  final _sectionBuilders = <String, MediaSection Function(MediaSectionData)>{};
-  final _types = <String, int>{};
-  final _loadMoreFns = <String, Future<List<Media>?> Function(int)>{};
-  final _tailDone = <String>{};
-  bool _tailLoading = false;
-  String? _tailTitle;
+    with
+        AutomaticKeepAliveClientMixin,
+        RouteAware,
+        ScreenStateHost<ScreenWidgetList, ScreenWidgetListState> {
+  @override
+  ScreenWidgetListState buildState() => ScreenWidgetListState(
+    loader: widget.loader,
+    cacheId: widget.cacheId,
+    reloadOn: widget.reloadOn,
+    sectionTypeOf: widget.sectionTypeOf,
+    isHiddenFn: widget.isHidden,
+    chips: widget.chips,
+    onChipFn: widget.onChip,
+    isVisible: () => _visibleNow,
+  );
 
   String get _heroPrefix => widget.cacheId ?? identityHashCode(this).toString();
-
-  late final SectionCache? _cache = widget.cacheId == null
-      ? null
-      : SectionCache(widget.cacheId!);
-
-  StreamSubscription<Object?>? _reloadSub;
-  Disposer? _signalSub;
-  bool _refreshing = false;
-  bool _queued = false;
-  final _loaded = false.live;
 
   @override
   bool get wantKeepAlive => true;
 
-  @override
-  void initState() {
-    super.initState();
-    unawaited(_paintCached());
-    _refresh();
-    _reloadSub = widget.reloadOn?.listen((_) => _refresh());
-
-    final key = widget.cacheId;
-    if (key != null) {
-      final flag = find<RefreshController>().getOrPut(key, false);
-      _signalSub = onChange(flag, (v) {
-        if (!v) return;
-        flag.value = false;
-        if (_visibleNow) {
-          _refresh();
-        } else {
-          _dirty = true;
-        }
-      });
-    }
-  }
-
-  bool _dirty = false;
   ValueListenable<bool>? _tickers;
   ModalRoute<void>? _route;
 
   bool get _visibleNow =>
       mounted && (_tickers?.value ?? true) && (_route?.isCurrent ?? true);
 
-  void _flushDirty() {
-    if (!_dirty || !_visibleNow) return;
-    _dirty = false;
-    unawaited(_refresh());
-  }
-
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final tickers = TickerMode.getNotifier(context);
     if (!identical(tickers, _tickers)) {
-      _tickers?.removeListener(_flushDirty);
-      _tickers = tickers..addListener(_flushDirty);
+      _tickers?.removeListener(state.flushDirty);
+      _tickers = tickers..addListener(state.flushDirty);
     }
     final route = ModalRoute.of(context);
     if (route != null && !identical(route, _route)) {
@@ -142,187 +97,13 @@ class _ScreenWidgetListState extends State<ScreenWidgetList>
   }
 
   @override
-  void didPopNext() => _flushDirty();
-
-  Future<void> _paintCached() async {
-    final cached = await _cache?.read();
-    if (!mounted || cached == null || cached.isEmpty || _loaded.value) return;
-    _mediaByTitle.addAll(cached);
-    _order.addAll(cached.keys);
-    for (final title in cached.keys) {
-      _types[title] = widget.sectionTypeOf?.call(title) ?? 0;
-    }
-    _current.value = [
-      for (final e in cached.entries)
-        ScreenWidget.media(e.key, e.value, sectionType: _types[e.key] ?? 0),
-    ];
-  }
+  void didPopNext() => state.flushDirty();
 
   @override
   void dispose() {
-    _composeTimer?.cancel();
-    _cacheTimer?.cancel();
-    _reloadSub?.cancel();
-    _signalSub?.dispose();
-    _scroll.dispose();
-    _tickers?.removeListener(_flushDirty);
+    _tickers?.removeListener(state.flushDirty);
     routeObserver.unsubscribe(this);
     super.dispose();
-  }
-
-  final _order = <String>[];
-
-  Future<void> _refresh() async {
-    if (_refreshing) {
-      _queued = true;
-      return;
-    }
-    _refreshing = true;
-    _error.value = null;
-    List<ScreenWidget>? last;
-    try {
-      await for (final list in widget.loader()) {
-        last = list;
-        _patch(list);
-        _loaded.value = true;
-      }
-      if (last != null) _prune(last);
-    } catch (e) {
-      if (_current.isEmpty) _error.value = e.toString();
-    } finally {
-      _refreshing = false;
-      if (_queued && mounted) {
-        _queued = false;
-        unawaited(_refresh());
-      }
-    }
-  }
-
-  void _patch(List<ScreenWidget> list) {
-    String? previous;
-    for (final item in list) {
-      if (!item.isMedia) continue;
-      final title = item.title!;
-      if (!_order.contains(title)) {
-        final at = previous == null ? -1 : _order.indexOf(previous);
-        _order.insert(at < 0 ? 0 : at + 1, title);
-      }
-      previous = title;
-      final incoming = item.media!;
-      _mediaByTitle[title] = incoming;
-      _pages.remove(title);
-      _tailDone.remove(title);
-      _remember(_loadMoreFns, title, item.onLoadMore);
-      _remember(_sectionBuilders, title, item.section);
-      _types[title] = item.sectionType;
-    }
-    _composeThrottled(list);
-    _cacheTimer?.cancel();
-    _cacheTimer = Timer(const Duration(milliseconds: 900), () {
-      if (mounted && _mediaByTitle.isNotEmpty) {
-        unawaited(_cache?.write(_mediaByTitle));
-      }
-    });
-  }
-
-  void _remember<T>(Map<String, T> map, String title, T? value) {
-    if (value == null) {
-      map.remove(title);
-    } else {
-      map[title] = value;
-    }
-  }
-
-  void _prune(List<ScreenWidget> finalList) {
-    final keep = {
-      for (final item in finalList)
-        if (item.isMedia) item.title!,
-    };
-    _order
-      ..clear()
-      ..addAll([
-        for (final item in finalList)
-          if (item.isMedia) item.title!,
-      ]);
-    _mediaByTitle.removeWhere((t, _) => !keep.contains(t));
-    _loadMoreFns.removeWhere((t, _) => !keep.contains(t));
-    _sectionBuilders.removeWhere((t, _) => !keep.contains(t));
-    _types.removeWhere((t, _) => !keep.contains(t));
-    _composeTimer?.cancel();
-    _composeTimer = null;
-    _pendingCompose = null;
-    _cacheTimer?.cancel();
-    _compose(finalList);
-    if (_mediaByTitle.isNotEmpty) unawaited(_cache?.write(_mediaByTitle));
-  }
-
-  Timer? _cacheTimer;
-  Timer? _composeTimer;
-  List<ScreenWidget>? _pendingCompose;
-
-  void _composeThrottled(List<ScreenWidget> latest) {
-    if (_current.isEmpty) {
-      _compose(latest);
-      return;
-    }
-    _pendingCompose = latest;
-    _composeTimer ??= Timer(const Duration(milliseconds: 120), () {
-      _composeTimer = null;
-      final pending = _pendingCompose;
-      _pendingCompose = null;
-      if (mounted && pending != null) _compose(pending);
-    });
-  }
-
-  void _compose(List<ScreenWidget> latest) {
-    _current.value = [
-      for (final item in latest)
-        if (!item.isMedia) item,
-      for (final title in _order)
-        ScreenWidget.media(
-          title,
-          _mediaByTitle[title]!,
-          sectionType: _types[title] ?? 0,
-        ),
-    ];
-  }
-
-  Future<void> _loadTail(String title) async {
-    if (_tailLoading || _tailDone.contains(title)) return;
-    _tailLoading = true;
-    try {
-      final more = await _loadMoreSection(title);
-      if (!mounted) return;
-      final known = {
-        for (final m in _mediaByTitle[title] ?? const <Media>[]) m.id,
-      };
-      final fresh = [
-        for (final m in more ?? const <Media>[])
-          if (known.add(m.id)) m,
-      ];
-      if (fresh.isEmpty) {
-        _tailDone.add(title);
-      } else {
-        _mediaByTitle[title] = [...?_mediaByTitle[title], ...fresh];
-      }
-      _compose(_current.toList());
-    } finally {
-      _tailLoading = false;
-    }
-  }
-
-  Future<List<Media>?> _loadMoreSection(String title) async {
-    final fn = _loadMoreFns[title];
-    if (fn == null) return null;
-    final page = (_pages[title] ?? 1) + 1;
-    _pages[title] = page;
-    try {
-      final more = await fn(page);
-      return more == null || more.isEmpty ? null : more;
-    } catch (_) {
-      if (_pages[title] == page) _pages[title] = page - 1;
-      rethrow;
-    }
   }
 
   @override
@@ -337,14 +118,14 @@ class _ScreenWidgetListState extends State<ScreenWidgetList>
       left: 0,
       right: 0,
       child: Watch(
-        () => _showTop.value
+        () => state.showTop.value
             ? Center(
                 child: ThemedContainer(
                   borderRadius: BorderRadius.circular(64),
                   padding: const EdgeInsets.all(4),
                   child: IconButton(
                     icon: const Icon(Icons.arrow_upward_rounded),
-                    onPressed: () => _scroll.animateTo(
+                    onPressed: () => state.scroll.animateTo(
                       0,
                       duration: const Duration(milliseconds: 500),
                       curve: Curves.easeInOut,
@@ -359,20 +140,20 @@ class _ScreenWidgetListState extends State<ScreenWidgetList>
 
   Widget _list(BuildContext context) {
     return RefreshIndicator(
-      onRefresh: _refresh,
+      onRefresh: state.refresh,
       child: Watch(() {
-        final list = _current;
+        final list = state.current;
         final empty = list.isEmpty;
-        final showError = _error.value != null && empty;
-        final showEmpty = empty && !showError && _loaded.value;
+        final showError = state.error.value != null && empty;
+        final showEmpty = empty && !showError && state.loaded.value;
         final showSkeleton = empty && !showError && !showEmpty;
 
-        _tailTitle = null;
+        state.tailTitle = null;
         return NotificationListener<ScrollNotification>(
-          onNotification: _onScroll,
+          onNotification: state.onScroll,
           child: CustomScrollConfig(
             context,
-            controller: _scroll,
+            controller: state.scroll,
             physics: const AlwaysScrollableScrollPhysics(),
             children: [
               if (widget.header != null)
@@ -381,7 +162,7 @@ class _ScreenWidgetListState extends State<ScreenWidgetList>
                 if (item.media!.isNotEmpty)
                   SliverToBoxAdapter(
                     key: ValueKey('spotlight-${item.title}'),
-                    child: _chipLoading.value
+                    child: state.chipLoading.value
                         ? const MediaSection(
                             data: MediaSectionData(type: 1, loading: true),
                           )
@@ -389,7 +170,7 @@ class _ScreenWidgetListState extends State<ScreenWidgetList>
                             data: MediaSectionData(
                               type: 1,
                               title: item.title,
-                              mediaList: (_chipMedia.value ?? item.media!)
+                              mediaList: (state.chipMedia.value ?? item.media!)
                                   .take(10)
                                   .toList(),
                               heroPrefix: _heroPrefix,
@@ -410,11 +191,11 @@ class _ScreenWidgetListState extends State<ScreenWidgetList>
                     child: const MediaSection(data: MediaSectionData.loading()),
                   )
               else if (showError)
-                SliverToBoxAdapter(child: _errorBox(_error.value!))
+                SliverToBoxAdapter(child: _errorBox(state.error.value!))
               else if (showEmpty)
                 SliverToBoxAdapter(child: _emptyBox())
               else
-                ..._sections(_visible(list)),
+                ..._sections(state.visible(list)),
               SliverToBoxAdapter(child: SizedBox(height: 120.bottomBar())),
             ],
           ),
@@ -422,25 +203,6 @@ class _ScreenWidgetListState extends State<ScreenWidgetList>
       }),
     );
   }
-
-  List<ScreenWidget> _visible(List<ScreenWidget> list) {
-    final visible = [
-      for (final e in list)
-        if (!e.isCarousel && (_showHidden.value || !_isHidden(e.title))) e,
-    ];
-    final shown = [
-      ...visible.where((e) => _isHidden(e.title)),
-      ...visible.where((e) => !_isHidden(e.title)),
-    ];
-    _firstTitle = shown.firstWhereOrNull((e) => e.title != null)?.title;
-    return shown;
-  }
-
-  bool _isPaged(ScreenWidget item) =>
-      _loaded.value &&
-      item.isMedia &&
-      item.isRows &&
-      _loadMoreFns[item.title] != null;
 
   List<Widget> _sections(List<ScreenWidget> sections) {
     final out = <Widget>[];
@@ -452,7 +214,7 @@ class _ScreenWidgetListState extends State<ScreenWidgetList>
     }
 
     for (final item in sections) {
-      if (_isPaged(item)) {
+      if (state.isPaged(item)) {
         flush();
         out.addAll(_paged(item));
       } else {
@@ -467,7 +229,7 @@ class _ScreenWidgetListState extends State<ScreenWidgetList>
     final title = item.title!;
     final media = item.media!;
     final banner = item.sectionType == 3;
-    _tailTitle = _tailDone.contains(title) ? null : title;
+    state.tailTitle = state.tailDone.contains(title) ? null : title;
     return [
       SliverToBoxAdapter(
         child: Padding(
@@ -479,7 +241,7 @@ class _ScreenWidgetListState extends State<ScreenWidgetList>
           ),
           child: SectionHeader(
             title: title,
-            onLongPress: _titleLongPress(title),
+            onLongPress: state.titleLongPress(title),
           ),
         ),
       ),
@@ -509,7 +271,7 @@ class _ScreenWidgetListState extends State<ScreenWidgetList>
           },
         ),
       ),
-      if (_tailTitle == title)
+      if (state.tailTitle == title)
         SliverToBoxAdapter(
           child: Padding(
             padding: EdgeInsets.all(Dimens.gapLg),
@@ -519,40 +281,6 @@ class _ScreenWidgetListState extends State<ScreenWidgetList>
           ),
         ),
     ];
-  }
-
-  bool _isHidden(String? title) =>
-      title != null && (widget.isHidden?.call(title) ?? false);
-
-  void _toggleHidden() {
-    _showHidden.value = !_showHidden.value;
-    unawaited(HapticFeedback.mediumImpact());
-  }
-
-  VoidCallback? _titleLongPress(String title) {
-    if (!_current.any((e) => _isHidden(e.title))) return null;
-    return title == _firstTitle || _isHidden(title) ? _toggleHidden : null;
-  }
-
-  Future<void> _selectChip(String? id) async {
-    final onChip = widget.onChip;
-    if (onChip == null) return;
-    if (id == null || id == _chip.value) {
-      _chip.value = null;
-      _chipMedia.value = null;
-      return;
-    }
-    _chip.value = id;
-    _chipLoading.value = true;
-    try {
-      final chip = widget.chips.firstWhere((c) => c.id == id);
-      final media = await onChip(chip);
-      if (_chip.value == id) _chipMedia.value = media;
-    } catch (_) {
-      if (_chip.value == id) _chipMedia.value = null;
-    } finally {
-      if (_chip.value == id) _chipLoading.value = false;
-    }
   }
 
   Widget _chipRow() {
@@ -568,8 +296,8 @@ class _ScreenWidgetListState extends State<ScreenWidgetList>
           0,
         ),
         child: AppChoiceChips<String?>(
-          value: _chip.value,
-          onChanged: _selectChip,
+          value: state.chip.value,
+          onChanged: state.selectChip,
           options: [
             for (final c in widget.chips)
               AppSegment<String?>(c.id, label: c.label),
@@ -577,20 +305,6 @@ class _ScreenWidgetListState extends State<ScreenWidgetList>
         ),
       ),
     );
-  }
-
-  bool _onScroll(ScrollNotification n) {
-    if (n.depth == 0 && n.metrics.axis == Axis.vertical) {
-      _showTop.value = n.metrics.pixels > 700;
-    }
-    final title = _tailTitle;
-    if (title != null &&
-        n.depth == 0 &&
-        n.metrics.extentAfter < 600 &&
-        (n is ScrollUpdateNotification || n is ScrollEndNotification)) {
-      unawaited(_loadTail(title));
-    }
-    return false;
   }
 
   Widget _sectionList(List<ScreenWidget> sections) {
@@ -617,7 +331,7 @@ class _ScreenWidgetListState extends State<ScreenWidgetList>
 
   Widget _section(int index, ScreenWidget item) {
     final title = item.title!;
-    final firstSeen = _seen.add(title) && index < 4;
+    final firstSeen = state.seen.add(title) && index < 4;
     final data = MediaSectionData(
       type: item.sectionType,
       title: title,
@@ -627,13 +341,13 @@ class _ScreenWidgetListState extends State<ScreenWidgetList>
       onMediaLongPress: widget.onMediaLongPress == null
           ? null
           : (ctx, idx, m) => widget.onMediaLongPress!(m),
-      onTitleLongPress: _titleLongPress(title),
-      onLoadMore: _loadMoreFns[title] == null
+      onTitleLongPress: state.titleLongPress(title),
+      onLoadMore: state.loadMoreFns[title] == null
           ? null
-          : () => _loadMoreSection(title),
+          : () => state.loadMoreSection(title),
     );
     final section =
-        _sectionBuilders[title]?.call(data) ?? MediaSection(data: data);
+        state.sectionBuilders[title]?.call(data) ?? MediaSection(data: data);
     return KeyedSubtree(
       key: ValueKey('section-$title'),
       child: section,
@@ -646,16 +360,16 @@ class _ScreenWidgetListState extends State<ScreenWidgetList>
 
   Widget _emptyBox() => _messageCard(
     icon: Icons.auto_awesome_motion_rounded,
-    title: 'Nothing to show yet',
-    body: 'Add some titles to your list and they\'ll appear here.',
-    action: 'Refresh',
+    title: getString.nothingToShowYet,
+    body: getString.addTitlesHint,
+    action: getString.refresh,
   );
 
   Widget _errorBox(String text) => _messageCard(
     icon: Icons.cloud_off_rounded,
-    title: 'Couldn\'t load',
+    title: getString.couldntLoad,
     body: text,
-    action: 'Retry',
+    action: getString.retry,
   );
 
   Widget _messageCard({
@@ -685,7 +399,7 @@ class _ScreenWidgetListState extends State<ScreenWidgetList>
             ),
           ),
           SizedBox(height: Dimens.gap),
-          FilledButton.tonal(onPressed: _refresh, child: Text(action)),
+          FilledButton.tonal(onPressed: state.refresh, child: Text(action)),
         ],
       ),
     ),

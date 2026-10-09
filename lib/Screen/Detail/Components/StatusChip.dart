@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../Utils/Extensions/ContextExtensions.dart';
 import '../../../Utils/Extensions/StringExtensions.dart';
+import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 
 class StatusChip extends StatelessWidget {
   final String status;
@@ -13,43 +14,43 @@ class StatusChip extends StatelessWidget {
     final key = status.toUpperCase().replaceAll(' ', '_');
     return switch (key) {
       'FINISHED' => (
-        'Finished',
+        getString.finished,
         Icons.check_circle_rounded,
         s.secondaryContainer,
         s.onSecondaryContainer,
       ),
       'RELEASING' => (
-        'Releasing',
+        getString.releasing,
         Icons.sensors_rounded,
         s.primaryContainer,
         s.onPrimaryContainer,
       ),
       'NOT_YET_RELEASED' => (
-        'Not Yet Released',
+        getString.notYetReleased,
         Icons.schedule_rounded,
         s.surfaceContainerHighest,
         s.onSurface,
       ),
       'CANCELLED' => (
-        'Cancelled',
+        getString.cancelled,
         Icons.cancel_rounded,
         s.errorContainer,
         s.onErrorContainer,
       ),
       'HIATUS' => (
-        'Hiatus',
+        getString.hiatus,
         Icons.pause_circle_rounded,
         s.tertiaryContainer,
         s.onTertiaryContainer,
       ),
       'CURRENT' => (
-        isAnime ? 'Watching' : 'Reading',
+        isAnime ? getString.watching : getString.reading,
         Icons.play_circle_rounded,
         s.primaryContainer,
         s.onPrimaryContainer,
       ),
       'REPEATING' => (
-        isAnime ? 'Rewatching' : 'Rereading',
+        isAnime ? getString.rewatching : getString.rereading,
         Icons.replay_circle_filled_rounded,
         s.primaryContainer,
         s.onPrimaryContainer,
@@ -61,25 +62,25 @@ class StatusChip extends StatelessWidget {
         s.onSecondaryContainer,
       ),
       'COMPLETED' => (
-        'Completed',
+        getString.completed,
         Icons.check_circle_rounded,
         s.secondaryContainer,
         s.onSecondaryContainer,
       ),
       'PAUSED' => (
-        'Paused',
+        getString.paused,
         Icons.pause_circle_rounded,
         s.tertiaryContainer,
         s.onTertiaryContainer,
       ),
       'DROPPED' => (
-        'Dropped',
+        getString.dropped,
         Icons.remove_circle_rounded,
         s.errorContainer,
         s.onErrorContainer,
       ),
       'NOT_STARTED' => (
-        'Not Started',
+        getString.notStarted,
         Icons.radio_button_unchecked_rounded,
         s.surfaceContainerHighest,
         s.onSurface,

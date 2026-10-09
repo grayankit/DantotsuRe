@@ -1,6 +1,8 @@
 import '../../Utils/Nav/DpadNav.dart';
 import 'package:flutter/material.dart';
 
+import '../../Utils/Nav/DpadLayers.dart';
+
 import 'ThemedContainer.dart';
 import '../../Utils/Animation/WidgetAnimations.dart';
 import '../../Utils/Extensions/ContextExtensions.dart';
@@ -231,6 +233,6 @@ Future<T?> showCustomBottomDialog<T>(
     backgroundColor: Colors.transparent,
     useSafeArea: true,
     elevation: 2,
-    builder: (context) => child,
+    builder: (context) => DpadEnter(child: child),
   ).whenComplete(() => onDismissed?.call());
 }

@@ -14,6 +14,7 @@ import '../../../Widgets/Components/Clickable.dart';
 import '../../../Widgets/Components/CachedNetworkImage.dart';
 import '../../../Widgets/Components/UserAvatar.dart';
 import '../../../Core/State/State.dart';
+import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 
 const _toolbarHeight = 56.0;
 
@@ -150,7 +151,7 @@ class ProfileHeaderDelegate extends SliverPersistentHeaderDelegate {
                                   Clickable(
                                     onLongPress: () => copyToClipboard(
                                       name,
-                                      message: 'Name copied',
+                                      message: getString.nameCopied,
                                     ),
                                     child: Text(
                                       name,
@@ -167,8 +168,8 @@ class ProfileHeaderDelegate extends SliverPersistentHeaderDelegate {
                                       padding: const EdgeInsets.only(top: 4),
                                       child: Text(
                                         u.isFollowing
-                                            ? 'Follows each other'
-                                            : 'Follows you',
+                                            ? getString.followsEachOther
+                                            : getString.followsYou,
                                         style: context.textTheme.labelMedium
                                             ?.copyWith(
                                               color: scheme.primary,
@@ -288,7 +289,7 @@ class ProfileHeaderDelegate extends SliverPersistentHeaderDelegate {
                 minimumSize: const Size(0, 36),
               ),
               onPressed: busy ? null : onFollow,
-              child: const Text('Unfollow'),
+              child: Text(getString.unfollow),
             )
           : FilledButton(
               style: FilledButton.styleFrom(
@@ -296,7 +297,7 @@ class ProfileHeaderDelegate extends SliverPersistentHeaderDelegate {
                 minimumSize: const Size(0, 36),
               ),
               onPressed: busy ? null : onFollow,
-              child: const Text('Follow'),
+              child: Text(getString.follow),
             );
     });
   }
@@ -377,16 +378,16 @@ class ProfileHeaderDelegate extends SliverPersistentHeaderDelegate {
       onSelected: (v) {
         if (v == 'share') shareLink(url);
         if (v == 'browser') openLinkInBrowser(url);
-        if (v == 'copy') copyToClipboard(url, message: 'Link copied');
+        if (v == 'copy') copyToClipboard(url, message: getString.linkCopied);
         if (v == 'id' && u != null) {
-          copyToClipboard(u.id, message: 'User id copied');
+          copyToClipboard(u.id, message: getString.userIdCopied);
         }
       },
-      itemBuilder: (_) => const [
-        PopupMenuItem(value: 'share', child: Text('Share profile')),
-        PopupMenuItem(value: 'browser', child: Text('Open in browser')),
-        PopupMenuItem(value: 'copy', child: Text('Copy link')),
-        PopupMenuItem(value: 'id', child: Text('Copy user id')),
+      itemBuilder: (_) => [
+        PopupMenuItem(value: 'share', child: Text(getString.shareProfile)),
+        PopupMenuItem(value: 'browser', child: Text(getString.openInBrowser)),
+        PopupMenuItem(value: 'copy', child: Text(getString.copyLink)),
+        PopupMenuItem(value: 'id', child: Text(getString.copyUserId)),
       ],
     );
   }
