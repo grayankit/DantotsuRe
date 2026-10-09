@@ -114,6 +114,28 @@ Widget dpadScaleFocus(
   child: child,
 );
 
+Widget Function(BuildContext, DpadFocusState, Widget) dpadIconFocus({
+  double scale = 1.1,
+  double? radius,
+}) => (context, state, child) {
+  final focused = kDpadFocused(state);
+  return AnimatedScale(
+    scale: focused ? scale : 1.0,
+    duration: Durations.short3,
+    curve: Curves.easeOutBack,
+    child: DecoratedBox(
+      decoration: BoxDecoration(
+        color: focused
+            ? Theme.of(context).colorScheme.secondaryContainer
+            : Colors.transparent,
+        shape: radius == null ? BoxShape.circle : BoxShape.rectangle,
+        borderRadius: radius == null ? null : BorderRadius.circular(radius),
+      ),
+      child: child,
+    ),
+  );
+};
+
 class DpadTap extends StatelessWidget {
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;

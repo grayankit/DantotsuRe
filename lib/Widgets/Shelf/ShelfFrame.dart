@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../Utils/Extensions/Responsive.dart';
+import '../../Utils/Nav/DpadLayers.dart';
+import '../../Utils/Nav/DpadNav.dart';
 import '../Components/SectionCard.dart';
 import '../Components/ThemedContainer.dart';
 
@@ -19,6 +21,7 @@ class ShelfFrame extends StatelessWidget {
   final Widget? trailing;
   final VoidCallback? onTitleTap;
   final VoidCallback? onTitleLongPress;
+  final VoidCallback? onHeaderSelect;
   final Widget child;
 
   const ShelfFrame({
@@ -27,6 +30,7 @@ class ShelfFrame extends StatelessWidget {
     this.trailing,
     this.onTitleTap,
     this.onTitleLongPress,
+    this.onHeaderSelect,
     required this.child,
   });
 
@@ -34,7 +38,7 @@ class ShelfFrame extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (ShelfFlat.of(context)) return _flat();
+    if (ShelfFlat.of(context)) return _flat(context);
     final scheme = Theme.of(context).colorScheme;
     return RepaintBoundary(
       child: ThemedContainer(
@@ -60,12 +64,7 @@ class ShelfFrame extends StatelessWidget {
                   8,
                   0,
                 ),
-                child: SectionHeader(
-                  title: title!,
-                  onTap: onTitleTap,
-                  onLongPress: onTitleLongPress,
-                  trailing: trailing,
-                ),
+                child: _header(context),
               ),
               SizedBox(height: Dimens.gapSm),
             ] else
@@ -78,19 +77,40 @@ class ShelfFrame extends StatelessWidget {
     );
   }
 
-  Widget _flat() => RepaintBoundary(
+  Widget _header(BuildContext context) {
+    final header = SectionHeader(
+      title: title!,
+      onTap: onTitleTap,
+      onLongPress: onTitleLongPress,
+      trailing: trailing,
+    );
+    final select = onHeaderSelect;
+    if (select == null) return header;
+    return DpadRow(
+      child: DpadFocusable(
+        onSelect: select,
+        builder: (context, state, child) => DecoratedBox(
+          decoration: BoxDecoration(
+            color: kDpadFocused(state)
+                ? Theme.of(context).colorScheme.secondaryContainer
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: child,
+        ),
+        child: ExcludeFocus(child: header),
+      ),
+    );
+  }
+
+  Widget _flat(BuildContext context) => RepaintBoundary(
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (_hasTitle)
           Padding(
             padding: EdgeInsets.fromLTRB(Dimens.pagePad, 0, Dimens.gapSm, 0),
-            child: SectionHeader(
-              title: title!,
-              onTap: onTitleTap,
-              onLongPress: onTitleLongPress,
-              trailing: trailing,
-            ),
+            child: _header(context),
           ),
         if (_hasTitle) SizedBox(height: Dimens.gapSm),
         child,

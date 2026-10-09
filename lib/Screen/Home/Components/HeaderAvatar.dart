@@ -49,7 +49,7 @@ class HeaderAvatar extends StatelessWidget {
     return DpadFocusable(
       onSelect: onTap,
       onLongSelect: onLongPress,
-      builder: dpadScaleFocus,
+      builder: dpadIconFocus(),
       child: child,
     );
   }

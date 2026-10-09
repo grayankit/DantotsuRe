@@ -70,6 +70,8 @@ class _CardShelfState extends State<CardShelf> {
 
   double get _gap => Dimens.cardGap;
 
+  static const _pop = 14.0;
+
   @override
   void initState() {
     super.initState();
@@ -91,6 +93,8 @@ class _CardShelfState extends State<CardShelf> {
       onTitleTap: widget.onTitleTap,
       onTitleLongPress: widget.onTitleLongPress,
       trailing: _trailingButton(),
+      onHeaderSelect:
+          widget.onTrailingIconTap ?? widget.onTrailingIconLongPress,
       child: _buildBody(),
     );
     return _loading ? Skeletonizer(child: frame) : frame;
@@ -99,16 +103,10 @@ class _CardShelfState extends State<CardShelf> {
   Widget? _trailingButton() {
     final icon = widget.trailingIcon;
     if (icon == null || _loading) return null;
-    return DpadFocusable(
-      enabled:
-          widget.onTrailingIconTap != null ||
-          widget.onTrailingIconLongPress != null,
-      onSelect: widget.onTrailingIconTap ?? widget.onTrailingIconLongPress,
-      child: IconButton(
-        icon: Icon(icon, size: 24, color: theme.colorScheme.onSurface),
-        onPressed: widget.onTrailingIconTap,
-        onLongPress: widget.onTrailingIconLongPress,
-      ),
+    return IconButton(
+      icon: Icon(icon, size: 24, color: theme.colorScheme.onSurface),
+      onPressed: widget.onTrailingIconTap,
+      onLongPress: widget.onTrailingIconLongPress,
     );
   }
 
@@ -144,11 +142,11 @@ class _CardShelfState extends State<CardShelf> {
   Widget _buildBody() {
     if (_loading) {
       return SizedBox(
-        height: _railH,
+        height: _railH + _pop * 2,
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
           physics: const NeverScrollableScrollPhysics(),
-          padding: EdgeInsets.only(left: _inset),
+          padding: EdgeInsets.only(left: _inset, top: _pop),
           itemCount: 8,
           itemBuilder: (context, index) => Padding(
             padding: EdgeInsets.only(right: _gap),
@@ -159,7 +157,7 @@ class _CardShelfState extends State<CardShelf> {
     }
     return DpadRow(
       child: SizedBox(
-        height: _railH,
+        height: _railH + _pop * 2,
         child: NotificationListener<ScrollNotification>(
           onNotification: (scroll) =>
               state.scrollListener(scroll, widget.onLoadMore),
@@ -184,7 +182,10 @@ class _CardShelfState extends State<CardShelf> {
                         child: Align(
                           alignment: Alignment.topCenter,
                           child: Padding(
-                            padding: _horizontalPadding(index, list.length),
+                            padding: _horizontalPadding(
+                              index,
+                              list.length,
+                            ).add(const EdgeInsets.only(top: _pop)),
                             child: _cardFor(index, item),
                           ),
                         ),

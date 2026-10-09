@@ -65,7 +65,6 @@ class PosterCard extends StatefulWidget {
 
 class _PosterCardState extends State<PosterCard> {
   final _hover = false.live;
-
   late CardStyle _style;
 
   ColorScheme get _scheme => context.colorScheme;
@@ -101,8 +100,14 @@ class _PosterCardState extends State<PosterCard> {
       onSelect: widget.onTap ?? () {},
       onLongSelect: widget.onLongPress,
       builder: (context, state, child) => Watch(
-        () =>
-            _scaled(child, (_hover.value || kDpadFocused(state)) ? 1.03 : 1.0),
+        () => _scaled(
+          child,
+          kDpadFocused(state)
+              ? 1.1
+              : _hover.value
+              ? 1.03
+              : 1.0,
+        ),
       ),
       child: visual,
     );

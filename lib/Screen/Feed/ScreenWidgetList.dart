@@ -355,6 +355,7 @@ class _ScreenWidgetListState extends State<ScreenWidgetList>
       onMediaLongPress: widget.onMediaLongPress == null
           ? null
           : (ctx, idx, m) => widget.onMediaLongPress!(m),
+      onTitleTap: state.titleLongPress(title),
       onTitleLongPress: state.titleLongPress(title),
       onLoadMore: state.loadMoreFns[title] == null
           ? null

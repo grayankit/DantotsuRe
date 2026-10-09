@@ -248,7 +248,7 @@ class MediaSection extends StatelessWidget {
           (open == null ? null : Icons.arrow_forward_rounded),
       onTrailingIconTap: data.onTrailingIconTap ?? open,
       onTrailingIconLongPress: data.onTrailingIconLongPress,
-      onTitleTap: data.onTitleTap ?? open,
+      onTitleTap: data.onTitleTap,
       onTitleLongPress: data.onTitleLongPress,
       items: _items(context),
       dataKey: data.loading ? null : data.mediaList,
