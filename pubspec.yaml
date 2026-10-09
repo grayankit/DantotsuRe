@@ -49,10 +49,10 @@ dependencies:
   skeletonizer: ^3.0.0
   blurbox: ^0.0.6
   markdown_widget: ^2.3.2+8
-  dpad: ^3.0.0
+  dpad: ^3.1.1
   dynamic_color: ^2.1.0
   # dynamic_color 2.x exposes material_ui's ColorScheme; see Core/ThemeManager/DynamicColorScheme.dart
-  material_ui: ^1.5.0
+  material_ui: ^1.6.0
 
   # UI Enhancements
   html: ^0.15.7
@@ -76,11 +76,11 @@ dependencies:
       path: ./libs/universal/media_kit_libs_video
   window_manager: ^0.5.2
   permission_handler: ^13.0.2
-  flutter_local_notifications: ^22.0.1
+  flutter_local_notifications: ^22.3.1
   wakelock_plus: ^1.6.1
   volume_controller: ^3.7.1
   screen_brightness: ^2.1.11
-  app_links: ^7.2.1
+  app_links: ^7.2.2
   win32: ^6.4.0
   ffi: ^2.2.0
   install_plugin: ^2.1.0
@@ -101,8 +101,8 @@ dependencies:
   flutter_web_auth_2:
     #path : ../flutter_web_auth/flutter_web_auth_2
     git:
-      url: https://github.com/aayush2622/flutter_web_auth.git
-      ref: master
+      url: https://github.com/roshancodespace/flutter_web_auth_2.git
+      ref: patch_webview_all
       path: flutter_web_auth_2
   dartotsu_extension_bridge:
     path: ../DartotsuExtensionBridge

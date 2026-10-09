@@ -12,7 +12,6 @@ import file_picker_darwin
 import firebase_analytics
 import firebase_core
 import firebase_crashlytics
-import flutter_inappwebview_macos
 import flutter_local_notifications
 import flutter_qjs
 import flutter_web_auth_2
@@ -40,7 +39,6 @@ func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   FirebaseAnalyticsPlugin.register(with: registry.registrar(forPlugin: "FirebaseAnalyticsPlugin"))
   FLTFirebaseCorePlugin.register(with: registry.registrar(forPlugin: "FLTFirebaseCorePlugin"))
   FirebaseCrashlyticsPlugin.register(with: registry.registrar(forPlugin: "FirebaseCrashlyticsPlugin"))
-  InAppWebViewFlutterPlugin.register(with: registry.registrar(forPlugin: "InAppWebViewFlutterPlugin"))
   FlutterLocalNotificationsPlugin.register(with: registry.registrar(forPlugin: "FlutterLocalNotificationsPlugin"))
   FlutterQjsPlugin.register(with: registry.registrar(forPlugin: "FlutterQjsPlugin"))
   FlutterWebAuth2Plugin.register(with: registry.registrar(forPlugin: "FlutterWebAuth2Plugin"))
