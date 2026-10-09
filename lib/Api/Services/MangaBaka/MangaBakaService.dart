@@ -6,6 +6,8 @@ import 'Screens/Feed.dart';
 import 'Screens/Home.dart';
 import 'Screens/Search.dart';
 import 'Screens/Settings.dart';
+import '../../../Core/Sync/SyncAdapter.dart';
+import 'Sync.dart';
 
 const mangaBakaServiceId = 'mangabaka';
 
@@ -26,6 +28,12 @@ class MangaBakaService extends MediaService {
 
   @override
   Mutations get apiMutations => _auth.mutations;
+
+  @override
+  late final SyncAdapter syncAdapter = MangaBakaSync(
+    _auth.queries,
+    _auth.mutations,
+  );
 
   @override
   ServiceAuth get auth => _auth;

@@ -349,9 +349,22 @@ class SimklQueries extends Queries {
       if (m.userStatus == status) m,
   ]..sort((a, b) => (b.userUpdatedAt ?? 0).compareTo(a.userUpdatedAt ?? 0));
 
+  DateTime? _checkedAt;
+
+  void recheckLibrary() {
+    final at = _checkedAt;
+    if (at != null &&
+        DateTime.now().difference(at) < const Duration(seconds: 20)) {
+      return;
+    }
+    _checkedAt = DateTime.now();
+    _library.expire();
+  }
+
   @override
   List<SectionJob> homeJobs() {
     if (!client.hasToken) return const [];
+    recheckLibrary();
     const lists = [
       ('Continue Watching', 'CURRENT'),
       ('Plan to Watch', 'PLANNING'),

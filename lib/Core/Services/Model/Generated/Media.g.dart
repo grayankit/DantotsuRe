@@ -65,6 +65,7 @@ Media _$MediaFromJson(Map<String, dynamic> json) => Media(
   shareLink: json['shareLink'] as String,
   cameFromContinue: json['cameFromContinue'] as bool? ?? false,
   isLocal: json['isLocal'] as bool? ?? false,
+  malId: (json['malId'] as num?)?.toInt(),
 );
 
 Map<String, dynamic> _$MediaToJson(Media instance) => <String, dynamic>{
@@ -108,4 +109,5 @@ Map<String, dynamic> _$MediaToJson(Media instance) => <String, dynamic>{
   'shareLink': instance.shareLink,
   'cameFromContinue': instance.cameFromContinue,
   'isLocal': instance.isLocal,
+  'malId': instance.malId,
 };

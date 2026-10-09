@@ -142,6 +142,8 @@ class AnilistQueries extends Queries {
     String? sortOrder,
   }) => _getMediaLists(anime: anime, userId: userId, sortOrder: sortOrder);
 
+  Future<List<Media>> syncLibrary({required bool anime}) => _syncLibrary(anime);
+
   @override
   Future<List<Media>> getCalendarData() => _getCalendarData();
 

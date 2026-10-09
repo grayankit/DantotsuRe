@@ -10,6 +10,8 @@ import 'Screens/Search.dart';
 import 'Screens/Settings.dart';
 import 'Screens/Social.dart';
 import '../../../Core/State/State.dart';
+import '../../../Core/Sync/SyncAdapter.dart';
+import 'Sync.dart';
 
 const anilistServiceId = 'anilist';
 
@@ -35,6 +37,12 @@ class AnilistService extends MediaService {
 
   @override
   Mutations get apiMutations => _auth.mutations;
+
+  @override
+  late final SyncAdapter syncAdapter = AnilistSync(
+    _auth.queries,
+    _auth.mutations,
+  );
 
   @override
   ServiceAuth get auth => _auth;

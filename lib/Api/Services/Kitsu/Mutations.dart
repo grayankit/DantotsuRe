@@ -21,8 +21,18 @@ class KitsuMutations extends Mutations {
       snackString(getString.incognitoEditsBlocked);
       return;
     }
+    try {
+      await saveEntry(media);
+      _done();
+    } on KitsuException catch (e) {
+      snackString(getString.serviceError(getString.kitsu, e.message));
+    }
+  }
+
+  @override
+  Future<void> saveEntry(Media media, {bool? exists}) async {
     final score = ((media.userScore ?? 0) / 5).round().clamp(0, 20);
-    await _save(media, {
+    final attributes = <String, dynamic>{
       if (kitsuStatusOut(media.userStatus) != null)
         'status': kitsuStatusOut(media.userStatus),
       'ratingTwenty': score < 2 ? null : score,
@@ -32,7 +42,12 @@ class KitsuMutations extends Mutations {
       'notes': media.notes ?? '',
       'startedAt': kitsuDateOut(media.userStartedAt),
       'finishedAt': kitsuDateOut(media.userCompletedAt),
-    });
+    };
+    if (exists == true) {
+      attributes.removeWhere((k, v) => v == null || v == '');
+      if (media.userRepeat == 0) attributes.remove('reconsumeCount');
+    }
+    await _write(media, attributes, exists: exists);
   }
 
   @override
@@ -83,41 +98,70 @@ class KitsuMutations extends Mutations {
   }
 
   Future<void> _save(Media media, Map<String, dynamic> attributes) async {
-    final ref = parseKitsuMediaId(media.id);
-    final user = userId();
-    if (ref == null || user == null) return;
-    final kind = ref.$1 ? 'anime' : 'manga';
     try {
-      final entry = await _entryId(media, ref);
-      if (entry == null) {
-        await client.post('/library-entries', {
-          'data': {
-            'type': 'libraryEntries',
-            'attributes': {'status': 'current', ...attributes},
-            'relationships': {
-              'user': {
-                'data': {'type': 'users', 'id': '$user'},
-              },
-              'media': {
-                'data': {'type': kind, 'id': '${ref.$2}'},
-              },
-            },
-          },
-        });
-      } else {
-        await client.patch('/library-entries/$entry', {
-          'data': {
-            'type': 'libraryEntries',
-            'id': '$entry',
-            'attributes': attributes,
-          },
-        });
-      }
+      await _write(media, attributes);
       _done();
     } on KitsuException catch (e) {
       snackString(getString.serviceError(getString.kitsu, e.message));
     }
   }
+
+  Future<void> _write(
+    Media media,
+    Map<String, dynamic> attributes, {
+    bool? exists,
+  }) async {
+    final ref = parseKitsuMediaId(media.id);
+    final user = userId();
+    if (ref == null || user == null) return;
+    final kind = ref.$1 ? 'anime' : 'manga';
+    final entry = exists == false ? null : await _entryId(media, ref);
+    if (entry == null) {
+      try {
+        await _create(user, kind, ref.$2, attributes);
+        return;
+      } on KitsuException catch (e) {
+        if (e.status != 422 || exists != false) rethrow;
+      }
+      final existing = await _entryId(media, ref);
+      if (existing == null) return;
+      await client.patch('/library-entries/$existing', {
+        'data': {
+          'type': 'libraryEntries',
+          'id': '$existing',
+          'attributes': attributes,
+        },
+      });
+    } else {
+      await client.patch('/library-entries/$entry', {
+        'data': {
+          'type': 'libraryEntries',
+          'id': '$entry',
+          'attributes': attributes,
+        },
+      });
+    }
+  }
+
+  Future<void> _create(
+    int user,
+    String kind,
+    int id,
+    Map<String, dynamic> attributes,
+  ) => client.post('/library-entries', {
+    'data': {
+      'type': 'libraryEntries',
+      'attributes': {'status': 'current', ...attributes},
+      'relationships': {
+        'user': {
+          'data': {'type': 'users', 'id': '$user'},
+        },
+        'media': {
+          'data': {'type': kind, 'id': '$id'},
+        },
+      },
+    },
+  });
 
   void _done() {
     onChanged();

@@ -7,6 +7,12 @@ abstract class Mutations {
   /// Create or update the user's list entry for [media].
   Future<void> editList(Media media, {List<String>? customList});
 
+  /// Throwing variant of [editList] used by the list syncer: no snackbars, the
+  /// caller decides what a failure means. [exists] says whether the entry is known
+  /// to be on the list already (null = unknown), so a service can skip its
+  /// own lookup and leave untouched fields alone.
+  Future<void> saveEntry(Media media, {bool? exists}) => editList(media);
+
   /// Remove [media] from the user's list.
   Future<void> deleteFromList(Media media);
 

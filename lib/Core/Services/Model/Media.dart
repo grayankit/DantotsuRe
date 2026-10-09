@@ -89,6 +89,8 @@ class Media {
 
   bool isLocal;
 
+  int? malId;
+
   @JsonKey(includeFromJson: false, includeToJson: false)
   Source? sourceData;
 
@@ -141,6 +143,7 @@ class Media {
     required this.shareLink,
     this.cameFromContinue = false,
     this.isLocal = false,
+    this.malId,
     this.sourceData,
   });
 

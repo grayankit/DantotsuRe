@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 
 import 'Api/Mutations.dart';
 import 'Api/Queries.dart';
+import '../Sync/SyncAdapter.dart';
 import 'Local/LocalListStore.dart';
 import 'Local/LocalMutations.dart';
 import 'ServiceAuth.dart';
@@ -70,6 +71,8 @@ abstract class MediaService {
   EntityScreenView? get entityView => null;
 
   SocialScreenView? get socialView => null;
+
+  SyncAdapter? get syncAdapter => null;
 
   CalendarScreenView? get calendarView => null;
 

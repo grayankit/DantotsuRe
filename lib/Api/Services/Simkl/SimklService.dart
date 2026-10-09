@@ -10,6 +10,8 @@ import 'Screens/Entity.dart';
 import 'Screens/Settings.dart';
 import 'Screens/Social.dart';
 import '../../../Core/ThemeManager/LanguageSwitcher.dart';
+import '../../../Core/Sync/SyncAdapter.dart';
+import 'Sync.dart';
 
 const simklServiceId = 'simkl';
 
@@ -30,6 +32,9 @@ class SimklService extends MediaService {
 
   @override
   Mutations get apiMutations => _auth.mutations;
+
+  @override
+  late final SyncAdapter syncAdapter = SimklSync(_auth.queries, _auth.client);
 
   @override
   ServiceAuth get auth => _auth;

@@ -2877,4 +2877,182 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String get recommendedSection => 'Recommended';
+
+  @override
+  String get syncRow => 'Sync lists';
+
+  @override
+  String get syncRowDesc =>
+      'Mirror one service\'s list onto your other accounts';
+
+  @override
+  String get syncTitle => 'Sync';
+
+  @override
+  String get syncMainService => 'Main service';
+
+  @override
+  String get syncMainServiceDesc =>
+      'Its list is the source of truth; every other signed-in service is updated to match';
+
+  @override
+  String get syncAuto => 'Auto sync';
+
+  @override
+  String get syncAutoDesc =>
+      'Fetch and sync in the background when the app opens and every 30 minutes';
+
+  @override
+  String get syncAddMissing => 'Add missing entries';
+
+  @override
+  String get syncAddMissingDesc =>
+      'Also add entries the other service doesn\'t have yet';
+
+  @override
+  String get syncOnlyForward => 'Keep further progress';
+
+  @override
+  String get syncOnlyForwardDesc =>
+      'Don\'t lower the progress of a service that is already ahead';
+
+  @override
+  String get syncFetch => 'Fetch';
+
+  @override
+  String get syncFetchAgain => 'Fetch again';
+
+  @override
+  String get syncAll => 'Sync all';
+
+  @override
+  String get syncStop => 'Stop';
+
+  @override
+  String get syncResume => 'Resume';
+
+  @override
+  String get syncNothingToSync => 'This service can\'t be synced for this type';
+
+  @override
+  String get syncNoTargets => 'Sign in to another service to sync with';
+
+  @override
+  String get syncLoadingMap => 'Loading ID mapping';
+
+  @override
+  String get syncIntro =>
+      'Pick a main service and press Fetch. Each service is queried once for your list, then compared with the main one.';
+
+  @override
+  String get syncStateSynced => 'Synced';
+
+  @override
+  String get syncStateOutdated => 'Out of sync';
+
+  @override
+  String get syncStateMissing => 'Not in list';
+
+  @override
+  String get syncStateUnmapped => 'No match';
+
+  @override
+  String get syncStateFailed => 'Failed';
+
+  @override
+  String syncToSync(int count) {
+    return '$count to sync';
+  }
+
+  @override
+  String syncPaused(String time) {
+    return 'Waiting for the rate limit, resumes in $time';
+  }
+
+  @override
+  String syncOnlyIn(int count, String name) {
+    return '$count only on $name, left untouched';
+  }
+
+  @override
+  String syncProgressOf(int done, int total) {
+    return '$done of $total';
+  }
+
+  @override
+  String syncFetched(String time) {
+    return 'Fetched $time';
+  }
+
+  @override
+  String get syncNothingHere => 'Nothing to show';
+
+  @override
+  String get syncAllSynced => 'Everything is in sync';
+
+  @override
+  String syncSelectedMain(String name) {
+    return '$name is the main service';
+  }
+
+  @override
+  String syncLimits(int used, int max, String window) {
+    return '$used of $max requests used this $window';
+  }
+
+  @override
+  String get syncMinute => 'minute';
+
+  @override
+  String get syncDay => 'day';
+
+  @override
+  String get syncNotInList => 'Not in list yet';
+
+  @override
+  String get syncCleared => 'Plan cleared';
+
+  @override
+  String get syncClear => 'Clear';
+
+  @override
+  String get syncOptions => 'Options';
+
+  @override
+  String get syncShared => 'Shares its entry with another item';
+
+  @override
+  String syncFromTo(String from, String to) {
+    return '$from to $to';
+  }
+
+  @override
+  String syncNotFound(String service) {
+    return 'Not found on $service';
+  }
+
+  @override
+  String syncService(String service, int count) {
+    return 'Sync $service ($count)';
+  }
+
+  @override
+  String get syncOnEdit => 'Sync to other services';
+
+  @override
+  String get syncOnEditDesc =>
+      'Also push this change to your other signed-in services';
+
+  @override
+  String syncPushed(String services) {
+    return 'Synced to $services';
+  }
+
+  @override
+  String syncPushFailed(String service, String error) {
+    return '$service: $error';
+  }
+
+  @override
+  String get syncRateLimited => 'Rate limited, try again in a moment';
 }

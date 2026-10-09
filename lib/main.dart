@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:dartotsu_extension_bridge/dartotsu_extension_bridge.dart';
+import 'Core/Sync/SyncController.dart';
 import 'Utils/Nav/DpadLayers.dart';
 import 'Utils/Nav/DpadNav.dart';
 import 'package:dynamic_color/dynamic_color.dart';
@@ -129,6 +130,7 @@ Future<void> _postInit(List<String> args) async {
   }
   unawaited(find<AppUpdater>().checkForUpdate());
   find<ActivityAlerts>().start();
+  find<SyncController>().startAuto();
   find<DiscordPresenceController>().start();
 }
 

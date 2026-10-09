@@ -105,6 +105,8 @@ class MangaBakaExtras {
   List<String> publishers = const [];
   List<(String, String)> links = const [];
   bool hasAnime = false;
+  int? anilistId;
+  int? malId;
 }
 
 final mangaBakaExtras = Expando<MangaBakaExtras>('mangaBakaExtras');
@@ -208,7 +210,9 @@ Media mapMangaBakaSeries(Map<String, dynamic> s) {
     ..artists = artists
     ..publishers = publishers
     ..links = links
-    ..hasAnime = s['has_anime'] == true;
+    ..hasAnime = s['has_anime'] == true
+    ..anilistId = int.tryParse('${(source['anilist'] as Map?)?['id'] ?? ''}')
+    ..malId = int.tryParse('${(source['my_anime_list'] as Map?)?['id'] ?? ''}');
   return media;
 }
 

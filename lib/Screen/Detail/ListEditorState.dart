@@ -2,10 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../../Core/Preferences/PrefManager.dart';
 import '../../Core/Services/MediaService.dart';
 import '../../Core/Services/Model/Media.dart';
 import '../../Core/Services/Screens/DetailCache.dart';
 import '../../Core/State/State.dart';
+import '../../Core/Sync/SyncController.dart';
 import '../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../Utils/Functions/NavigateToScreen.dart';
 import '../../Utils/Functions/SnackBar.dart';
@@ -53,6 +55,11 @@ class ListEditorSession {
       media,
       customList: view.advanced ? draft.selectedCustomLists : null,
     );
+    final sync = find<SyncController>();
+    if (PrefName.syncOnEdit.value &&
+        sync.canPush(view.service, media.isAnime)) {
+      unawaited(sync.pushEdit(view.service, media));
+    }
   }, getString.savedToList);
 
   Future<void> remove(BuildContext context) => _run(

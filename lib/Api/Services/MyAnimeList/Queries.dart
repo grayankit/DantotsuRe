@@ -225,7 +225,19 @@ class MalQueries extends Queries {
     }
   }
 
-  Future<List<Media>> _loadLibrary(bool anime) async {
+  Future<List<Media>> syncLibrary({required bool anime}) async {
+    final rest = _listFields.replaceFirst('list_status,', '');
+    final detailed = anime
+        ? 'list_status{status,score,num_episodes_watched,is_rewatching,num_times_rewatched,start_date,finish_date,updated_at},$rest'
+        : 'list_status{status,score,num_chapters_read,is_rereading,num_times_reread,start_date,finish_date,updated_at},$rest';
+    try {
+      return await _loadLibrary(anime, fields: detailed);
+    } on MalException {
+      return _loadLibrary(anime);
+    }
+  }
+
+  Future<List<Media>> _loadLibrary(bool anime, {String? fields}) async {
     final all = <Media>[];
     String? next;
     var first = true;
@@ -237,7 +249,7 @@ class MalQueries extends Queries {
             ? {
                 'sort': 'list_updated_at',
                 'limit': '1000',
-                'fields': _listFields,
+                'fields': fields ?? _listFields,
                 'nsfw': 'true',
               }
             : null,

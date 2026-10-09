@@ -90,6 +90,19 @@ class PrefName {
     false,
     PrefLocation.COMMON,
   );
+  static const syncMain = Pref('syncMain', '', PrefLocation.COMMON);
+  static const syncOnEdit = Pref('syncOnEdit', false, PrefLocation.COMMON);
+  static const syncAuto = Pref('syncAuto', false, PrefLocation.COMMON);
+  static const syncAddMissing = Pref(
+    'syncAddMissing',
+    true,
+    PrefLocation.COMMON,
+  );
+  static const syncOnlyForward = Pref(
+    'syncOnlyForward',
+    true,
+    PrefLocation.COMMON,
+  );
   static const discordRpc = Pref('discordRpc', false, PrefLocation.COMMON);
   static const discordBrowsing = Pref(
     'discordBrowsing',

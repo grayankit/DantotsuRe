@@ -20,6 +20,16 @@ class MalMutations extends Mutations {
       snackString(getString.incognitoEditsBlocked);
       return;
     }
+    try {
+      await saveEntry(media);
+      _done();
+    } on MalException catch (e) {
+      snackString(getString.serviceError(getString.mal, e.message));
+    }
+  }
+
+  @override
+  Future<void> saveEntry(Media media, {bool? exists}) async {
     final ref = parseMalMediaId(media.id);
     if (ref == null) return;
     final (anime, id) = ref;
@@ -27,27 +37,22 @@ class MalMutations extends Mutations {
     final form = <String, String>{
       if (malStatusOut(media.userStatus, anime: anime) != null)
         'status': malStatusOut(media.userStatus, anime: anime)!,
-      'score': '${((media.userScore ?? 0) / 10).round().clamp(0, 10)}',
+      if (exists != true || (media.userScore ?? 0) > 0)
+        'score': '${((media.userScore ?? 0) / 10).round().clamp(0, 10)}',
       if (media.userProgress != null)
         anime ? 'num_watched_episodes' : 'num_chapters_read':
             '${media.userProgress}',
       anime ? 'is_rewatching' : 'is_rereading': '$repeating',
-      anime ? 'num_times_rewatched' : 'num_times_reread': '${media.userRepeat}',
+      if (exists != true || media.userRepeat > 0)
+        anime ? 'num_times_rewatched' : 'num_times_reread':
+            '${media.userRepeat}',
       if (media.notes != null) 'comments': media.notes!,
       if (malDateOut(media.userStartedAt) != null)
         'start_date': malDateOut(media.userStartedAt)!,
       if (malDateOut(media.userCompletedAt) != null)
         'finish_date': malDateOut(media.userCompletedAt)!,
     };
-    try {
-      await client.put(
-        '/${anime ? 'anime' : 'manga'}/$id/my_list_status',
-        form,
-      );
-      _done();
-    } on MalException catch (e) {
-      snackString(getString.serviceError(getString.mal, e.message));
-    }
+    await client.put('/${anime ? 'anime' : 'manga'}/$id/my_list_status', form);
   }
 
   @override

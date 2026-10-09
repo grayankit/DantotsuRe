@@ -13,6 +13,8 @@ import '../../../Core/Services/Model/MediaListEntry.dart';
 import '../../../Core/Services/Model/Review.dart';
 import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../../Model/SearchResults.dart';
+import '../../../Core/Sync/SyncModels.dart';
+import '../../../Logger.dart';
 import 'Client.dart';
 import 'Data/Mapper.dart';
 import 'Prefs.dart';
@@ -324,6 +326,59 @@ class KitsuQueries extends Queries {
       next = doc.next;
     }
     return all;
+  }
+
+  Future<List<(Media, Map<String, int>)>> syncLibrary({
+    required bool anime,
+  }) async {
+    final id = userId();
+    if (id == null) return const [];
+    final out = <(Media, Map<String, int>)>[];
+    String? next;
+    var first = true;
+    while (first || next != null) {
+      first = false;
+      final doc = JsonApi(
+        await client.getLarge(
+          next ?? '/library-entries',
+          query: next == null
+              ? {
+                  'filter[userId]': '$id',
+                  'filter[kind]': _kind(anime),
+                  'include': 'media,media.mappings',
+                  'fields[${_kind(anime)}]':
+                      'slug,canonicalTitle,titles,posterImage,mappings,${anime ? 'episodeCount' : 'chapterCount'}',
+                  'fields[mappings]': 'externalSite,externalId',
+                  'page[limit]': '500',
+                }
+              : null,
+        ),
+      );
+      for (final entry in doc.data) {
+        final node = doc.one(entry, 'media');
+        if (node == null) continue;
+        final media = mapKitsuMedia(node);
+        applyKitsuEntry(media, entry);
+        final foreign = <String, int>{};
+        for (final m in doc.many(node, 'mappings')) {
+          final a = attrs(m);
+          final n = int.tryParse('${a['externalId']}');
+          if (n == null) continue;
+          switch (a['externalSite']) {
+            case 'myanimelist/anime' || 'myanimelist/manga':
+              foreign[SyncKey.mal] = n;
+            case 'anilist/anime' || 'anilist/manga':
+              foreign[SyncKey.anilist] = n;
+          }
+        }
+        out.add((media, foreign));
+      }
+      next = doc.next;
+    }
+    logger(
+      'Kitsu sync library: ${out.length} entries, ${out.where((e) => e.$2.containsKey(SyncKey.mal)).length} with a MAL id',
+    );
+    return out;
   }
 
   Future<int> consumed(bool anime) async {

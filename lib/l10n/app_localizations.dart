@@ -5374,6 +5374,300 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Recommended'**
   String get recommendedSection;
+
+  /// No description provided for @syncRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync lists'**
+  String get syncRow;
+
+  /// No description provided for @syncRowDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Mirror one service\'s list onto your other accounts'**
+  String get syncRowDesc;
+
+  /// No description provided for @syncTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync'**
+  String get syncTitle;
+
+  /// No description provided for @syncMainService.
+  ///
+  /// In en, this message translates to:
+  /// **'Main service'**
+  String get syncMainService;
+
+  /// No description provided for @syncMainServiceDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Its list is the source of truth; every other signed-in service is updated to match'**
+  String get syncMainServiceDesc;
+
+  /// No description provided for @syncAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto sync'**
+  String get syncAuto;
+
+  /// No description provided for @syncAutoDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Fetch and sync in the background when the app opens and every 30 minutes'**
+  String get syncAutoDesc;
+
+  /// No description provided for @syncAddMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Add missing entries'**
+  String get syncAddMissing;
+
+  /// No description provided for @syncAddMissingDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Also add entries the other service doesn\'t have yet'**
+  String get syncAddMissingDesc;
+
+  /// No description provided for @syncOnlyForward.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep further progress'**
+  String get syncOnlyForward;
+
+  /// No description provided for @syncOnlyForwardDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t lower the progress of a service that is already ahead'**
+  String get syncOnlyForwardDesc;
+
+  /// No description provided for @syncFetch.
+  ///
+  /// In en, this message translates to:
+  /// **'Fetch'**
+  String get syncFetch;
+
+  /// No description provided for @syncFetchAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Fetch again'**
+  String get syncFetchAgain;
+
+  /// No description provided for @syncAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync all'**
+  String get syncAll;
+
+  /// No description provided for @syncStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop'**
+  String get syncStop;
+
+  /// No description provided for @syncResume.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume'**
+  String get syncResume;
+
+  /// No description provided for @syncNothingToSync.
+  ///
+  /// In en, this message translates to:
+  /// **'This service can\'t be synced for this type'**
+  String get syncNothingToSync;
+
+  /// No description provided for @syncNoTargets.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to another service to sync with'**
+  String get syncNoTargets;
+
+  /// No description provided for @syncLoadingMap.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading ID mapping'**
+  String get syncLoadingMap;
+
+  /// No description provided for @syncIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a main service and press Fetch. Each service is queried once for your list, then compared with the main one.'**
+  String get syncIntro;
+
+  /// No description provided for @syncStateSynced.
+  ///
+  /// In en, this message translates to:
+  /// **'Synced'**
+  String get syncStateSynced;
+
+  /// No description provided for @syncStateOutdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Out of sync'**
+  String get syncStateOutdated;
+
+  /// No description provided for @syncStateMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Not in list'**
+  String get syncStateMissing;
+
+  /// No description provided for @syncStateUnmapped.
+  ///
+  /// In en, this message translates to:
+  /// **'No match'**
+  String get syncStateUnmapped;
+
+  /// No description provided for @syncStateFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed'**
+  String get syncStateFailed;
+
+  /// No description provided for @syncToSync.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} to sync'**
+  String syncToSync(int count);
+
+  /// No description provided for @syncPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the rate limit, resumes in {time}'**
+  String syncPaused(String time);
+
+  /// No description provided for @syncOnlyIn.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} only on {name}, left untouched'**
+  String syncOnlyIn(int count, String name);
+
+  /// No description provided for @syncProgressOf.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} of {total}'**
+  String syncProgressOf(int done, int total);
+
+  /// No description provided for @syncFetched.
+  ///
+  /// In en, this message translates to:
+  /// **'Fetched {time}'**
+  String syncFetched(String time);
+
+  /// No description provided for @syncNothingHere.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to show'**
+  String get syncNothingHere;
+
+  /// No description provided for @syncAllSynced.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything is in sync'**
+  String get syncAllSynced;
+
+  /// No description provided for @syncSelectedMain.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is the main service'**
+  String syncSelectedMain(String name);
+
+  /// No description provided for @syncLimits.
+  ///
+  /// In en, this message translates to:
+  /// **'{used} of {max} requests used this {window}'**
+  String syncLimits(int used, int max, String window);
+
+  /// No description provided for @syncMinute.
+  ///
+  /// In en, this message translates to:
+  /// **'minute'**
+  String get syncMinute;
+
+  /// No description provided for @syncDay.
+  ///
+  /// In en, this message translates to:
+  /// **'day'**
+  String get syncDay;
+
+  /// No description provided for @syncNotInList.
+  ///
+  /// In en, this message translates to:
+  /// **'Not in list yet'**
+  String get syncNotInList;
+
+  /// No description provided for @syncCleared.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan cleared'**
+  String get syncCleared;
+
+  /// No description provided for @syncClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get syncClear;
+
+  /// No description provided for @syncOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Options'**
+  String get syncOptions;
+
+  /// No description provided for @syncShared.
+  ///
+  /// In en, this message translates to:
+  /// **'Shares its entry with another item'**
+  String get syncShared;
+
+  /// No description provided for @syncFromTo.
+  ///
+  /// In en, this message translates to:
+  /// **'{from} to {to}'**
+  String syncFromTo(String from, String to);
+
+  /// No description provided for @syncNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Not found on {service}'**
+  String syncNotFound(String service);
+
+  /// No description provided for @syncService.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync {service} ({count})'**
+  String syncService(String service, int count);
+
+  /// No description provided for @syncOnEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync to other services'**
+  String get syncOnEdit;
+
+  /// No description provided for @syncOnEditDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Also push this change to your other signed-in services'**
+  String get syncOnEditDesc;
+
+  /// No description provided for @syncPushed.
+  ///
+  /// In en, this message translates to:
+  /// **'Synced to {services}'**
+  String syncPushed(String services);
+
+  /// No description provided for @syncPushFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'{service}: {error}'**
+  String syncPushFailed(String service, String error);
+
+  /// No description provided for @syncRateLimited.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate limited, try again in a moment'**
+  String get syncRateLimited;
 }
 
 class _AppLocalizationsDelegate

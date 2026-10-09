@@ -16,6 +16,7 @@ import 'Core/NetworkManager/NetworkManager.dart';
 import 'Core/NotificationManager/NotificationManager.dart';
 import 'Core/Services/ActivityAlerts.dart';
 import 'Core/Services/MediaServiceController.dart';
+import 'Core/Sync/SyncController.dart';
 import 'Core/ThemeManager/CardStyleController.dart';
 import 'Core/ThemeManager/LocaleController.dart';
 import 'Core/ThemeManager/ThemeController.dart';
@@ -38,6 +39,7 @@ class DI {
     lazyPut<CardStyleController>(CardStyleController.new);
     lazyPut<LocaleController>(LocaleController.new);
     lazyPut<MediaServiceController>(MediaServiceController.new);
+    lazyPut<SyncController>(SyncController.new);
     lazyPut<AnilistAuth>(AnilistAuth.new);
     lazyPut<MalAuth>(MalAuth.new);
     lazyPut<SimklAuth>(SimklAuth.new);

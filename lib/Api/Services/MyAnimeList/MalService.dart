@@ -8,6 +8,8 @@ import 'Screens/Search.dart';
 import 'Screens/Detail.dart';
 import 'Screens/Calendar.dart';
 import 'Screens/Settings.dart';
+import '../../../Core/Sync/SyncAdapter.dart';
+import 'Sync.dart';
 
 const malServiceId = 'mal';
 
@@ -28,6 +30,9 @@ class MalService extends MediaService {
 
   @override
   Mutations get apiMutations => _auth.mutations;
+
+  @override
+  late final SyncAdapter syncAdapter = MalSync(_auth.queries, _auth.mutations);
 
   @override
   ServiceAuth get auth => _auth;

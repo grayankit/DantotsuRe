@@ -323,5 +323,6 @@ Media? mapSimklListEntry(Map<String, dynamic> e, SimklKind kind) {
         : touched.millisecondsSinceEpoch ~/ 1000
     ..userListId = 1;
   if (total != null && total > 0) media.anime?.totalEpisodes = total;
+  media.malId = _int((node['ids'] as Map?)?['mal']);
   return media;
 }

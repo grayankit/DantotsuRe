@@ -25,6 +25,20 @@ extension on AnilistQueries {
   }
 }
 
+extension on AnilistQueries {
+  Future<List<Media>> _syncLibrary(bool anime) async {
+    final id = userId();
+    if (id == null) return const [];
+    final lists = await client.queryRaw(_queryUserLists(id, anime));
+    final sections = await compute(_parseUserLists, {
+      'lists': lists,
+      'favs': const [],
+      'anime': anime,
+    });
+    return sections['All'] ?? const [];
+  }
+}
+
 Map<String, List<Media>> _parseUserLists(Map<String, dynamic> args) {
   final anime = args['anime'] as bool;
   final collection =
@@ -137,7 +151,9 @@ String _queryUserLists(int userId, bool anime) =>
       name
       isCustomList
       entries {
-        status progress private score(format: POINT_100) updatedAt
+        status progress repeat private score(format: POINT_100) updatedAt
+        startedAt { year month day }
+        completedAt { year month day }
         media { $anilistMediaFragment }
       }
     }
