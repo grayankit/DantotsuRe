@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import '../Model/Media.dart';
 import '../Screens/ScreenWidget.dart';
+import '../../../Logger.dart';
 
 typedef SectionMap = Map<String, List<Media>>;
 
@@ -27,7 +27,7 @@ Stream<(int, SectionMap)> runSectionJobsIndexed(
     } catch (e, s) {
       failure ??= e;
       failureStack ??= s;
-      debugPrint('Section job failed: $e');
+      logger('Section job failed: $e', logLevel: LogLevel.error);
       return const {};
     }
   }
@@ -77,10 +77,16 @@ Stream<List<ScreenWidget>> sectionWidgets(
     parallel: parallel,
   )) {
     slots[index] = patch;
-    yield [
-      for (final slot in slots)
-        if (slot != null)
-          for (final e in slot.entries) build(e.key, e.value),
-    ];
+    yield _built(slots, build);
   }
+  yield _built(slots, build);
 }
+
+List<ScreenWidget> _built(
+  List<SectionMap?> slots,
+  ScreenWidget Function(String title, List<Media> media) build,
+) => [
+  for (final slot in slots)
+    if (slot != null)
+      for (final e in slot.entries) build(e.key, e.value),
+];

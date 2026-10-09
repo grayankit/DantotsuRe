@@ -8,9 +8,11 @@ import 'package:flutter/services.dart';
 
 import 'Core/Preferences/StorageManager.dart';
 
+final DebugPrintCallback _consolePrint = debugPrint;
+
 void logger(String message, {LogLevel logLevel = LogLevel.info, String? tag}) {
   Logger.log(message, logLevel: logLevel, tag: tag);
-  Zone.root.run(() => debugPrint(tag == null ? message : '[$tag] $message'));
+  Zone.root.run(() => _consolePrint(tag == null ? message : '[$tag] $message'));
 }
 
 class Logger {
@@ -28,6 +30,15 @@ class Logger {
 
   static final Queue<String> _queue = Queue();
   static final List<String> _preInitBuffer = [];
+
+  static void captureDebugPrint() {
+    final console = _consolePrint;
+    debugPrint = (String? message, {int? wrapWidth}) {
+      if (message == null) return;
+      log(message);
+      Zone.root.run(() => console(message, wrapWidth: wrapWidth));
+    };
+  }
 
   static Future<void> init() async {
     final directory = await StorageManager.getDirectory(

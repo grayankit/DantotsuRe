@@ -2,10 +2,10 @@ import 'dart:async';
 
 import 'package:flutter_discord_rpc_fork/flutter_discord_rpc.dart';
 
-import 'package:flutter/foundation.dart';
 import '../BaseDiscordRPC.dart';
 import '../DiscordPresence.dart';
 import '../../../Core/State/State.dart';
+import '../../../Logger.dart';
 
 class DesktopRPC extends AppController implements BaseDiscordRPC {
   static const _appId = '1453704458012856401';
@@ -37,8 +37,9 @@ class DesktopRPC extends AppController implements BaseDiscordRPC {
       _failedAt = null;
     } catch (e) {
       _failedAt = DateTime.now();
-      debugPrint(
+      logger(
         'Discord RPC connect failed: ${e.toString().split('\n').first}',
+        logLevel: LogLevel.error,
       );
     }
     return _connected;
@@ -75,7 +76,7 @@ class DesktopRPC extends AppController implements BaseDiscordRPC {
     } catch (e) {
       _connected = false;
       _failedAt = DateTime.now();
-      debugPrint('Discord RPC show failed: $e');
+      logger('Discord RPC show failed: $e', logLevel: LogLevel.error);
       return false;
     }
   }
@@ -86,7 +87,7 @@ class DesktopRPC extends AppController implements BaseDiscordRPC {
     try {
       await FlutterDiscordRPC.instance.clearActivity();
     } catch (e) {
-      debugPrint('Discord RPC clear failed: $e');
+      logger('Discord RPC clear failed: $e', logLevel: LogLevel.error);
     }
   }
 

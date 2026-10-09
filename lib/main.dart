@@ -50,7 +50,10 @@ void main(List<String> args) async {
         ..maximumSize = 400;
       FlutterError.onError = (details) {
         final stack = details.stack ?? StackTrace.current;
-        debugPrint('Framework error: ${details.exception}\n$stack');
+        logger(
+          'Framework error: ${details.exception}\n$stack',
+          logLevel: LogLevel.error,
+        );
         handleError(details.exception, stack, softCrash: true, report: false);
       };
       PlatformDispatcher.instance.onError = (error, stack) {
@@ -67,7 +70,7 @@ void main(List<String> args) async {
       runApp(const MyApp());
     },
     (error, stackTrace) {
-      debugPrint('Uncaught error: $error\n$stackTrace');
+      logger('Uncaught error: $error\n$stackTrace', logLevel: LogLevel.error);
       handleError(error, stackTrace, softCrash: true);
     },
     zoneSpecification: ZoneSpecification(
@@ -80,6 +83,7 @@ void main(List<String> args) async {
 }
 
 Future<void> init(List<String> args) async {
+  Logger.captureDebugPrint();
   await Future.wait([PrefManager.init(), Rhttp.init()]);
   DI.init();
 
@@ -93,7 +97,7 @@ Future<void> init(List<String> args) async {
       http: client.compatibleClient,
       network: AppBridgeNetwork(client.cookieManager, client),
       onLog: (message, show) {
-        debugPrint('[Bridge LOGS] $message');
+        logger('[Bridge LOGS] $message');
         if (show) snackString(message);
       },
     ),

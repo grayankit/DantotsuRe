@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'FirebaseOptions.dart';
 import '../Preferences/PrefManager.dart';
 import '../State/State.dart';
+import '../../Logger.dart';
 
 /// Anonymous usage counts (Analytics, no user id) and hard-crash reports
 /// (Crashlytics). Both follow the `shareAnalytics` pref and are off in debug.
@@ -30,10 +31,10 @@ class AnalyticsManager extends AppController {
       await _apply();
       onChange(PrefName.shareAnalytics.rx, (_) => unawaited(_apply()));
       await _analytics((a) => a.logAppOpen());
-      debugPrint('Firebase initialized');
+      logger('Firebase initialized');
     } catch (e, s) {
       _disabled = true;
-      debugPrint('Firebase disabled: $e\n$s');
+      logger('Firebase disabled: $e\n$s', logLevel: LogLevel.error);
     } finally {
       if (!_ready.isCompleted) _ready.complete();
     }

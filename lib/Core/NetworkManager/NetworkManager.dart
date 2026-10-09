@@ -10,6 +10,7 @@ import 'CookieManager.dart';
 import 'DnsManager.dart';
 import 'LogInterceptor.dart';
 import '../State/State.dart';
+import '../../Logger.dart';
 
 const bool kVerifyTlsCertificates = false;
 
@@ -79,7 +80,10 @@ class NetworkManager extends AppController {
                     DohProvider.forUrl(dnsUrl)?.bootstrapIps ?? const [],
               );
             } catch (e) {
-              debugPrint('DoH failed for $host → fallback: $e');
+              logger(
+                'DoH failed for $host → fallback: $e',
+                logLevel: LogLevel.error,
+              );
               final res = await InternetAddress.lookup(host);
               return res.map((e) => e.address).toList();
             }

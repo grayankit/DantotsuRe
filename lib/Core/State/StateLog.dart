@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import '../../Logger.dart';
 
 /// Debug logging for the state layer, in the style of GetX's `[GETX]` lines.
 /// Lifecycle lines (created / initialized / deleted) are on in debug builds;
@@ -8,10 +9,10 @@ class StateLog {
   static bool verbose = false;
 
   static void log(String message) {
-    if (enabled) debugPrint('[STATE] $message');
+    if (enabled) logger('[STATE] $message');
   }
 
   static void trace(String Function() message) {
-    if (enabled && verbose) debugPrint('[STATE] ${message()}');
+    if (enabled && verbose) logger('[STATE] ${message()}');
   }
 }

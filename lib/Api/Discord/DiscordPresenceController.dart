@@ -7,6 +7,7 @@ import '../../Core/Preferences/PrefManager.dart';
 import 'BaseDiscordRPC.dart';
 import 'DiscordPresence.dart';
 import '../../Core/State/State.dart';
+import '../../Logger.dart';
 
 class _Entry {
   DiscordPresence presence;
@@ -156,7 +157,7 @@ class DiscordPresenceController extends AppController
         _retry();
       }
     } catch (e) {
-      debugPrint('Discord presence sync failed: $e');
+      logger('Discord presence sync failed: $e', logLevel: LogLevel.error);
     }
   }
 

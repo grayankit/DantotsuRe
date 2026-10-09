@@ -1,7 +1,7 @@
-import 'package:flutter/cupertino.dart';
 import 'package:rhttp/rhttp.dart';
 
 import '../../Utils/Functions/SnackBar.dart';
+import '../../Logger.dart';
 
 class LogInterceptor extends Interceptor {
   @override
@@ -9,7 +9,7 @@ class LogInterceptor extends Interceptor {
     HttpRequest request,
   ) async {
     request.additionalData['startTime'] = DateTime.now();
-    debugPrint('→ ${request.method.value} ${request.url}');
+    logger('→ ${request.method.value} ${request.url}');
     return Interceptor.next(request);
   }
 
@@ -22,7 +22,7 @@ class LogInterceptor extends Interceptor {
         ? DateTime.now().difference(start).inMilliseconds
         : null;
 
-    debugPrint(
+    logger(
       '← ${response.statusCode} ${response.request.url}'
       '${ms != null ? ' (${ms}ms)' : ''}',
     );
@@ -49,7 +49,7 @@ class LogInterceptor extends Interceptor {
         ? DateTime.now().difference(start).inMilliseconds
         : null;
 
-    debugPrint(
+    logger(
       '× ${req.method.value} ${req.url}'
       '${ms != null ? ' (${ms}ms)' : ''}\n'
       '  $exception',

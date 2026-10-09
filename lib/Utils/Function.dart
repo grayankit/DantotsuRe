@@ -1,18 +1,21 @@
 import 'package:collection/collection.dart';
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../Logger.dart';
 
 Future<void> openLinkInBrowser(String url) async {
   var uri = Uri.parse(url);
   if (await canLaunchUrl(uri)) {
     await launchUrl(uri);
-    debugPrint('Opening $url in your browser!');
+    logger('Opening $url in your browser!');
   } else {
-    debugPrint('Oops! I couldn\'t open $url. Maybe it\'s broken?');
+    logger(
+      'Oops! I couldn\'t open $url. Maybe it\'s broken?',
+      logLevel: LogLevel.error,
+    );
   }
 }
 

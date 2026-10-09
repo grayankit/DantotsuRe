@@ -243,6 +243,6 @@ void handleError(
       }
     });
   } else {
-    debugPrint("Navigator not ready");
+    logger("Navigator not ready", logLevel: LogLevel.error);
   }
 }

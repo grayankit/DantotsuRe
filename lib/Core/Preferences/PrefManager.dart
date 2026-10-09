@@ -4,7 +4,6 @@ import 'package:dartotsu_extension_bridge/dartotsu_extension_bridge.dart'
     hide isar;
 import 'package:isar_community/isar.dart';
 
-import 'package:flutter/foundation.dart';
 import '../../Model/CardStyle.dart';
 import '../ThemeManager/ThemeMode.dart';
 import 'IsarDataClasses/KeyValue/KeyValues.dart';
@@ -13,6 +12,7 @@ import 'StorageManager.dart';
 
 export 'Pref.dart' show Pref, PrefLocation, enumPref, jsonPref;
 import '../State/State.dart';
+import '../../Logger.dart';
 
 part 'Preferences.dart';
 
@@ -73,7 +73,7 @@ class PrefManager {
       dartotsuPreferences = await _open('DartotsuSettings', path!.path);
       _migrate();
     } catch (e) {
-      debugPrint('Error initializing preferences: $e');
+      logger('Error initializing preferences: $e', logLevel: LogLevel.error);
     }
   }
 
@@ -280,7 +280,7 @@ class PrefManager {
         }
       });
     } catch (e) {
-      debugPrint('PrefManager flush failed: $e');
+      logger('PrefManager flush failed: $e', logLevel: LogLevel.error);
     }
   }
 }

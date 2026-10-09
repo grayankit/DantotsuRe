@@ -3,8 +3,6 @@ import 'dart:typed_data';
 
 import 'package:rhttp/rhttp.dart';
 
-import 'LogInterceptor.dart';
-
 class DnsManager {
   /// Resolves [host] via DoH at [dnsUrl]. [dnsUrl]'s own hostname still needs
   /// resolving to make that request in the first place - [bootstrapIps]
@@ -27,7 +25,6 @@ class DnsManager {
     ]) {
       try {
         final res = await Rhttp.requestBytes(
-          interceptors: [LogInterceptor()],
           method: HttpMethod.post,
           url: url,
           headers: HttpHeaders.map({

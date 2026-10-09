@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 
 import '../Preferences/PrefManager.dart';
 import 'Model/Media.dart';
+import '../../Logger.dart';
 
 /// Disk-backed last-known result for a `Map<String, List<Media>>` screen
 /// (home / anime / manga). Decoding and encoding run on a worker isolate so
@@ -28,7 +29,7 @@ class SectionCache {
     try {
       return await compute(_decode, raw);
     } catch (e) {
-      debugPrint('SectionCache($id) read failed: $e');
+      logger('SectionCache($id) read failed: $e', logLevel: LogLevel.error);
       return null;
     }
   }
@@ -45,7 +46,7 @@ class SectionCache {
         location: PrefLocation.CACHE,
       );
     } catch (e) {
-      debugPrint('SectionCache($id) write failed: $e');
+      logger('SectionCache($id) write failed: $e', logLevel: LogLevel.error);
     }
   }
 }
