@@ -2,9 +2,10 @@ import 'package:flutter/services.dart';
 import 'package:window_manager/window_manager.dart';
 
 import '../../Core/ThemeManager/ThemeController.dart';
-import 'NavigateToScreen.dart';
+import '../Nav/DpadLayers.dart';
 import 'SnackBar.dart';
 import '../../Core/State/State.dart';
+import '../../Core/ThemeManager/LanguageSwitcher.dart';
 
 var usingKeyboard = false;
 bool appShortcuts(KeyEvent event) {
@@ -21,7 +22,7 @@ bool appShortcuts(KeyEvent event) {
 
   switch (event.logicalKey) {
     case LogicalKeyboardKey.escape:
-      return guardedBack();
+      return layerBack();
 
     case LogicalKeyboardKey.f11:
       toggleFullscreen();
@@ -42,19 +43,25 @@ bool appShortcuts(KeyEvent event) {
     case LogicalKeyboardKey.keyG:
       final v = !theme.useGlassMode.value;
       theme.setGlassEffect(v);
-      snackString(v ? 'Glass effect enabled' : 'Glass effect disabled');
+      snackString(
+        v ? getString.glassEffectEnabled : getString.glassEffectDisabled,
+      );
       return true;
 
     case LogicalKeyboardKey.keyM:
       final v = !theme.useMaterialYou.value;
       theme.setMaterialYou(v);
-      snackString(v ? 'Material You enabled' : 'Material You disabled');
+      snackString(
+        v ? getString.materialYouEnabled : getString.materialYouDisabled,
+      );
       return true;
 
     case LogicalKeyboardKey.keyD:
       theme.toggleDarkMode();
       snackString(
-        theme.isDarkModeActive ? 'Dark mode enabled' : 'Dark mode disabled',
+        theme.isDarkModeActive
+            ? getString.darkModeEnabled
+            : getString.darkModeDisabled,
       );
       return true;
 

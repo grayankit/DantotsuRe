@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../Utils/Extensions/ClickCursor.dart';
+import '../../Utils/Functions/AppShortcuts.dart';
 import 'ThemeMode.dart';
 
 export 'AppTheme.dart';
@@ -20,6 +21,9 @@ const _shapeXl = 28.0;
 const _shapeLg = 20.0;
 const _shapeMd = 16.0;
 const _pill = StadiumBorder();
+
+bool _keyFocus(Set<WidgetState> states) =>
+    states.contains(WidgetState.focused) && usingKeyboard;
 
 ThemeData buildAppTheme(
   ThemeData base, {
@@ -61,7 +65,16 @@ ThemeData buildAppTheme(
       ? scheme.surface.withValues(alpha: 0.14)
       : deriveCardColor(surface: scheme.surface, isDark: dark, isOled: oled);
 
+  final focusRing = WidgetStateProperty.resolveWith<BorderSide?>(
+    (s) => _keyFocus(s) ? BorderSide(color: scheme.onSurface, width: 2) : null,
+  );
+  final focusOverlay = WidgetStateProperty.resolveWith<Color?>(
+    (s) => _keyFocus(s) ? scheme.primary.withValues(alpha: 0.24) : null,
+  );
+
   ButtonStyle button({EdgeInsetsGeometry? padding}) => ButtonStyle(
+    side: focusRing,
+    overlayColor: focusOverlay,
     shape: const WidgetStatePropertyAll(_pill),
     padding: WidgetStatePropertyAll(
       padding ?? const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -79,6 +92,7 @@ ThemeData buildAppTheme(
     scaffoldBackgroundColor: scaffoldBg,
     canvasColor: glass ? Colors.transparent : base.canvasColor,
     cardColor: cardColor,
+    focusColor: scheme.secondaryContainer.withValues(alpha: 0.9),
     splashFactory: InkSparkle.splashFactory,
     appBarTheme: base.appBarTheme.copyWith(
       backgroundColor: glass ? Colors.transparent : null,
@@ -103,11 +117,15 @@ ThemeData buildAppTheme(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       ),
     ),
-    iconButtonTheme: const IconButtonThemeData(
+    iconButtonTheme: IconButtonThemeData(
       style: ButtonStyle(
-        shape: WidgetStatePropertyAll(_pill),
+        shape: const WidgetStatePropertyAll(_pill),
         animationDuration: Durations.short4,
         mouseCursor: kClickCursor,
+        backgroundColor: WidgetStateProperty.resolveWith(
+          (s) => _keyFocus(s) ? scheme.secondaryContainer : null,
+        ),
+        overlayColor: focusOverlay,
       ),
     ),
     floatingActionButtonTheme: base.floatingActionButtonTheme.copyWith(
@@ -128,6 +146,8 @@ ThemeData buildAppTheme(
               ? scheme.secondaryContainer
               : Colors.transparent,
         ),
+        side: focusRing,
+        overlayColor: focusOverlay,
         visualDensity: VisualDensity.compact,
         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
         mouseCursor: kClickCursor,
@@ -136,6 +156,9 @@ ThemeData buildAppTheme(
     chipTheme: base.chipTheme.copyWith(
       shape: _pill,
       side: BorderSide.none,
+      color: WidgetStateProperty.resolveWith(
+        (s) => _keyFocus(s) ? scheme.secondaryContainer : null,
+      ),
       elevation: 0,
       pressElevation: 0,
     ),
@@ -201,8 +224,14 @@ ThemeData buildAppTheme(
     ),
     listTileTheme: base.listTileTheme.copyWith(mouseCursor: kClickCursor),
     tabBarTheme: base.tabBarTheme.copyWith(mouseCursor: kClickCursor),
-    checkboxTheme: base.checkboxTheme.copyWith(mouseCursor: kClickCursor),
-    radioTheme: base.radioTheme.copyWith(mouseCursor: kClickCursor),
+    checkboxTheme: base.checkboxTheme.copyWith(
+      mouseCursor: kClickCursor,
+      overlayColor: focusOverlay,
+    ),
+    radioTheme: base.radioTheme.copyWith(
+      mouseCursor: kClickCursor,
+      overlayColor: focusOverlay,
+    ),
     menuButtonTheme: const MenuButtonThemeData(
       style: ButtonStyle(mouseCursor: kClickCursor),
     ),
@@ -220,7 +249,9 @@ ThemeData buildAppTheme(
             ? scheme.primary
             : scheme.surfaceContainerHighest,
       ),
-      trackOutlineColor: const WidgetStatePropertyAll(Colors.transparent),
+      trackOutlineColor: WidgetStateProperty.resolveWith(
+        (s) => _keyFocus(s) ? scheme.onSurface : Colors.transparent,
+      ),
       overlayColor: WidgetStateProperty.all(
         scheme.primary.withValues(alpha: 0.2),
       ),
