@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/widgets.dart';
 
 import '../../../Model/SearchResults.dart';
@@ -37,7 +39,12 @@ class HomeScreenView {
     final extra = [
       for (final e in local.entries)
         ScreenWidget.media('$localSectionPrefix${e.key}', [
-          for (final m in e.value) Media.fromJson(m.toJson())..isLocal = true,
+          for (final m in e.value)
+            Media.fromJson(
+              Map<String, dynamic>.from(
+                jsonDecode(jsonEncode(m.toJson())) as Map,
+              ),
+            )..isLocal = true,
         ]),
     ];
     await for (final list in screenStream()) {

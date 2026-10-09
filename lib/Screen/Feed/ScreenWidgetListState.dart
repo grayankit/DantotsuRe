@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
+import '../../Logger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -148,7 +149,11 @@ class ScreenWidgetListState extends ScreenState {
         loaded.value = true;
       }
       if (last != null) prune(last);
-    } catch (e) {
+    } catch (e, st) {
+      logger(
+        'Feed ${cacheId ?? ''} load failed: $e\n$st',
+        logLevel: LogLevel.error,
+      );
       if (current.isEmpty) error.value = e.toString();
     } finally {
       refreshing = false;
