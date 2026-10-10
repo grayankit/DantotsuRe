@@ -38,3 +38,26 @@ abstract class ServiceAuth {
 
   Future<void> refreshUser();
 }
+
+/// Shares one in-flight [run] between concurrent callers holding the same
+/// [key] (the token), so a burst of `refreshUser()` calls (launch, opening
+/// notifications, a feed refresh) costs a single request.
+mixin SharedRefresh {
+  Future<void>? _inflight;
+  String? _inflightKey;
+
+  Future<void> shareRefresh(Future<void> Function() run, {String key = ''}) {
+    final current = _inflight;
+    if (current != null && _inflightKey == key) return current;
+    _inflightKey = key;
+    late final Future<void> next;
+    next = () async {
+      try {
+        await run();
+      } finally {
+        if (identical(_inflight, next)) _inflight = null;
+      }
+    }();
+    return _inflight = next;
+  }
+}

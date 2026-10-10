@@ -187,7 +187,7 @@ class _HitTile extends StatelessWidget {
           borderRadius: BorderRadius.circular(18),
         ),
         child: Padding(
-          padding: const EdgeInsets.all(10),
+          padding: EdgeInsets.all(Dimens.gap),
           child: Row(
             children: [
               ClipRRect(
@@ -203,7 +203,7 @@ class _HitTile extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: Dimens.gap),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -223,7 +223,7 @@ class _HitTile extends StatelessWidget {
                         color: scheme.onSurfaceVariant,
                       ),
                     ),
-                    const SizedBox(height: 6),
+                    SizedBox(height: Dimens.gapSm),
                     Wrap(
                       spacing: 6,
                       runSpacing: 4,
@@ -263,7 +263,7 @@ class _HitTile extends StatelessWidget {
 
   Widget _chip(BuildContext context, String label, Color bg, Color fg) =>
       Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        padding: EdgeInsets.symmetric(horizontal: Dimens.gapSm, vertical: 3),
         decoration: BoxDecoration(
           color: bg,
           borderRadius: BorderRadius.circular(10),

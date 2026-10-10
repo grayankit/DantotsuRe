@@ -124,14 +124,14 @@ Future<void> init(List<String> args) async {
 
 /// Work that can safely run after the first frame.
 Future<void> _postInit(List<String> args) async {
+  find<ActivityAlerts>().start();
+  find<CommentAlerts>().start();
   DeepLink.init();
   unawaited(refreshLinkHandling());
   if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
     DeepLink.initVideoIntentListener(args);
   }
   unawaited(find<AppUpdater>().checkForUpdate());
-  find<ActivityAlerts>().start();
-  find<CommentAlerts>().start();
   find<SyncController>().startAuto();
   find<DiscordPresenceController>().start();
 }

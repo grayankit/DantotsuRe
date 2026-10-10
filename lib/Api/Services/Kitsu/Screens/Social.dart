@@ -801,18 +801,22 @@ class KitsuSocialView extends SocialScreenView {
   @override
   Future<SocialGroup?> group(String idOrSlug) async {
     final numeric = int.tryParse(idOrSlug) != null;
-    final res = await _client.get(
-      numeric ? '/groups/$idOrSlug' : '/groups',
-      query: {
-        'include': 'category',
-        if (!numeric) 'filter[slug]': idOrSlug,
-        if (!numeric) 'page[limit]': '1',
-      },
-    );
+    final (res, early) = await (
+      _client.get(
+        numeric ? '/groups/$idOrSlug' : '/groups',
+        query: {
+          'include': 'category',
+          if (!numeric) 'filter[slug]': idOrSlug,
+          if (!numeric) 'page[limit]': '1',
+        },
+      ),
+      numeric ? _ranks([idOrSlug]) : Future.value(const <String, String>{}),
+    ).wait;
     final doc = JsonApi(res);
     if (doc.data.isEmpty) return null;
     final group = _group(doc.data.first, doc);
-    final rank = (await _ranks([group.id]))[group.id];
+    final ranks = numeric ? early : await _ranks([group.id]);
+    final rank = ranks[group.id];
     return group
       ..isMember = rank != null
       ..rank = rank;

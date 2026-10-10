@@ -25,7 +25,7 @@ const _desktopClientId = '';
 String get _clientId =>
     authClientId(mobile: _mobileClientId, desktop: _desktopClientId);
 
-class SimklAuth extends AppController implements ServiceAuth {
+class SimklAuth extends AppController with SharedRefresh implements ServiceAuth {
   static const _userCacheKey = 'simklUser';
 
   final token = SimklPref.token.rx;
@@ -170,7 +170,9 @@ class SimklAuth extends AppController implements ServiceAuth {
   }
 
   @override
-  Future<void> refreshUser() async {
+  Future<void> refreshUser() => shareRefresh(_loadUser, key: SimklPref.token.value);
+
+  Future<void> _loadUser() async {
     if (!isLoggedIn) return;
     final expires = SimklPref.expiresAt.value;
     if (expires > 0 && DateTime.now().millisecondsSinceEpoch > expires) {

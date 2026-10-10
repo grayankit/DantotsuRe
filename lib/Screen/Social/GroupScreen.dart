@@ -259,7 +259,7 @@ class _GroupScreenState extends BaseScreen<GroupScreen>
     final scheme = context.colorScheme;
     final text = context.textTheme;
     Widget row(String label, String value) => Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: EdgeInsets.symmetric(vertical: Dimens.gapXs),
       child: Row(
         children: [
           Expanded(

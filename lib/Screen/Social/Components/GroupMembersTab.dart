@@ -89,9 +89,9 @@ class _GroupMembersTabState extends State<GroupMembersTab>
                 );
               }
               if (i >= users.length) {
-                return const Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Center(child: CircularProgressIndicator()),
+                return Padding(
+                  padding: EdgeInsets.all(Dimens.pagePad),
+                  child: const Center(child: CircularProgressIndicator()),
                 );
               }
               return UserCard(

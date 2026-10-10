@@ -219,9 +219,9 @@ class _NotificationsScreenState extends BaseScreen<NotificationsScreen>
                   ),
               ],
               if (feed.loadingMore.value)
-                const Padding(
-                  padding: EdgeInsets.all(24),
-                  child: Center(child: CircularProgressIndicator()),
+                Padding(
+                  padding: EdgeInsets.all(Dimens.gapLg),
+                  child: const Center(child: CircularProgressIndicator()),
                 ),
             ],
           ),

@@ -1,3 +1,4 @@
+import '../../../Utils/Extensions/Responsive.dart';
 import 'package:flutter/material.dart';
 
 import '../../../Core/State/State.dart';
@@ -42,7 +43,7 @@ class CommentTile extends StatelessWidget {
     final canCollapse = hasChildren || collapsed;
 
     return Padding(
-      padding: const EdgeInsets.only(top: 10),
+      padding: EdgeInsets.only(top: Dimens.gap),
       child: SizedBox(
         width: double.infinity,
         child: Stack(
@@ -92,7 +93,7 @@ class CommentTile extends StatelessWidget {
                     _body(context),
                     _actions(context),
                     if (node.replying.value) ...[
-                      const SizedBox(height: 6),
+                      SizedBox(height: Dimens.gapSm),
                       CommentComposer(
                         hint: getString.commentsReplyingTo(comment.username),
                         compact: true,
@@ -154,7 +155,7 @@ class CommentTile extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(width: 6),
+                SizedBox(width: Dimens.gapSm),
                 Text(
                   '[$level]',
                   style: text.labelSmall?.copyWith(
@@ -163,7 +164,7 @@ class CommentTile extends StatelessWidget {
                   ),
                 ),
                 if (comment.isAdmin) ...[
-                  const SizedBox(width: 4),
+                  SizedBox(width: Dimens.gapXs),
                   Icon(
                     Icons.workspace_premium_rounded,
                     size: 15,
@@ -171,10 +172,10 @@ class CommentTile extends StatelessWidget {
                   ),
                 ],
                 if (comment.isMod) ...[
-                  const SizedBox(width: 4),
+                  SizedBox(width: Dimens.gapXs),
                   Icon(Icons.shield_rounded, size: 14, color: scheme.primary),
                 ],
-                const SizedBox(width: 6),
+                SizedBox(width: Dimens.gapSm),
                 Text(
                   commentAge(comment.time),
                   style: text.labelSmall?.copyWith(
@@ -182,12 +183,12 @@ class CommentTile extends StatelessWidget {
                   ),
                 ),
                 if (comment.tag != null) ...[
-                  const SizedBox(width: 8),
+                  SizedBox(width: Dimens.gapSm),
                   Clickable(
                     onTap: () => state.setFilter(comment.tag),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 7,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: Dimens.gapSm,
                         vertical: 2,
                       ),
                       decoration: BoxDecoration(
@@ -222,7 +223,7 @@ class CommentTile extends StatelessWidget {
             Clickable(
               onTap: () => node.collapsed.value = false,
               child: Padding(
-                padding: const EdgeInsets.all(6),
+                padding: EdgeInsets.all(Dimens.gapSm),
                 child: Icon(
                   Icons.unfold_more_rounded,
                   size: 18,
@@ -274,7 +275,7 @@ class CommentTile extends StatelessWidget {
         child: Row(
           children: [
             Icon(icon, size: 20),
-            const SizedBox(width: 12),
+            SizedBox(width: Dimens.gap),
             Text(label),
           ],
         ),
@@ -285,7 +286,7 @@ class CommentTile extends StatelessWidget {
     final comment = node.comment;
     if (node.editing.value) {
       return Padding(
-        padding: const EdgeInsets.only(top: 4),
+        padding: EdgeInsets.only(top: Dimens.gapXs),
         child: CommentComposer(
           hint: getString.commentsPlaceholder,
           initial: comment.content,
@@ -327,7 +328,7 @@ class CommentTile extends StatelessWidget {
         ? scheme.error
         : scheme.onSurfaceVariant;
     return Padding(
-      padding: const EdgeInsets.only(top: 6),
+      padding: EdgeInsets.only(top: Dimens.gapSm),
       child: Wrap(
         spacing: 6,
         runSpacing: 6,
@@ -407,7 +408,10 @@ class CommentTile extends StatelessWidget {
   Widget _icon(IconData icon, Color color, VoidCallback onTap) => Clickable(
     onTap: onTap,
     child: Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: EdgeInsets.symmetric(
+        horizontal: Dimens.gap,
+        vertical: Dimens.gapSm,
+      ),
       child: Icon(icon, size: 18, color: color),
     ),
   );
@@ -425,7 +429,10 @@ class CommentTile extends StatelessWidget {
     return Clickable(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+        padding: EdgeInsets.symmetric(
+          horizontal: Dimens.gapSm,
+          vertical: Dimens.gapSm,
+        ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -437,7 +444,7 @@ class CommentTile extends StatelessWidget {
               )
             else
               Icon(icon, size: 18, color: tint),
-            const SizedBox(width: 5),
+            SizedBox(width: Dimens.gapSm),
             Text(
               label,
               style: context.textTheme.labelMedium?.copyWith(

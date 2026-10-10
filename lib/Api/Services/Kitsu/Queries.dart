@@ -11,6 +11,7 @@ import '../../../Core/Services/Model/Calendar.dart';
 import '../../../Core/Services/Model/Character.dart';
 import '../../../Core/Services/Model/Media.dart';
 import '../../../Core/Services/Model/MediaListEntry.dart';
+import '../../../Core/Services/Model/MediaReaction.dart';
 import '../../../Core/Services/Model/Review.dart';
 import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../../Model/SearchResults.dart';
@@ -490,6 +491,34 @@ class KitsuQueries extends Queries {
       return JsonApi(await client.get(path, query: query));
     } catch (_) {
       return null;
+    }
+  }
+
+  final _reactionCache = <String, List<MediaReaction>>{};
+
+  Future<List<MediaReaction>> reactions(String mediaId) async {
+    final ref = parseKitsuMediaId(mediaId);
+    if (ref == null) return const [];
+    final cached = _reactionCache[mediaId];
+    if (cached != null) return cached;
+    try {
+      final kind = _kind(ref.$1);
+      final doc = JsonApi(
+        await client.get(
+          '/media-reactions',
+          query: {
+            'filter[${kind}Id]': '${ref.$2}',
+            'include': 'user',
+            'sort': '-upVotesCount',
+            'page[limit]': '10',
+          },
+        ),
+      );
+      return _reactionCache[mediaId] = [
+        for (final n in doc.data) ?mapKitsuReaction(doc, n),
+      ];
+    } catch (_) {
+      return const [];
     }
   }
 

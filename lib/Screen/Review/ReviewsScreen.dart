@@ -101,9 +101,9 @@ class _ReviewsScreenState extends BaseScreen<ReviewsScreen>
               itemCount: items.length + (loading ? 1 : 0),
               separatorBuilder: (_, _) => SizedBox(height: Dimens.gapSm),
               itemBuilder: (_, i) => i == items.length
-                  ? const Padding(
-                      padding: EdgeInsets.all(24),
-                      child: Center(child: CircularProgressIndicator()),
+                  ? Padding(
+                      padding: EdgeInsets.all(Dimens.gapLg),
+                      child: const Center(child: CircularProgressIndicator()),
                     )
                   : ReviewCard(
                       review: items[i],

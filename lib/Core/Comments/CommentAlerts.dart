@@ -31,7 +31,7 @@ class CommentAlerts extends AppController {
     onChange(PrefName.commentsAlerts.rx, (on) {
       if (on) unawaited(poll());
     });
-    unawaited(Future<void>.delayed(const Duration(seconds: 30), poll));
+    unawaited(poll());
   }
 
   void _schedule() {

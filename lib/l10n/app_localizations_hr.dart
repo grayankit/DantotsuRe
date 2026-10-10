@@ -3695,4 +3695,12 @@ class AppLocalizationsHr extends AppLocalizations {
   String notificationsNewCount(int count) {
     return '$count new notifications';
   }
+
+  @override
+  String get reactionsTitle => 'Reactions';
+
+  @override
+  String reactionsVotes(int count) {
+    return '$count upvotes';
+  }
 }

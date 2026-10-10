@@ -1,3 +1,4 @@
+import '../../../../Core/Services/Model/MediaReaction.dart';
 import '../../../../Core/Services/Model/Anime.dart';
 import '../../../../Core/Services/Model/Author.dart';
 import '../../../../Core/Services/Model/Character.dart';
@@ -391,6 +392,27 @@ Review? mapKitsuReview(JsonApi doc, Map<String, dynamic> node, String mediaId) {
     ratingAmount: likes,
     score: rating == null ? null : (rating * 10).round(),
     siteUrl: 'https://kitsu.io/reviews/${node['id']}',
+    createdAt: kitsuEpoch(a['createdAt']),
+    user: user == null
+        ? null
+        : User(
+            id: int.tryParse('${user['id']}') ?? 0,
+            name: ua['name'] as String? ?? '',
+            pfp: kitsuImage(ua['avatar'], const ['medium', 'large', 'small']),
+          ),
+  );
+}
+
+MediaReaction? mapKitsuReaction(JsonApi doc, Map<String, dynamic> node) {
+  final a = attrs(node);
+  final text = (a['reaction'] as String?)?.trim() ?? '';
+  if (text.isEmpty || a['heldReason'] != null) return null;
+  final user = doc.one(node, 'user');
+  final ua = user == null ? const <String, dynamic>{} : attrs(user);
+  return MediaReaction(
+    id: '${node['id']}',
+    text: text,
+    votes: (a['upVotesCount'] as num?)?.toInt() ?? 0,
     createdAt: kitsuEpoch(a['createdAt']),
     user: user == null
         ? null

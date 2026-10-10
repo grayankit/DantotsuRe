@@ -1672,5 +1672,8 @@
   "imageSearchFailed": "Search failed ({code})",
   "@imageSearchFailed": {"placeholders": {"code": {"type": "int"}}},
   "notificationsNewCount": "{count} new notifications",
-  "@notificationsNewCount": {"placeholders": {"count": {"type": "int"}}}
+  "@notificationsNewCount": {"placeholders": {"count": {"type": "int"}}},
+  "reactionsTitle": "Reactions",
+  "reactionsVotes": "{count} upvotes",
+  "@reactionsVotes": {"placeholders": {"count": {"type": "int"}}}
 }

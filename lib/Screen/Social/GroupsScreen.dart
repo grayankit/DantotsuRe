@@ -96,7 +96,7 @@ class _GroupsScreenState extends BaseScreen<GroupsScreen>
               children: [
                 for (final c in [null, ...state.categories])
                   Padding(
-                    padding: const EdgeInsets.only(right: 8),
+                    padding: EdgeInsets.only(right: Dimens.gapSm),
                     child: FilterChip(
                       label: Text(c?.name ?? getString.groupsAll),
                       selected: state.category.value == c?.id,
@@ -158,7 +158,7 @@ class _GroupsScreenState extends BaseScreen<GroupsScreen>
                             }
                             if (i >= items.length) {
                               return Padding(
-                                padding: const EdgeInsets.all(16),
+                                padding: EdgeInsets.all(Dimens.pagePad),
                                 child: Center(
                                   child: CircularProgressIndicator(
                                     color: scheme.primary,

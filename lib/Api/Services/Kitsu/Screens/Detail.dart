@@ -4,6 +4,7 @@ import '../../../../Core/Services/Model/Media.dart';
 import '../../../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../../../Screen/Detail/Components/DetailSections.dart';
 import '../../../../Screen/Detail/Components/DetailStats.dart';
+import '../../../../Screen/Review/ReactionsShelf.dart';
 import '../../../../Screen/Review/ReviewsShelf.dart';
 import '../../../../Utils/Extensions/StringExtensions.dart';
 import '../Auth.dart';
@@ -18,6 +19,10 @@ class KitsuDetailView extends DetailScreenView {
 
   @override
   String? get sourceName => 'Kitsu';
+
+  @override
+  Future<List<MediaReaction>> reactions(Media media) =>
+      kitsuAuth.queries.reactions(media.id);
 
   @override
   Stream<List<ScreenWidget>> screenStream(DetailHost host) async* {
@@ -62,6 +67,13 @@ class KitsuDetailView extends DetailScreenView {
           ScreenData(chips: m.genres, onChipTap: host.search),
         ),
       ...linkChips(getString.links, extras?.links),
+      ScreenWidget.extra(
+        ReactionsShelf(
+          key: ValueKey('reactions-${m.id}'),
+          media: m,
+          view: this,
+        ),
+      ),
       ScreenWidget.extra(
         ReviewsShelf(key: ValueKey('reviews-${m.id}'), media: m, view: this),
       ),

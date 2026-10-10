@@ -114,19 +114,28 @@ class CommentsState extends ScreenState {
     phase.value = CommentsPhase.loading;
     failure.value = null;
     try {
-      target = await CommentsTarget.resolve(service, media.value);
+      final (resolved, session) = await (
+        CommentsTarget.resolve(service, media.value),
+        api.ensureSession().then<CommentSession?>(
+          (s) => s,
+          onError: (Object _) => null,
+        ),
+      ).wait;
+      target = resolved;
       logger('Comments start run $run/$_generation target $target');
       if (run != _generation) return;
       if (target == null) {
         phase.value = CommentsPhase.unavailable;
         return;
       }
-      final session = await api.ensureSession();
       logger('Comments session ${session?.userId} run $run/$_generation');
       if (run != _generation) return;
       if (session == null) {
-        phase.value = CommentsPhase.signedOut;
-        return;
+        final retry = await api.ensureSession();
+        if (retry == null) {
+          phase.value = CommentsPhase.signedOut;
+          return;
+        }
       }
       if (focusId != null) {
         await _loadSingle(focusId!);

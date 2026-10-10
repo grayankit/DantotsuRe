@@ -36,7 +36,7 @@ class ActivityAlerts extends AppController {
       if (poll_ != null) _watched.add(onChange(poll_.rx, (_) => _schedule()));
     }
     _schedule();
-    unawaited(Future<void>.delayed(const Duration(seconds: 20), poll));
+    unawaited(poll());
   }
 
   void _schedule() {
@@ -119,13 +119,12 @@ class ActivityAlerts extends AppController {
     if (_busy) return;
     _busy = true;
     try {
-      for (final service in _services) {
-        final view = service.notificationView!;
-        if (!view.alertsPref!.value || !(service.auth?.isLoggedIn ?? false)) {
-          continue;
-        }
-        await _pollService(service, view);
-      }
+      await Future.wait([
+        for (final service in _services)
+          if (service.notificationView!.alertsPref!.value &&
+              (service.auth?.isLoggedIn ?? false))
+            _pollService(service, service.notificationView!),
+      ]);
     } finally {
       _busy = false;
     }

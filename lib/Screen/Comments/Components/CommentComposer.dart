@@ -1,3 +1,4 @@
+import '../../../Utils/Extensions/Responsive.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -120,7 +121,12 @@ class _CommentComposerState extends State<CommentComposer> {
         borderRadius: BorderRadius.circular(20),
       ),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 8, 8, 6),
+        padding: EdgeInsets.fromLTRB(
+          Dimens.gap,
+          Dimens.gapSm,
+          Dimens.gapSm,
+          Dimens.gapSm,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -129,14 +135,14 @@ class _CommentComposerState extends State<CommentComposer> {
               children: [
                 if (!widget.compact) ...[
                   Padding(
-                    padding: const EdgeInsets.only(top: 4),
+                    padding: EdgeInsets.only(top: Dimens.gapXs),
                     child: UserAvatar(
                       url: widget.avatar,
                       name: widget.name,
                       size: 30,
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  SizedBox(width: Dimens.gap),
                 ],
                 Expanded(
                   child: TextField(
@@ -155,7 +161,9 @@ class _CommentComposerState extends State<CommentComposer> {
                       enabledBorder: InputBorder.none,
                       focusedBorder: InputBorder.none,
                       isDense: true,
-                      contentPadding: const EdgeInsets.symmetric(vertical: 8),
+                      contentPadding: EdgeInsets.symmetric(
+                        vertical: Dimens.gapSm,
+                      ),
                     ),
                   ),
                 ),
@@ -204,7 +212,7 @@ class _CommentComposerState extends State<CommentComposer> {
                   onPressed: busy || _empty.value ? null : _send,
                   style: FilledButton.styleFrom(
                     minimumSize: const Size(0, 36),
-                    padding: const EdgeInsets.symmetric(horizontal: 18),
+                    padding: EdgeInsets.symmetric(horizontal: Dimens.gapLg),
                   ),
                   child: busy
                       ? const SizedBox(
@@ -236,7 +244,7 @@ class _CommentComposerState extends State<CommentComposer> {
       child: Clickable(
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.all(8),
+          padding: EdgeInsets.all(Dimens.gapSm),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -246,7 +254,7 @@ class _CommentComposerState extends State<CommentComposer> {
                 color: active ? scheme.primary : scheme.onSurfaceVariant,
               ),
               if (label != null) ...[
-                const SizedBox(width: 4),
+                SizedBox(width: Dimens.gapXs),
                 Text(
                   label,
                   style: context.textTheme.labelMedium?.copyWith(

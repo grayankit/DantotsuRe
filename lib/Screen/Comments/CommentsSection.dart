@@ -116,7 +116,12 @@ class _CommentsSectionState extends State<CommentsSection>
               width: double.infinity,
               child: SectionCard(
                 margin: EdgeInsets.only(bottom: Dimens.gapSm),
-                padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+                padding: EdgeInsets.fromLTRB(
+                  Dimens.gap,
+                  0,
+                  Dimens.gap,
+                  Dimens.gapSm,
+                ),
                 child: CommentTile(state: state, node: node),
               ),
             ),
@@ -218,7 +223,7 @@ class _CommentsSectionState extends State<CommentsSection>
         SizedBox(height: Dimens.gapSm),
         if (state.single.value)
           Padding(
-            padding: const EdgeInsets.only(bottom: 8),
+            padding: EdgeInsets.only(bottom: Dimens.gapSm),
             child: Row(
               children: [
                 Expanded(
@@ -236,7 +241,7 @@ class _CommentsSectionState extends State<CommentsSection>
           )
         else
           Padding(
-            padding: const EdgeInsets.only(bottom: 4),
+            padding: EdgeInsets.only(bottom: Dimens.gapXs),
             child: CommentComposer(
               hint: getString.commentsPlaceholder,
               avatar: session?.avatar,
@@ -268,7 +273,12 @@ class _CommentsSectionState extends State<CommentsSection>
               width: double.infinity,
               child: SectionCard(
                 margin: EdgeInsets.only(bottom: Dimens.gapSm),
-                padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+                padding: EdgeInsets.fromLTRB(
+                  Dimens.gap,
+                  0,
+                  Dimens.gap,
+                  Dimens.gapSm,
+                ),
                 child: CommentTile(
                   key: ValueKey('c${node.comment.id}'),
                   state: state,
@@ -277,9 +287,9 @@ class _CommentsSectionState extends State<CommentsSection>
               ),
             ),
         if (state.loadingMore.value)
-          const Padding(
-            padding: EdgeInsets.all(20),
-            child: Center(child: CircularProgressIndicator()),
+          Padding(
+            padding: EdgeInsets.all(Dimens.gapLg),
+            child: const Center(child: CircularProgressIndicator()),
           )
         else if (state.hasMore && !loading)
           Center(

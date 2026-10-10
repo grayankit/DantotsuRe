@@ -15,7 +15,7 @@ import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 
 AnilistAuth get anilistAuth => find<AnilistAuth>();
 
-class AnilistAuth extends AppController implements ServiceAuth {
+class AnilistAuth extends AppController with SharedRefresh implements ServiceAuth {
   static const _mobileClientId = '14959';
   static const _desktopClientId = '53220';
   static String get _clientId =>
@@ -105,7 +105,9 @@ class AnilistAuth extends AppController implements ServiceAuth {
   }
 
   @override
-  Future<void> refreshUser() async {
+  Future<void> refreshUser() => shareRefresh(_loadUser, key: token.value);
+
+  Future<void> _loadUser() async {
     if (!isLoggedIn) return;
     loading.value = true;
     try {

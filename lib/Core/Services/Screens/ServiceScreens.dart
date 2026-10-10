@@ -18,6 +18,7 @@ export 'EntityHost.dart';
 export 'ListEditorDraft.dart';
 export 'ScreenWidget.dart';
 export '../Model/Calendar.dart';
+export '../Model/MediaReaction.dart';
 export '../Model/Review.dart';
 export '../Model/Social.dart';
 
@@ -209,6 +210,8 @@ class DetailScreenView {
   bool get canRateReviews => false;
 
   Future<Review?> rateReview(Review review, ReviewVote vote) async => null;
+
+  Future<List<MediaReaction>> reactions(Media media) async => const [];
 
   Future<List<Review>> reviews(Media media, {int page = 1}) async =>
       await service.getQueries?.getReviews(media.id, page: page) ?? const [];

@@ -6784,6 +6784,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} new notifications'**
   String notificationsNewCount(int count);
+
+  /// No description provided for @reactionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reactions'**
+  String get reactionsTitle;
+
+  /// No description provided for @reactionsVotes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} upvotes'**
+  String reactionsVotes(int count);
 }
 
 class _AppLocalizationsDelegate

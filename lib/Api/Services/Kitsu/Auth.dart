@@ -19,7 +19,7 @@ import 'Queries.dart';
 
 KitsuAuth get kitsuAuth => find<KitsuAuth>();
 
-class KitsuAuth extends AppController implements ServiceAuth {
+class KitsuAuth extends AppController with SharedRefresh implements ServiceAuth {
   static const _userCacheKey = 'kitsuUser';
 
   final token = KitsuPref.token.rx;
@@ -178,7 +178,9 @@ class KitsuAuth extends AppController implements ServiceAuth {
   }
 
   @override
-  Future<void> refreshUser() async {
+  Future<void> refreshUser() => shareRefresh(_loadUser, key: KitsuPref.token.value);
+
+  Future<void> _loadUser() async {
     if (!isLoggedIn) return;
     if (DateTime.now().millisecondsSinceEpoch > KitsuPref.expiresAt.value) {
       await _refresh();

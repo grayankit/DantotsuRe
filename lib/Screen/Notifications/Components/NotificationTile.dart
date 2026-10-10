@@ -60,7 +60,7 @@ class NotificationTile extends StatelessWidget {
                             ),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: Dimens.gap),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -72,11 +72,11 @@ class NotificationTile extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                         if (showTime) ...[
-                          const SizedBox(height: 6),
+                          SizedBox(height: Dimens.gapSm),
                           Row(
                             children: [
                               Icon(icon, size: 13, color: scheme.primary),
-                              const SizedBox(width: 5),
+                              SizedBox(width: Dimens.gapSm),
                               Text(
                                 NotificationsState.ago(item.createdAt),
                                 style: context.textTheme.labelSmall?.copyWith(

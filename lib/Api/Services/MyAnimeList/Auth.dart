@@ -19,7 +19,7 @@ import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 
 MalAuth get malAuth => find<MalAuth>();
 
-class MalAuth extends AppController implements ServiceAuth {
+class MalAuth extends AppController with SharedRefresh implements ServiceAuth {
   static const _tokenUrl = '$malWeb/v1/oauth2/token';
   static const _userCacheKey = 'malUser';
 
@@ -147,7 +147,9 @@ class MalAuth extends AppController implements ServiceAuth {
   }
 
   @override
-  Future<void> refreshUser() async {
+  Future<void> refreshUser() => shareRefresh(_loadUser, key: MalPref.token.value);
+
+  Future<void> _loadUser() async {
     if (!isLoggedIn) return;
     if (DateTime.now().millisecondsSinceEpoch > MalPref.expiresAt.value) {
       await _refresh();
