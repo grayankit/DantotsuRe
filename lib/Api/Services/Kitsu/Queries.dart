@@ -1,3 +1,4 @@
+import '../../../Utils/Lru.dart';
 import 'dart:convert';
 import 'dart:async';
 
@@ -497,8 +498,8 @@ class KitsuQueries extends Queries {
     }
   }
 
-  final _reactionCache = <String, List<MediaReaction>>{};
-  final _voteIds = <String, String>{};
+  final _reactionCache = Lru<String, List<MediaReaction>>(40);
+  final _voteIds = Lru<String, String>(300);
 
   Future<List<MediaReaction>> reactions(String mediaId) async {
     final ref = parseKitsuMediaId(mediaId);

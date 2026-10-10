@@ -54,6 +54,7 @@ class NotificationManager extends AppController {
     );
     permissionGranted.value = await requestPermission();
     _ready = true;
+    unawaited(_sweepImages());
   }
 
   Future<bool> requestPermission() async {
@@ -83,6 +84,22 @@ class NotificationManager extends AppController {
           false;
     }
     return true;
+  }
+
+  Future<void> _sweepImages() async {
+    try {
+      final dir = await StorageManager.getTmpDirectory();
+      final cutoff = DateTime.now().subtract(const Duration(days: 3));
+      await for (final entity in dir!.list()) {
+        if (entity is! File ||
+            !p.basename(entity.path).startsWith('notification_')) {
+          continue;
+        }
+        if ((await entity.lastModified()).isBefore(cutoff)) {
+          await entity.delete();
+        }
+      }
+    } catch (_) {}
   }
 
   Future<String?> _fetch(String? url) async {

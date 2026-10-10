@@ -22,6 +22,7 @@ class CommentsApi extends AppController {
 
   final session = Live<CommentSession?>(null);
   Future<CommentSession?>? _signingIn;
+  Disposer? _tokenSub;
 
   bool get enabled => PrefName.commentsEnabled.value;
 
@@ -38,7 +39,13 @@ class CommentsApi extends AppController {
   @override
   void onInit() {
     super.onInit();
-    onChange(anilistToken, (_) => signOut());
+    _tokenSub = onChange(anilistToken, (_) => signOut());
+  }
+
+  @override
+  void onClose() {
+    _tokenSub?.dispose();
+    super.onClose();
   }
 
   void signOut() {

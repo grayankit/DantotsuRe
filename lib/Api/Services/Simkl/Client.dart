@@ -1,3 +1,4 @@
+import '../../../Utils/Lru.dart';
 import 'dart:async';
 import 'dart:convert';
 
@@ -99,7 +100,7 @@ class SimklClient {
     }
   }
 
-  final _catalog = <String, (DateTime, dynamic)>{};
+  final _catalog = Lru<String, (DateTime, dynamic)>(24);
   final _inflight = <String, Future<dynamic>>{};
 
   Future<dynamic> get(

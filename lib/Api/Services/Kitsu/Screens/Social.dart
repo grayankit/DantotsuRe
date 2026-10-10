@@ -444,6 +444,7 @@ class KitsuSocialView extends SocialScreenView {
   }
 
   Future<ActivityPage> _feed(String feed, String key, int page) async {
+    if (page == 1) _cursors.removeWhere((k, _) => k.startsWith('$key|'));
     final cursor = page > 1 ? _cursors['$key|$page'] : null;
     final res = await _client.get(
       '/feeds/$feed',

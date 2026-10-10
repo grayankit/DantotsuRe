@@ -48,6 +48,7 @@ class KitsuNotificationView extends NotificationScreenView {
   Future<List<ServiceNotification>> notifications({int page = 1}) async {
     final me = kitsuAuth.user.value?.id;
     if (me == null) return const [];
+    if (page == 1) _cursors.clear();
     final cursor = page > 1 ? _cursors[page] : null;
     JsonApi doc;
     try {

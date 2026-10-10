@@ -21,16 +21,19 @@ class CommentAlerts extends AppController {
   Timer? _timer;
   bool _busy = false;
   Disposer? _tapSub;
+  final _watched = <Disposer>[];
 
   CommentsApi get _api => find<CommentsApi>();
 
   void start() {
     _schedule();
-    onChange(PrefName.commentsPollMinutes.rx, (_) => _schedule());
+    _watched.add(onChange(PrefName.commentsPollMinutes.rx, (_) => _schedule()));
     _tapSub = onChange(find<NotificationManager>().tapped, _tapped);
-    onChange(PrefName.commentsAlerts.rx, (on) {
-      if (on) unawaited(poll());
-    });
+    _watched.add(
+      onChange(PrefName.commentsAlerts.rx, (on) {
+        if (on) unawaited(poll());
+      }),
+    );
     unawaited(poll());
   }
 
@@ -186,6 +189,9 @@ class CommentAlerts extends AppController {
   void onClose() {
     _timer?.cancel();
     _tapSub?.dispose();
+    for (final d in _watched) {
+      d.dispose();
+    }
     super.onClose();
   }
 }
