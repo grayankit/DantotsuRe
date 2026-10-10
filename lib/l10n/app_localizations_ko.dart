@@ -2939,6 +2939,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get syncLoadingMap => 'Loading ID mapping';
 
   @override
+  String get syncComparing => 'Comparing lists';
+
+  @override
   String get syncIntro =>
       'Pick a main service and press Fetch. Each service is queried once for your list, then compared with the main one.';
 
@@ -3053,4 +3056,84 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get syncRateLimited => 'Rate limited, try again in a moment';
+
+  @override
+  String get syncAhead => 'Whichever is ahead';
+
+  @override
+  String get syncAheadDesc =>
+      'Two-way: for every title the entry that is furthest along wins and is copied to all your other services';
+
+  @override
+  String syncAheadFrom(String service) {
+    return 'From $service';
+  }
+
+  @override
+  String get syncConfirm => 'Review before syncing';
+
+  @override
+  String get syncConfirmDesc =>
+      'Show what Sync all will change and how many requests it needs';
+
+  @override
+  String get syncPreviewTitle => 'Ready to sync';
+
+  @override
+  String syncPreviewLine(int updates, int adds) {
+    return '$updates updates, $adds to add';
+  }
+
+  @override
+  String syncPreviewRequests(int count) {
+    return 'About $count requests';
+  }
+
+  @override
+  String syncPreviewLookups(int count) {
+    return '$count ids need a lookup first';
+  }
+
+  @override
+  String get syncPreviewNothing => 'Nothing to change';
+
+  @override
+  String get syncStart => 'Start';
+
+  @override
+  String get syncRetry => 'Retry';
+
+  @override
+  String get syncSkip => 'Skip this item';
+
+  @override
+  String get syncInclude => 'Include this item again';
+
+  @override
+  String get syncSkippedLabel => 'Skipped';
+
+  @override
+  String get syncChanges => 'Differences';
+
+  @override
+  String get syncChangeStatus => 'Status';
+
+  @override
+  String get syncChangeProgress => 'Progress';
+
+  @override
+  String get syncChangeScore => 'Score';
+
+  @override
+  String get syncChangeDates => 'Dates';
+
+  @override
+  String get syncChangeRepeat => 'Rewatch count';
+
+  @override
+  String get syncFailedReason => 'Why it failed';
+
+  @override
+  String get syncSkippedHint =>
+      'Skipped items are left alone, even after fetching again';
 }

@@ -58,28 +58,10 @@ class AnilistSync extends SyncAdapter {
 
   @override
   Future<int> write(List<SyncOp> batch, {required bool anime}) async {
-    final calls = <String>[];
-    for (var i = 0; i < batch.length; i++) {
-      final w = batch[i].want;
-      final id = int.tryParse(batch[i].targetId);
-      if (id == null) continue;
-      final args = [
-        'mediaId: $id',
-        if (_statuses.contains(w.status)) 'status: ${w.status}',
-        'progress: ${w.progress}',
-        if (w.score > 0) 'scoreRaw: ${w.score.clamp(0, 100)}',
-        if (w.repeat > 0) 'repeat: ${w.repeat}',
-        if (w.started?.year != null) 'startedAt: ${_date(w.started!)}',
-        if (w.completed?.year != null) 'completedAt: ${_date(w.completed!)}',
-      ];
-      calls.add('m$i: SaveMediaListEntry(${args.join(', ')}) { id }');
-    }
-    if (calls.isEmpty) return 0;
+    final query = anilistSaveBatch(batch);
+    if (query == null) return 0;
     try {
-      await mutations.client.query(
-        'mutation { ${calls.join('\n')} }',
-        showErrors: false,
-      );
+      await mutations.client.query(query, showErrors: false);
     } on AnilistException catch (e) {
       throw _wrap(e);
     }
@@ -139,3 +121,23 @@ class AnilistSync extends SyncAdapter {
 
 String _date(Date d) =>
     '{year: ${d.year}, month: ${d.month ?? 1}, day: ${d.day ?? 1}}';
+
+String? anilistSaveBatch(List<SyncOp> batch) {
+  final calls = <String>[];
+  for (var i = 0; i < batch.length; i++) {
+    final w = batch[i].want;
+    final id = int.tryParse(batch[i].targetId);
+    if (id == null) continue;
+    final args = [
+      'mediaId: $id',
+      if (_statuses.contains(w.status)) 'status: ${w.status}',
+      'progress: ${w.progress}',
+      if (w.score > 0) 'scoreRaw: ${w.score.clamp(0, 100)}',
+      if (w.repeat > 0) 'repeat: ${w.repeat}',
+      if (w.started?.year != null) 'startedAt: ${_date(w.started!)}',
+      if (w.completed?.year != null) 'completedAt: ${_date(w.completed!)}',
+    ];
+    calls.add('m$i: SaveMediaListEntry(${args.join(', ')}) { id }');
+  }
+  return calls.isEmpty ? null : 'mutation { ${calls.join('\n')} }';
+}

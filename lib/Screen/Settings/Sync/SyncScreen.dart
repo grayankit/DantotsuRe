@@ -97,6 +97,10 @@ class _SyncScreenState extends BaseScreen<SyncScreen>
                 key: ValueKey(pairs[i].main.id),
                 pair: pairs[i],
                 statusLabel: state.statusLabel,
+                from: state.sourceName(pairs[i]),
+                onTap: service == null
+                    ? null
+                    : () => state.openPair(context, service, pairs[i]),
               ),
             ),
           ),

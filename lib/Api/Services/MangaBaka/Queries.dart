@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+import 'dart:convert';
 import 'dart:async';
 
 import '../../../Core/Preferences/PrefManager.dart';
@@ -196,30 +198,20 @@ class MangaBakaQueries extends Queries {
     var first = true;
     while (first || next != null) {
       first = false;
-      final body = await client.getLarge(
+      final (page, link) = await client.getParsed(
         next ?? '/my/library',
+        _parseLibraryRows,
         query: next == null
             ? {'page': '1', 'limit': '100', 'sort_by': 'updated_at_desc'}
             : null,
       );
-      for (final e in (body['data'] as List?) ?? const []) {
-        if (e is Map) rows.add(e.cast<String, dynamic>());
-      }
-      next = (body['pagination'] as Map?)?['next'] as String?;
+      rows.addAll(page);
+      next = link;
     }
-    ratingScale = mangaBakaRatingScale(rows);
-    final out = <Media>[];
-    var chapters = 0;
-    for (final e in rows) {
-      final series = e['Series'] ?? e['series'];
-      if (series is! Map) continue;
-      final media = mapMangaBakaSeries(series.cast<String, dynamic>());
-      applyMangaBakaEntry(media, e, ratingScale);
-      chapters += media.userProgress ?? 0;
-      out.add(media);
-    }
-    onChapters?.call(chapters);
-    return out;
+    final mapped = await compute(_mapLibrary, rows);
+    ratingScale = mapped.scale;
+    onChapters?.call(mapped.chapters);
+    return mapped.media;
   }
 
   Future<void> _overlayEntry(Media media) async {
@@ -461,4 +453,32 @@ class MangaBakaQueries extends Queries {
       ..results = _media(body)
       ..hasNextPage = (body['pagination'] as Map?)?['next'] != null;
   }
+}
+
+(List<Map<String, dynamic>>, String?) _parseLibraryRows(String body) {
+  final json = jsonDecode(body) as Map<String, dynamic>;
+  return (
+    [
+      for (final e in (json['data'] as List?) ?? const [])
+        if (e is Map) e.cast<String, dynamic>(),
+    ],
+    (json['pagination'] as Map?)?['next'] as String?,
+  );
+}
+
+({List<Media> media, int scale, int chapters}) _mapLibrary(
+  List<Map<String, dynamic>> rows,
+) {
+  final scale = mangaBakaRatingScale(rows);
+  final out = <Media>[];
+  var chapters = 0;
+  for (final e in rows) {
+    final series = e['Series'] ?? e['series'];
+    if (series is! Map) continue;
+    final media = mapMangaBakaSeries(series.cast<String, dynamic>());
+    applyMangaBakaEntry(media, e, scale);
+    chapters += media.userProgress ?? 0;
+    out.add(media);
+  }
+  return (media: out, scale: scale, chapters: chapters);
 }

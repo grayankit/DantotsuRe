@@ -43,6 +43,7 @@ class SyncItem {
   final Date? completed;
   final int? total;
   final int? listId;
+  final String? source;
 
   const SyncItem({
     required this.id,
@@ -57,6 +58,7 @@ class SyncItem {
     this.completed,
     this.total,
     this.listId,
+    this.source,
   });
 
   factory SyncItem.fromMedia(Media media, Map<String, int> ids) => SyncItem(
@@ -74,35 +76,31 @@ class SyncItem {
     listId: media.userListId,
   );
 
-  SyncItem withIds(Map<String, int> next) => SyncItem(
-    id: id,
-    ids: next,
+  SyncItem copy({
+    String? id,
+    Map<String, int>? ids,
+    int? progress,
+    int? score,
+    String? source,
+  }) => SyncItem(
+    id: id ?? this.id,
+    ids: ids ?? this.ids,
     title: title,
     cover: cover,
     status: status,
-    progress: progress,
-    score: score,
+    progress: progress ?? this.progress,
+    score: score ?? this.score,
     repeat: repeat,
     started: started,
     completed: completed,
     total: total,
     listId: listId,
+    source: source ?? this.source,
   );
 
-  SyncItem withProgress(int value) => SyncItem(
-    id: id,
-    ids: ids,
-    title: title,
-    cover: cover,
-    status: status,
-    progress: value,
-    score: score,
-    repeat: repeat,
-    started: started,
-    completed: completed,
-    total: total,
-    listId: listId,
-  );
+  SyncItem withIds(Map<String, int> next) => copy(ids: next);
+
+  SyncItem withProgress(int value) => copy(progress: value);
 
   SyncItem asTarget(String targetId, {SyncItem? previous}) => SyncItem(
     id: targetId,
@@ -169,6 +167,7 @@ class SyncItem {
     'completed': ?_dateJson(completed),
     'total': ?total,
     'listId': ?listId,
+    'src': ?source,
   };
 
   factory SyncItem.fromJson(Map<String, dynamic> j) => SyncItem(
@@ -186,6 +185,7 @@ class SyncItem {
     completed: _dateFrom(j['completed']),
     total: (j['total'] as num?)?.toInt(),
     listId: (j['listId'] as num?)?.toInt(),
+    source: j['src'] as String?,
   );
 }
 
@@ -193,7 +193,7 @@ const syncSharedEntry = 'shared';
 
 enum SyncStatus { synced, outdated, missing, unmapped }
 
-enum SyncOpState { idle, done, failed }
+enum SyncOpState { idle, done, failed, skipped }
 
 class SyncPair {
   final SyncItem main;
@@ -224,6 +224,7 @@ class SyncPair {
 
   bool get pending =>
       op != SyncOpState.done &&
+      op != SyncOpState.skipped &&
       (state == SyncStatus.outdated || state == SyncStatus.missing);
 
   List<String> get diffs {
@@ -292,6 +293,8 @@ class SyncTargetPlan {
   int get done => pairs.where((p) => p.op == SyncOpState.done).length;
 
   int get failed => pairs.where((p) => p.op == SyncOpState.failed).length;
+
+  int get skipped => pairs.where((p) => p.op == SyncOpState.skipped).length;
 
   Map<String, dynamic> toJson(Map<SyncItem, int> index) => {
     'pairs': [for (final p in pairs) p.toJson(index[p.main]!)],

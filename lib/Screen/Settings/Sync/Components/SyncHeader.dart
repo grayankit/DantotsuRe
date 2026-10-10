@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../Core/Preferences/PrefManager.dart';
 import '../../../../Core/State/State.dart';
+import '../../../../Core/Sync/SyncAhead.dart';
 import '../../../../Core/Sync/SyncController.dart';
 import '../../../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../../../Utils/Extensions/ContextExtensions.dart';
@@ -51,7 +52,9 @@ class SyncHeader extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            getString.syncMainServiceDesc,
+            state.isAhead
+                ? getString.syncAheadDesc
+                : getString.syncMainServiceDesc,
             style: context.textTheme.bodySmall?.copyWith(
               color: scheme.onSurfaceVariant,
             ),
@@ -65,6 +68,8 @@ class SyncHeader extends StatelessWidget {
               onChanged: state.setMain,
               options: [
                 for (final s in candidates) AppSegment(s.id, label: s.name),
+                if (candidates.length > 1)
+                  AppSegment(syncAheadId, label: getString.syncAhead),
               ],
             ),
           SizedBox(height: Dimens.gap),
@@ -102,7 +107,7 @@ class SyncHeader extends StatelessWidget {
                       : FilledButton.tonalIcon(
                           onPressed: busy || pending == 0
                               ? null
-                              : state.syncAll,
+                              : () => state.syncAll(context),
                           icon: const Icon(Icons.sync_rounded),
                           label: Text(
                             '${done > 0 && pending > 0 ? getString.syncResume : getString.syncAll} ($pending)',
@@ -157,6 +162,13 @@ class SyncHeader extends StatelessWidget {
           subtitle: Text(getString.syncAutoDesc),
           value: PrefName.syncAuto.rx.value,
           onChanged: (v) => PrefName.syncAuto.rx.value = v,
+        ),
+        SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          title: Text(getString.syncConfirm),
+          subtitle: Text(getString.syncConfirmDesc),
+          value: PrefName.syncConfirm.rx.value,
+          onChanged: (v) => PrefName.syncConfirm.rx.value = v,
         ),
         SwitchListTile(
           contentPadding: EdgeInsets.zero,

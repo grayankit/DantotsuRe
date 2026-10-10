@@ -5489,6 +5489,12 @@ abstract class AppLocalizations {
   /// **'Loading ID mapping'**
   String get syncLoadingMap;
 
+  /// No description provided for @syncComparing.
+  ///
+  /// In en, this message translates to:
+  /// **'Comparing lists'**
+  String get syncComparing;
+
   /// No description provided for @syncIntro.
   ///
   /// In en, this message translates to:
@@ -5668,6 +5674,144 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Rate limited, try again in a moment'**
   String get syncRateLimited;
+
+  /// No description provided for @syncAhead.
+  ///
+  /// In en, this message translates to:
+  /// **'Whichever is ahead'**
+  String get syncAhead;
+
+  /// No description provided for @syncAheadDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Two-way: for every title the entry that is furthest along wins and is copied to all your other services'**
+  String get syncAheadDesc;
+
+  /// No description provided for @syncAheadFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'From {service}'**
+  String syncAheadFrom(String service);
+
+  /// No description provided for @syncConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Review before syncing'**
+  String get syncConfirm;
+
+  /// No description provided for @syncConfirmDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Show what Sync all will change and how many requests it needs'**
+  String get syncConfirmDesc;
+
+  /// No description provided for @syncPreviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready to sync'**
+  String get syncPreviewTitle;
+
+  /// No description provided for @syncPreviewLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{updates} updates, {adds} to add'**
+  String syncPreviewLine(int updates, int adds);
+
+  /// No description provided for @syncPreviewRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'About {count} requests'**
+  String syncPreviewRequests(int count);
+
+  /// No description provided for @syncPreviewLookups.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} ids need a lookup first'**
+  String syncPreviewLookups(int count);
+
+  /// No description provided for @syncPreviewNothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to change'**
+  String get syncPreviewNothing;
+
+  /// No description provided for @syncStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get syncStart;
+
+  /// No description provided for @syncRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get syncRetry;
+
+  /// No description provided for @syncSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip this item'**
+  String get syncSkip;
+
+  /// No description provided for @syncInclude.
+  ///
+  /// In en, this message translates to:
+  /// **'Include this item again'**
+  String get syncInclude;
+
+  /// No description provided for @syncSkippedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Skipped'**
+  String get syncSkippedLabel;
+
+  /// No description provided for @syncChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Differences'**
+  String get syncChanges;
+
+  /// No description provided for @syncChangeStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get syncChangeStatus;
+
+  /// No description provided for @syncChangeProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress'**
+  String get syncChangeProgress;
+
+  /// No description provided for @syncChangeScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Score'**
+  String get syncChangeScore;
+
+  /// No description provided for @syncChangeDates.
+  ///
+  /// In en, this message translates to:
+  /// **'Dates'**
+  String get syncChangeDates;
+
+  /// No description provided for @syncChangeRepeat.
+  ///
+  /// In en, this message translates to:
+  /// **'Rewatch count'**
+  String get syncChangeRepeat;
+
+  /// No description provided for @syncFailedReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Why it failed'**
+  String get syncFailedReason;
+
+  /// No description provided for @syncSkippedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Skipped items are left alone, even after fetching again'**
+  String get syncSkippedHint;
 }
 
 class _AppLocalizationsDelegate

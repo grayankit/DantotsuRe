@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:async';
 
 import '../../../Core/Services/Api/LibraryCache.dart';
@@ -243,8 +244,9 @@ class MalQueries extends Queries {
     var first = true;
     while (first || next != null) {
       first = false;
-      final data = await client.getLarge(
+      final (page, link) = await client.getParsed(
         next ?? '/users/@me/${anime ? 'animelist' : 'mangalist'}',
+        anime ? _parseAnimePage : _parseMangaPage,
         query: next == null
             ? {
                 'sort': 'list_updated_at',
@@ -254,8 +256,8 @@ class MalQueries extends Queries {
               }
             : null,
       );
-      all.addAll(_entries(data, anime));
-      next = (data['paging'] as Map?)?['next'] as String?;
+      all.addAll(page);
+      next = link;
     }
     return all;
   }
@@ -435,15 +437,6 @@ class MalQueries extends Queries {
         j.$2,
     ];
   }
-
-  List<Media> _entries(Map<String, dynamic> data, bool anime) => [
-    for (final e in (data['data'] as List?) ?? const [])
-      if ((e as Map)['node'] is Map)
-        mapMalMedia({
-          ...(e['node'] as Map).cast<String, dynamic>(),
-          'my_list_status': e['list_status'],
-        }, anime: anime),
-  ];
 
   @override
   List<SectionJob> browseJobs({required bool anime}) => [
@@ -651,3 +644,24 @@ class MalQueries extends Queries {
         _ => status.toLowerCase(),
       };
 }
+
+(List<Media>, String?) _parseListPage(String body, bool anime) {
+  final data = jsonDecode(body) as Map<String, dynamic>;
+  return (
+    [
+      for (final e in (data['data'] as List?) ?? const [])
+        if ((e as Map)['node'] is Map)
+          mapMalMedia({
+            ...(e['node'] as Map).cast<String, dynamic>(),
+            'my_list_status': e['list_status'],
+          }, anime: anime),
+    ],
+    (data['paging'] as Map?)?['next'] as String?,
+  );
+}
+
+(List<Media>, String?) _parseAnimePage(String body) =>
+    _parseListPage(body, true);
+
+(List<Media>, String?) _parseMangaPage(String body) =>
+    _parseListPage(body, false);

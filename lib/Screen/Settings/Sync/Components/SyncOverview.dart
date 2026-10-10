@@ -183,7 +183,7 @@ class SyncOverview extends StatelessWidget {
                 : FilledButton.tonalIcon(
                     onPressed: ctl.busy || state.pendingOf(service.id) == 0
                         ? null
-                        : state.syncSelected,
+                        : () => state.syncSelected(context),
                     icon: const Icon(Icons.sync_rounded),
                     label: Text(
                       getString.syncService(
@@ -194,7 +194,11 @@ class SyncOverview extends StatelessWidget {
                   ),
           ),
           SizedBox(height: Dimens.gapSm),
-          _ColumnHeader(from: state.mainService, to: service),
+          _ColumnHeader(
+            from: state.isAhead ? null : state.mainService,
+            fromLabel: state.isAhead ? getString.syncAhead : null,
+            to: service,
+          ),
         ],
       ),
     );
@@ -266,9 +270,10 @@ class _StatTile extends StatelessWidget {
 
 class _ColumnHeader extends StatelessWidget {
   final MediaService? from;
+  final String? fromLabel;
   final MediaService to;
 
-  const _ColumnHeader({required this.from, required this.to});
+  const _ColumnHeader({required this.from, this.fromLabel, required this.to});
 
   @override
   Widget build(BuildContext context) {
@@ -281,7 +286,7 @@ class _ColumnHeader extends StatelessWidget {
           const SizedBox(width: 6),
           Expanded(
             child: Text(
-              s?.name ?? '',
+              s?.name ?? (s == from ? fromLabel ?? '' : ''),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: context.textTheme.labelLarge?.copyWith(

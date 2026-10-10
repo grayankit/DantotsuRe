@@ -93,6 +93,7 @@ class PrefName {
   static const syncMain = Pref('syncMain', '', PrefLocation.COMMON);
   static const syncOnEdit = Pref('syncOnEdit', false, PrefLocation.COMMON);
   static const syncAuto = Pref('syncAuto', false, PrefLocation.COMMON);
+  static const syncConfirm = Pref('syncConfirm', true, PrefLocation.COMMON);
   static const syncAddMissing = Pref(
     'syncAddMissing',
     true,

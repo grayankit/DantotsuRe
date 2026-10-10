@@ -40,9 +40,6 @@ Map<String, dynamic> _decode(NetworkResponse<dynamic> res) {
   return body;
 }
 
-Map<String, dynamic> _decodeMap(String body) =>
-    jsonDecode(body) as Map<String, dynamic>;
-
 class KitsuClient {
   static const _json = 'application/vnd.api+json';
 
@@ -81,8 +78,9 @@ class KitsuClient {
   Future<Map<String, dynamic>> get(String path, {Map<String, String>? query}) =>
       _run((h) => _net.get(_url(path), query: query, headers: h)).then(_decode);
 
-  Future<Map<String, dynamic>> getLarge(
-    String path, {
+  Future<R> getParsed<R>(
+    String path,
+    R Function(String body) parse, {
     Map<String, String>? query,
   }) async {
     final res = await _run(
@@ -94,7 +92,7 @@ class KitsuClient {
         res.statusCode,
       );
     }
-    return compute(_decodeMap, '${res.data}');
+    return compute(parse, '${res.data}');
   }
 
   Future<Map<String, dynamic>> post(String path, Map<String, dynamic> body) =>

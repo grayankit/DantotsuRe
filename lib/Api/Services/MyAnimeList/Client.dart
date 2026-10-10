@@ -39,9 +39,6 @@ Map<String, dynamic> _decode(NetworkResponse<dynamic> res) {
   return body is Map<String, dynamic> ? body : <String, dynamic>{};
 }
 
-Map<String, dynamic> _decodeMap(String body) =>
-    jsonDecode(body) as Map<String, dynamic>;
-
 class MalClient {
   final String? Function() _token;
   final Future<bool> Function() _refresh;
@@ -79,8 +76,9 @@ class MalClient {
         ),
       ).then(_decode);
 
-  Future<Map<String, dynamic>> getLarge(
-    String path, {
+  Future<R> getParsed<R>(
+    String path,
+    R Function(String body) parse, {
     Map<String, String>? query,
   }) async {
     final res = await _run(
@@ -94,7 +92,7 @@ class MalClient {
     if (res.statusCode >= 400) {
       throw MalException('HTTP ${res.statusCode}', res.statusCode);
     }
-    return compute(_decodeMap, '${res.data}');
+    return compute(parse, '${res.data}');
   }
 
   Future<Map<String, dynamic>> put(String path, Map<String, String> form) =>

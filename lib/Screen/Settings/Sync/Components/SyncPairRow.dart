@@ -5,14 +5,23 @@ import '../../../../Core/Sync/SyncModels.dart';
 import '../../../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../../../Utils/Extensions/ContextExtensions.dart';
 import '../../../../Utils/Extensions/Responsive.dart';
+import '../../../../Utils/Nav/DpadNav.dart';
 import '../../../../Widgets/Components/CachedNetworkImage.dart';
 import '../../../../Widgets/Components/ThemedContainer.dart';
 
 class SyncPairRow extends StatelessWidget {
   final SyncPair pair;
   final String Function(String?) statusLabel;
+  final VoidCallback? onTap;
+  final String? from;
 
-  const SyncPairRow({super.key, required this.pair, required this.statusLabel});
+  const SyncPairRow({
+    super.key,
+    required this.pair,
+    required this.statusLabel,
+    this.onTap,
+    this.from,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +31,9 @@ class SyncPairRow extends StatelessWidget {
     final state = pair.op == SyncOpState.failed
         ? SyncStatus.outdated
         : pair.state;
+    final skipped = pair.op == SyncOpState.skipped;
     final accent = switch (pair.op == SyncOpState.failed ? null : state) {
+      _ when skipped => scheme.outline,
       SyncStatus.synced => scheme.primary,
       SyncStatus.outdated => scheme.tertiary,
       SyncStatus.missing => scheme.secondary,
@@ -31,66 +42,75 @@ class SyncPairRow extends StatelessWidget {
     };
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 3, horizontal: Dimens.gapSm),
-      child: ThemedContainer(
-        blur: false,
+      child: DpadTap(
+        onTap: onTap,
         borderRadius: BorderRadius.circular(18),
-        padding: EdgeInsets.zero,
-        child: ClipRRect(
+        child: ThemedContainer(
+          blur: false,
           borderRadius: BorderRadius.circular(18),
-          child: Stack(
-            children: [
-              Positioned(
-                left: 0,
-                top: 0,
-                bottom: 0,
-                child: Container(width: 4, color: accent),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(14, 8, 10, 8),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: _Side(
-                        item: pair.main,
-                        statusLabel: statusLabel,
-                        diffs: pair.diffs,
-                      ),
-                    ),
-                    SizedBox(
-                      width: 34,
-                      child: Icon(
-                        pair.op == SyncOpState.done
-                            ? Icons.check_circle_rounded
-                            : pair.op == SyncOpState.failed
-                            ? Icons.error_rounded
-                            : pair.state == SyncStatus.missing
-                            ? Icons.add_circle_outline_rounded
-                            : Icons.arrow_forward_rounded,
-                        size: 20,
-                        color: accent,
-                      ),
-                    ),
-                    Expanded(
-                      child: pair.state == SyncStatus.unmapped
-                          ? _Note(
-                              label: pair.error == syncSharedEntry
-                                  ? getString.syncShared
-                                  : getString.syncStateUnmapped,
-                            )
-                          : _Side(
-                              item: target ?? pair.main,
-                              statusLabel: statusLabel,
-                              ghost: ghost,
-                              diffs: pair.diffs,
-                              note: pair.op == SyncOpState.failed
-                                  ? pair.error
-                                  : null,
-                            ),
-                    ),
-                  ],
+          padding: EdgeInsets.zero,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(18),
+            child: Stack(
+              children: [
+                Positioned(
+                  left: 0,
+                  top: 0,
+                  bottom: 0,
+                  child: Container(width: 4, color: accent),
                 ),
-              ),
-            ],
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(14, 8, 10, 8),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: _Side(
+                          item: pair.main,
+                          statusLabel: statusLabel,
+                          diffs: pair.diffs,
+                          tag: from == null
+                              ? null
+                              : getString.syncAheadFrom(from!),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 34,
+                        child: Icon(
+                          skipped
+                              ? Icons.block_rounded
+                              : pair.op == SyncOpState.done
+                              ? Icons.check_circle_rounded
+                              : pair.op == SyncOpState.failed
+                              ? Icons.error_rounded
+                              : pair.state == SyncStatus.missing
+                              ? Icons.add_circle_outline_rounded
+                              : Icons.arrow_forward_rounded,
+                          size: 20,
+                          color: accent,
+                        ),
+                      ),
+                      Expanded(
+                        child: pair.state == SyncStatus.unmapped
+                            ? _Note(
+                                label: pair.error == syncSharedEntry
+                                    ? getString.syncShared
+                                    : getString.syncStateUnmapped,
+                              )
+                            : _Side(
+                                item: target ?? pair.main,
+                                statusLabel: statusLabel,
+                                ghost: ghost,
+                                diffs: pair.diffs,
+                                note: pair.op == SyncOpState.failed
+                                    ? pair.error
+                                    : null,
+                              ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -120,6 +140,7 @@ class _Side extends StatelessWidget {
   final bool ghost;
   final List<String> diffs;
   final String? note;
+  final String? tag;
 
   const _Side({
     required this.item,
@@ -127,6 +148,7 @@ class _Side extends StatelessWidget {
     this.ghost = false,
     this.diffs = const [],
     this.note,
+    this.tag,
   });
 
   @override
@@ -182,7 +204,14 @@ class _Side extends StatelessWidget {
                     ),
                   )
                 else ...[
-                  Text(statusLabel(item.status), style: mark('status')),
+                  Text(
+                    tag == null
+                        ? statusLabel(item.status)
+                        : '${statusLabel(item.status)} · $tag',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: mark('status'),
+                  ),
                   Text(
                     '${item.progress}${total == null || total == 0 ? '' : '/$total'}'
                     '${item.score > 0 ? ' · ${(item.score / 10).round()}' : ''}',

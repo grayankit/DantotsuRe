@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
 import '../../../Core/Preferences/PrefManager.dart';
@@ -8,6 +9,7 @@ import '../../../Core/Sync/SyncModels.dart';
 import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../../Utils/Functions/SnackBar.dart';
 import '../../../Widgets/Components/ScreenState.dart';
+import 'Components/SyncSheets.dart';
 
 class SyncState extends ScreenState {
   final controller = find<SyncController>();
@@ -48,6 +50,14 @@ class SyncState extends ScreenState {
 
   String get mainId => controller.mainId;
 
+  bool get isAhead => controller.isAhead;
+
+  String? sourceName(SyncPair pair) {
+    final source = pair.main.source;
+    if (!isAhead || source == null) return null;
+    return controller.candidates.firstWhereOrNull((s) => s.id == source)?.name;
+  }
+
   bool get isAnime => controller.anime.value;
 
   List<MediaService> get candidates => controller.candidates;
@@ -86,39 +96,46 @@ class SyncState extends ScreenState {
     return f != null && cur != null && cur.count(f) == 0 ? null : f;
   }
 
+  (int, String?, SyncStatus?, List<SyncPair>)? _sorted;
+
   List<SyncPair> get pairs {
     final cur = current;
     if (cur == null) return const [];
     final f = effectiveFilter;
+    final version = controller.version;
+    final cached = _sorted;
+    if (cached != null &&
+        cached.$1 == version &&
+        cached.$2 == selectedService?.id &&
+        cached.$3 == f) {
+      return cached.$4;
+    }
+    List<SyncPair> out;
     if (f != null) {
-      return [
+      out = [
         for (final p in cur.pairs)
           if (p.state == f) p,
       ];
+    } else {
+      int rank(SyncPair p) => p.op == SyncOpState.failed
+          ? 0
+          : switch (p.state) {
+              SyncStatus.outdated => 1,
+              SyncStatus.missing => 2,
+              SyncStatus.synced => 3,
+              SyncStatus.unmapped => 4,
+            };
+      out = [...cur.pairs]..sort((a, b) => rank(a).compareTo(rank(b)));
     }
-    int rank(SyncPair p) => p.op == SyncOpState.failed
-        ? 0
-        : switch (p.state) {
-            SyncStatus.outdated => 1,
-            SyncStatus.missing => 2,
-            SyncStatus.synced => 3,
-            SyncStatus.unmapped => 4,
-          };
-    return [...cur.pairs]..sort((a, b) => rank(a).compareTo(rank(b)));
+    _sorted = (version, selectedService?.id, f, out);
+    return out;
   }
 
   int pendingOf(String id) {
     final t = plan?.targets[id];
     if (t == null) return 0;
-    final addMissing = PrefName.syncAddMissing.rx.value;
-    return t.pairs
-        .where(
-          (p) =>
-              p.pending &&
-              (p.state == SyncStatus.outdated ||
-                  addMissing && p.state == SyncStatus.missing),
-        )
-        .length;
+    PrefName.syncAddMissing.rx.value;
+    return t.pairs.where(controller.isWanted).length;
   }
 
   void setMain(String id) {
@@ -137,12 +154,28 @@ class SyncState extends ScreenState {
 
   Future<void> fetch() => controller.fetch();
 
-  Future<void> syncAll() => controller.start();
+  Future<void> syncAll(BuildContext context) => _run(context);
 
-  Future<void> syncSelected() {
+  Future<void> syncSelected(BuildContext context) {
     final s = selectedService;
-    return s == null ? Future.value() : controller.start(only: s.id);
+    return s == null ? Future.value() : _run(context, only: s.id);
   }
+
+  Future<void> _run(BuildContext context, {String? only}) async {
+    if (PrefName.syncConfirm.rx.value) {
+      final ok = await showSyncPreview(context, controller.preview(only: only));
+      if (ok != true) return;
+    }
+    await controller.start(only: only);
+  }
+
+  void openPair(BuildContext context, MediaService service, SyncPair pair) =>
+      showSyncPair(context, this, service, pair);
+
+  void retry(SyncPair pair) => controller.retry(pair);
+
+  void skip(MediaService service, SyncPair pair, bool value) =>
+      controller.setSkipped(service.id, pair, value);
 
   void stop() => controller.stop();
 

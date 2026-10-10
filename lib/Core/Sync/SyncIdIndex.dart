@@ -32,11 +32,15 @@ List<int> _compact(String raw) {
   return out;
 }
 
+List<int> _decodeFlat(String raw) => (jsonDecode(raw) as List).cast<int>();
+
 class SyncIdIndex {
   final List<int> _flat;
   late final Map<String, Map<int, int>> _by = _build();
 
   SyncIdIndex(this._flat);
+
+  List<int> get flat => _flat;
 
   int get rows => _flat.length ~/ _columns.length;
 
@@ -103,7 +107,7 @@ class SyncIdIndex {
       }
     }
     if (await file.exists()) {
-      final flat = (jsonDecode(await file.readAsString()) as List).cast<int>();
+      final flat = await compute(_decodeFlat, await file.readAsString());
       return _cached = SyncIdIndex(flat);
     }
     throw SyncFatal('Could not download the anime ID mapping');

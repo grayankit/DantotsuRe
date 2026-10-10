@@ -10,12 +10,57 @@ List<SyncItem> expandItems(
     ? items
     : [for (final i in items) i.withIds(index.expand(i.ids, prefer: key))];
 
+class SyncTarget {
+  final String key;
+  final bool canResolve;
+  final bool syncsDates;
+  final bool syncsRepeat;
+  final String prefix;
+
+  const SyncTarget({
+    required this.key,
+    required this.canResolve,
+    required this.syncsDates,
+    required this.syncsRepeat,
+    required this.prefix,
+  });
+
+  factory SyncTarget.of(SyncAdapter adapter, {required bool anime}) {
+    final sample = adapter.targetId(0, anime: anime) ?? '0';
+    return SyncTarget(
+      key: adapter.key,
+      canResolve: adapter.canResolve,
+      syncsDates: adapter.syncsDates,
+      syncsRepeat: adapter.syncsRepeat,
+      prefix: sample.substring(0, sample.length - 1),
+    );
+  }
+
+  String targetId(int native) => '$prefix$native';
+}
+
 SyncTargetPlan planTarget({
   required List<SyncItem> main,
   required List<SyncItem> target,
   required SyncAdapter adapter,
   SyncAdapter? mainAdapter,
   required bool anime,
+  required bool onlyForward,
+}) => planWith(
+  main: main,
+  target: target,
+  spec: SyncTarget.of(adapter, anime: anime),
+  mainDates: mainAdapter?.syncsDates ?? true,
+  mainRepeat: mainAdapter?.syncsRepeat ?? true,
+  onlyForward: onlyForward,
+);
+
+SyncTargetPlan planWith({
+  required List<SyncItem> main,
+  required List<SyncItem> target,
+  required SyncTarget spec,
+  bool mainDates = true,
+  bool mainRepeat = true,
   required bool onlyForward,
 }) {
   final byNative = {for (final t in target) t.id: t};
@@ -28,12 +73,9 @@ SyncTargetPlan planTarget({
   final matched = <String>{};
   final pairs = <SyncPair>[];
   for (final m in main) {
-    final native = m.ids[adapter.key];
+    final native = m.ids[spec.key];
     SyncItem? found;
-    if (native != null) {
-      final id = adapter.targetId(native, anime: anime);
-      found = id == null ? null : byNative[id];
-    }
+    if (native != null) found = byNative[spec.targetId(native)];
     if (found == null) {
       for (final e in m.ids.entries) {
         found = byAny['${e.key}:${e.value}'];
@@ -41,14 +83,13 @@ SyncTargetPlan planTarget({
       }
     }
     final targetId =
-        found?.id ??
-        (native == null ? null : adapter.targetId(native, anime: anime));
+        found?.id ?? (native == null ? null : spec.targetId(native));
     final shared = found != null && !matched.add(found.id);
     final resolvable =
-        targetId == null && adapter.canResolve && m.ids[SyncKey.mal] != null;
+        targetId == null && spec.canResolve && m.ids[SyncKey.mal] != null;
     final pair = SyncPair(
-      dates: adapter.syncsDates && (mainAdapter?.syncsDates ?? true),
-      repeat: adapter.syncsRepeat && (mainAdapter?.syncsRepeat ?? true),
+      dates: spec.syncsDates && mainDates,
+      repeat: spec.syncsRepeat && mainRepeat,
       main: m,
       targetId: targetId,
       target: shared ? null : found,
@@ -74,3 +115,16 @@ SyncTargetPlan planTarget({
     onlyInTarget: target.where((t) => !matched.contains(t.id)).length,
   );
 }
+
+int syncFingerprint(List<SyncItem> items) => Object.hashAllUnordered([
+  for (final i in items)
+    Object.hash(
+      i.id,
+      i.status,
+      i.progress,
+      i.score,
+      i.repeat,
+      '${i.started?.year}-${i.started?.month}-${i.started?.day}',
+      '${i.completed?.year}-${i.completed?.month}-${i.completed?.day}',
+    ),
+]);

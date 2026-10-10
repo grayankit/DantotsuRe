@@ -43,9 +43,6 @@ String _message(Map<String, dynamic> body, int status) {
   return '${body['message'] ?? 'HTTP $status'}';
 }
 
-Map<String, dynamic> _decodeMap(String body) =>
-    jsonDecode(body) as Map<String, dynamic>;
-
 class MangaBakaClient {
   final String Function() _token;
   final Future<bool> Function() _refresh;
@@ -151,8 +148,9 @@ class MangaBakaClient {
     }
   }
 
-  Future<Map<String, dynamic>> getLarge(
-    String path, {
+  Future<R> getParsed<R>(
+    String path,
+    R Function(String body) parse, {
     Map<String, String>? query,
   }) async {
     final res = await _send(
@@ -164,7 +162,7 @@ class MangaBakaClient {
         res.statusCode,
       );
     }
-    return compute(_decodeMap, '${res.data}');
+    return compute(parse, '${res.data}');
   }
 
   Future<Map<String, dynamic>> write(

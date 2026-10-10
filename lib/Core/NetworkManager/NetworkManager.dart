@@ -249,12 +249,12 @@ class NetworkManager extends AppController {
     }
   }
 
-  NetworkResponse<dynamic> _wrap(
+  Future<NetworkResponse<dynamic>> _wrap(
     HttpTextResponse res, {
     bool decodeJson = true,
-  }) {
+  }) async {
     final data = decodeJson
-        ? _decodeIfJson(res.body, res.headerMapList)
+        ? await _decodeIfJson(res.body, res.headerMapList)
         : res.body;
 
     return NetworkResponse(
@@ -262,17 +262,23 @@ class NetworkManager extends AppController {
       statusMessage: _statusMessages[res.statusCode],
       data: data,
       headers: res.headerMapList,
-      rawBytes: utf8.encode(res.body),
+      body: res.body,
     );
   }
 
-  static dynamic _decodeIfJson(String body, Map<String, List<String>> headers) {
+  static const _isolateThreshold = 32 * 1024;
+
+  static Future<dynamic> _decodeIfJson(
+    String body,
+    Map<String, List<String>> headers,
+  ) async {
     final contentType =
         (headers['content-type'] ?? headers['Content-Type'])?.first ?? '';
-    // application/json, text/json, application/*+json, …
     if (!contentType.contains('json')) return body;
     try {
-      return jsonDecode(body);
+      return body.length > _isolateThreshold
+          ? await compute(_decodeBody, body)
+          : jsonDecode(body);
     } catch (_) {
       return body;
     }
@@ -323,15 +329,20 @@ class NetworkResponse<T> {
   final String? statusMessage;
   final T data;
   final Map<String, List<String>> headers;
-  final Uint8List? rawBytes;
+  final String? body;
 
   NetworkResponse({
     required this.statusCode,
     required this.data,
     this.statusMessage,
     required this.headers,
-    this.rawBytes,
+    this.body,
   });
+
+  Uint8List? _bytes;
+
+  Uint8List? get rawBytes =>
+      body == null ? null : (_bytes ??= Uint8List.fromList(utf8.encode(body!)));
 
   bool get isOk => statusCode >= 200 && statusCode < 300;
 }
@@ -347,3 +358,5 @@ class NetworkException implements Exception {
   String toString() =>
       'NetworkException($statusCode): ${message ?? 'Unknown error'}';
 }
+
+dynamic _decodeBody(String body) => jsonDecode(body);

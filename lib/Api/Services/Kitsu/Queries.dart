@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:async';
 
 import '../../../Core/Preferences/PrefManager.dart';
@@ -307,23 +308,22 @@ class KitsuQueries extends Queries {
     var first = true;
     while (first || next != null) {
       first = false;
-      final doc = JsonApi(
-        await client.getLarge(
-          next ?? '/library-entries',
-          query: next == null
-              ? {
-                  'filter[userId]': '$id',
-                  'filter[kind]': _kind(anime),
-                  'include': 'media',
-                  'fields[${_kind(anime)}]': _mediaFields(anime),
-                  'page[limit]': '500',
-                  'sort': '-progressedAt',
-                }
-              : null,
-        ),
+      final (page, link) = await client.getParsed(
+        next ?? '/library-entries',
+        _parseLibraryPage,
+        query: next == null
+            ? {
+                'filter[userId]': '$id',
+                'filter[kind]': _kind(anime),
+                'include': 'media',
+                'fields[${_kind(anime)}]': _mediaFields(anime),
+                'page[limit]': '500',
+                'sort': '-progressedAt',
+              }
+            : null,
       );
-      all.addAll(mapKitsuLibrary(doc));
-      next = doc.next;
+      all.addAll(page);
+      next = link;
     }
     return all;
   }
@@ -338,42 +338,23 @@ class KitsuQueries extends Queries {
     var first = true;
     while (first || next != null) {
       first = false;
-      final doc = JsonApi(
-        await client.getLarge(
-          next ?? '/library-entries',
-          query: next == null
-              ? {
-                  'filter[userId]': '$id',
-                  'filter[kind]': _kind(anime),
-                  'include': 'media,media.mappings',
-                  'fields[${_kind(anime)}]':
-                      'slug,canonicalTitle,titles,posterImage,mappings,${anime ? 'episodeCount' : 'chapterCount'}',
-                  'fields[mappings]': 'externalSite,externalId',
-                  'page[limit]': '500',
-                }
-              : null,
-        ),
+      final (page, link) = await client.getParsed(
+        next ?? '/library-entries',
+        _parseSyncPage,
+        query: next == null
+            ? {
+                'filter[userId]': '$id',
+                'filter[kind]': _kind(anime),
+                'include': 'media,media.mappings',
+                'fields[${_kind(anime)}]':
+                    'slug,canonicalTitle,titles,posterImage,mappings,${anime ? 'episodeCount' : 'chapterCount'}',
+                'fields[mappings]': 'externalSite,externalId',
+                'page[limit]': '500',
+              }
+            : null,
       );
-      for (final entry in doc.data) {
-        final node = doc.one(entry, 'media');
-        if (node == null) continue;
-        final media = mapKitsuMedia(node);
-        applyKitsuEntry(media, entry);
-        final foreign = <String, int>{};
-        for (final m in doc.many(node, 'mappings')) {
-          final a = attrs(m);
-          final n = int.tryParse('${a['externalId']}');
-          if (n == null) continue;
-          switch (a['externalSite']) {
-            case 'myanimelist/anime' || 'myanimelist/manga':
-              foreign[SyncKey.mal] = n;
-            case 'anilist/anime' || 'anilist/manga':
-              foreign[SyncKey.anilist] = n;
-          }
-        }
-        out.add((media, foreign));
-      }
-      next = doc.next;
+      out.addAll(page);
+      next = link;
     }
     logger(
       'Kitsu sync library: ${out.length} entries, ${out.where((e) => e.$2.containsKey(SyncKey.mal)).length} with a MAL id',
@@ -754,4 +735,34 @@ class KitsuQueries extends Queries {
       ..results = items
       ..hasNextPage = doc.next != null;
   }
+}
+
+(List<Media>, String?) _parseLibraryPage(String body) {
+  final doc = JsonApi(jsonDecode(body) as Map<String, dynamic>);
+  return (mapKitsuLibrary(doc), doc.next);
+}
+
+(List<(Media, Map<String, int>)>, String?) _parseSyncPage(String body) {
+  final doc = JsonApi(jsonDecode(body) as Map<String, dynamic>);
+  final out = <(Media, Map<String, int>)>[];
+  for (final entry in doc.data) {
+    final node = doc.one(entry, 'media');
+    if (node == null) continue;
+    final media = mapKitsuMedia(node);
+    applyKitsuEntry(media, entry);
+    final foreign = <String, int>{};
+    for (final m in doc.many(node, 'mappings')) {
+      final a = attrs(m);
+      final n = int.tryParse('${a['externalId']}');
+      if (n == null) continue;
+      switch (a['externalSite']) {
+        case 'myanimelist/anime' || 'myanimelist/manga':
+          foreign[SyncKey.mal] = n;
+        case 'anilist/anime' || 'anilist/manga':
+          foreign[SyncKey.anilist] = n;
+      }
+    }
+    out.add((media, foreign));
+  }
+  return (out, doc.next);
 }

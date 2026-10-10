@@ -1,25 +1,55 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 
 import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
+import 'package:path/path.dart' as p;
 
 import '../../Utils/Functions/RefreshController.dart';
 import '../../Utils/Functions/SnackBar.dart';
 import '../Preferences/Incognito.dart';
 import '../Preferences/PrefManager.dart';
+import '../Preferences/StorageManager.dart';
+import '../../Logger.dart';
 import '../Services/MediaServiceController.dart';
 import '../State/State.dart';
 import '../ThemeManager/LanguageSwitcher.dart';
 import '../Services/Model/Media.dart';
 import 'SyncAdapter.dart';
+import 'SyncAhead.dart';
+import 'SyncCompute.dart';
+import 'SyncBudget.dart';
 import 'SyncIdIndex.dart';
+import 'SyncMemory.dart';
 import 'SyncModels.dart';
 import 'SyncPlanner.dart';
 
 enum SyncPhase { idle, fetching, syncing }
 
+class SyncPreview {
+  final MediaService service;
+  final int updates;
+  final int adds;
+  final int lookups;
+  final int requests;
+
+  const SyncPreview(
+    this.service,
+    this.updates,
+    this.adds,
+    this.lookups,
+    this.requests,
+  );
+
+  int get total => updates + adds;
+}
+
 class SyncController extends AppController {
   static const _planKey = 'syncPlan';
   static const _stampKey = 'syncStamps';
+  static const _memoryKey = 'syncMemory';
+  static const _fullEvery = Duration(hours: 6);
 
   final phase = SyncPhase.idle.live;
   final anime = true.live;
@@ -32,9 +62,10 @@ class SyncController extends AppController {
   final targetError = <String, String>{}.liveMap;
   final clock = 0.live;
   final changes = Trigger();
+  int version = 0;
 
-  final _stamps = <String, List<int>>{};
-  final _holds = <String, DateTime>{};
+  final _budget = SyncBudget();
+  SyncMemory _memory = SyncMemory();
   bool _stop = false;
   Timer? _saver;
   Timer? _auto;
@@ -45,8 +76,11 @@ class SyncController extends AppController {
   MediaService? get mainService =>
       _services.firstWhereOrNull((s) => s.id == mainId);
 
+  bool get isAhead => mainId == syncAheadId;
+
   String get mainId {
     final saved = PrefName.syncMain.rx.value;
+    if (saved == syncAheadId && _candidates.length > 1) return saved;
     if (_candidates.any((s) => s.id == saved)) return saved;
     return _candidates.firstOrNull?.id ?? '';
   }
@@ -63,27 +97,37 @@ class SyncController extends AppController {
       if (s.id != main && s.syncAdapter!.supports(anime: isAnime)) s,
   ];
 
+  List<MediaService> get aheadFor => targetsFor(syncAheadId, anime.value);
+
+  void _notify() {
+    version++;
+    changes.fire();
+  }
+
   bool get busy => phase.value != SyncPhase.idle;
 
   @override
   void onInit() {
     super.onInit();
-    final raw = loadCustomData<Map>(_planKey, location: PrefLocation.CACHE);
-    if (raw != null) {
-      try {
-        final restored = SyncPlan.fromJson(Map<String, dynamic>.from(raw));
-        plan.value = restored;
-        anime.value = restored.anime;
-      } catch (_) {
-        removeCustomData(_planKey, location: PrefLocation.CACHE);
-      }
-    }
+    removeCustomData(_planKey, location: PrefLocation.CACHE);
+    unawaited(_restore());
     final stamps = loadCustomData<Map>(_stampKey, location: PrefLocation.CACHE);
     if (stamps != null) {
       for (final e in stamps.entries) {
-        _stamps['${e.key}'] = [
+        _budget.stamps['${e.key}'] = [
           for (final v in e.value as List) (v as num).toInt(),
         ];
+      }
+    }
+    final memory = loadCustomData<Map>(
+      _memoryKey,
+      location: PrefLocation.CACHE,
+    );
+    if (memory != null) {
+      try {
+        _memory = SyncMemory.fromJson(memory);
+      } catch (_) {
+        removeCustomData(_memoryKey, location: PrefLocation.CACHE);
       }
     }
   }
@@ -95,6 +139,49 @@ class SyncController extends AppController {
     super.onClose();
   }
 
+  Future<File> _planFile() async {
+    final dir = await StorageManager.getDirectory(subPath: 'sync');
+    return File(p.join(dir!.path, 'plan.json'));
+  }
+
+  Future<void> _restore() async {
+    try {
+      final file = await _planFile();
+      if (!await file.exists()) return;
+      final restored = await compute(_readPlan, file.path);
+      if (restored != null && plan.value == null && !busy) {
+        plan.value = restored;
+        anime.value = restored.anime;
+        _notify();
+      }
+    } catch (e) {
+      logger('Sync plan restore failed: $e', logLevel: LogLevel.error);
+    }
+  }
+
+  bool _writing = false;
+  bool _dirty = false;
+
+  Future<void> _writePlan() async {
+    if (_writing) {
+      _dirty = true;
+      return;
+    }
+    _writing = true;
+    try {
+      do {
+        _dirty = false;
+        final current = plan.value;
+        if (current == null) break;
+        await compute(_writePlanFile, ((await _planFile()).path, current));
+      } while (_dirty);
+    } catch (e) {
+      logger('Sync plan save failed: $e', logLevel: LogLevel.error);
+    } finally {
+      _writing = false;
+    }
+  }
+
   void startAuto() {
     _auto?.cancel();
     _auto = Timer.periodic(const Duration(minutes: 30), (_) => _autoRun());
@@ -103,13 +190,15 @@ class SyncController extends AppController {
 
   Future<void> _autoRun() async {
     if (!PrefName.syncAuto.value || busy || _autoBusy) return;
-    if (incognitoBlocksEdits || mainService == null) return;
+    if (incognitoBlocksEdits || mainId.isEmpty) return;
     _autoBusy = true;
     try {
       for (final isAnime in [true, false]) {
         if (targetsFor(mainId, isAnime).isEmpty) continue;
-        if (!mainService!.syncAdapter!.supports(anime: isAnime)) continue;
-        await fetch(anime: isAnime);
+        if (!isAhead && !mainService!.syncAdapter!.supports(anime: isAnime)) {
+          continue;
+        }
+        await fetch(anime: isAnime, auto: true);
         if (plan.value?.hasPending == true) await start();
       }
     } finally {
@@ -117,18 +206,22 @@ class SyncController extends AppController {
     }
   }
 
-  Future<void> fetch({bool? anime}) async {
+  Future<void> fetch({bool? anime, bool auto = false}) async {
     if (busy) return;
     final isAnime = anime ?? this.anime.value;
     this.anime.value = isAnime;
-    final main = mainService;
+    final ahead = isAhead;
+    final main = ahead ? null : mainService;
     final adapter = main?.syncAdapter;
-    if (main == null || adapter == null || !adapter.supports(anime: isAnime)) {
+    if (!ahead &&
+        (main == null ||
+            adapter == null ||
+            !adapter.supports(anime: isAnime))) {
       error.value = getString.syncNothingToSync;
       return;
     }
-    final targets = targetsFor(main.id, isAnime);
-    if (targets.isEmpty) {
+    final targets = targetsFor(ahead ? syncAheadId : main!.id, isAnime);
+    if (targets.length < (ahead ? 2 : 1)) {
       error.value = getString.syncNoTargets;
       return;
     }
@@ -136,45 +229,97 @@ class SyncController extends AppController {
     error.value = null;
     targetError.clear();
     fetchDone.value = 0;
-    fetchTotal.value = targets.length + 1 + (isAnime ? 1 : 0);
+    fetchTotal.value = targets.length + (ahead ? 0 : 1) + (isAnime ? 1 : 0);
     try {
-      SyncIdIndex? index;
+      List<int>? flat;
       if (isAnime) {
         fetchLabel.value = getString.syncLoadingMap;
-        index = await SyncIdIndex.load();
+        flat = (await SyncIdIndex.load()).flat;
         fetchDone.value++;
       }
-      fetchLabel.value = main.name;
-      final mainItems = expandItems(
-        await adapter.library(anime: isAnime),
-        index,
-        adapter.key,
-      );
-      fetchDone.value++;
+      final mainId = ahead ? syncAheadId : main!.id;
+      final typeKey = SyncMemory.typeKey(mainId, isAnime);
+      SyncPrepared? prepared;
+      if (!ahead) {
+        fetchLabel.value = main!.name;
+        prepared = await syncPrepareMain(
+          await adapter!.library(anime: isAnime),
+          flat,
+          adapter.key,
+        );
+        fetchDone.value++;
+        final lastFull = DateTime.fromMillisecondsSinceEpoch(
+          _memory.fullAt[typeKey] ?? 0,
+        );
+        final current = plan.value;
+        if (auto &&
+            current != null &&
+            current.main == mainId &&
+            current.anime == isAnime &&
+            !current.hasPending &&
+            _memory.fingerprints[typeKey] == prepared.fingerprint &&
+            DateTime.now().difference(lastFull) < _fullEvery) {
+          return;
+        }
+      }
       final loaded = await Future.wait([
-        for (final t in targets) _loadTarget(t, isAnime, index),
+        for (final t in targets) _loadTarget(t, isAnime),
       ]);
-      final onlyForward = PrefName.syncOnlyForward.value;
-      final result = <String, SyncTargetPlan>{};
+      final libraries = <String, SyncLibrary>{};
+      final failed = <String>{};
+      final errors = <String, String?>{};
       for (var i = 0; i < targets.length; i++) {
         final t = targets[i];
-        final items = loaded[i];
-        result[t.id] = items.$1 == null
-            ? SyncTargetPlan(const [], error: items.$2)
-            : planTarget(
-                main: mainItems,
-                target: items.$1!,
-                adapter: t.syncAdapter!,
-                mainAdapter: adapter,
-                anime: isAnime,
-                onlyForward: onlyForward,
-              );
+        final items = loaded[i].$1;
+        if (items == null) {
+          failed.add(t.id);
+          errors[t.id] = loaded[i].$2;
+        } else {
+          libraries[t.id] = (
+            SyncTarget.of(t.syncAdapter!, anime: isAnime),
+            items,
+          );
+        }
       }
+      fetchLabel.value = getString.syncComparing;
+      final planned = ahead
+          ? await syncPlanAhead(
+              libraries: libraries,
+              flat: flat,
+              failed: failed,
+            )
+          : await syncPlanFromMain(
+              main: prepared!.items,
+              targets: libraries,
+              flat: flat,
+              mainDates: adapter!.syncsDates,
+              mainRepeat: adapter.syncsRepeat,
+              onlyForward: PrefName.syncOnlyForward.value,
+              failed: failed,
+            );
+      final result = <String, SyncTargetPlan>{
+        for (final t in targets)
+          t.id: failed.contains(t.id)
+              ? SyncTargetPlan(const [], error: errors[t.id])
+              : planned.plans[t.id]!,
+      };
+      for (final e in result.entries) {
+        final targetAdapter = _services
+            .firstWhereOrNull((s) => s.id == e.key)
+            ?.syncAdapter;
+        for (final p in e.value.pairs) {
+          _recall(e.key, targetAdapter, p, isAnime);
+        }
+      }
+      if (prepared != null) {
+        _memory.fingerprints[typeKey] = prepared.fingerprint;
+      }
+      _memory.fullAt[typeKey] = DateTime.now().millisecondsSinceEpoch;
       plan.value = SyncPlan(
-        main: main.id,
+        main: mainId,
         anime: isAnime,
         targets: result,
-        mainCount: mainItems.length,
+        mainCount: planned.mainCount,
       );
       _saveNow();
     } on SyncFatal catch (e) {
@@ -183,23 +328,16 @@ class SyncController extends AppController {
       error.value = '$e';
     } finally {
       phase.value = SyncPhase.idle;
-      changes.fire();
+      _notify();
     }
   }
 
   Future<(List<SyncItem>?, String?)> _loadTarget(
     MediaService service,
     bool isAnime,
-    SyncIdIndex? index,
   ) async {
     try {
-      final adapter = service.syncAdapter!;
-      final items = expandItems(
-        await adapter.library(anime: isAnime),
-        index,
-        adapter.key,
-      );
-      return (items, null);
+      return (await service.syncAdapter!.library(anime: isAnime), null);
     } catch (e) {
       return (null, '$e');
     } finally {
@@ -238,7 +376,7 @@ class SyncController extends AppController {
       phase.value = SyncPhase.idle;
       resumeAt.clear();
       _saveNow();
-      changes.fire();
+      _notify();
       tryFind<RefreshController>()?.all();
     }
   }
@@ -246,7 +384,7 @@ class SyncController extends AppController {
   void stop() => _stop = true;
 
   bool canPush(MediaService service, bool anime) =>
-      service.id == mainId &&
+      (service.id == mainId || isAhead) &&
       service.syncAdapter != null &&
       targetsFor(service.id, anime).isNotEmpty;
 
@@ -259,7 +397,11 @@ class SyncController extends AppController {
     var ids = adapter.idsOf(media);
     if (isAnime) {
       try {
-        ids = (await SyncIdIndex.load()).expand(ids, prefer: adapter.key);
+        ids = await syncExpandIds(
+          ids,
+          (await SyncIdIndex.load()).flat,
+          adapter.key,
+        );
       } catch (_) {}
     }
     final want = SyncItem.fromMedia(media, ids);
@@ -272,10 +414,16 @@ class SyncController extends AppController {
           _ => null,
         };
         final mal = ids[SyncKey.mal];
-        if (targetId == null && other.canResolve && mal != null) {
-          final (found, used) = await other.resolve([mal], anime: isAnime);
-          _stamp(target.id, used);
-          final native = found[mal];
+        if (targetId == null && mal != null) {
+          var native = _memory.native(target.id, isAnime, mal);
+          if (native == null && other.canResolve) {
+            final (found, used) = await other.resolve([mal], anime: isAnime);
+            _budget.stamp(target.id, used);
+            native = found[mal];
+            if (native != null) {
+              _memory.remember(target.id, isAnime, mal, native);
+            }
+          }
           if (native != null) targetId = other.targetId(native, anime: isAnime);
         }
         if (targetId == null) continue;
@@ -290,11 +438,11 @@ class SyncController extends AppController {
         final used = await other.write([
           SyncOp(want, null, targetId),
         ], anime: isAnime);
-        _stamp(target.id, used);
+        _budget.stamp(target.id, used);
         await other.finish();
         done.add(target.name);
       } on SyncRateLimited catch (e) {
-        _holds[target.id] = DateTime.now().add(e.retryAfter);
+        _budget.hold(target.id, e.retryAfter);
         snackString(getString.syncPushFailed(target.name, '$e'));
       } catch (e) {
         snackString(getString.syncPushFailed(target.name, '$e'));
@@ -306,7 +454,73 @@ class SyncController extends AppController {
     }
   }
 
-  bool _wanted(SyncPair p) =>
+  void _recall(String service, SyncAdapter? adapter, SyncPair p, bool isAnime) {
+    if (p.state == SyncStatus.unmapped) return;
+    if (_memory.isIgnored(service, isAnime, p.main.id)) {
+      p.op = SyncOpState.skipped;
+      return;
+    }
+    final mal = p.main.ids[SyncKey.mal];
+    if (p.targetId != null || mal == null || adapter == null) return;
+    final native = _memory.native(service, isAnime, mal);
+    if (native != null) p.targetId = adapter.targetId(native, anime: isAnime);
+  }
+
+  void setSkipped(String service, SyncPair pair, bool skip) {
+    final isAnime = plan.value?.anime ?? anime.value;
+    _memory.setIgnored(service, isAnime, pair.main.id, skip);
+    pair
+      ..op = skip ? SyncOpState.skipped : SyncOpState.idle
+      ..error = skip ? null : pair.error;
+    _notify();
+    _saveSoon();
+  }
+
+  void retry(SyncPair pair) {
+    if (pair.op != SyncOpState.failed) return;
+    pair
+      ..op = SyncOpState.idle
+      ..error = null;
+    _notify();
+    _saveSoon();
+  }
+
+  List<SyncPreview> preview({String? only}) {
+    final current = plan.value;
+    if (current == null) return const [];
+    return [
+      for (final e in current.targets.entries)
+        if (only == null || only == e.key)
+          if (_services.firstWhereOrNull((s) => s.id == e.key)
+              case final service?)
+            if (service.syncAdapter case final adapter?)
+              _previewOf(service, adapter, e.value),
+    ];
+  }
+
+  SyncPreview _previewOf(
+    MediaService service,
+    SyncAdapter adapter,
+    SyncTargetPlan target,
+  ) {
+    final wanted = target.pairs.where(isWanted).toList();
+    final adds = wanted.where((p) => p.state == SyncStatus.missing).length;
+    final lookups = adapter.canResolve
+        ? wanted.where((p) => p.targetId == null).length
+        : 0;
+    final writes =
+        (wanted.length / adapter.batchSize).ceil() * adapter.requestsPerBatch;
+    final reads = (lookups / adapter.resolveBatch).ceil();
+    return SyncPreview(
+      service,
+      wanted.length - adds,
+      adds,
+      lookups,
+      writes + reads,
+    );
+  }
+
+  bool isWanted(SyncPair p) =>
       p.pending &&
       (p.state == SyncStatus.outdated ||
           PrefName.syncAddMissing.rx.value && p.state == SyncStatus.missing);
@@ -315,11 +529,11 @@ class SyncController extends AppController {
     final service = _services.firstWhereOrNull((s) => s.id == id);
     final adapter = service?.syncAdapter;
     if (service == null || adapter == null) return;
-    final pairs = current.targets[id]!.pairs.where(_wanted).toList();
+    final pairs = current.targets[id]!.pairs.where(isWanted).toList();
     await _resolve(id, service, adapter, pairs, current.anime);
     while (!_stop) {
       final todo = pairs
-          .where((p) => _wanted(p) && p.op != SyncOpState.failed)
+          .where((p) => isWanted(p) && p.op != SyncOpState.failed)
           .take(adapter.batchSize)
           .toList();
       if (todo.isEmpty) break;
@@ -332,12 +546,12 @@ class SyncController extends AppController {
       try {
         await _send(id, adapter, todo, current.anime);
       } on SyncRateLimited catch (e) {
-        _holds[id] = DateTime.now().add(e.retryAfter);
+        _budget.hold(id, e.retryAfter);
       } on SyncFatal catch (e) {
         targetError[id] = e.message;
         break;
       }
-      changes.fire();
+      _notify();
       _saveSoon();
     }
   }
@@ -369,7 +583,7 @@ class SyncController extends AppController {
         final (found, used) = await adapter.resolve([
           for (final p in chunk) p.main.ids[SyncKey.mal]!,
         ], anime: isAnime);
-        _stamp(id, used);
+        _budget.stamp(id, used);
         for (final p in chunk) {
           final native = found[p.main.ids[SyncKey.mal]];
           final target = native == null
@@ -377,6 +591,7 @@ class SyncController extends AppController {
               : adapter.targetId(native, anime: isAnime);
           if (target != null) {
             p.targetId = target;
+            _memory.remember(id, isAnime, p.main.ids[SyncKey.mal]!, native!);
           } else {
             p
               ..op = SyncOpState.failed
@@ -385,13 +600,13 @@ class SyncController extends AppController {
         }
         at += chunk.length;
       } on SyncRateLimited catch (e) {
-        _stamp(id, 1);
-        _holds[id] = DateTime.now().add(e.retryAfter);
+        _budget.stamp(id, 1);
+        _budget.hold(id, e.retryAfter);
       } on SyncFatal catch (e) {
         targetError[id] = e.message;
         return;
       } catch (e) {
-        _stamp(id, 1);
+        _budget.stamp(id, 1);
         for (final p in chunk) {
           p
             ..op = SyncOpState.failed
@@ -399,7 +614,7 @@ class SyncController extends AppController {
         }
         at += chunk.length;
       }
-      changes.fire();
+      _notify();
       _saveSoon();
     }
   }
@@ -415,17 +630,18 @@ class SyncController extends AppController {
       final used = await adapter.write([
         for (final p in batch) op(p),
       ], anime: isAnime);
-      _stamp(id, used);
+      _budget.stamp(id, used);
+      _budget.succeeded(id);
       for (final p in batch) {
         _done(p);
       }
     } on SyncRateLimited {
-      _stamp(id, adapter.requestsPerBatch);
+      _budget.stamp(id, adapter.requestsPerBatch);
       rethrow;
     } on SyncFatal {
       rethrow;
     } catch (e) {
-      _stamp(id, 1);
+      _budget.stamp(id, 1);
       if (batch.length == 1) {
         batch.first
           ..op = SyncOpState.failed
@@ -447,31 +663,8 @@ class SyncController extends AppController {
       ..error = null;
   }
 
-  Duration _waitFor(String id, SyncAdapter adapter) {
-    final now = DateTime.now();
-    var until = _holds[id];
-    if (until != null && !until.isAfter(now)) {
-      _holds.remove(id);
-      until = null;
-    }
-    final stamps = [...?_stamps[id]]..sort();
-    for (final limit in adapter.limits) {
-      final from = now.millisecondsSinceEpoch - limit.per.inMilliseconds;
-      final inside = stamps.where((s) => s > from).toList();
-      final excess = inside.length + adapter.requestsPerBatch - limit.requests;
-      if (excess <= 0) continue;
-      final free = DateTime.fromMillisecondsSinceEpoch(
-        inside[(excess - 1).clamp(0, inside.length - 1)] +
-            limit.per.inMilliseconds,
-      );
-      if (until == null || free.isAfter(until)) until = free;
-    }
-    if (until == null) return Duration.zero;
-    final left = until.difference(now);
-    return left.isNegative
-        ? Duration.zero
-        : left + const Duration(milliseconds: 50);
-  }
+  Duration _waitFor(String id, SyncAdapter adapter) =>
+      _budget.waitFor(id, adapter.limits, adapter.requestsPerBatch);
 
   Future<void> _sleep(String id, Duration wait) async {
     final until = DateTime.now().add(wait);
@@ -486,25 +679,16 @@ class SyncController extends AppController {
     }
   }
 
-  void _stamp(String id, int count) {
-    final now = DateTime.now().millisecondsSinceEpoch;
-    final day = now - const Duration(days: 1).inMilliseconds;
-    final list = (_stamps[id] ??= [])
-      ..removeWhere((s) => s < day)
-      ..addAll(List.filled(count, now));
-    _stamps[id] = list;
-  }
-
-  int usedIn(String id, SyncLimit limit) {
-    final from =
-        DateTime.now().millisecondsSinceEpoch - limit.per.inMilliseconds;
-    return (_stamps[id] ?? const <int>[]).where((s) => s > from).length;
-  }
+  int usedIn(String id, SyncLimit limit) => _budget.usedIn(id, limit);
 
   void clear() {
     if (busy) return;
     plan.value = null;
-    removeCustomData(_planKey, location: PrefLocation.CACHE);
+    unawaited(
+      _planFile().then((f) async {
+        if (await f.exists()) await f.delete();
+      }),
+    );
   }
 
   void _saveSoon() {
@@ -514,18 +698,31 @@ class SyncController extends AppController {
   void _saveNow() {
     _saver?.cancel();
     _saver = null;
-    final current = plan.value;
-    if (current != null) {
-      saveCustomData<Map<String, dynamic>>(
-        _planKey,
-        current.toJson(),
-        location: PrefLocation.CACHE,
-      );
-    }
+    if (plan.value != null) unawaited(_writePlan());
     saveCustomData<Map<String, dynamic>>(
       _stampKey,
-      _stamps,
+      _budget.stamps,
+      location: PrefLocation.CACHE,
+    );
+    saveCustomData<Map<String, dynamic>>(
+      _memoryKey,
+      _memory.toJson(),
       location: PrefLocation.CACHE,
     );
   }
 }
+
+SyncPlan? _readPlan(String path) {
+  try {
+    return SyncPlan.fromJson(
+      Map<String, dynamic>.from(
+        jsonDecode(File(path).readAsStringSync()) as Map,
+      ),
+    );
+  } catch (_) {
+    return null;
+  }
+}
+
+void _writePlanFile((String, SyncPlan) job) =>
+    File(job.$1).writeAsStringSync(jsonEncode(job.$2.toJson()));
