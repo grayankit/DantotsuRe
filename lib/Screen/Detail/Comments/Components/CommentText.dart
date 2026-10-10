@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../../Utils/Function.dart';
-import '../../../Widgets/Components/AniHtml.dart';
-import '../../../Widgets/Components/Clickable.dart';
+import '../../../../Utils/Function.dart';
+import '../../../../Widgets/Components/AniHtml.dart';
+import '../../../../Widgets/Components/Clickable.dart';
 import '../CommentMarkup.dart';
 
 class CommentText extends StatelessWidget {

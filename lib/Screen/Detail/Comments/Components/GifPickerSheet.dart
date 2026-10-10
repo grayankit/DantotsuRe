@@ -1,20 +1,20 @@
-import '../../../Utils/Animation/WidgetAnimations.dart';
-import '../../../Widgets/Components/ScrollConfig.dart';
-import '../../../Utils/Functions/NavigateToScreen.dart';
+import '../../../../Utils/Animation/WidgetAnimations.dart';
+import '../../../../Widgets/Components/ScrollConfig.dart';
+import '../../../../Utils/Functions/NavigateToScreen.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
-import '../../../Core/NetworkManager/NetworkManager.dart';
-import '../../../Core/State/State.dart';
-import '../../../Core/ThemeManager/LanguageSwitcher.dart';
-import '../../../Utils/Extensions/Responsive.dart';
-import '../../../Widgets/Components/AppSheet.dart';
-import '../../../Widgets/Components/CachedNetworkImage.dart';
-import '../../../Widgets/Components/Clickable.dart';
-import '../../../Widgets/Components/CustomBottomDialog.dart';
-import '../../../Widgets/Components/EmptyState.dart';
+import '../../../../Core/NetworkManager/NetworkManager.dart';
+import '../../../../Core/State/State.dart';
+import '../../../../Core/ThemeManager/LanguageSwitcher.dart';
+import '../../../../Utils/Extensions/Responsive.dart';
+import '../../../../Widgets/Components/AppSheet.dart';
+import '../../../../Widgets/Components/CachedNetworkImage.dart';
+import '../../../../Widgets/Components/Clickable.dart';
+import '../../../../Widgets/Components/CustomBottomDialog.dart';
+import '../../../../Widgets/Components/EmptyState.dart';
 
 const _key = '29Hflu9yLfJoQy9uVbrSg5pPkaGgIr7CDDpx0bCtVxQFBTnNWXb4moqYsR70Yzzv';
 const _base = 'https://api.klipy.com/v2';

@@ -22,6 +22,9 @@ class ActivityAlerts extends AppController {
       .services
       .where((s) => s.notificationView?.alertsPref != null);
 
+  Iterable<MediaService> get _badged => find<MediaServiceController>().services
+      .where((s) => s.notificationView != null);
+
   void start() {
     _tapSub = onChange(find<NotificationManager>().tapped, _tapped);
     for (final s in _services) {
@@ -42,9 +45,8 @@ class ActivityAlerts extends AppController {
   void _schedule() {
     _timer?.cancel();
     final minutes = [
-      for (final s in _services)
-        if (s.notificationView!.alertsPref!.value)
-          (s.notificationView!.pollPref?.value ?? 5).clamp(1, 120),
+      for (final s in _badged)
+        (s.notificationView!.pollPref?.value ?? 5).clamp(1, 120),
     ];
     if (minutes.isEmpty) return;
     final every = minutes.reduce((a, b) => a < b ? a : b);
@@ -113,6 +115,12 @@ class ActivityAlerts extends AppController {
     } catch (_) {}
   }
 
+  Future<void> _refreshBadge(MediaService service) async {
+    try {
+      await service.auth?.refreshUser();
+    } catch (_) {}
+  }
+
   String _key(String serviceId) => 'activityAlerts/seenAt/$serviceId';
 
   Future<void> poll() async {
@@ -120,10 +128,12 @@ class ActivityAlerts extends AppController {
     _busy = true;
     try {
       await Future.wait([
-        for (final service in _services)
-          if (service.notificationView!.alertsPref!.value &&
-              (service.auth?.isLoggedIn ?? false))
-            _pollService(service, service.notificationView!),
+        for (final service in _badged)
+          if (service.auth?.isLoggedIn ?? false)
+            if (service.notificationView!.alertsPref?.value ?? false)
+              _pollService(service, service.notificationView!)
+            else
+              _refreshBadge(service),
       ]);
     } finally {
       _busy = false;
@@ -140,6 +150,8 @@ class ActivityAlerts extends AppController {
         '${service.name} poll: ${alerts.length} unread',
         tag: 'NOTIFICATION',
       );
+      final shown = service.auth?.user.value?.unreadNotifications ?? 0;
+      if (alerts.isNotEmpty || shown > 0) unawaited(_refreshBadge(service));
       if (alerts.isEmpty) return;
       int stamp(ServiceNotification n) => n.createdAt.millisecondsSinceEpoch;
       final newest = alerts.map(stamp).reduce((a, b) => a > b ? a : b);

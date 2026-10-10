@@ -1,21 +1,21 @@
-import '../../Utils/Animation/WidgetAnimations.dart';
-import '../../Widgets/Components/Clickable.dart';
+import '../../../Utils/Animation/WidgetAnimations.dart';
+import '../../../Widgets/Components/Clickable.dart';
 import 'package:flutter/material.dart';
 
-import '../../Api/Services/Anilist/AnilistService.dart';
-import '../../Core/Comments/CommentsApi.dart';
-import '../../Core/Services/MediaServiceController.dart';
-import '../../Core/Services/Model/Media.dart';
-import '../../Core/State/State.dart';
-import '../../Core/ThemeManager/LanguageSwitcher.dart';
-import '../../Utils/Extensions/ContextExtensions.dart';
-import '../../Utils/Extensions/Responsive.dart';
-import '../../Widgets/Components/EmptyState.dart';
-import '../../Widgets/Components/ScreenState.dart';
+import '../../../Api/Services/Anilist/AnilistService.dart';
+import '../../../Core/Comments/CommentsApi.dart';
+import '../../../Core/Services/MediaServiceController.dart';
+import '../../../Core/Services/Model/Media.dart';
+import '../../../Core/State/State.dart';
+import '../../../Core/ThemeManager/LanguageSwitcher.dart';
+import '../../../Utils/Extensions/ContextExtensions.dart';
+import '../../../Utils/Extensions/Responsive.dart';
+import '../../../Widgets/Components/EmptyState.dart';
+import '../../../Widgets/Components/ScreenState.dart';
 import 'CommentsState.dart';
-import '../../Widgets/Components/SectionCard.dart';
+import '../../../Widgets/Components/SectionCard.dart';
 import 'package:skeletonizer/skeletonizer.dart';
-import '../../Core/Comments/CommentModels.dart';
+import '../../../Core/Comments/CommentModels.dart';
 import 'CommentNode.dart';
 import 'Components/CommentComposer.dart';
 import 'Components/CommentTile.dart';
@@ -264,7 +264,7 @@ class _CommentsSectionState extends State<CommentsSection>
           )
         else
           Padding(
-            padding: EdgeInsets.only(bottom: Dimens.gapXs),
+            padding: EdgeInsets.only(bottom: Dimens.gapSm),
             child: CommentComposer(
               hint: getString.commentsPlaceholder,
               avatar: session?.avatar,

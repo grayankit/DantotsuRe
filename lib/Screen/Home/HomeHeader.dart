@@ -95,6 +95,7 @@ class HomeHeader extends StatelessWidget {
                   const SizedBox(width: 6),
                   HeaderAvatar(
                     url: user?.avatar,
+                    badge: user?.unreadNotifications ?? 0,
                     onTap: () => showAccountSheet(context, _controller),
                     onLongPress: user == null || service.socialView == null
                         ? null

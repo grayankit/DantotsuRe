@@ -1,15 +1,15 @@
-import '../../../Utils/Extensions/Responsive.dart';
+import '../../../../Utils/Extensions/Responsive.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../../../Core/State/State.dart';
-import '../../../Core/ThemeManager/LanguageSwitcher.dart';
-import '../../../Utils/Extensions/ContextExtensions.dart';
-import '../../../Utils/Functions/SnackBar.dart';
-import '../../../Widgets/Components/Clickable.dart';
-import '../../../Widgets/Components/UserAvatar.dart';
+import '../../../../Core/State/State.dart';
+import '../../../../Core/ThemeManager/LanguageSwitcher.dart';
+import '../../../../Utils/Extensions/ContextExtensions.dart';
+import '../../../../Utils/Functions/SnackBar.dart';
+import '../../../../Widgets/Components/Clickable.dart';
+import '../../../../Widgets/Components/UserAvatar.dart';
 import '../CommentsState.dart';
 import 'GifPickerSheet.dart';
 

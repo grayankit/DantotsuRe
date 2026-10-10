@@ -9,6 +9,7 @@ class HeaderAvatar extends StatelessWidget {
   final double size;
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
+  final int badge;
 
   const HeaderAvatar({
     super.key,
@@ -16,6 +17,7 @@ class HeaderAvatar extends StatelessWidget {
     this.size = 46,
     this.onTap,
     this.onLongPress,
+    this.badge = 0,
   });
 
   @override
@@ -45,12 +47,45 @@ class HeaderAvatar extends StatelessWidget {
             : cachedNetworkImage(imageUrl: url, fit: BoxFit.cover),
       ),
     );
-    if (onTap == null) return child;
+    final badged = badge <= 0
+        ? child
+        : Stack(
+            clipBehavior: Clip.none,
+            children: [
+              child,
+              Positioned(
+                right: -2,
+                top: -2,
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: badge > 9 ? 4 : 0),
+                  constraints: const BoxConstraints(
+                    minWidth: 18,
+                    minHeight: 18,
+                  ),
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: scheme.error,
+                    borderRadius: BorderRadius.circular(9),
+                    border: Border.all(color: scheme.surface, width: 1.5),
+                  ),
+                  child: Text(
+                    badge > 99 ? '99+' : '$badge',
+                    style: context.textTheme.labelSmall?.copyWith(
+                      color: scheme.onError,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 10,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
+    if (onTap == null) return badged;
     return DpadFocusable(
       onSelect: onTap,
       onLongSelect: onLongPress,
       builder: dpadIconFocus(),
-      child: child,
+      child: badged,
     );
   }
 }

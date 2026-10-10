@@ -1,12 +1,12 @@
-import '../../../Utils/Animation/WidgetAnimations.dart';
-import '../../../Utils/Extensions/Responsive.dart';
+import '../../../../Utils/Animation/WidgetAnimations.dart';
+import '../../../../Utils/Extensions/Responsive.dart';
 import 'package:flutter/material.dart';
 
-import '../../../Core/State/State.dart';
-import '../../../Core/ThemeManager/LanguageSwitcher.dart';
-import '../../../Utils/Extensions/ContextExtensions.dart';
-import '../../../Widgets/Components/Clickable.dart';
-import '../../../Widgets/Components/UserAvatar.dart';
+import '../../../../Core/State/State.dart';
+import '../../../../Core/ThemeManager/LanguageSwitcher.dart';
+import '../../../../Utils/Extensions/ContextExtensions.dart';
+import '../../../../Widgets/Components/Clickable.dart';
+import '../../../../Widgets/Components/UserAvatar.dart';
 import '../CommentColors.dart';
 import '../CommentNode.dart';
 import '../CommentsState.dart';

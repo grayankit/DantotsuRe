@@ -1,5 +1,5 @@
-import '../../Core/Comments/CommentModels.dart';
-import '../../Core/State/State.dart';
+import '../../../Core/Comments/CommentModels.dart';
+import '../../../Core/State/State.dart';
 
 const commentMaxDepth = 3;
 

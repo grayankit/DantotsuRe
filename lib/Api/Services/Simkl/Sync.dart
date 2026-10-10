@@ -2,6 +2,7 @@ import '../../../Core/Sync/SyncAdapter.dart';
 import '../../../Core/Sync/SyncModels.dart';
 import 'Client.dart';
 import 'Data/Mapper.dart';
+import 'IdLookup.dart';
 import 'Queries.dart';
 
 class SimklSync extends SyncAdapter {
@@ -78,21 +79,14 @@ class SimklSync extends SyncAdapter {
   }) async {
     final out = <int, int>{};
     var used = 0;
-    try {
-      for (final id in mal) {
-        used++;
-        final res = await client.get(
-          '/search/id',
-          query: {'mal': '$id'},
-          auth: false,
-        );
-        if (res is! List || res.isEmpty || res.first is! Map) continue;
-        final ids = (res.first as Map)['ids'];
-        final found = ids is Map ? (ids['simkl_id'] ?? ids['simkl']) : null;
-        if (found is int) out[id] = found;
+    for (final id in mal) {
+      used++;
+      try {
+        final found = await simklIdFromRedirect(mal: id);
+        if (found != null) out[id] = found;
+      } catch (e) {
+        throw syncError(e);
       }
-    } on SimklException catch (e) {
-      throw syncError(e, status: e.status);
     }
     return (out, used);
   }

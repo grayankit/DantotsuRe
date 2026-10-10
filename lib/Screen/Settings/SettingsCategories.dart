@@ -9,6 +9,7 @@ import 'Categories/ExtensionSettings.dart';
 import 'Categories/AppearanceSettings.dart';
 import 'Categories/GeneralSettings.dart';
 import 'Categories/UpdateSettings.dart';
+import 'Categories/WatchSettings.dart';
 
 export 'Categories/AboutSettings.dart' show settingsAppVersion;
 
@@ -38,6 +39,12 @@ List<SettingsCategory> get settingsCategories => [
     description: getString.settingsGeneralDesc,
     icon: Icons.tune_rounded,
     build: generalSettings,
+  ),
+  SettingsCategory(
+    title: getString.settingsWatch,
+    description: getString.settingsWatchDesc,
+    icon: Icons.movie_filter_rounded,
+    build: watchSettings,
   ),
   SettingsCategory(
     title: getString.extension(2),

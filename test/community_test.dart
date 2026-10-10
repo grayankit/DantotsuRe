@@ -1,6 +1,6 @@
 import 'package:dartotsu/Core/Comments/CommentModels.dart';
 import 'package:dartotsu/Core/Services/Api/TraceMoe.dart';
-import 'package:dartotsu/Screen/Comments/CommentColors.dart';
+import 'package:dartotsu/Screen/Detail/Comments/CommentColors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

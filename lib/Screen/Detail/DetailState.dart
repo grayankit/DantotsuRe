@@ -49,6 +49,13 @@ class DetailState extends ScreenState {
   final widgets = <ScreenWidget>[].liveList;
   final ready = false.live;
   late final tab = (commentId == null ? 0 : 2).live;
+  late final visited = <int>[0, tab.value].liveList;
+
+  void selectTab(int index) {
+    if (!visited.contains(index)) visited.add(index);
+    tab.value = index;
+  }
+
   final error = Live<String?>(null);
   bool _focusedOnce = false;
   final scroll = ScrollController();

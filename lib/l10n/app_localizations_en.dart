@@ -3282,25 +3282,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commentsEditedMark => 'edited';
 
   @override
-  String get commentsReport => 'Report comment';
+  String get commentsReport => 'Report';
 
   @override
   String get commentsReportAsk => 'Report this comment to the moderators?';
 
   @override
-  String get commentsDelete => 'Delete comment';
+  String get commentsDelete => 'Delete';
 
   @override
   String get commentsDeleteAsk => 'This comment will be removed for everyone.';
 
   @override
-  String get commentsBan => 'Ban user';
+  String get commentsBan => 'Ban';
 
   @override
   String get commentsBanAsk => 'Ban this user from commenting?';
 
   @override
-  String get commentsCopy => 'Copy text';
+  String get commentsCopy => 'Copy';
 
   @override
   String get commentsViewReply => 'View 1 reply';
@@ -3718,4 +3718,340 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reactionsFailed => 'Couldn\'t update the reaction';
+
+  @override
+  String get settingsWatch => 'Watch & read';
+
+  @override
+  String get settingsWatchDesc =>
+      'Episode lists, source matching and episode details';
+
+  @override
+  String get watchSettingsLayout => 'Episode list';
+
+  @override
+  String get watchSettingsSources => 'Sources';
+
+  @override
+  String get watchSettingsMetadata => 'Episode details';
+
+  @override
+  String get watchLayout => 'Layout';
+
+  @override
+  String get watchListView => 'List';
+
+  @override
+  String get watchGridView => 'Grid';
+
+  @override
+  String get watchCompactView => 'Compact';
+
+  @override
+  String get watchDefaultLayoutDesc =>
+      'How episodes and chapters are laid out until you change it for a title';
+
+  @override
+  String get watchChunkSize => 'Range size';
+
+  @override
+  String get watchChunkSizeDesc =>
+      'How many episodes or chapters each range tab holds';
+
+  @override
+  String get watchShowDescription => 'Show descriptions';
+
+  @override
+  String get watchShowDescriptionDesc =>
+      'Show the episode summary under each title in the list layout';
+
+  @override
+  String get watchShowFiller => 'Show filler episodes';
+
+  @override
+  String get watchShowFillerDesc =>
+      'Turn off to hide episodes marked as filler';
+
+  @override
+  String get watchBlurUnwatched => 'Hide spoiler thumbnails';
+
+  @override
+  String get watchBlurUnwatchedDesc =>
+      'Blur the thumbnail of episodes you have not watched yet';
+
+  @override
+  String get watchMarkOnLongPress => 'Long press marks progress';
+
+  @override
+  String get watchMarkOnLongPressDesc =>
+      'Long press an episode or chapter to mark it watched or unwatched';
+
+  @override
+  String get watchMatching => 'Source matching';
+
+  @override
+  String get watchMatchingDesc =>
+      'Closest takes the best search result. Exact only accepts a near-identical title and leaves the rest for you to pick.';
+
+  @override
+  String get watchMatchClosest => 'Closest match';
+
+  @override
+  String get watchMatchExact => 'Exact match only';
+
+  @override
+  String get watchMetadataDesc =>
+      'Where episode titles, summaries, thumbnails, air dates and filler flags come from. Drag to set priority; the first source with a value wins.';
+
+  @override
+  String get watchMetaAniZipDesc =>
+      'Episode titles, summaries, stills and air dates';
+
+  @override
+  String get watchMetaKitsuDesc =>
+      'Episode titles, descriptions and thumbnails';
+
+  @override
+  String get watchMetaSimklDesc =>
+      'Episode titles, descriptions, stills and air dates';
+
+  @override
+  String get watchMetaAniListDesc =>
+      'Streaming episode titles, thumbnails and the airing schedule';
+
+  @override
+  String get watchMetaTenraiDesc =>
+      'MyAnimeList episode titles, air dates, filler and recap flags through Tenrai';
+
+  @override
+  String get watchClearMetadata => 'Refresh episode details';
+
+  @override
+  String get watchClearMetadataDesc =>
+      'Forget the cached episode details so they are fetched again';
+
+  @override
+  String get watchMetadataCleared => 'Episode details will be fetched again';
+
+  @override
+  String watchEpisodeCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Episodes',
+      one: '1 Episode',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String watchChapterCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Chapters',
+      one: '1 Chapter',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String watchEpisodeNumber(String number) {
+    return 'Episode $number';
+  }
+
+  @override
+  String watchChapterNumber(String number) {
+    return 'Chapter $number';
+  }
+
+  @override
+  String get watchSearching => 'Searching…';
+
+  @override
+  String watchSearchingFor(String term) {
+    return 'Searching: $term';
+  }
+
+  @override
+  String watchSelected(String title) {
+    return 'Selected: $title';
+  }
+
+  @override
+  String watchFound(String title) {
+    return 'Found: $title';
+  }
+
+  @override
+  String get watchNothingFound => 'Nothing found on this source';
+
+  @override
+  String get watchSearchFailed => 'The source search failed';
+
+  @override
+  String get watchLoadFailed => 'Couldn\'t load the list';
+
+  @override
+  String get watchSignInToTrack => 'Sign in to track your progress';
+
+  @override
+  String get watchPlayerSoon => 'The player isn\'t built yet';
+
+  @override
+  String get watchReaderSoon => 'The reader isn\'t built yet';
+
+  @override
+  String watchInstallSource(String action) {
+    return 'Install an extension to start $action';
+  }
+
+  @override
+  String get watchSourceMissing => 'This source isn\'t installed';
+
+  @override
+  String get watchWrongTitle => 'Wrong title?';
+
+  @override
+  String get watchSearchAgain => 'Search again';
+
+  @override
+  String watchSearchSource(String source) {
+    return 'Search $source';
+  }
+
+  @override
+  String get watchSource => 'Source';
+
+  @override
+  String get watchOptions => 'Options';
+
+  @override
+  String get watchReverse => 'Reverse order';
+
+  @override
+  String get watchScanlators => 'Groups';
+
+  @override
+  String get watchResetOptions => 'Reset these options';
+
+  @override
+  String get watchContinue => 'Continue';
+
+  @override
+  String get watchStart => 'Start';
+
+  @override
+  String get watchPlay => 'Play';
+
+  @override
+  String get watchRead => 'Read';
+
+  @override
+  String get watchMarkWatched => 'Mark watched';
+
+  @override
+  String get watchMarkUnwatched => 'Mark unwatched';
+
+  @override
+  String get watchMarkRead => 'Mark read';
+
+  @override
+  String get watchMarkUnread => 'Mark unread';
+
+  @override
+  String get watchFiller => 'Filler';
+
+  @override
+  String get watchRecap => 'Recap';
+
+  @override
+  String get watchNoEpisodes => 'No episodes found';
+
+  @override
+  String get watchNoChapters => 'No chapters found';
+
+  @override
+  String get watchSourceTools => 'Source tools';
+
+  @override
+  String get watchSourceSettings => 'Source settings';
+
+  @override
+  String get watchOpenWebView => 'Open in web view';
+
+  @override
+  String get watchOpenWebViewDesc =>
+      'Solve a Cloudflare check or log in; the cookies are shared with the source requests';
+
+  @override
+  String watchCookieCount(int count, String host) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count cookies saved for $host',
+      one: '1 cookie saved for $host',
+      zero: 'No cookies saved for $host',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String watchClearanceActive(String time) {
+    return 'Cloudflare clearance active, expires in $time';
+  }
+
+  @override
+  String get watchClearanceMissing => 'No Cloudflare clearance cookie';
+
+  @override
+  String get watchClearanceSession => 'until the app closes';
+
+  @override
+  String get watchAgentShared =>
+      'Requests use the web view\'s user agent, which Cloudflare checks';
+
+  @override
+  String get watchAgentCustom =>
+      'A custom user agent is set, so a Cloudflare clearance from the web view may be rejected';
+
+  @override
+  String get watchTestConnection => 'Test connection';
+
+  @override
+  String get watchSolveChallenge => 'Solve it';
+
+  @override
+  String watchProbeOk(int code) {
+    return 'Reachable (HTTP $code)';
+  }
+
+  @override
+  String get watchProbeChallenge => 'Cloudflare is still asking for a check';
+
+  @override
+  String watchProbeBlocked(int code) {
+    return 'Blocked by the site (HTTP $code)';
+  }
+
+  @override
+  String get watchProbeFailed => 'The site could not be reached';
+
+  @override
+  String get watchClearCookies => 'Clear cookies for this site';
+
+  @override
+  String get watchCookiesCleared => 'Cookies cleared';
+
+  @override
+  String get watchResults => 'Results';
+
+  @override
+  String get watchMetaSource => 'Episode details from';
+
+  @override
+  String get watchMetaAuto => 'Automatic';
+
+  @override
+  String get watchMetaOff => 'Off';
 }

@@ -2,22 +2,22 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../../Core/Comments/CommentModels.dart';
-import '../../Core/Comments/CommentsApi.dart';
-import '../../Core/Comments/CommentsTarget.dart';
-import '../../Core/Preferences/PrefManager.dart';
-import '../../Core/Services/MediaService.dart';
-import '../../Core/Services/Model/Media.dart';
-import '../../Core/State/State.dart';
-import '../../Core/ThemeManager/LanguageSwitcher.dart';
-import '../../Logger.dart';
-import '../../Utils/Function.dart';
-import '../../Utils/Functions/CopyToClip.dart';
-import '../../Utils/Functions/SnackBar.dart';
-import '../../Widgets/Components/AlertDialogBuilder.dart';
-import '../../Widgets/Components/ScreenState.dart';
-import '../../Api/Services/Anilist/AnilistService.dart';
-import '../Social/SocialNavigation.dart';
+import '../../../Core/Comments/CommentModels.dart';
+import '../../../Core/Comments/CommentsApi.dart';
+import '../../../Core/Comments/CommentsTarget.dart';
+import '../../../Core/Preferences/PrefManager.dart';
+import '../../../Core/Services/MediaService.dart';
+import '../../../Core/Services/Model/Media.dart';
+import '../../../Core/State/State.dart';
+import '../../../Core/ThemeManager/LanguageSwitcher.dart';
+import '../../../Logger.dart';
+import '../../../Utils/Function.dart';
+import '../../../Utils/Functions/CopyToClip.dart';
+import '../../../Utils/Functions/SnackBar.dart';
+import '../../../Widgets/Components/AlertDialogBuilder.dart';
+import '../../../Widgets/Components/ScreenState.dart';
+import '../../../Api/Services/Anilist/AnilistService.dart';
+import '../../Social/SocialNavigation.dart';
 import 'CommentNode.dart';
 
 enum CommentsPhase { loading, ready, signedOut, unavailable, disabled, failed }

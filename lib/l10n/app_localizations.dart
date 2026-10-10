@@ -6062,7 +6062,7 @@ abstract class AppLocalizations {
   /// No description provided for @commentsReport.
   ///
   /// In en, this message translates to:
-  /// **'Report comment'**
+  /// **'Report'**
   String get commentsReport;
 
   /// No description provided for @commentsReportAsk.
@@ -6074,7 +6074,7 @@ abstract class AppLocalizations {
   /// No description provided for @commentsDelete.
   ///
   /// In en, this message translates to:
-  /// **'Delete comment'**
+  /// **'Delete'**
   String get commentsDelete;
 
   /// No description provided for @commentsDeleteAsk.
@@ -6086,7 +6086,7 @@ abstract class AppLocalizations {
   /// No description provided for @commentsBan.
   ///
   /// In en, this message translates to:
-  /// **'Ban user'**
+  /// **'Ban'**
   String get commentsBan;
 
   /// No description provided for @commentsBanAsk.
@@ -6098,7 +6098,7 @@ abstract class AppLocalizations {
   /// No description provided for @commentsCopy.
   ///
   /// In en, this message translates to:
-  /// **'Copy text'**
+  /// **'Copy'**
   String get commentsCopy;
 
   /// No description provided for @commentsViewReply.
@@ -6826,6 +6826,552 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Couldn\'t update the reaction'**
   String get reactionsFailed;
+
+  /// No description provided for @settingsWatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch & read'**
+  String get settingsWatch;
+
+  /// No description provided for @settingsWatchDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Episode lists, source matching and episode details'**
+  String get settingsWatchDesc;
+
+  /// No description provided for @watchSettingsLayout.
+  ///
+  /// In en, this message translates to:
+  /// **'Episode list'**
+  String get watchSettingsLayout;
+
+  /// No description provided for @watchSettingsSources.
+  ///
+  /// In en, this message translates to:
+  /// **'Sources'**
+  String get watchSettingsSources;
+
+  /// No description provided for @watchSettingsMetadata.
+  ///
+  /// In en, this message translates to:
+  /// **'Episode details'**
+  String get watchSettingsMetadata;
+
+  /// No description provided for @watchLayout.
+  ///
+  /// In en, this message translates to:
+  /// **'Layout'**
+  String get watchLayout;
+
+  /// No description provided for @watchListView.
+  ///
+  /// In en, this message translates to:
+  /// **'List'**
+  String get watchListView;
+
+  /// No description provided for @watchGridView.
+  ///
+  /// In en, this message translates to:
+  /// **'Grid'**
+  String get watchGridView;
+
+  /// No description provided for @watchCompactView.
+  ///
+  /// In en, this message translates to:
+  /// **'Compact'**
+  String get watchCompactView;
+
+  /// No description provided for @watchDefaultLayoutDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'How episodes and chapters are laid out until you change it for a title'**
+  String get watchDefaultLayoutDesc;
+
+  /// No description provided for @watchChunkSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Range size'**
+  String get watchChunkSize;
+
+  /// No description provided for @watchChunkSizeDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'How many episodes or chapters each range tab holds'**
+  String get watchChunkSizeDesc;
+
+  /// No description provided for @watchShowDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Show descriptions'**
+  String get watchShowDescription;
+
+  /// No description provided for @watchShowDescriptionDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Show the episode summary under each title in the list layout'**
+  String get watchShowDescriptionDesc;
+
+  /// No description provided for @watchShowFiller.
+  ///
+  /// In en, this message translates to:
+  /// **'Show filler episodes'**
+  String get watchShowFiller;
+
+  /// No description provided for @watchShowFillerDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn off to hide episodes marked as filler'**
+  String get watchShowFillerDesc;
+
+  /// No description provided for @watchBlurUnwatched.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide spoiler thumbnails'**
+  String get watchBlurUnwatched;
+
+  /// No description provided for @watchBlurUnwatchedDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Blur the thumbnail of episodes you have not watched yet'**
+  String get watchBlurUnwatchedDesc;
+
+  /// No description provided for @watchMarkOnLongPress.
+  ///
+  /// In en, this message translates to:
+  /// **'Long press marks progress'**
+  String get watchMarkOnLongPress;
+
+  /// No description provided for @watchMarkOnLongPressDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Long press an episode or chapter to mark it watched or unwatched'**
+  String get watchMarkOnLongPressDesc;
+
+  /// No description provided for @watchMatching.
+  ///
+  /// In en, this message translates to:
+  /// **'Source matching'**
+  String get watchMatching;
+
+  /// No description provided for @watchMatchingDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Closest takes the best search result. Exact only accepts a near-identical title and leaves the rest for you to pick.'**
+  String get watchMatchingDesc;
+
+  /// No description provided for @watchMatchClosest.
+  ///
+  /// In en, this message translates to:
+  /// **'Closest match'**
+  String get watchMatchClosest;
+
+  /// No description provided for @watchMatchExact.
+  ///
+  /// In en, this message translates to:
+  /// **'Exact match only'**
+  String get watchMatchExact;
+
+  /// No description provided for @watchMetadataDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Where episode titles, summaries, thumbnails, air dates and filler flags come from. Drag to set priority; the first source with a value wins.'**
+  String get watchMetadataDesc;
+
+  /// No description provided for @watchMetaAniZipDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Episode titles, summaries, stills and air dates'**
+  String get watchMetaAniZipDesc;
+
+  /// No description provided for @watchMetaKitsuDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Episode titles, descriptions and thumbnails'**
+  String get watchMetaKitsuDesc;
+
+  /// No description provided for @watchMetaSimklDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Episode titles, descriptions, stills and air dates'**
+  String get watchMetaSimklDesc;
+
+  /// No description provided for @watchMetaAniListDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Streaming episode titles, thumbnails and the airing schedule'**
+  String get watchMetaAniListDesc;
+
+  /// No description provided for @watchMetaTenraiDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'MyAnimeList episode titles, air dates, filler and recap flags through Tenrai'**
+  String get watchMetaTenraiDesc;
+
+  /// No description provided for @watchClearMetadata.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh episode details'**
+  String get watchClearMetadata;
+
+  /// No description provided for @watchClearMetadataDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Forget the cached episode details so they are fetched again'**
+  String get watchClearMetadataDesc;
+
+  /// No description provided for @watchMetadataCleared.
+  ///
+  /// In en, this message translates to:
+  /// **'Episode details will be fetched again'**
+  String get watchMetadataCleared;
+
+  /// No description provided for @watchEpisodeCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 Episode} other{{count} Episodes}}'**
+  String watchEpisodeCount(int count);
+
+  /// No description provided for @watchChapterCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 Chapter} other{{count} Chapters}}'**
+  String watchChapterCount(int count);
+
+  /// No description provided for @watchEpisodeNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Episode {number}'**
+  String watchEpisodeNumber(String number);
+
+  /// No description provided for @watchChapterNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Chapter {number}'**
+  String watchChapterNumber(String number);
+
+  /// No description provided for @watchSearching.
+  ///
+  /// In en, this message translates to:
+  /// **'Searching…'**
+  String get watchSearching;
+
+  /// No description provided for @watchSearchingFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Searching: {term}'**
+  String watchSearchingFor(String term);
+
+  /// No description provided for @watchSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected: {title}'**
+  String watchSelected(String title);
+
+  /// No description provided for @watchFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Found: {title}'**
+  String watchFound(String title);
+
+  /// No description provided for @watchNothingFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing found on this source'**
+  String get watchNothingFound;
+
+  /// No description provided for @watchSearchFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The source search failed'**
+  String get watchSearchFailed;
+
+  /// No description provided for @watchLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load the list'**
+  String get watchLoadFailed;
+
+  /// No description provided for @watchSignInToTrack.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to track your progress'**
+  String get watchSignInToTrack;
+
+  /// No description provided for @watchPlayerSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'The player isn\'t built yet'**
+  String get watchPlayerSoon;
+
+  /// No description provided for @watchReaderSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'The reader isn\'t built yet'**
+  String get watchReaderSoon;
+
+  /// No description provided for @watchInstallSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Install an extension to start {action}'**
+  String watchInstallSource(String action);
+
+  /// No description provided for @watchSourceMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'This source isn\'t installed'**
+  String get watchSourceMissing;
+
+  /// No description provided for @watchWrongTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong title?'**
+  String get watchWrongTitle;
+
+  /// No description provided for @watchSearchAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Search again'**
+  String get watchSearchAgain;
+
+  /// No description provided for @watchSearchSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Search {source}'**
+  String watchSearchSource(String source);
+
+  /// No description provided for @watchSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Source'**
+  String get watchSource;
+
+  /// No description provided for @watchOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Options'**
+  String get watchOptions;
+
+  /// No description provided for @watchReverse.
+  ///
+  /// In en, this message translates to:
+  /// **'Reverse order'**
+  String get watchReverse;
+
+  /// No description provided for @watchScanlators.
+  ///
+  /// In en, this message translates to:
+  /// **'Groups'**
+  String get watchScanlators;
+
+  /// No description provided for @watchResetOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset these options'**
+  String get watchResetOptions;
+
+  /// No description provided for @watchContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get watchContinue;
+
+  /// No description provided for @watchStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get watchStart;
+
+  /// No description provided for @watchPlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Play'**
+  String get watchPlay;
+
+  /// No description provided for @watchRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Read'**
+  String get watchRead;
+
+  /// No description provided for @watchMarkWatched.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark watched'**
+  String get watchMarkWatched;
+
+  /// No description provided for @watchMarkUnwatched.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark unwatched'**
+  String get watchMarkUnwatched;
+
+  /// No description provided for @watchMarkRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark read'**
+  String get watchMarkRead;
+
+  /// No description provided for @watchMarkUnread.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark unread'**
+  String get watchMarkUnread;
+
+  /// No description provided for @watchFiller.
+  ///
+  /// In en, this message translates to:
+  /// **'Filler'**
+  String get watchFiller;
+
+  /// No description provided for @watchRecap.
+  ///
+  /// In en, this message translates to:
+  /// **'Recap'**
+  String get watchRecap;
+
+  /// No description provided for @watchNoEpisodes.
+  ///
+  /// In en, this message translates to:
+  /// **'No episodes found'**
+  String get watchNoEpisodes;
+
+  /// No description provided for @watchNoChapters.
+  ///
+  /// In en, this message translates to:
+  /// **'No chapters found'**
+  String get watchNoChapters;
+
+  /// No description provided for @watchSourceTools.
+  ///
+  /// In en, this message translates to:
+  /// **'Source tools'**
+  String get watchSourceTools;
+
+  /// No description provided for @watchSourceSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Source settings'**
+  String get watchSourceSettings;
+
+  /// No description provided for @watchOpenWebView.
+  ///
+  /// In en, this message translates to:
+  /// **'Open in web view'**
+  String get watchOpenWebView;
+
+  /// No description provided for @watchOpenWebViewDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Solve a Cloudflare check or log in; the cookies are shared with the source requests'**
+  String get watchOpenWebViewDesc;
+
+  /// No description provided for @watchCookieCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No cookies saved for {host}} =1{1 cookie saved for {host}} other{{count} cookies saved for {host}}}'**
+  String watchCookieCount(int count, String host);
+
+  /// No description provided for @watchClearanceActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloudflare clearance active, expires in {time}'**
+  String watchClearanceActive(String time);
+
+  /// No description provided for @watchClearanceMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'No Cloudflare clearance cookie'**
+  String get watchClearanceMissing;
+
+  /// No description provided for @watchClearanceSession.
+  ///
+  /// In en, this message translates to:
+  /// **'until the app closes'**
+  String get watchClearanceSession;
+
+  /// No description provided for @watchAgentShared.
+  ///
+  /// In en, this message translates to:
+  /// **'Requests use the web view\'s user agent, which Cloudflare checks'**
+  String get watchAgentShared;
+
+  /// No description provided for @watchAgentCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'A custom user agent is set, so a Cloudflare clearance from the web view may be rejected'**
+  String get watchAgentCustom;
+
+  /// No description provided for @watchTestConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Test connection'**
+  String get watchTestConnection;
+
+  /// No description provided for @watchSolveChallenge.
+  ///
+  /// In en, this message translates to:
+  /// **'Solve it'**
+  String get watchSolveChallenge;
+
+  /// No description provided for @watchProbeOk.
+  ///
+  /// In en, this message translates to:
+  /// **'Reachable (HTTP {code})'**
+  String watchProbeOk(int code);
+
+  /// No description provided for @watchProbeChallenge.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloudflare is still asking for a check'**
+  String get watchProbeChallenge;
+
+  /// No description provided for @watchProbeBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Blocked by the site (HTTP {code})'**
+  String watchProbeBlocked(int code);
+
+  /// No description provided for @watchProbeFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The site could not be reached'**
+  String get watchProbeFailed;
+
+  /// No description provided for @watchClearCookies.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear cookies for this site'**
+  String get watchClearCookies;
+
+  /// No description provided for @watchCookiesCleared.
+  ///
+  /// In en, this message translates to:
+  /// **'Cookies cleared'**
+  String get watchCookiesCleared;
+
+  /// No description provided for @watchResults.
+  ///
+  /// In en, this message translates to:
+  /// **'Results'**
+  String get watchResults;
+
+  /// No description provided for @watchMetaSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Episode details from'**
+  String get watchMetaSource;
+
+  /// No description provided for @watchMetaAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic'**
+  String get watchMetaAuto;
+
+  /// No description provided for @watchMetaOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get watchMetaOff;
 }
 
 class _AppLocalizationsDelegate

@@ -13,11 +13,11 @@ import '../../Utils/Nav/DpadNav.dart';
 import '../Navbar.dart';
 import '../../Widgets/Components/ScrollConfig.dart';
 import '../Widgets/ScreenWidgetView.dart';
-import '../../Widgets/Components/NotImplemented.dart';
 import '../../Core/ThemeManager/ThemeController.dart';
 import '../../Widgets/Shelf/ShelfFrame.dart';
 import '../Widgets/Components/DataSection.dart';
-import '../Comments/CommentsSection.dart';
+import 'Comments/CommentsSection.dart';
+import 'Watch/WatchSection.dart';
 import 'Components/DetailHeader.dart';
 import '../../Api/Discord/DiscordPresence.dart';
 import '../../Core/State/State.dart';
@@ -110,7 +110,7 @@ class _DetailScreenState extends BaseScreen<DetailScreen>
         standalone: true,
         laneKey: state.navLane,
         selectedIndex: state.tab.value,
-        onTabSelected: (i) => state.tab.value = i,
+        onTabSelected: state.selectTab,
         items: [
           NavItem(index: 0, icon: Icons.info_rounded, label: getString.navInfo),
           NavItem(
@@ -172,21 +172,43 @@ class _DetailScreenState extends BaseScreen<DetailScreen>
   }
 
   Widget _body() {
-    if (state.tab.value == 2) {
-      return CommentsSection(
-        key: ValueKey('comments-${state.host.media.value.id}'),
-        service: state.view.service,
-        media: state.host.media,
-        scroll: state.scroll,
-        focusId: state.commentId,
-      );
-    }
-    if (state.tab.value != 0) {
-      return NotImplemented(
-        service: state.view.service.name,
-        area: state.isAnime ? getString.watch : getString.read,
-      );
-    }
+    final current = state.tab.value;
+    final visited = state.visited.toList();
+    Widget keep(int index, Widget Function() build) => Visibility(
+      visible: current == index,
+      maintainState: true,
+      child: build(),
+    );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        keep(0, _info),
+        if (visited.contains(1))
+          keep(
+            1,
+            () => WatchSection(
+              key: ValueKey('watch-${state.host.media.value.id}'),
+              service: state.view.service,
+              media: state.host.media,
+              mutations: state.mutations,
+            ),
+          ),
+        if (visited.contains(2))
+          keep(
+            2,
+            () => CommentsSection(
+              key: ValueKey('comments-${state.host.media.value.id}'),
+              service: state.view.service,
+              media: state.host.media,
+              scroll: state.scroll,
+              focusId: state.commentId,
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _info() {
     if (!state.ready.value) return _skeleton();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
