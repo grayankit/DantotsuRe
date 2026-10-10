@@ -3,11 +3,12 @@ import 'package:flutter/material.dart';
 import '../../Core/Services/MediaService.dart';
 import '../../Core/State/State.dart';
 import '../../Core/ThemeManager/LanguageSwitcher.dart';
-import '../../Core/ThemeManager/ThemeController.dart';
+import '../../Utils/Animation/WidgetAnimations.dart';
 import '../../Utils/Extensions/ContextExtensions.dart';
+import '../../Utils/Extensions/IntExtensions.dart';
+import '../Navbar.dart';
 import '../../Utils/Extensions/Responsive.dart';
 import '../../Widgets/Components/AppBars.dart';
-import '../../Widgets/Components/AppTabs.dart';
 import '../../Widgets/Components/BaseScreen.dart';
 import '../../Widgets/Components/CachedNetworkImage.dart';
 import '../../Widgets/Components/EmptyState.dart';
@@ -42,9 +43,7 @@ class GroupScreen extends StatefulWidget {
 }
 
 class _GroupScreenState extends BaseScreen<GroupScreen>
-    with
-        SingleTickerProviderStateMixin,
-        ScreenStateHost<GroupScreen, GroupState> {
+    with ScreenStateHost<GroupScreen, GroupState> {
   @override
   GroupState buildState() => GroupState(
     service: widget.service,
@@ -81,8 +80,9 @@ class _GroupScreenState extends BaseScreen<GroupScreen>
                 ),
         );
       }
-      final glass = find<ThemeController>().useGlassMode.value;
-      return Scaffold(
+      final members = state.view.hasGroupMembers;
+      final tab = state.tab.value;
+      final content = Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppScreenBar(
           title: group.name,
@@ -100,37 +100,70 @@ class _GroupScreenState extends BaseScreen<GroupScreen>
           child: NestedScrollView(
             headerSliverBuilder: (context, _) => [
               SliverToBoxAdapter(child: _header(context, group)),
-              SliverPersistentHeader(
-                pinned: true,
-                delegate: _TabsDelegate(
-                  controller: state.tabs,
-                  glass: glass,
-                  items: [
-                    AppTabItem(getString.groupsPosts),
-                    if (state.view.hasGroupMembers)
-                      AppTabItem(getString.groupsMembersTab),
-                    AppTabItem(getString.groupsAbout),
-                  ],
+            ],
+            body: Padding(
+              padding: EdgeInsets.only(
+                bottom: context.isPhone ? 96.bottomBar() : 0,
+              ),
+              child: AppSwitcher(
+                child: KeyedSubtree(
+                  key: ValueKey(tab),
+                  child: switch (tab) {
+                    0 => ActivityList(
+                      service: widget.service,
+                      scope: ActivityScope.global,
+                      groupId: group.id,
+                      composer: group.isMember ? ComposerKind.group : null,
+                    ),
+                    1 when members => GroupMembersTab(
+                      service: widget.service,
+                      groupId: group.id,
+                    ),
+                    _ => _about(context, group),
+                  },
                 ),
               ),
-            ],
-            body: TabBarView(
-              controller: state.tabs,
-              children: [
-                ActivityList(
-                  service: widget.service,
-                  scope: ActivityScope.global,
-                  groupId: group.id,
-                  composer: group.isMember ? ComposerKind.group : null,
-                ),
-                if (state.view.hasGroupMembers)
-                  GroupMembersTab(service: widget.service, groupId: group.id),
-                _about(context, group),
-              ],
             ),
           ),
         ),
       );
+      final nav = FloatingBottomNavBar(
+        standalone: true,
+        laneKey: state.navLane,
+        selectedIndex: tab,
+        onTabSelected: (i) => state.tab.value = i,
+        items: [
+          NavItem(
+            index: 0,
+            icon: Icons.forum_rounded,
+            label: getString.groupsPosts.toUpperCase(),
+          ),
+          if (members)
+            NavItem(
+              index: 1,
+              icon: Icons.groups_rounded,
+              label: getString.groupsMembersTab.toUpperCase(),
+            ),
+          NavItem(
+            index: members ? 2 : 1,
+            icon: Icons.info_rounded,
+            label: getString.groupsAbout.toUpperCase(),
+          ),
+        ],
+      );
+      return context.isPhone
+          ? Stack(
+              children: [
+                Positioned.fill(child: content),
+                nav,
+              ],
+            )
+          : Row(
+              children: [
+                SizedBox(width: 100, child: nav),
+                Expanded(child: content),
+              ],
+            );
     });
   }
 
@@ -317,39 +350,6 @@ class _GroupScreenState extends BaseScreen<GroupScreen>
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _TabsDelegate extends SliverPersistentHeaderDelegate {
-  final TabController controller;
-  final List<AppTabItem> items;
-  final bool glass;
-
-  _TabsDelegate({
-    required this.controller,
-    required this.items,
-    required this.glass,
-  });
-
-  @override
-  double get maxExtent => 56;
-
-  @override
-  double get minExtent => 56;
-
-  @override
-  bool shouldRebuild(_TabsDelegate old) =>
-      old.glass != glass || old.controller != controller;
-
-  @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlaps) {
-    return ColoredBox(
-      color: context.colorScheme.surface.withValues(alpha: glass ? 0.4 : 1),
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: AppTabs(controller: controller, items: items),
       ),
     );
   }

@@ -211,7 +211,15 @@ class DetailScreenView {
 
   Future<Review?> rateReview(Review review, ReviewVote vote) async => null;
 
+  bool get canReact => false;
+
+  int get reactionLimit => 140;
+
   Future<List<MediaReaction>> reactions(Media media) async => const [];
+
+  Future<MediaReaction?> postReaction(Media media, String text) async => null;
+
+  Future<bool?> voteReaction(MediaReaction reaction) async => null;
 
   Future<List<Review>> reviews(Media media, {int page = 1}) async =>
       await service.getQueries?.getReviews(media.id, page: page) ?? const [];

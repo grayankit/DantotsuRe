@@ -9,10 +9,12 @@ import '../../Core/State/State.dart';
 import '../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../Utils/Extensions/ContextExtensions.dart';
 import '../../Utils/Extensions/Responsive.dart';
+import '../../Widgets/Components/Clickable.dart';
 import '../../Widgets/Components/ScreenState.dart';
 import '../../Widgets/Components/SectionCard.dart';
 import '../../Widgets/Components/UserAvatar.dart';
 import '../../Widgets/Shelf/ShelfFrame.dart';
+import 'Components/ReactionComposer.dart';
 import 'ReactionsState.dart';
 
 class ReactionsShelf extends StatefulWidget {
@@ -44,10 +46,18 @@ class _ReactionsShelfState extends State<ReactionsShelf>
   Widget _build(BuildContext context) {
     final loading = state.loading.value;
     final items = state.items.toList();
-    if (!loading && items.isEmpty) return const SizedBox.shrink();
+    final canPost = state.canReact && !state.hasMine;
+    if (!loading && items.isEmpty && !canPost) return const SizedBox.shrink();
     final shown = loading ? [_placeholder, _placeholder] : items.take(5);
     return ShelfFrame(
       title: getString.reactionsTitle,
+      trailing: canPost
+          ? IconButton(
+              tooltip: getString.reactionsAdd,
+              icon: const Icon(Icons.add_comment_rounded),
+              onPressed: _compose,
+            )
+          : null,
       child: Skeletonizer(
         enabled: loading,
         child: Padding(
@@ -66,6 +76,12 @@ class _ReactionsShelfState extends State<ReactionsShelf>
         ),
       ),
     );
+  }
+
+  Future<void> _compose() async {
+    final text = await showReactionComposer(context, widget.view.reactionLimit);
+    if (text == null || text.isEmpty) return;
+    await state.post(text);
   }
 
   Widget _tile(BuildContext context, MediaReaction r) {
@@ -92,21 +108,30 @@ class _ReactionsShelfState extends State<ReactionsShelf>
             ),
           ),
           SizedBox(width: Dimens.gapSm),
-          Column(
-            children: [
-              Icon(
-                Icons.thumb_up_alt_rounded,
-                size: 16,
-                color: scheme.onSurfaceVariant,
+          Clickable(
+            onTap: state.canReact && !r.mine ? () => state.vote(r) : null,
+            child: Padding(
+              padding: EdgeInsets.all(Dimens.gapXs),
+              child: Column(
+                children: [
+                  Icon(
+                    r.voted
+                        ? Icons.thumb_up_alt_rounded
+                        : Icons.thumb_up_off_alt_rounded,
+                    size: 18,
+                    color: r.voted ? scheme.primary : scheme.onSurfaceVariant,
+                  ),
+                  SizedBox(height: Dimens.gapXs),
+                  Text(
+                    '${r.votes}',
+                    style: context.textTheme.labelMedium?.copyWith(
+                      color: r.voted ? scheme.primary : scheme.onSurfaceVariant,
+                      fontWeight: r.voted ? FontWeight.w800 : null,
+                    ),
+                  ),
+                ],
               ),
-              SizedBox(height: Dimens.gapXs),
-              Text(
-                '${r.votes}',
-                style: context.textTheme.labelMedium?.copyWith(
-                  color: scheme.onSurfaceVariant,
-                ),
-              ),
-            ],
+            ),
           ),
         ],
       ),

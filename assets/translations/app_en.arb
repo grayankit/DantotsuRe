@@ -1675,5 +1675,10 @@
   "@notificationsNewCount": {"placeholders": {"count": {"type": "int"}}},
   "reactionsTitle": "Reactions",
   "reactionsVotes": "{count} upvotes",
-  "@reactionsVotes": {"placeholders": {"count": {"type": "int"}}}
+  "@reactionsVotes": {"placeholders": {"count": {"type": "int"}}},
+  "reactionsNeedEntry": "Add this title to your list before reacting",
+  "reactionsAdd": "Add a reaction",
+  "reactionsHint": "What did you think? (short and spoiler-free)",
+  "reactionsPost": "Post",
+  "reactionsFailed": "Couldn't update the reaction"
 }

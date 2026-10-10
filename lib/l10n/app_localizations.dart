@@ -6796,6 +6796,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} upvotes'**
   String reactionsVotes(int count);
+
+  /// No description provided for @reactionsNeedEntry.
+  ///
+  /// In en, this message translates to:
+  /// **'Add this title to your list before reacting'**
+  String get reactionsNeedEntry;
+
+  /// No description provided for @reactionsAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a reaction'**
+  String get reactionsAdd;
+
+  /// No description provided for @reactionsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'What did you think? (short and spoiler-free)'**
+  String get reactionsHint;
+
+  /// No description provided for @reactionsPost.
+  ///
+  /// In en, this message translates to:
+  /// **'Post'**
+  String get reactionsPost;
+
+  /// No description provided for @reactionsFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t update the reaction'**
+  String get reactionsFailed;
 }
 
 class _AppLocalizationsDelegate

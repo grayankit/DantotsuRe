@@ -17,6 +17,9 @@ import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../../Model/SearchResults.dart';
 import '../../../Core/Sync/SyncModels.dart';
 import '../../../Logger.dart';
+import '../../../Core/Services/Model/User.dart';
+import '../../../Utils/Functions/SnackBar.dart';
+import 'Auth.dart';
 import 'Client.dart';
 import 'Data/Mapper.dart';
 import 'Prefs.dart';
@@ -495,6 +498,7 @@ class KitsuQueries extends Queries {
   }
 
   final _reactionCache = <String, List<MediaReaction>>{};
+  final _voteIds = <String, String>{};
 
   Future<List<MediaReaction>> reactions(String mediaId) async {
     final ref = parseKitsuMediaId(mediaId);
@@ -514,11 +518,149 @@ class KitsuQueries extends Queries {
           },
         ),
       );
-      return _reactionCache[mediaId] = [
-        for (final n in doc.data) ?mapKitsuReaction(doc, n),
-      ];
+      final list = [for (final n in doc.data) ?mapKitsuReaction(doc, n)];
+      final me = userId();
+      if (me != null) {
+        for (final r in list) {
+          r.mine = r.user?.id == me;
+        }
+        await _loadVotes(list, me);
+      }
+      return _reactionCache[mediaId] = list;
     } catch (_) {
       return const [];
+    }
+  }
+
+  Future<void> _loadVotes(List<MediaReaction> list, int me) async {
+    if (list.isEmpty) return;
+    try {
+      final doc = JsonApi(
+        await client.get(
+          '/media-reaction-votes',
+          query: {
+            'filter[mediaReactionId]': [for (final r in list) r.id].join(','),
+            'filter[userId]': '$me',
+            'page[limit]': '20',
+          },
+        ),
+      );
+      for (final v in doc.data) {
+        final target = (v['relationships'] as Map?)?['mediaReaction'];
+        final id = ((target as Map?)?['data'] as Map?)?['id'];
+        if (id == null) continue;
+        _voteIds['$id'] = '${v['id']}';
+        for (final r in list) {
+          if (r.id == '$id') r.voted = true;
+        }
+      }
+    } catch (_) {}
+  }
+
+  Future<bool?> voteReaction(MediaReaction reaction) async {
+    final me = userId();
+    if (me == null) return null;
+    try {
+      if (reaction.voted) {
+        var vote = _voteIds[reaction.id];
+        if (vote == null) {
+          final res = JsonApi(
+            await client.get(
+              '/media-reaction-votes',
+              query: {
+                'filter[mediaReactionId]': reaction.id,
+                'filter[userId]': '$me',
+                'page[limit]': '1',
+              },
+            ),
+          ).data;
+          if (res.isNotEmpty) vote = '${res.first['id']}';
+        }
+        if (vote != null) await client.delete('/media-reaction-votes/$vote');
+        _voteIds.remove(reaction.id);
+        return false;
+      }
+      final res = await client.post('/media-reaction-votes', {
+        'data': {
+          'type': 'mediaReactionVotes',
+          'relationships': {
+            'user': {
+              'data': {'type': 'users', 'id': '$me'},
+            },
+            'mediaReaction': {
+              'data': {'type': 'mediaReactions', 'id': reaction.id},
+            },
+          },
+        },
+      });
+      final id = (res['data'] as Map?)?['id'];
+      if (id != null) _voteIds[reaction.id] = '$id';
+      return true;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<MediaReaction?> postReaction(Media media, String text) async {
+    final ref = parseKitsuMediaId(media.id);
+    final me = userId();
+    if (ref == null || me == null) return null;
+    final kind = _kind(ref.$1);
+    try {
+      final entries = JsonApi(
+        await client.get(
+          '/library-entries',
+          query: {
+            'filter[userId]': '$me',
+            'filter[${kind}Id]': '${ref.$2}',
+            'fields[libraryEntries]': 'status',
+            'page[limit]': '1',
+          },
+        ),
+      ).data;
+      if (entries.isEmpty) {
+        snackString(getString.reactionsNeedEntry);
+        return null;
+      }
+      final res = await client.post('/media-reactions', {
+        'data': {
+          'type': 'mediaReactions',
+          'attributes': {'reaction': text},
+          'relationships': {
+            'media': {
+              'data': {'type': kind, 'id': '${ref.$2}'},
+            },
+            'libraryEntry': {
+              'data': {
+                'type': 'libraryEntries',
+                'id': '${entries.first['id']}',
+              },
+            },
+            'user': {
+              'data': {'type': 'users', 'id': '$me'},
+            },
+          },
+        },
+      });
+      final id = (res['data'] as Map?)?['id'];
+      final mine = MediaReaction(
+        id: '${id ?? DateTime.now().millisecondsSinceEpoch}',
+        text: text,
+        mine: true,
+        createdAt: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+        user: kitsuAuth.user.value == null
+            ? null
+            : User(
+                id: me,
+                name: kitsuAuth.user.value!.name,
+                pfp: kitsuAuth.user.value!.avatar,
+              ),
+      );
+      _reactionCache[media.id] = [mine, ...?_reactionCache[media.id]];
+      return mine;
+    } on KitsuException catch (e) {
+      snackString(getString.serviceError(getString.kitsu, e.message));
+      return null;
     }
   }
 

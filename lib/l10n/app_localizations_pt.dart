@@ -3701,6 +3701,22 @@ class AppLocalizationsPt extends AppLocalizations {
   String reactionsVotes(int count) {
     return '$count upvotes';
   }
+
+  @override
+  String get reactionsNeedEntry =>
+      'Add this title to your list before reacting';
+
+  @override
+  String get reactionsAdd => 'Add a reaction';
+
+  @override
+  String get reactionsHint => 'What did you think? (short and spoiler-free)';
+
+  @override
+  String get reactionsPost => 'Post';
+
+  @override
+  String get reactionsFailed => 'Couldn\'t update the reaction';
 }
 
 /// The translations for Portuguese, as used in Brazil (`pt_BR`).

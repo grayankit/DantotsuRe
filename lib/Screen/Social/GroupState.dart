@@ -1,4 +1,3 @@
-import '../../Utils/Animation/WidgetAnimations.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -8,6 +7,7 @@ import '../../Core/State/State.dart';
 import '../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../Utils/Function.dart';
 import '../../Utils/Functions/SnackBar.dart';
+import '../../Utils/Nav/DpadNav.dart';
 import '../../Widgets/Components/AlertDialogBuilder.dart';
 import '../../Widgets/Components/ScreenState.dart';
 
@@ -24,11 +24,8 @@ class GroupState extends ScreenState {
   final failed = false.live;
   final busy = false.live;
   final version = Trigger();
-  late final tabs = TabController(
-    length: view.hasGroupMembers ? 3 : 2,
-    vsync: vsync,
-    animationDuration: animDuration(300),
-  );
+  final tab = 0.live;
+  final navLane = GlobalKey<DpadRegionState>();
 
   String get groupId => group.value?.id ?? idOrSlug;
 
@@ -36,9 +33,6 @@ class GroupState extends ScreenState {
 
   @override
   void onInit() => unawaited(load());
-
-  @override
-  void onClose() => tabs.dispose();
 
   Future<void> load() async {
     failed.value = false;

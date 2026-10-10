@@ -21,8 +21,19 @@ class KitsuDetailView extends DetailScreenView {
   String? get sourceName => 'Kitsu';
 
   @override
+  bool get canReact => kitsuAuth.isLoggedIn;
+
+  @override
   Future<List<MediaReaction>> reactions(Media media) =>
       kitsuAuth.queries.reactions(media.id);
+
+  @override
+  Future<MediaReaction?> postReaction(Media media, String text) =>
+      kitsuAuth.queries.postReaction(media, text);
+
+  @override
+  Future<bool?> voteReaction(MediaReaction reaction) =>
+      kitsuAuth.queries.voteReaction(reaction);
 
   @override
   Stream<List<ScreenWidget>> screenStream(DetailHost host) async* {

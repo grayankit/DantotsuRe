@@ -1,3 +1,4 @@
+import 'ProfileSkeleton.dart';
 import '../../../Utils/Animation/WidgetAnimations.dart';
 import 'dart:async';
 
@@ -123,7 +124,7 @@ class _ProfileStatsTabState extends State<ProfileStatsTab>
       );
     }
     if (stats == null) {
-      return const Center(child: CircularProgressIndicator());
+      return const ProfileSkeleton(blocks: 4, chart: true);
     }
     final set = _anime.value ? stats.anime : stats.manga;
     return ScrollConfig(

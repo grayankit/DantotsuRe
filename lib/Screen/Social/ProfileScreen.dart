@@ -1,3 +1,4 @@
+import 'Components/ProfileSkeleton.dart';
 import '../../Utils/Animation/WidgetAnimations.dart';
 import 'package:flutter/material.dart';
 
@@ -107,7 +108,7 @@ class _ProfileScreenState extends BaseScreen<ProfileScreen>
               ),
             ],
             body: userId.isEmpty
-                ? const Center(child: CircularProgressIndicator())
+                ? const ProfileSkeleton()
                 : Padding(
                     padding: EdgeInsets.only(
                       bottom: context.isPhone ? 96.bottomBar() : 0,
