@@ -75,7 +75,7 @@ jobs:
           update_channel alpha "${{ steps.releases.outputs.alpha_url }}"
 
       - name: Verify the flake still builds
-        run: nix build .#stable .#prerelease .#alpha --no-link -L --accept-flake-config
+        run: nix flake check -L --accept-flake-config
 
       - name: Commit and push if channels.json changed
         run: |

@@ -77,6 +77,33 @@
 > [!NOTE]
 > Download, test, and share feedback or issues on <a href="https://discord.gg/eyQdCpdubF" target="_blank">Discord</a>.
 
+### Nix / NixOS
+
+```bash
+nix run github:aayush2622/Dartotsu/rewrite-re#prerelease
+nix profile install github:aayush2622/Dartotsu/rewrite-re#prerelease
+```
+
+Channels: `stable`, `prerelease` (WebKitGTK 4.1 build, recommended) and `alpha`. A NixOS or home-manager module is included:
+
+```nix
+{
+  inputs.dartotsu.url = "github:aayush2622/Dartotsu/rewrite-re";
+
+  # NixOS
+  imports = [ inputs.dartotsu.nixosModules.default ];
+  # home-manager: imports = [ inputs.dartotsu.homeManagerModules.default ];
+
+  programs.dartotsu = {
+    enable = true;
+    channel = "prerelease"; # or "stable" / "alpha"
+    # registerLinkHandlers = true; # default handler for dartotsu://, mangayomi://, ... (stable only)
+  };
+}
+```
+
+`overlays.default` adds `pkgs.dartotsu`, `pkgs.dartotsu-prerelease` and `pkgs.dartotsu-alpha`. `nix develop` gives a shell with Flutter and every Linux build dependency; `nix flake check` builds all channels and evaluates the modules.
+
 ## Support Us
 <a href='https://buymeacoffee.com/aayush262' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi1.png?v=3' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
 > [!TIP]

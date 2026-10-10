@@ -8,7 +8,20 @@
       pkgs = import nixpkgs { inherit system; config.allowUnfree = true; };
       channels = builtins.fromJSON (builtins.readFile ./channels.json);
 
-      mkDartotsu = channel: { version, url, hash }:
+      linkSchemes = [
+        "dar"
+        "anymex"
+        "sugoireads"
+        "mangayomi"
+        "dartotsu"
+        "aniyomi"
+        "tachiyomi"
+        "ireader"
+        "legado"
+        "yuedu"
+      ];
+
+      mkDartotsu = pkgs: channel: { version, url, hash }:
         let
           suffix = pkgs.lib.optionalString (channel != "stable") "-${channel}";
           exe = "dartotsu${suffix}";
@@ -17,7 +30,11 @@
           pname = "dartotsu${suffix}";
           inherit version;
 
-          passthru.channel = channel;
+          passthru = {
+            inherit channel exe;
+            handlesLinks = channel == "stable";
+            desktopFile = "${exe}.desktop";
+          };
 
           src = pkgs.fetchzip {
             inherit url hash;
@@ -80,9 +97,11 @@
             libwebp
             icu
             libjpeg
+            libjpeg8
             libpng
             libxml2
             libtasn1
+            sqlite
 
             mpv-unwrapped
             libva
@@ -110,11 +129,18 @@
               fi
             done
 
+            wrapperArgs=()
+            if [ -n "$(find "$out/app/dartotsu/lib" -maxdepth 1 -name 'libWPEWebKit*' -print -quit)" ]; then
+              wrapperArgs+=(--run 'echo "dartotsu: this release bundles WPE WebKit, whose helper processes are not packaged for Nix; in-app web views may fail. Use the prerelease channel (WebKitGTK 4.1) instead." >&2')
+            fi
+
             mkdir -p $out/bin
             makeWrapper $out/app/dartotsu/dartotsu $out/bin/${exe} \
+              "''${wrapperArgs[@]}" \
               --prefix LD_LIBRARY_PATH : "$out/app/dartotsu/lib" \
               --prefix LD_LIBRARY_PATH : "${pkgs.addDriverRunpath.driverLink}/lib" \
-              --prefix LD_LIBRARY_PATH : ${pkgs.lib.makeLibraryPath finalAttrs.buildInputs}
+              --prefix LD_LIBRARY_PATH : ${pkgs.lib.makeLibraryPath finalAttrs.buildInputs} \
+              --set-default GIO_EXTRA_MODULES "${pkgs.glib-networking}/lib/gio/modules"
 
             logo=$out/app/dartotsu/data/flutter_assets/assets/images/logo.png
             if [ -f "$logo" ]; then
@@ -138,23 +164,16 @@
               genericName = "Anilist client";
               comment = "The Ultimate Anime & Manga Experience";
               categories = [ "AudioVideo" "Player" ];
-              mimeTypes = pkgs.lib.optionals (channel == "stable") [
-                "video/mp4"
-                "video/x-matroska"
-                "video/webm"
-                "audio/mpeg"
-                "audio/flac"
-                "x-scheme-handler/dar"
-                "x-scheme-handler/anymex"
-                "x-scheme-handler/sugoireads"
-                "x-scheme-handler/mangayomi"
-                "x-scheme-handler/dartotsu"
-                "x-scheme-handler/aniyomi"
-                "x-scheme-handler/tachiyomi"
-                "x-scheme-handler/ireader"
-                "x-scheme-handler/legado"
-                "x-scheme-handler/yuedu"
-              ];
+              mimeTypes = pkgs.lib.optionals (channel == "stable") (
+                [
+                  "video/mp4"
+                  "video/x-matroska"
+                  "video/webm"
+                  "audio/mpeg"
+                  "audio/flac"
+                ]
+                ++ map (scheme: "x-scheme-handler/${scheme}") linkSchemes
+              );
             })
           ];
 
@@ -167,13 +186,39 @@
           };
         });
 
+      mkPackages = p: nixpkgs.lib.mapAttrs (mkDartotsu p) channels;
+
+      moduleArgs = { inherit self linkSchemes; };
     in
     {
-      packages.${system} =
-        (pkgs.lib.mapAttrs mkDartotsu channels)
-        // {
-          default = self.packages.${system}.stable;
-        };
+      packages.${system} = mkPackages pkgs // {
+        default = self.packages.${system}.stable;
+      };
+
+      overlays.default = final: _prev:
+        pkgs.lib.mapAttrs'
+          (name: value: {
+            name = if name == "stable" then "dartotsu" else "dartotsu-${name}";
+            inherit value;
+          })
+          (mkPackages final);
+
+      apps.${system} = pkgs.lib.mapAttrs
+        (_: package: {
+          type = "app";
+          program = "${package}/bin/${package.exe}";
+        })
+        (mkPackages pkgs)
+      // {
+        default = self.apps.${system}.stable;
+      };
+
+      nixosModules.default = import ./nix/module.nix (moduleArgs // { homeManager = false; });
+      homeManagerModules.default = import ./nix/module.nix (moduleArgs // { homeManager = true; });
+
+      checks.${system} = import ./nix/checks.nix {
+        inherit pkgs nixpkgs self system;
+      };
 
       devShells.${system}.default =
         let
@@ -223,8 +268,10 @@
             libtasn1
             hyphen
             libjpeg
+            libjpeg8
             libpng
             zlib
+            sqlite
             gnutls
             dbus
 
