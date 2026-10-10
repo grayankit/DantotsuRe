@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import '../../Core/Services/MediaService.dart';
 import '../../Core/ThemeManager/ThemeController.dart';
 import '../../Utils/Extensions/ContextExtensions.dart';
+import '../../Utils/Extensions/IntExtensions.dart';
+import '../Navbar.dart';
 import '../../Widgets/Components/AppBars.dart';
-import '../../Widgets/Components/AppTabs.dart';
 import '../../Widgets/Components/BaseScreen.dart';
 import '../../Widgets/Components/EmptyState.dart';
 import '../../Widgets/Components/ScrollConfig.dart';
@@ -42,9 +43,7 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends BaseScreen<ProfileScreen>
-    with
-        SingleTickerProviderStateMixin,
-        ScreenStateHost<ProfileScreen, ProfileState> {
+    with ScreenStateHost<ProfileScreen, ProfileState> {
   @override
   ProfileState buildState() => ProfileState(
     service: widget.service,
@@ -76,7 +75,7 @@ class _ProfileScreenState extends BaseScreen<ProfileScreen>
       );
     }
     final top = MediaQuery.paddingOf(context).top;
-    return Scaffold(
+    final content = Scaffold(
       backgroundColor: Colors.transparent,
       body: Watch(() {
         final glass = find<ThemeController>().useGlassMode.value;
@@ -105,83 +104,89 @@ class _ProfileScreenState extends BaseScreen<ProfileScreen>
                   onManga: () => state.openList(false),
                 ),
               ),
-              SliverPersistentHeader(
-                pinned: true,
-                delegate: _TabsDelegate(
-                  controller: state.tabs,
-                  items: [
-                    AppTabItem(getString.profile),
-                    if (state.hasActivity) AppTabItem(getString.feed),
-                    AppTabItem(getString.stats),
-                  ],
-                  glass: glass,
-                ),
-              ),
             ],
             body: userId.isEmpty
                 ? const Center(child: CircularProgressIndicator())
-                : TabBarView(
-                    controller: state.tabs,
-                    children: [
-                      ProfileInfoTab(
-                        service: widget.service,
-                        user: state.user.value,
-                        userId: userId,
-                        bundle: state.bundle,
-                      ),
-                      if (state.hasActivity)
-                        ActivityList(
-                          service: widget.service,
-                          scope: ActivityScope.user,
-                          userId: userId,
-                          filterable: true,
-                          composer: state.isSelf
-                              ? ComposerKind.activity
-                              : ComposerKind.message,
-                        ),
-                      ProfileStatsTab(
-                        service: widget.service,
-                        userId: userId,
-                        bundle: state.bundle,
-                      ),
-                    ],
+                : Padding(
+                    padding: EdgeInsets.only(
+                      bottom: context.isPhone ? 96.bottomBar() : 0,
+                    ),
+                    child: _page(userId),
                   ),
           ),
         );
       }),
     );
-  }
-}
 
-class _TabsDelegate extends SliverPersistentHeaderDelegate {
-  final TabController controller;
-  final List<AppTabItem> items;
-  final bool glass;
-
-  _TabsDelegate({
-    required this.controller,
-    required this.items,
-    required this.glass,
-  });
-
-  @override
-  double get maxExtent => 56;
-
-  @override
-  double get minExtent => 56;
-
-  @override
-  bool shouldRebuild(_TabsDelegate old) =>
-      old.glass != glass || old.controller != controller;
-
-  @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlaps) {
-    return ColoredBox(
-      color: context.colorScheme.surface.withValues(alpha: glass ? 0.4 : 1),
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: AppTabs(controller: controller, items: items),
+    final nav = Watch(
+      () => FloatingBottomNavBar(
+        standalone: true,
+        laneKey: state.navLane,
+        selectedIndex: state.tab.value,
+        onTabSelected: (i) => state.tab.value = i,
+        items: [
+          NavItem(
+            index: 0,
+            icon: Icons.person_rounded,
+            label: getString.profile.toUpperCase(),
+          ),
+          if (state.hasActivity)
+            NavItem(
+              index: 1,
+              icon: Icons.forum_rounded,
+              label: getString.feed.toUpperCase(),
+            ),
+          NavItem(
+            index: state.hasActivity ? 2 : 1,
+            icon: Icons.bar_chart_rounded,
+            label: getString.stats.toUpperCase(),
+          ),
+        ],
       ),
+    );
+
+    return context.isPhone
+        ? Stack(
+            children: [
+              Positioned.fill(child: content),
+              nav,
+            ],
+          )
+        : Row(
+            children: [
+              SizedBox(width: 100, child: nav),
+              Expanded(child: content),
+            ],
+          );
+  }
+
+  Widget _page(String userId) {
+    final index = state.tab.value;
+    final stats = state.hasActivity ? 2 : 1;
+    if (index == 0) {
+      return ProfileInfoTab(
+        key: const ValueKey('profile-info'),
+        service: widget.service,
+        user: state.user.value,
+        userId: userId,
+        bundle: state.bundle,
+      );
+    }
+    if (state.hasActivity && index == 1) {
+      return ActivityList(
+        key: const ValueKey('profile-feed'),
+        service: widget.service,
+        scope: ActivityScope.user,
+        userId: userId,
+        filterable: true,
+        composer: state.isSelf ? ComposerKind.activity : ComposerKind.message,
+      );
+    }
+    return ProfileStatsTab(
+      key: ValueKey('profile-stats$stats'),
+      service: widget.service,
+      userId: userId,
+      bundle: state.bundle,
     );
   }
 }

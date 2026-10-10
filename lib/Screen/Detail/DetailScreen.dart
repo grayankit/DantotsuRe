@@ -17,6 +17,7 @@ import '../../Widgets/Components/NotImplemented.dart';
 import '../../Core/ThemeManager/ThemeController.dart';
 import '../../Widgets/Shelf/ShelfFrame.dart';
 import '../Widgets/Components/DataSection.dart';
+import '../Comments/CommentsSection.dart';
 import 'Components/DetailHeader.dart';
 import '../../Api/Discord/DiscordPresence.dart';
 import '../../Core/State/State.dart';
@@ -29,6 +30,7 @@ class DetailScreen extends StatefulWidget {
   final DetailScreenView view;
   final Mutations? mutations;
   final String? heroTag;
+  final int? commentId;
 
   const DetailScreen({
     super.key,
@@ -36,6 +38,7 @@ class DetailScreen extends StatefulWidget {
     required this.view,
     this.mutations,
     this.heroTag,
+    this.commentId,
   });
 
   @override
@@ -50,6 +53,7 @@ class _DetailScreenState extends BaseScreen<DetailScreen>
     view: widget.view,
     mutations: widget.mutations,
     heroTag: widget.heroTag,
+    commentId: widget.commentId,
   );
 
   @override
@@ -168,12 +172,19 @@ class _DetailScreenState extends BaseScreen<DetailScreen>
   }
 
   Widget _body() {
+    if (state.tab.value == 2) {
+      return CommentsSection(
+        key: ValueKey('comments-${state.host.media.value.id}'),
+        service: state.view.service,
+        media: state.host.media,
+        scroll: state.scroll,
+        focusId: state.commentId,
+      );
+    }
     if (state.tab.value != 0) {
       return NotImplemented(
         service: state.view.service.name,
-        area: state.tab.value == 1
-            ? (state.isAnime ? getString.watch : getString.read)
-            : getString.comments,
+        area: state.isAnime ? getString.watch : getString.read,
       );
     }
     if (!state.ready.value) return _skeleton();

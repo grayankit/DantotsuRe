@@ -12,6 +12,8 @@ import 'Api/Services/Kitsu/Auth.dart';
 import 'Api/Services/MangaBaka/Auth.dart';
 import 'Api/Updater/AppUpdater.dart';
 import 'Core/Analytics/AnalyticsManager.dart';
+import 'Core/Comments/CommentAlerts.dart';
+import 'Core/Comments/CommentsApi.dart';
 import 'Core/NetworkManager/NetworkManager.dart';
 import 'Core/NotificationManager/NotificationManager.dart';
 import 'Core/Services/ActivityAlerts.dart';
@@ -45,6 +47,8 @@ class DI {
     lazyPut<SimklAuth>(SimklAuth.new);
     lazyPut<KitsuAuth>(KitsuAuth.new);
     lazyPut<MangaBakaAuth>(MangaBakaAuth.new);
+    lazyPut<CommentsApi>(() => CommentsApi(find<AnilistAuth>().token));
+    lazyPut<CommentAlerts>(CommentAlerts.new);
     lazyPut<RefreshController>(RefreshController.new);
     lazyPut<ActivityAlerts>(ActivityAlerts.new);
     lazyPut<AppUpdater>(AppUpdater.new);

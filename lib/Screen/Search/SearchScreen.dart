@@ -95,7 +95,21 @@ class _SearchScreenState extends BaseScreen<SearchScreen>
                   contentPadding: const EdgeInsets.symmetric(horizontal: 20),
                   suffixIcon: Padding(
                     padding: const EdgeInsets.only(right: 8),
-                    child: Icon(Icons.search_rounded, color: scheme.onSurface),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (state.canSearchImage)
+                          IconButton(
+                            tooltip: getString.imageSearchTooltip,
+                            icon: Icon(
+                              Icons.image_search_rounded,
+                              color: scheme.onSurface,
+                            ),
+                            onPressed: () => unawaited(state.searchByImage()),
+                          ),
+                        Icon(Icons.search_rounded, color: scheme.onSurface),
+                      ],
+                    ),
                   ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(28),

@@ -104,8 +104,30 @@ class _AniHtmlState extends State<AniHtml> {
         return '<img $attrs>';
       });
 
+  static final _imageLink = RegExp(
+    r'\[\s*(<img\b[^>]*>)\s*\]\(\s*(?:<a\b[^>]*>)?\s*(https?://(?:[^)\s<]|<a\b[^>]*>[^<]*</a>)+)\s*(?:</a>)?\s*\)',
+    caseSensitive: false,
+  );
+  static final _textLink = RegExp(
+    r'\[([^\]\[<>\n]+)\]\(\s*(?:<a\b[^>]*>)?\s*(https?://(?:[^)\s<]|<a\b[^>]*>[^<]*</a>)+)\s*(?:</a>)?\s*\)',
+  );
+  static final _underBold = RegExp(r'(?<![\w=])__([^_<>\n]+?)__(?!\w)');
+
+  static String _bareUrl(String url) => url.replaceAll(_anyTag, '');
+
+  static String _markdownLeft(String html) => html
+      .replaceAllMapped(
+        _imageLink,
+        (m) => '<a href="${_bareUrl(m.group(2)!)}">${m.group(1)}</a>',
+      )
+      .replaceAllMapped(
+        _textLink,
+        (m) => '<a href="${_bareUrl(m.group(2)!)}">${m.group(1)}</a>',
+      )
+      .replaceAllMapped(_underBold, (m) => '<b>${m.group(1)}</b>');
+
   static String _normalize(String source) {
-    final html = _unescapeImages(source);
+    final html = _markdownLeft(_unescapeImages(source));
     final out = StringBuffer();
     var cursor = 0;
     while (true) {
@@ -824,7 +846,14 @@ class _AniHtmlState extends State<AniHtml> {
 
   Widget? _imageWidget(dom.Element e, String? href) {
     final src = e.attributes['src'] ?? '';
-    final width = (e.attributes['width'] ?? '').trim();
+    final style = (e.attributes['style'] ?? '').replaceAll(' ', '');
+    String sized(String name) =>
+        (e.attributes[name] ??
+                RegExp('(?:^|;)$name:([^;]+)').firstMatch(style)?.group(1) ??
+                '')
+            .trim();
+    final width = sized('width');
+    final tall = sized('height');
     final alt = e.attributes['alt'] ?? '';
     if (src.isEmpty) return null;
     double? px;
@@ -834,6 +863,7 @@ class _AniHtmlState extends State<AniHtml> {
     } else {
       px = double.tryParse(width.replaceAll('px', ''));
     }
+    final heightPx = double.tryParse(tall.replaceAll('px', ''));
     final image = LayoutBuilder(
       builder: (context, box) {
         final available = box.maxWidth.isFinite ? box.maxWidth : _maxWidth;
@@ -845,6 +875,7 @@ class _AniHtmlState extends State<AniHtml> {
           child: Image.network(
             src,
             width: px != null || fraction != null ? max : null,
+            height: heightPx,
             fit: BoxFit.contain,
             filterQuality: FilterQuality.medium,
             loadingBuilder: (context, child, progress) => progress == null

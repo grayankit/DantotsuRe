@@ -10,6 +10,8 @@ import '../../Widgets/Components/NotImplemented.dart';
 import '../Feed/FeedNavigation.dart';
 import 'ActivityFeedScreen.dart';
 import 'FollowScreen.dart';
+import 'GroupScreen.dart';
+import 'GroupsScreen.dart';
 import 'InboxScreen.dart';
 import 'ProfileScreen.dart';
 import '../../Core/ThemeManager/LanguageSwitcher.dart';
@@ -138,5 +140,25 @@ Future<void> openAppLink(
       openEntity(context, service, EntityKind.studio, link.value);
     case AppLinkKind.activity:
       openActivityFeed(context, service, activityId: link.value);
+    case AppLinkKind.group:
+      openGroup(context, service, link.value);
   }
+}
+
+void openGroups(BuildContext context, MediaService service) {
+  if (service.socialView == null) return;
+  navigateToPage(context, GroupsScreen(service: service));
+}
+
+void openGroup(
+  BuildContext context,
+  MediaService service,
+  String idOrSlug, {
+  SocialGroup? seed,
+}) {
+  if (service.socialView == null) return;
+  navigateToPage(
+    context,
+    GroupScreen(service: service, idOrSlug: idOrSlug, seed: seed),
+  );
 }

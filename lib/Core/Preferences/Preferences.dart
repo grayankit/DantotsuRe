@@ -90,6 +90,41 @@ class PrefName {
     false,
     PrefLocation.COMMON,
   );
+  static const activityPollMinutes = Pref(
+    'activityPollMinutes',
+    4,
+    PrefLocation.COMMON,
+  );
+  static const activityMutedKinds = Pref(
+    'activityMutedKinds',
+    '',
+    PrefLocation.COMMON,
+  );
+  static const commentsPollMinutes = Pref(
+    'commentsPollMinutes',
+    5,
+    PrefLocation.COMMON,
+  );
+  static const commentsEnabled = Pref(
+    'commentsEnabled',
+    true,
+    PrefLocation.COMMON,
+  );
+  static const commentsSort = Pref(
+    'commentsSort',
+    'newest',
+    PrefLocation.COMMON,
+  );
+  static const commentsRulesSeen = Pref(
+    'commentsRulesSeen',
+    false,
+    PrefLocation.COMMON,
+  );
+  static const commentsAlerts = Pref(
+    'commentsAlerts',
+    true,
+    PrefLocation.COMMON,
+  );
   static const syncMain = Pref('syncMain', '', PrefLocation.COMMON);
   static const syncOnEdit = Pref('syncOnEdit', false, PrefLocation.COMMON);
   static const syncAuto = Pref('syncAuto', false, PrefLocation.COMMON);

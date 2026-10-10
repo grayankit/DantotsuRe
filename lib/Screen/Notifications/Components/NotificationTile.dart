@@ -1,0 +1,105 @@
+import 'package:flutter/material.dart';
+
+import '../../../Core/Services/ServiceNotification.dart';
+import '../../../Utils/Extensions/ContextExtensions.dart';
+import '../../../Utils/Extensions/Responsive.dart';
+import '../../../Utils/Nav/DpadNav.dart';
+import '../../../Widgets/Components/CachedNetworkImage.dart';
+import '../../../Widgets/Components/SectionCard.dart';
+import '../NotificationsState.dart';
+
+class NotificationTile extends StatelessWidget {
+  final ServiceNotification item;
+  final IconData icon;
+  final VoidCallback? onTap;
+  final bool showTime;
+
+  const NotificationTile({
+    super.key,
+    required this.item,
+    required this.icon,
+    this.onTap,
+    this.showTime = true,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = context.colorScheme;
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: Dimens.gapXs),
+      child: SectionCard(
+        padding: EdgeInsets.zero,
+        child: Material(
+          color: Colors.transparent,
+          borderRadius: Dimens.border,
+          clipBehavior: Clip.antiAlias,
+          child: DpadTap(
+            borderRadius: Dimens.border,
+            onTap: onTap,
+            child: Padding(
+              padding: EdgeInsets.all(Dimens.gapSm + 2),
+              child: Row(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: SizedBox(
+                      width: 44,
+                      height: 58,
+                      child: item.imageUrl == null
+                          ? ColoredBox(
+                              color: scheme.surfaceContainerHighest,
+                              child: Icon(
+                                icon,
+                                color: scheme.onSurfaceVariant,
+                                size: 20,
+                              ),
+                            )
+                          : cachedNetworkImage(
+                              imageUrl: item.imageUrl,
+                              fit: BoxFit.cover,
+                            ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          item.text,
+                          style: context.textTheme.bodyMedium,
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        if (showTime) ...[
+                          const SizedBox(height: 6),
+                          Row(
+                            children: [
+                              Icon(icon, size: 13, color: scheme.primary),
+                              const SizedBox(width: 5),
+                              Text(
+                                NotificationsState.ago(item.createdAt),
+                                style: context.textTheme.labelSmall?.copyWith(
+                                  color: scheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                  if (onTap != null)
+                    Icon(
+                      Icons.chevron_right_rounded,
+                      color: scheme.onSurfaceVariant,
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

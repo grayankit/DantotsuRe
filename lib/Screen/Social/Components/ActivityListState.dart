@@ -13,6 +13,7 @@ class ActivityListState extends ScreenState {
   final String? userId;
   final String? activityId;
   final ComposerKind? composer;
+  final String? groupId;
 
   ActivityListState({
     required this.service,
@@ -20,6 +21,7 @@ class ActivityListState extends ScreenState {
     this.userId,
     this.activityId,
     this.composer,
+    this.groupId,
   });
 
   SocialScreenView get view => service.socialView!;
@@ -62,12 +64,14 @@ class ActivityListState extends ScreenState {
       var pages = 0;
       final before = visible.length;
       do {
-        final result = await view.activities(
-          scope,
-          userId: userId,
-          activityId: activityId,
-          page: page,
-        );
+        final result = groupId != null
+            ? await view.groupPosts(groupId!, page: page)
+            : await view.activities(
+                scope,
+                userId: userId,
+                activityId: activityId,
+                page: page,
+              );
         final known = {for (final a in items) a.id};
         items.addAll(result.items.where((a) => !known.contains(a.id)));
         hasNext.value = result.hasNext;
@@ -105,7 +109,7 @@ class ActivityListState extends ScreenState {
       context,
       view,
       kind: kind,
-      userId: userId,
+      userId: groupId ?? userId,
     );
     if (done) await load(reset: true);
   }

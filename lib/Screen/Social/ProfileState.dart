@@ -7,6 +7,7 @@ import '../../Core/Services/MediaService.dart';
 import '../../Core/State/State.dart';
 import '../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../Utils/Functions/SnackBar.dart';
+import '../../Utils/Nav/DpadNav.dart';
 import '../../Widgets/Components/ScreenState.dart';
 import '../MediaList/MediaListScreen.dart';
 import 'Components/ProfileHeader.dart';
@@ -30,11 +31,8 @@ class ProfileState extends ScreenState {
   });
 
   late final bool hasActivity = service.socialView!.hasActivity;
-  late final tabs = TabController(
-    length: hasActivity ? 3 : 2,
-    vsync: vsync,
-    initialIndex: hasActivity ? initialTab : (initialTab > 1 ? 1 : 0),
-  );
+  late final tab = (hasActivity ? initialTab : (initialTab > 1 ? 1 : 0)).live;
+  final navLane = GlobalKey<DpadRegionState>();
   final user = Live<SocialUser?>(null);
   final followBusy = false.live;
   final failed = false.live;
@@ -84,7 +82,6 @@ class ProfileState extends ScreenState {
     _snapTimer?.cancel();
     unawaited(_userSub?.cancel());
     scroll.dispose();
-    tabs.dispose();
   }
 
   void _scheduleSnap() {

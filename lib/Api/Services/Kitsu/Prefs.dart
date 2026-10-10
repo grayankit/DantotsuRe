@@ -47,6 +47,14 @@ class KitsuPref {
 
   static const hideNsfw = Pref('kitsuHideNsfw', true, PrefLocation.OTHER);
 
+  static const alerts = Pref('kitsuAlerts', false, PrefLocation.OTHER);
+  static const pollMinutes = Pref<int>(
+    'kitsuPollMinutes',
+    5,
+    PrefLocation.OTHER,
+  );
+  static const mutedKinds = Pref('kitsuMutedKinds', '', PrefLocation.OTHER);
+
   static final homeLayout = layoutPref('kitsuHomeLayout', kKitsuHomeSections);
   static final animeLayout = layoutPref(
     'kitsuAnimeLayout',

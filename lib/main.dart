@@ -35,6 +35,7 @@ import 'Utils/Functions/AppShortcuts.dart';
 import 'Utils/Functions/DeepLink.dart';
 import 'Utils/Functions/LinkSettings.dart';
 import 'Api/Discord/DiscordPresenceController.dart';
+import 'Core/Comments/CommentAlerts.dart';
 import 'Core/Services/ActivityAlerts.dart';
 import 'Utils/Functions/SnackBar.dart';
 import 'Widgets/Components/ScrollConfig.dart';
@@ -130,6 +131,7 @@ Future<void> _postInit(List<String> args) async {
   }
   unawaited(find<AppUpdater>().checkForUpdate());
   find<ActivityAlerts>().start();
+  find<CommentAlerts>().start();
   find<SyncController>().startAuto();
   find<DiscordPresenceController>().start();
 }

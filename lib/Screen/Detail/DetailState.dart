@@ -26,12 +26,14 @@ class DetailState extends ScreenState {
   final DetailScreenView view;
   final Mutations? mutations;
   final String? heroTag;
+  final int? commentId;
 
   DetailState({
     required this.media,
     required this.view,
     this.mutations,
     this.heroTag,
+    this.commentId,
   });
 
   late final DetailHost host = DetailHost(
@@ -45,7 +47,7 @@ class DetailState extends ScreenState {
   Disposer? _coverSub;
   final widgets = <ScreenWidget>[].liveList;
   final ready = false.live;
-  final tab = 0.live;
+  late final tab = (commentId == null ? 0 : 2).live;
   final error = Live<String?>(null);
   bool _focusedOnce = false;
   final scroll = ScrollController();

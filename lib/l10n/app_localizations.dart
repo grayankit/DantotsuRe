@@ -5812,6 +5812,978 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Skipped items are left alone, even after fetching again'**
   String get syncSkippedHint;
+
+  /// No description provided for @commentsRules.
+  ///
+  /// In en, this message translates to:
+  /// **'Commenting rules'**
+  String get commentsRules;
+
+  /// No description provided for @commentsRulesBody.
+  ///
+  /// In en, this message translates to:
+  /// **'BREAK ANY RULE = YOU\'RE GONE\n\n1. No racism, discrimination or hate speech\n2. No spamming or self-promotion\n3. Absolutely no NSFW content\n4. English only, no exceptions\n5. No impersonation, harassment or abuse\n6. No illegal content or extreme disrespect towards any fandom\n7. Do not request or share repositories or extensions\n8. Spoilers only with spoiler tags and a warning\n9. No sexualising or inappropriate comments about minor characters\n10. If it\'s wrong, don\'t post it!'**
+  String get commentsRulesBody;
+
+  /// No description provided for @commentsRulesAccept.
+  ///
+  /// In en, this message translates to:
+  /// **'I understand'**
+  String get commentsRulesAccept;
+
+  /// No description provided for @commentsSortNewest.
+  ///
+  /// In en, this message translates to:
+  /// **'Newest'**
+  String get commentsSortNewest;
+
+  /// No description provided for @commentsSortOldest.
+  ///
+  /// In en, this message translates to:
+  /// **'Oldest'**
+  String get commentsSortOldest;
+
+  /// No description provided for @commentsSortHighest.
+  ///
+  /// In en, this message translates to:
+  /// **'Highest rated'**
+  String get commentsSortHighest;
+
+  /// No description provided for @commentsSortLowest.
+  ///
+  /// In en, this message translates to:
+  /// **'Lowest rated'**
+  String get commentsSortLowest;
+
+  /// No description provided for @commentsEpisodeShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Ep {number}'**
+  String commentsEpisodeShort(int number);
+
+  /// No description provided for @commentsChapterShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Ch {number}'**
+  String commentsChapterShort(int number);
+
+  /// No description provided for @commentsFilterEpisodeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter by episode'**
+  String get commentsFilterEpisodeTitle;
+
+  /// No description provided for @commentsFilterChapterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter by chapter'**
+  String get commentsFilterChapterTitle;
+
+  /// No description provided for @commentsFilterTagTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter an episode or chapter number'**
+  String get commentsFilterTagTitle;
+
+  /// No description provided for @commentsFilterHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Number'**
+  String get commentsFilterHint;
+
+  /// No description provided for @commentsFilterApply.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter'**
+  String get commentsFilterApply;
+
+  /// No description provided for @commentsFilterClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Show all'**
+  String get commentsFilterClear;
+
+  /// No description provided for @commentsPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a comment…'**
+  String get commentsPlaceholder;
+
+  /// No description provided for @commentsReplyPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a reply…'**
+  String get commentsReplyPlaceholder;
+
+  /// No description provided for @commentsReplyingTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Replying to {name}'**
+  String commentsReplyingTo(String name);
+
+  /// No description provided for @commentsSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get commentsSend;
+
+  /// No description provided for @commentsPostAs.
+  ///
+  /// In en, this message translates to:
+  /// **'Commenting as {name}'**
+  String commentsPostAs(String name);
+
+  /// No description provided for @commentsTagButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Tag'**
+  String get commentsTagButton;
+
+  /// No description provided for @commentsTagTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tag {label} (optional)'**
+  String commentsTagTitle(String label);
+
+  /// No description provided for @commentsTagEpisode.
+  ///
+  /// In en, this message translates to:
+  /// **'episode'**
+  String get commentsTagEpisode;
+
+  /// No description provided for @commentsTagChapter.
+  ///
+  /// In en, this message translates to:
+  /// **'chapter'**
+  String get commentsTagChapter;
+
+  /// No description provided for @commentsTagRange.
+  ///
+  /// In en, this message translates to:
+  /// **'1–{total}'**
+  String commentsTagRange(int total);
+
+  /// No description provided for @commentsTagNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'{label} number'**
+  String commentsTagNumber(String label);
+
+  /// No description provided for @commentsTagTooHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'Tag cannot exceed the total ({total})'**
+  String commentsTagTooHigh(int total);
+
+  /// No description provided for @commentsNoTag.
+  ///
+  /// In en, this message translates to:
+  /// **'No tag'**
+  String get commentsNoTag;
+
+  /// No description provided for @commentsSpoiler.
+  ///
+  /// In en, this message translates to:
+  /// **'Spoiler'**
+  String get commentsSpoiler;
+
+  /// No description provided for @commentsGif.
+  ///
+  /// In en, this message translates to:
+  /// **'GIF'**
+  String get commentsGif;
+
+  /// No description provided for @commentsGifSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search GIFs'**
+  String get commentsGifSearch;
+
+  /// No description provided for @commentsGifEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No GIFs found'**
+  String get commentsGifEmpty;
+
+  /// No description provided for @commentsEmptyText.
+  ///
+  /// In en, this message translates to:
+  /// **'Comment cannot be empty'**
+  String get commentsEmptyText;
+
+  /// No description provided for @commentsTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Comment cannot be longer than {max} characters'**
+  String commentsTooLong(int max);
+
+  /// No description provided for @commentsBannedYou.
+  ///
+  /// In en, this message translates to:
+  /// **'You are banned from commenting'**
+  String get commentsBannedYou;
+
+  /// No description provided for @commentsEdited.
+  ///
+  /// In en, this message translates to:
+  /// **'Comment edited'**
+  String get commentsEdited;
+
+  /// No description provided for @commentsDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Comment deleted'**
+  String get commentsDeleted;
+
+  /// No description provided for @commentsDeletedPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'[deleted]'**
+  String get commentsDeletedPlaceholder;
+
+  /// No description provided for @commentsReported.
+  ///
+  /// In en, this message translates to:
+  /// **'Comment reported'**
+  String get commentsReported;
+
+  /// No description provided for @commentsUserBanned.
+  ///
+  /// In en, this message translates to:
+  /// **'User banned'**
+  String get commentsUserBanned;
+
+  /// No description provided for @commentsEditedMark.
+  ///
+  /// In en, this message translates to:
+  /// **'edited'**
+  String get commentsEditedMark;
+
+  /// No description provided for @commentsReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Report comment'**
+  String get commentsReport;
+
+  /// No description provided for @commentsReportAsk.
+  ///
+  /// In en, this message translates to:
+  /// **'Report this comment to the moderators?'**
+  String get commentsReportAsk;
+
+  /// No description provided for @commentsDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete comment'**
+  String get commentsDelete;
+
+  /// No description provided for @commentsDeleteAsk.
+  ///
+  /// In en, this message translates to:
+  /// **'This comment will be removed for everyone.'**
+  String get commentsDeleteAsk;
+
+  /// No description provided for @commentsBan.
+  ///
+  /// In en, this message translates to:
+  /// **'Ban user'**
+  String get commentsBan;
+
+  /// No description provided for @commentsBanAsk.
+  ///
+  /// In en, this message translates to:
+  /// **'Ban this user from commenting?'**
+  String get commentsBanAsk;
+
+  /// No description provided for @commentsCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy text'**
+  String get commentsCopy;
+
+  /// No description provided for @commentsViewReply.
+  ///
+  /// In en, this message translates to:
+  /// **'View 1 reply'**
+  String get commentsViewReply;
+
+  /// No description provided for @commentsViewReplies.
+  ///
+  /// In en, this message translates to:
+  /// **'View {count} replies'**
+  String commentsViewReplies(int count);
+
+  /// No description provided for @commentsHideReplies.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide replies'**
+  String get commentsHideReplies;
+
+  /// No description provided for @commentsCollapse.
+  ///
+  /// In en, this message translates to:
+  /// **'Collapse thread'**
+  String get commentsCollapse;
+
+  /// No description provided for @commentsExpand.
+  ///
+  /// In en, this message translates to:
+  /// **'Expand thread'**
+  String get commentsExpand;
+
+  /// No description provided for @commentsLoadMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Load more comments'**
+  String get commentsLoadMore;
+
+  /// No description provided for @commentsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No comments yet. Be the first!'**
+  String get commentsEmpty;
+
+  /// No description provided for @commentsEmptyFiltered.
+  ///
+  /// In en, this message translates to:
+  /// **'No comments for this filter'**
+  String get commentsEmptyFiltered;
+
+  /// No description provided for @commentsSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to AniList to read and write comments'**
+  String get commentsSignIn;
+
+  /// No description provided for @commentsSignInMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments are shared between every service and use your AniList account.'**
+  String get commentsSignInMessage;
+
+  /// No description provided for @commentsUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments aren\'t available for this title'**
+  String get commentsUnavailable;
+
+  /// No description provided for @commentsUnavailableMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'It couldn\'t be matched to an AniList entry.'**
+  String get commentsUnavailableMessage;
+
+  /// No description provided for @commentsDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments are turned off'**
+  String get commentsDisabled;
+
+  /// No description provided for @commentsDisabledMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You can turn them back on in Settings › General.'**
+  String get commentsDisabledMessage;
+
+  /// No description provided for @commentsOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load comments'**
+  String get commentsOffline;
+
+  /// No description provided for @commentsSingleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing one comment'**
+  String get commentsSingleTitle;
+
+  /// No description provided for @commentsShowAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Show all comments'**
+  String get commentsShowAll;
+
+  /// No description provided for @commentsSettingsHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments'**
+  String get commentsSettingsHeader;
+
+  /// No description provided for @commentsSettingEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments'**
+  String get commentsSettingEnabled;
+
+  /// No description provided for @commentsSettingEnabledDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Show the Comments tab on titles and sign in to the comment server with your AniList account'**
+  String get commentsSettingEnabledDesc;
+
+  /// No description provided for @commentsSettingAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'Reply notifications'**
+  String get commentsSettingAlerts;
+
+  /// No description provided for @commentsSettingAlertsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Notify me when someone replies to my comments'**
+  String get commentsSettingAlertsDesc;
+
+  /// No description provided for @commentsSettingRules.
+  ///
+  /// In en, this message translates to:
+  /// **'Commenting rules'**
+  String get commentsSettingRules;
+
+  /// No description provided for @commentsNoticeReplyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New comment reply'**
+  String get commentsNoticeReplyTitle;
+
+  /// No description provided for @commentsNoticeReply.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} replied to your comment'**
+  String commentsNoticeReply(String name);
+
+  /// No description provided for @commentsNoticeWarningTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You received a warning'**
+  String get commentsNoticeWarningTitle;
+
+  /// No description provided for @commentsNoticeWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Be more thoughtful with your comments'**
+  String get commentsNoticeWarning;
+
+  /// No description provided for @commentsNoticeUpdateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Update from Dantotsu'**
+  String get commentsNoticeUpdateTitle;
+
+  /// No description provided for @commentsLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Level {level}'**
+  String commentsLevel(int level);
+
+  /// No description provided for @imageSearchTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by image'**
+  String get imageSearchTitle;
+
+  /// No description provided for @imageSearchTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Find an anime from a screenshot'**
+  String get imageSearchTooltip;
+
+  /// No description provided for @imageSearchIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a screenshot or paste an image link and trace.moe will find the episode and the moment it comes from.'**
+  String get imageSearchIntro;
+
+  /// No description provided for @imageSearchPick.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose image'**
+  String get imageSearchPick;
+
+  /// No description provided for @imageSearchLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Image link'**
+  String get imageSearchLink;
+
+  /// No description provided for @imageSearchLinkHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste an image link'**
+  String get imageSearchLinkHint;
+
+  /// No description provided for @imageSearchGo.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get imageSearchGo;
+
+  /// No description provided for @imageSearchSearching.
+  ///
+  /// In en, this message translates to:
+  /// **'Looking for a match…'**
+  String get imageSearchSearching;
+
+  /// No description provided for @imageSearchEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No match found'**
+  String get imageSearchEmpty;
+
+  /// No description provided for @imageSearchLowMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Low similarity, this might be the wrong anime'**
+  String get imageSearchLowMatch;
+
+  /// No description provided for @imageSearchAdult.
+  ///
+  /// In en, this message translates to:
+  /// **'18+'**
+  String get imageSearchAdult;
+
+  /// No description provided for @imageSearchEpisode.
+  ///
+  /// In en, this message translates to:
+  /// **'Episode {number}'**
+  String imageSearchEpisode(String number);
+
+  /// No description provided for @imageSearchAt.
+  ///
+  /// In en, this message translates to:
+  /// **'at {time}'**
+  String imageSearchAt(String time);
+
+  /// No description provided for @imageSearchPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview clip'**
+  String get imageSearchPreview;
+
+  /// No description provided for @imageSearchSimilarity.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% match'**
+  String imageSearchSimilarity(int percent);
+
+  /// No description provided for @imageSearchCredit.
+  ///
+  /// In en, this message translates to:
+  /// **'Powered by trace.moe'**
+  String get imageSearchCredit;
+
+  /// No description provided for @imageSearchOpenFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t open this title'**
+  String get imageSearchOpenFailed;
+
+  /// No description provided for @groups.
+  ///
+  /// In en, this message translates to:
+  /// **'Groups'**
+  String get groups;
+
+  /// No description provided for @groupsYours.
+  ///
+  /// In en, this message translates to:
+  /// **'Your groups'**
+  String get groupsYours;
+
+  /// No description provided for @groupsPopular.
+  ///
+  /// In en, this message translates to:
+  /// **'Popular'**
+  String get groupsPopular;
+
+  /// No description provided for @groupsNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get groupsNew;
+
+  /// No description provided for @groupsFeatured.
+  ///
+  /// In en, this message translates to:
+  /// **'Featured'**
+  String get groupsFeatured;
+
+  /// No description provided for @groupsSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search groups'**
+  String get groupsSearch;
+
+  /// No description provided for @groupsAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get groupsAll;
+
+  /// No description provided for @groupsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No groups found'**
+  String get groupsEmpty;
+
+  /// No description provided for @groupsEmptyYours.
+  ///
+  /// In en, this message translates to:
+  /// **'You haven\'t joined any groups yet'**
+  String get groupsEmptyYours;
+
+  /// No description provided for @groupsSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to see the groups you joined'**
+  String get groupsSignIn;
+
+  /// No description provided for @groupsMembersCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 member} other{{count} members}}'**
+  String groupsMembersCount(int count);
+
+  /// No description provided for @groupsJoin.
+  ///
+  /// In en, this message translates to:
+  /// **'Join'**
+  String get groupsJoin;
+
+  /// No description provided for @groupsJoined.
+  ///
+  /// In en, this message translates to:
+  /// **'Joined'**
+  String get groupsJoined;
+
+  /// No description provided for @groupsLeave.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave group'**
+  String get groupsLeave;
+
+  /// No description provided for @groupsLeaveAsk.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ll stop seeing this group\'s posts in your feed.'**
+  String get groupsLeaveAsk;
+
+  /// No description provided for @groupsJoinFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t join this group, it may be invite only'**
+  String get groupsJoinFailed;
+
+  /// No description provided for @groupsLeaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t leave this group'**
+  String get groupsLeaveFailed;
+
+  /// No description provided for @groupsPosts.
+  ///
+  /// In en, this message translates to:
+  /// **'Posts'**
+  String get groupsPosts;
+
+  /// No description provided for @groupsMembersTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Members'**
+  String get groupsMembersTab;
+
+  /// No description provided for @groupsAbout.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get groupsAbout;
+
+  /// No description provided for @groupsRules.
+  ///
+  /// In en, this message translates to:
+  /// **'Rules'**
+  String get groupsRules;
+
+  /// No description provided for @groupsPrivacyOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get groupsPrivacyOpen;
+
+  /// No description provided for @groupsPrivacyRestricted.
+  ///
+  /// In en, this message translates to:
+  /// **'Restricted'**
+  String get groupsPrivacyRestricted;
+
+  /// No description provided for @groupsPrivacyClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get groupsPrivacyClosed;
+
+  /// No description provided for @groupsAdult.
+  ///
+  /// In en, this message translates to:
+  /// **'18+'**
+  String get groupsAdult;
+
+  /// No description provided for @groupsRoleAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin'**
+  String get groupsRoleAdmin;
+
+  /// No description provided for @groupsRoleMod.
+  ///
+  /// In en, this message translates to:
+  /// **'Mod'**
+  String get groupsRoleMod;
+
+  /// No description provided for @groupsNoPosts.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing posted here yet'**
+  String get groupsNoPosts;
+
+  /// No description provided for @groupsJoinToPost.
+  ///
+  /// In en, this message translates to:
+  /// **'Join the group to post'**
+  String get groupsJoinToPost;
+
+  /// No description provided for @groupsCouldntLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load this group'**
+  String get groupsCouldntLoad;
+
+  /// No description provided for @groupsNewPost.
+  ///
+  /// In en, this message translates to:
+  /// **'Post to group'**
+  String get groupsNewPost;
+
+  /// No description provided for @groupsPostHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Share something with the group'**
+  String get groupsPostHint;
+
+  /// No description provided for @groupsOpenInBrowser.
+  ///
+  /// In en, this message translates to:
+  /// **'Open in browser'**
+  String get groupsOpenInBrowser;
+
+  /// No description provided for @groupsCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get groupsCategory;
+
+  /// No description provided for @groupsLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get groupsLanguage;
+
+  /// No description provided for @groupsCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Created'**
+  String get groupsCreated;
+
+  /// No description provided for @groupsLeaders.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 leader} other{{count} leaders}}'**
+  String groupsLeaders(int count);
+
+  /// No description provided for @groupsPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy'**
+  String get groupsPrivacy;
+
+  /// No description provided for @notificationsAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get notificationsAll;
+
+  /// No description provided for @notificationsAiring.
+  ///
+  /// In en, this message translates to:
+  /// **'Airing'**
+  String get notificationsAiring;
+
+  /// No description provided for @notificationsMedia.
+  ///
+  /// In en, this message translates to:
+  /// **'New titles'**
+  String get notificationsMedia;
+
+  /// No description provided for @notificationsReplies.
+  ///
+  /// In en, this message translates to:
+  /// **'Replies'**
+  String get notificationsReplies;
+
+  /// No description provided for @notificationsMentions.
+  ///
+  /// In en, this message translates to:
+  /// **'Mentions'**
+  String get notificationsMentions;
+
+  /// No description provided for @notificationsMessages.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages'**
+  String get notificationsMessages;
+
+  /// No description provided for @notificationsLikes.
+  ///
+  /// In en, this message translates to:
+  /// **'Likes'**
+  String get notificationsLikes;
+
+  /// No description provided for @notificationsFollows.
+  ///
+  /// In en, this message translates to:
+  /// **'Follows'**
+  String get notificationsFollows;
+
+  /// No description provided for @notificationsNoServices.
+  ///
+  /// In en, this message translates to:
+  /// **'No signed-in service has notifications'**
+  String get notificationsNoServices;
+
+  /// No description provided for @notificationsNoServicesMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to a service that sends notifications and they will show up here.'**
+  String get notificationsNoServicesMessage;
+
+  /// No description provided for @notificationsEmptyKind.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing in this category yet'**
+  String get notificationsEmptyKind;
+
+  /// No description provided for @notificationsCommentsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No comment notifications'**
+  String get notificationsCommentsEmpty;
+
+  /// No description provided for @notificationsCommentsEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Replies to your comments and announcements from Dantotsu show up here.'**
+  String get notificationsCommentsEmptyMessage;
+
+  /// No description provided for @notificationsLoadMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Load more'**
+  String get notificationsLoadMore;
+
+  /// No description provided for @notificationsSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Notification settings'**
+  String get notificationsSettings;
+
+  /// No description provided for @notificationsPollTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Check for new notifications'**
+  String get notificationsPollTitle;
+
+  /// No description provided for @notificationsPollDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Every {minutes} minutes while the app is open'**
+  String notificationsPollDesc(int minutes);
+
+  /// No description provided for @notificationsNotifyAbout.
+  ///
+  /// In en, this message translates to:
+  /// **'Notify me about'**
+  String get notificationsNotifyAbout;
+
+  /// No description provided for @notificationsCommentsHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Comment notifications'**
+  String get notificationsCommentsHeader;
+
+  /// No description provided for @systemNotificationsDescFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Show a system notification for each unread {service} notification while the app is running.'**
+  String systemNotificationsDescFor(String service);
+
+  /// No description provided for @notificationsTestSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Test notification sent'**
+  String get notificationsTestSent;
+
+  /// No description provided for @notificationsTestDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications are not allowed for Dartotsu. Turn them on in system settings.'**
+  String get notificationsTestDenied;
+
+  /// No description provided for @notificationsTestHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Long press to send a test notification'**
+  String get notificationsTestHint;
+
+  /// No description provided for @notificationsTestSample.
+  ///
+  /// In en, this message translates to:
+  /// **'This is a test notification'**
+  String get notificationsTestSample;
+
+  /// No description provided for @commentsNoticeReplyIn.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} replied to your comment in {media}'**
+  String commentsNoticeReplyIn(String name, String media);
+
+  /// No description provided for @imageSearchNotLink.
+  ///
+  /// In en, this message translates to:
+  /// **'That doesn\'t look like a link'**
+  String get imageSearchNotLink;
+
+  /// No description provided for @imageSearchQuota.
+  ///
+  /// In en, this message translates to:
+  /// **'Search quota exceeded'**
+  String get imageSearchQuota;
+
+  /// No description provided for @imageSearchBusy.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many requests, try again in a moment'**
+  String get imageSearchBusy;
+
+  /// No description provided for @imageSearchFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Search failed ({code})'**
+  String imageSearchFailed(int code);
+
+  /// No description provided for @notificationsNewCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} new notifications'**
+  String notificationsNewCount(int count);
 }
 
 class _AppLocalizationsDelegate

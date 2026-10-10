@@ -6,6 +6,7 @@ import '../../../Model/SearchResults.dart';
 import '../../../Model/Setting.dart';
 import '../../../Widgets/Components/ListEditorFields.dart';
 import '../../../Screen/Detail/DetailWidgets.dart';
+import '../../Preferences/Pref.dart';
 import '../Model/Media.dart';
 import '../MediaService.dart';
 import '../../ThemeManager/LanguageSwitcher.dart';
@@ -255,6 +256,18 @@ abstract class CalendarScreenView {
 }
 
 abstract class NotificationScreenView {
+  List<NotificationKind> get kinds => const [];
+
+  List<Setting> settings(BuildContext context) => const [];
+
+  Pref<bool>? get alertsPref => null;
+
+  Pref<int>? get pollPref => null;
+
+  Pref<String>? get mutedPref => null;
+
+  Future<List<ServiceNotification>> unread() async => const [];
+
   Future<List<ServiceNotification>> notifications({int page = 1});
 }
 
@@ -373,6 +386,34 @@ class SocialScreenView {
   Future<List<StoryGroup>> stories() async => const [];
 
   Future<Map<String, Media>> mediaByIds(List<String> ids) async => const {};
+
+  bool get hasGroups => false;
+
+  List<GroupScope> get groupScopes => GroupScope.values;
+
+  bool get hasGroupMembers => true;
+
+  Future<GroupPage> groups(
+    GroupScope scope, {
+    String? query,
+    String? categoryId,
+    int page = 1,
+  }) async => const GroupPage([]);
+
+  Future<List<GroupCategory>> groupCategories() async => const [];
+
+  Future<SocialGroup?> group(String idOrSlug) async => null;
+
+  Future<UserPage> groupMembers(String groupId, {int page = 1}) async =>
+      const UserPage([]);
+
+  Future<ActivityPage> groupPosts(String groupId, {int page = 1}) async =>
+      const ActivityPage([]);
+
+  Future<bool?> toggleGroup(SocialGroup group) async => null;
+
+  Future<bool> postToGroup(String groupId, String text, {String? edit}) async =>
+      false;
 
   String? profileUrl(String name) => null;
 

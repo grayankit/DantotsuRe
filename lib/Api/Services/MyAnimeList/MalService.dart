@@ -8,6 +8,7 @@ import 'Screens/Search.dart';
 import 'Screens/Detail.dart';
 import 'Screens/Calendar.dart';
 import 'Screens/Settings.dart';
+import 'Screens/Social.dart';
 import '../../../Core/Sync/SyncAdapter.dart';
 import 'Sync.dart';
 
@@ -60,6 +61,9 @@ class MalService extends MediaService {
 
   @override
   SettingsScreenView get settingsView => MalSettingsView();
+
+  @override
+  SocialScreenView get socialView => MalSocialView(this);
 
   @override
   Set<String> get linkHosts => const {'myanimelist.net', 'www.myanimelist.net'};

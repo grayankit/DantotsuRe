@@ -1,6 +1,5 @@
 import '../../../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../../../Utils/Functions/LinkSettings.dart';
-import '../../../../Core/Preferences/PrefManager.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../Core/Services/MediaService.dart';
@@ -43,13 +42,6 @@ class AnilistSettingsView extends SettingsScreenView {
         ],
       ),
       Setting.header(getString.sectionSocial),
-      Setting.switchType(
-        name: getString.systemNotifications,
-        description: getString.systemNotificationsDesc,
-        icon: Icons.notifications_active_rounded,
-        isChecked: PrefName.activityAlerts.rx.value,
-        onSwitchChange: (v) => PrefName.activityAlerts.rx.value = v,
-      ),
       Setting.normal(
         name: getString.linkOpenAnilist,
         description: getString.linkOpenAnilistDesc,

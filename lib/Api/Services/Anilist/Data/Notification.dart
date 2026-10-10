@@ -26,6 +26,9 @@ ServiceNotification? parseAnilistNotification(Map<String, dynamic> json) {
         imageUrl: cover(media),
         createdAt: createdAt,
         mediaId: (media?['id'] as num?)?.toInt().toString(),
+        kind: NotificationKind.airing,
+        title: title(media),
+        detail: 'Episode $episode aired',
       );
     case 'RelatedMediaAdditionNotification':
       return ServiceNotification(
@@ -34,6 +37,9 @@ ServiceNotification? parseAnilistNotification(Map<String, dynamic> json) {
         imageUrl: cover(media),
         createdAt: createdAt,
         mediaId: (media?['id'] as num?)?.toInt().toString(),
+        kind: NotificationKind.media,
+        title: title(media),
+        detail: 'Was added to AniList',
       );
     case 'FollowingNotification':
     case 'ActivityMessageNotification':
@@ -53,6 +59,16 @@ ServiceNotification? parseAnilistNotification(Map<String, dynamic> json) {
             (json['userId'] as num?)?.toInt().toString() ??
             (user?['id'] as num?)?.toInt().toString(),
         activityId: (json['activityId'] as num?)?.toInt().toString(),
+        title: name,
+        detail: context.isEmpty ? null : context,
+        kind: switch (type) {
+          'FollowingNotification' => NotificationKind.follow,
+          'ActivityMessageNotification' => NotificationKind.message,
+          'ActivityMentionNotification' => NotificationKind.mention,
+          'ActivityLikeNotification' ||
+          'ActivityReplyLikeNotification' => NotificationKind.like,
+          _ => NotificationKind.reply,
+        },
       );
     default:
       return null;

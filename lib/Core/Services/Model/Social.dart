@@ -3,7 +3,16 @@ import 'Character.dart';
 import 'Media.dart';
 import 'Studio.dart';
 
-enum AppLinkKind { anime, manga, user, character, staff, studio, activity }
+enum AppLinkKind {
+  anime,
+  manga,
+  user,
+  character,
+  staff,
+  studio,
+  activity,
+  group,
+}
 
 class AppLink {
   final AppLinkKind kind;
@@ -277,4 +286,66 @@ class UserStats {
   final UserStatSet manga;
 
   const UserStats({required this.anime, required this.manga});
+}
+
+enum GroupScope { joined, popular, newest, featured }
+
+class GroupCategory {
+  final String id;
+  final String name;
+
+  const GroupCategory(this.id, this.name);
+}
+
+class SocialGroup {
+  final String id;
+  final String name;
+  final String? slug;
+  final String? tagline;
+  final String? about;
+  final String? rules;
+  final String? avatar;
+  final String? cover;
+  final String? category;
+  final String? locale;
+  final String privacy;
+  final int members;
+  final int leaders;
+  final int createdAt;
+  final bool nsfw;
+  final String? siteUrl;
+  bool isMember;
+  String? rank;
+
+  SocialGroup({
+    required this.id,
+    required this.name,
+    this.slug,
+    this.tagline,
+    this.about,
+    this.rules,
+    this.avatar,
+    this.cover,
+    this.category,
+    this.locale,
+    this.privacy = 'open',
+    this.members = 0,
+    this.leaders = 0,
+    this.createdAt = 0,
+    this.nsfw = false,
+    this.siteUrl,
+    this.isMember = false,
+    this.rank,
+  });
+
+  bool get isOpen => privacy == 'open';
+
+  bool get isLeader => rank == 'admin' || rank == 'mod';
+}
+
+class GroupPage {
+  final List<SocialGroup> items;
+  final bool hasNext;
+
+  const GroupPage(this.items, {this.hasNext = false});
 }

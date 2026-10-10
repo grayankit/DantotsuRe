@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../Core/Services/MediaServiceController.dart';
 import '../../Core/Services/Model/Media.dart';
+import '../../Core/Services/Model/User.dart';
 import '../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../Utils/Extensions/Responsive.dart';
 import '../../Utils/Functions/NavigateToScreen.dart';
@@ -50,7 +52,32 @@ class _ReviewsScreenState extends BaseScreen<ReviewsScreen>
         final loading = state.loadingMore.value;
         if (state.items.isEmpty) {
           return loading
-              ? const Center(child: CircularProgressIndicator())
+              ? Skeletonizer(
+                  child: ListView(
+                    physics: const NeverScrollableScrollPhysics(),
+                    padding: EdgeInsets.all(Dimens.gap),
+                    children: [
+                      for (var i = 0; i < 4; i++)
+                        Padding(
+                          padding: EdgeInsets.only(bottom: Dimens.gapSm),
+                          child: ReviewCard(
+                            review: Review(
+                              id: 0,
+                              mediaId: 0,
+                              mediaType: 'ANIME',
+                              summary: 'Loading review summary',
+                              body:
+                                  'Loading the review text so the placeholder has some body to show.',
+                              score: 80,
+                              rating: 10,
+                              ratingAmount: 12,
+                              user: User(id: 0, name: 'Loading user'),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                )
               : EmptyState(
                   icon: Icons.rate_review_outlined,
                   title: state.failed.value

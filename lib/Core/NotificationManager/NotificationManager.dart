@@ -3,6 +3,11 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:path/path.dart' as p;
+
+import '../../Logger.dart';
+import '../NetworkManager/NetworkManager.dart';
+import '../Preferences/StorageManager.dart';
 import '../State/State.dart';
 
 class NotificationManager extends AppController {
@@ -38,7 +43,14 @@ class NotificationManager extends AppController {
           defaultIcon: AssetsLinuxIcon('assets/images/logo.png'),
         ),
       ),
-      onDidReceiveNotificationResponse: (r) => tapped.value = r.payload,
+      onDidReceiveNotificationResponse: (r) {
+        logger(
+          'Response ${r.notificationResponseType.name} id ${r.id} action ${r.actionId} payload ${r.payload}',
+          tag: 'NOTIFICATION',
+        );
+        tapped.value = r.payload;
+        tapped.value = null;
+      },
     );
     permissionGranted.value = await requestPermission();
     _ready = true;
@@ -73,22 +85,70 @@ class NotificationManager extends AppController {
     return true;
   }
 
+  Future<String?> _fetch(String? url) async {
+    if (url == null || url.isEmpty || kIsWeb) return null;
+    try {
+      final dir = await StorageManager.getTmpDirectory();
+      final name = url.hashCode.toUnsigned(32).toRadixString(16);
+      final file = File(p.join(dir!.path, 'notification_$name.jpg'));
+      if (!await file.exists() || await file.length() == 0) {
+        await find<NetworkManager>().download(url, file.path);
+      }
+      return await file.exists() && await file.length() > 0 ? file.path : null;
+    } catch (e) {
+      logger(
+        'Image download failed ($url): $e',
+        logLevel: LogLevel.error,
+        tag: 'NOTIFICATION',
+      );
+      return null;
+    }
+  }
+
   Future<void> show({
     required String title,
     required String body,
+    String? subtitle,
+    String? imageUrl,
     int? id,
     String? payload,
   }) async {
     if (!_ready) await initialize();
+    final image = await _fetch(imageUrl);
+    logger(
+      'Show "$title" · $body${subtitle == null ? '' : ' [$subtitle]'}'
+      '${image == null ? '' : ' +image'}',
+      tag: 'NOTIFICATION',
+    );
+    final android = AndroidNotificationDetails(
+      _channel.channelId,
+      _channel.channelName,
+      channelDescription: _channel.channelDescription,
+      importance: Importance.high,
+      priority: Priority.high,
+      subText: subtitle,
+      largeIcon: image == null ? null : FilePathAndroidBitmap(image),
+      styleInformation: BigTextStyleInformation(
+        body,
+        contentTitle: title,
+        summaryText: subtitle,
+      ),
+    );
+    final darwin = DarwinNotificationDetails(
+      subtitle: subtitle,
+      attachments: image == null ? null : [DarwinNotificationAttachment(image)],
+    );
     await _plugin.show(
       id: id ?? ++_nextId,
       title: title,
       body: body,
-      notificationDetails: const NotificationDetails(
-        android: _channel,
-        iOS: DarwinNotificationDetails(),
-        macOS: DarwinNotificationDetails(),
-        linux: LinuxNotificationDetails(),
+      notificationDetails: NotificationDetails(
+        android: android,
+        iOS: darwin,
+        macOS: darwin,
+        linux: LinuxNotificationDetails(
+          icon: image == null ? null : FilePathLinuxIcon(image),
+        ),
       ),
       payload: payload,
     );

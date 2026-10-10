@@ -3,36 +3,46 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../Api/Discord/DiscordPresence.dart';
+import '../../Core/Comments/CommentAlerts.dart';
+import '../../Core/Services/ActivityAlerts.dart';
+import '../../Logger.dart';
+import '../../Utils/Functions/SnackBar.dart';
+import '../../Core/Comments/CommentModels.dart';
+import '../../Core/Comments/CommentsApi.dart';
 import '../../Core/Services/MediaServiceController.dart';
-import '../../Core/Services/Model/Media.dart';
 import '../../Core/State/State.dart';
 import '../../Core/ThemeManager/LanguageSwitcher.dart';
-import '../../Utils/Functions/NavigateToScreen.dart';
+import '../../Utils/Nav/DpadNav.dart';
 import '../../Widgets/Components/ScreenState.dart';
-import '../Detail/DetailScreen.dart';
-import '../Social/SocialNavigation.dart';
+import 'NotificationOpen.dart';
 
-class NotificationsState extends ScreenState {
+class NotificationFeed {
+  final MediaService service;
   final NotificationScreenView view;
 
-  NotificationsState(this.view);
+  NotificationFeed(this.service, this.view);
 
   final items = <ServiceNotification>[].liveList;
   final loading = true.live;
   final loadingMore = false.live;
+  final kind = Live<NotificationKind?>(null);
+  var started = false;
   var _page = 1;
   var _hasMore = true;
 
-  MediaService get service =>
-      find<MediaServiceController>().currentService.value;
+  bool get hasMore => _hasMore;
 
-  DiscordPresence get presence =>
-      DiscordPresence.browsing('Checking notifications');
-
-  @override
-  void onInit() => unawaited(load());
+  List<ServiceNotification> get visible {
+    final picked = kind.value;
+    if (picked == null) return items.toList();
+    return [
+      for (final n in items)
+        if (n.kind == picked) n,
+    ];
+  }
 
   Future<void> load() async {
+    started = true;
     loading.value = true;
     _page = 1;
     _hasMore = true;
@@ -40,7 +50,12 @@ class NotificationsState extends ScreenState {
       items.value = await view.notifications();
       final auth = service.auth;
       if (auth != null) unawaited(auth.refreshUser());
-    } catch (_) {
+    } catch (e) {
+      logger(
+        '${service.name} list failed: $e',
+        logLevel: LogLevel.error,
+        tag: 'NOTIFICATION',
+      );
     } finally {
       loading.value = false;
     }
@@ -66,43 +81,152 @@ class NotificationsState extends ScreenState {
     }
   }
 
+  void pick(NotificationKind? next) {
+    kind.value = next;
+    if (next != null && visible.isEmpty && _hasMore) unawaited(more());
+  }
+}
+
+enum CommentNoticePhase { loading, ready, signedOut, disabled, failed }
+
+class NotificationsState extends ScreenState {
+  final MediaService initial;
+
+  NotificationsState(this.initial);
+
+  final section = 0.live;
+  final serviceIndex = 0.live;
+  final navLane = GlobalKey<DpadRegionState>();
+
+  late final List<NotificationFeed> feeds = [
+    for (final s in find<MediaServiceController>().services)
+      if (s.notificationView != null && s.isLoggedIn)
+        NotificationFeed(s, s.notificationView!),
+  ];
+
+  late final TabController tabs = TabController(
+    length: feeds.isEmpty ? 1 : feeds.length,
+    vsync: vsync,
+    initialIndex: _initialIndex,
+  );
+
+  int get _initialIndex {
+    final i = feeds.indexWhere((f) => f.service.id == initial.id);
+    return i < 0 ? 0 : i;
+  }
+
+  NotificationFeed? get feed =>
+      feeds.isEmpty ? null : feeds[serviceIndex.value];
+
+  final notices = <CommentNotice>[].liveList;
+  final noticePhase = CommentNoticePhase.loading.live;
+  final noticeFailure = Live<String?>(null);
+  var _noticesLoaded = false;
+
+  DiscordPresence get presence =>
+      DiscordPresence.browsing('Checking notifications');
+
+  @override
+  void onInit() {
+    serviceIndex.value = tabs.index;
+    tabs.addListener(_tabChanged);
+    final current = feed;
+    if (current != null) unawaited(current.load());
+  }
+
+  @override
+  void onClose() {
+    tabs.removeListener(_tabChanged);
+    tabs.dispose();
+  }
+
+  void _tabChanged() {
+    if (tabs.indexIsChanging || serviceIndex.value == tabs.index) return;
+    serviceIndex.value = tabs.index;
+    final current = feed;
+    if (current != null && !current.started) unawaited(current.load());
+  }
+
+  void selectSection(int index) {
+    section.value = index;
+    if (index == 1 && !_noticesLoaded) unawaited(loadNotices());
+  }
+
+  Future<void> refresh() async {
+    if (section.value == 1) return loadNotices();
+    await feed?.load();
+  }
+
+  Future<void> loadNotices() async {
+    _noticesLoaded = true;
+    final api = find<CommentsApi>();
+    if (!api.enabled) {
+      noticePhase.value = CommentNoticePhase.disabled;
+      return;
+    }
+    if (!api.hasToken) {
+      noticePhase.value = CommentNoticePhase.signedOut;
+      return;
+    }
+    noticePhase.value = CommentNoticePhase.loading;
+    try {
+      if (await api.ensureSession() == null) {
+        noticePhase.value = CommentNoticePhase.signedOut;
+        return;
+      }
+      notices.value = await find<CommentAlerts>().sync(notify: false);
+      noticePhase.value = CommentNoticePhase.ready;
+    } catch (e) {
+      noticeFailure.value = '$e';
+      noticePhase.value = CommentNoticePhase.failed;
+    }
+  }
+
+  void openNotice(CommentNotice n) {
+    if (!n.isReply && !n.isWarning) return;
+    unawaited(find<CommentAlerts>().open('${n.mediaId}', n.commentId));
+  }
+
+  Future<void> sendTest() async {
+    final from = feed;
+    final service = from?.service ?? initial;
+    final pool = from?.items.toList() ?? const <ServiceNotification>[];
+    final sample = pool.firstWhere(
+      (n) => n.imageUrl != null,
+      orElse: () => pool.isEmpty ? _none : pool.first,
+    );
+    final sent = await find<ActivityAlerts>().sendTest(
+      service,
+      identical(sample, _none) ? null : sample,
+    );
+    snackString(
+      sent
+          ? getString.notificationsTestSent
+          : getString.notificationsTestDenied,
+    );
+  }
+
+  static final _none = ServiceNotification(
+    id: '',
+    text: '',
+    createdAt: DateTime.fromMillisecondsSinceEpoch(0),
+  );
+
   bool onScroll(ScrollNotification n) {
     if (n.metrics.axis == Axis.vertical && n.metrics.extentAfter < 500) {
-      unawaited(more());
+      unawaited(feed?.more());
     }
     return false;
   }
 
-  bool canOpen(ServiceNotification n) =>
-      n.mediaId != null || n.activityId != null || n.userId != null;
+  bool canOpen(ServiceNotification n) => canOpenNotification(n);
 
-  void open(ServiceNotification n) {
-    final current = service;
-    if (n.mediaId == null) {
-      if (n.activityId != null) {
-        return openActivityFeed(context, current, activityId: n.activityId);
-      }
-      if (n.userId != null) {
-        return openProfile(context, current, id: n.userId);
-      }
-      return;
-    }
-    navigateToPage(
-      context,
-      DetailScreen(
-        media: Media(
-          id: n.mediaId!,
-          cover: n.imageUrl,
-          shareLink: 'https://anilist.co/anime/${n.mediaId}',
-        ),
-        view: current.detailView,
-        mutations: current.getMutations,
-      ),
-      hero: true,
-    );
-  }
+  void open(NotificationFeed from, ServiceNotification n) =>
+      openNotification(context, from.service, n);
 
-  List<(String, List<ServiceNotification>)> grouped() {
+  List<(String, List<ServiceNotification>)> grouped(
+    List<ServiceNotification> items,
+  ) {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final todayLabel = getString.calendarToday;

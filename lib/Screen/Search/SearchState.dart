@@ -18,6 +18,11 @@ import '../../Widgets/Components/ScreenState.dart';
 import '../Detail/DetailScreen.dart';
 import '../Feed/FeedNavigation.dart';
 import '../Social/SocialNavigation.dart';
+import '../../Core/Sync/SyncIdIndex.dart';
+import '../../Core/Sync/SyncModels.dart';
+import '../../Api/Services/Anilist/AnilistService.dart';
+import '../../Utils/Functions/SnackBar.dart';
+import 'Components/ImageSearchSheet.dart';
 import 'Components/SearchFilterSheet.dart';
 
 enum ResultView { grid, list, banner }
@@ -56,6 +61,42 @@ class SearchState extends ScreenState {
 
   Timer? debounce;
   bool hasMore = true;
+
+  bool get canSearchImage => switch (type.value) {
+    SearchType.ANIME || SearchType.MOVIES || SearchType.SERIES => true,
+    _ => false,
+  };
+
+  Future<void> searchByImage() async {
+    final hit = await showImageSearch(context);
+    if (hit == null || !context.mounted) return;
+    final current = find<MediaServiceController>().currentService.value;
+    final anilist = find<MediaServiceController>().services.firstWhere(
+      (s) => s.id == anilistServiceId,
+    );
+    var service = current;
+    String? id = current.id == anilistServiceId ? '${hit.anilistId}' : null;
+    final adapter = current.syncAdapter;
+    if (id == null && adapter != null) {
+      var ids = {
+        SyncKey.anilist: hit.anilistId,
+        if (hit.malId != null) SyncKey.mal: hit.malId!,
+      };
+      try {
+        ids = (await SyncIdIndex.load()).expand(ids, prefer: SyncKey.anilist);
+      } catch (_) {}
+      final native = ids[adapter.key];
+      if (native != null) id = adapter.targetId(native, anime: true);
+    }
+    if (id == null) {
+      service = anilist;
+      id = '${hit.anilistId}';
+    }
+    final media = await service.getQueries?.getMedia(id);
+    if (!context.mounted) return;
+    if (media == null) return snackString(getString.imageSearchOpenFailed);
+    openDetail(context, service, media);
+  }
 
   bool get isMedia => switch (type.value) {
     SearchType.CHARACTER ||

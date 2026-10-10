@@ -15,6 +15,7 @@ void openDetail(
   MediaService service,
   Media media, {
   String? heroTag,
+  int? commentId,
 }) {
   navigateToPage(
     context,
@@ -23,6 +24,7 @@ void openDetail(
       view: service.detailView,
       mutations: service.getMutations,
       heroTag: heroTag,
+      commentId: commentId,
     ),
     hero: true,
   );
@@ -58,13 +60,7 @@ void openCalendar(BuildContext context, MediaService service) {
 }
 
 void openNotifications(BuildContext context, MediaService service) {
-  final view = service.notificationView;
-  navigateToPage(
-    context,
-    view == null
-        ? NotImplemented(service: service.name, area: 'Notifications')
-        : NotificationsScreen(view: view),
-  );
+  navigateToPage(context, NotificationsScreen(service: service));
 }
 
 void openEntity(

@@ -6,7 +6,7 @@ import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../../Utils/Functions/SnackBar.dart';
 import '../../../Widgets/Components/ScreenState.dart';
 
-enum ComposerKind { activity, message, reply }
+enum ComposerKind { activity, message, reply, group }
 
 class ComposerState extends ScreenState {
   final SocialScreenView view;
@@ -43,6 +43,8 @@ class ComposerState extends ScreenState {
       ComposerKind.message =>
         editing ? getString.editMessage : getString.writeMessage,
       ComposerKind.reply => editing ? getString.editReply : getString.reply,
+      ComposerKind.group =>
+        editing ? getString.editActivity : getString.groupsNewPost,
     };
   }
 
@@ -77,6 +79,7 @@ class ComposerState extends ScreenState {
         isPrivate: private.value,
       ),
       ComposerKind.reply => await view.postReply(activityId!, text, edit: edit),
+      ComposerKind.group => await view.postToGroup(userId!, text, edit: edit),
     };
     if (!mounted) return;
     if (ok) {

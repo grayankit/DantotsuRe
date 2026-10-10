@@ -7,6 +7,7 @@ import 'Screens/Entity.dart';
 import 'Screens/Feed.dart';
 import 'Screens/Home.dart';
 import 'Screens/Search.dart';
+import 'Screens/Notifications.dart';
 import 'Screens/Settings.dart';
 import 'Screens/Social.dart';
 import '../../../Core/Sync/SyncAdapter.dart';
@@ -64,6 +65,9 @@ class KitsuService extends MediaService {
 
   @override
   SettingsScreenView get settingsView => KitsuSettingsView();
+
+  @override
+  NotificationScreenView get notificationView => KitsuNotificationView();
 
   @override
   SocialScreenView get socialView => KitsuSocialView(this);

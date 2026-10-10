@@ -26,6 +26,7 @@ class ActivityList extends StatefulWidget {
   final String? userId;
   final String? activityId;
   final ComposerKind? composer;
+  final String? groupId;
   final bool filterable;
   final PageStorageKey<String>? storageKey;
 
@@ -36,6 +37,7 @@ class ActivityList extends StatefulWidget {
     this.userId,
     this.activityId,
     this.composer,
+    this.groupId,
     this.filterable = false,
     this.storageKey,
   });
@@ -55,6 +57,7 @@ class _ActivityListState extends State<ActivityList>
     userId: widget.userId,
     activityId: widget.activityId,
     composer: widget.composer,
+    groupId: widget.groupId,
   );
 
   @override
@@ -186,6 +189,8 @@ class _ActivityListState extends State<ActivityList>
                 child: Text(
                   message
                       ? getString.writeMessageHint
+                      : widget.groupId != null
+                      ? getString.groupsPostHint
                       : getString.shareSomethingHint,
                   style: context.textTheme.bodyLarge?.copyWith(
                     color: scheme.onSurfaceVariant,

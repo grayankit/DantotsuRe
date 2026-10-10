@@ -31,6 +31,8 @@ abstract class SyncAdapter {
     SyncKey.mal: ?media.malId,
   };
 
+  Future<Map<String, int>> foreignIds(Media media) async => const {};
+
   bool get canResolve => false;
 
   int get resolveBatch => 1;

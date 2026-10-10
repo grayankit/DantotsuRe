@@ -1,3 +1,14 @@
+enum NotificationKind {
+  airing,
+  media,
+  reply,
+  mention,
+  message,
+  like,
+  follow,
+  other,
+}
+
 class ServiceNotification {
   final String id;
   final String text;
@@ -6,6 +17,10 @@ class ServiceNotification {
   final String? mediaId;
   final String? userId;
   final String? activityId;
+  final NotificationKind kind;
+  final bool unread;
+  final String? title;
+  final String? detail;
 
   const ServiceNotification({
     required this.id,
@@ -15,5 +30,9 @@ class ServiceNotification {
     this.mediaId,
     this.userId,
     this.activityId,
+    this.kind = NotificationKind.other,
+    this.unread = false,
+    this.title,
+    this.detail,
   });
 }

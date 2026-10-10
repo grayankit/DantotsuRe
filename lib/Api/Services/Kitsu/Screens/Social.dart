@@ -20,13 +20,19 @@ class KitsuSocialView extends SocialScreenView {
   final Map<String, String> _cursors = {};
 
   @override
+  bool get hasActivity => false;
+
+  @override
   bool get hasGlobalFeed => true;
+
+  @override
+  bool get hasGroups => true;
 
   @override
   String? profileUrl(String name) => 'https://kitsu.app/users/$name';
 
   static final _link = RegExp(
-    r'kitsu\.(?:app|io)/(anime|manga|users|posts)/([^/?#\s]+)',
+    r'kitsu\.(?:app|io)/(anime|manga|users|posts|groups)/([^/?#\s]+)',
   );
 
   @override
@@ -37,6 +43,7 @@ class KitsuSocialView extends SocialScreenView {
       'anime' => AppLinkKind.anime,
       'manga' => AppLinkKind.manga,
       'users' => AppLinkKind.user,
+      'groups' => AppLinkKind.group,
       _ => AppLinkKind.activity,
     };
     return AppLink(kind, m.group(2)!);
@@ -649,6 +656,250 @@ class KitsuSocialView extends SocialScreenView {
   Future<bool> deleteReply(String id) async {
     try {
       await _client.delete('/comments/$id');
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  SocialGroup _group(Map<String, dynamic> node, JsonApi doc) {
+    final a = attrs(node);
+    final category = doc.one(node, 'category');
+    final slug = a['slug'] as String?;
+    return SocialGroup(
+      id: '${node['id']}',
+      name: a['name'] as String? ?? '',
+      slug: slug,
+      tagline: a['tagline'] as String?,
+      about: a['about'] as String?,
+      rules: a['rules'] as String?,
+      avatar: kitsuImage(a['avatar'], const ['large', 'medium', 'original']),
+      cover: kitsuImage(a['coverImage'], const ['large', 'original']),
+      category: category == null ? null : attrs(category)['name'] as String?,
+      locale: a['locale'] as String?,
+      privacy: a['privacy'] as String? ?? 'open',
+      members: (a['membersCount'] as num?)?.toInt() ?? 0,
+      leaders: (a['leadersCount'] as num?)?.toInt() ?? 0,
+      createdAt: kitsuEpoch(a['createdAt']) ?? 0,
+      nsfw: a['nsfw'] == true,
+      siteUrl: 'https://kitsu.app/groups/${slug ?? node['id']}',
+    );
+  }
+
+  Future<Map<String, String>> _ranks(List<String> groupIds) async {
+    final me = currentUserId;
+    if (me == null || groupIds.isEmpty) return {};
+    try {
+      final res = await _client.get(
+        '/group-members',
+        query: {
+          'filter[group]': groupIds.join(','),
+          'filter[user]': me,
+          'include': 'group',
+          'fields[groups]': 'name',
+          'page[limit]': '${groupIds.length}',
+        },
+      );
+      final doc = JsonApi(res);
+      return {
+        for (final m in doc.data)
+          if (doc.one(m, 'group') case final g?)
+            '${g['id']}': attrs(m)['rank'] as String? ?? 'pleb',
+      };
+    } catch (_) {
+      return {};
+    }
+  }
+
+  List<SocialGroup> _visible(Iterable<SocialGroup> groups) => [
+    for (final g in groups)
+      if (!(g.nsfw && KitsuPref.hideNsfw.value)) g,
+  ];
+
+  @override
+  Future<GroupPage> groups(
+    GroupScope scope, {
+    String? query,
+    String? categoryId,
+    int page = 1,
+  }) async {
+    final offset = '${(page - 1) * _pageSize}';
+    if (scope == GroupScope.joined) {
+      final me = currentUserId;
+      if (me == null) return const GroupPage([]);
+      final res = await _client.get(
+        '/group-members',
+        query: {
+          'filter[user]': me,
+          'include': 'group,group.category',
+          'page[limit]': '$_pageSize',
+          'page[offset]': offset,
+        },
+      );
+      final doc = JsonApi(res);
+      final out = <SocialGroup>[];
+      for (final m in doc.data) {
+        final node = doc.one(m, 'group');
+        if (node == null) continue;
+        out.add(
+          _group(node, doc)
+            ..isMember = true
+            ..rank = attrs(m)['rank'] as String?,
+        );
+      }
+      final text = query?.trim().toLowerCase() ?? '';
+      return GroupPage(
+        _visible(
+          text.isEmpty
+              ? out
+              : out.where((g) => g.name.toLowerCase().contains(text)),
+        ),
+        hasNext: doc.next != null,
+      );
+    }
+    final text = query?.trim() ?? '';
+    final res = await _client.get(
+      '/groups',
+      query: {
+        'include': 'category',
+        'sort': scope == GroupScope.newest ? '-createdAt' : '-membersCount',
+        if (scope == GroupScope.featured) 'filter[featured]': 'true',
+        if (text.isNotEmpty) 'filter[query]': text,
+        'filter[category]': ?categoryId,
+        'page[limit]': '$_pageSize',
+        'page[offset]': offset,
+      },
+    );
+    final doc = JsonApi(res);
+    final groups = [for (final n in doc.data) _group(n, doc)];
+    final ranks = await _ranks([for (final g in groups) g.id]);
+    for (final g in groups) {
+      final rank = ranks[g.id];
+      g
+        ..isMember = rank != null
+        ..rank = rank;
+    }
+    return GroupPage(_visible(groups), hasNext: doc.next != null);
+  }
+
+  List<GroupCategory>? _categories;
+
+  @override
+  Future<List<GroupCategory>> groupCategories() async {
+    final cached = _categories;
+    if (cached != null) return cached;
+    final res = await _client.get(
+      '/group-categories',
+      query: {'sort': 'name', 'page[limit]': '20'},
+    );
+    return _categories = [
+      for (final n in JsonApi(res).data)
+        GroupCategory('${n['id']}', attrs(n)['name'] as String? ?? ''),
+    ];
+  }
+
+  @override
+  Future<SocialGroup?> group(String idOrSlug) async {
+    final numeric = int.tryParse(idOrSlug) != null;
+    final res = await _client.get(
+      numeric ? '/groups/$idOrSlug' : '/groups',
+      query: {
+        'include': 'category',
+        if (!numeric) 'filter[slug]': idOrSlug,
+        if (!numeric) 'page[limit]': '1',
+      },
+    );
+    final doc = JsonApi(res);
+    if (doc.data.isEmpty) return null;
+    final group = _group(doc.data.first, doc);
+    final rank = (await _ranks([group.id]))[group.id];
+    return group
+      ..isMember = rank != null
+      ..rank = rank;
+  }
+
+  @override
+  Future<UserPage> groupMembers(String groupId, {int page = 1}) async {
+    final res = await _client.get(
+      '/group-members',
+      query: {
+        'filter[group]': groupId,
+        'include': 'user',
+        'page[limit]': '$_pageSize',
+        'page[offset]': '${(page - 1) * _pageSize}',
+      },
+    );
+    final doc = JsonApi(res);
+    return UserPage([
+      for (final m in doc.data)
+        if (doc.one(m, 'user') case final u?) _brief(u),
+    ], hasNext: doc.next != null);
+  }
+
+  @override
+  Future<ActivityPage> groupPosts(String groupId, {int page = 1}) =>
+      _feed('group/$groupId', 'group$groupId', page);
+
+  Future<String?> _membershipId(String groupId) async {
+    final me = currentUserId;
+    if (me == null) return null;
+    final res = await _client.get(
+      '/group-members',
+      query: {'filter[group]': groupId, 'filter[user]': me, 'page[limit]': '1'},
+    );
+    final data = JsonApi(res).data;
+    return data.isEmpty ? null : '${data.first['id']}';
+  }
+
+  @override
+  Future<bool?> toggleGroup(SocialGroup group) async {
+    final me = currentUserId;
+    if (me == null) return null;
+    try {
+      if (group.isMember) {
+        final id = await _membershipId(group.id);
+        if (id != null) await _client.delete('/group-members/$id');
+        return false;
+      }
+      await _client.post('/group-members', {
+        'data': {
+          'type': 'groupMembers',
+          'relationships': {
+            'group': {
+              'data': {'type': 'groups', 'id': group.id},
+            },
+            'user': {
+              'data': {'type': 'users', 'id': me},
+            },
+          },
+        },
+      });
+      return true;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  @override
+  Future<bool> postToGroup(String groupId, String text, {String? edit}) async {
+    final me = currentUserId;
+    if (me == null) return false;
+    try {
+      if (edit != null) return await postActivity(text, edit: edit);
+      await _client.post('/posts', {
+        'data': {
+          'type': 'posts',
+          'attributes': {'content': text},
+          'relationships': {
+            'user': {
+              'data': {'type': 'users', 'id': me},
+            },
+            'targetGroup': {
+              'data': {'type': 'groups', 'id': groupId},
+            },
+          },
+        },
+      });
       return true;
     } catch (_) {
       return false;

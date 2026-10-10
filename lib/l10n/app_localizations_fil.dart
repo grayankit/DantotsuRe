@@ -3138,4 +3138,560 @@ class AppLocalizationsFil extends AppLocalizations {
   @override
   String get syncSkippedHint =>
       'Skipped items are left alone, even after fetching again';
+
+  @override
+  String get commentsRules => 'Commenting rules';
+
+  @override
+  String get commentsRulesBody =>
+      'BREAK ANY RULE = YOU\'RE GONE\n\n1. No racism, discrimination or hate speech\n2. No spamming or self-promotion\n3. Absolutely no NSFW content\n4. English only, no exceptions\n5. No impersonation, harassment or abuse\n6. No illegal content or extreme disrespect towards any fandom\n7. Do not request or share repositories or extensions\n8. Spoilers only with spoiler tags and a warning\n9. No sexualising or inappropriate comments about minor characters\n10. If it\'s wrong, don\'t post it!';
+
+  @override
+  String get commentsRulesAccept => 'I understand';
+
+  @override
+  String get commentsSortNewest => 'Newest';
+
+  @override
+  String get commentsSortOldest => 'Oldest';
+
+  @override
+  String get commentsSortHighest => 'Highest rated';
+
+  @override
+  String get commentsSortLowest => 'Lowest rated';
+
+  @override
+  String commentsEpisodeShort(int number) {
+    return 'Ep $number';
+  }
+
+  @override
+  String commentsChapterShort(int number) {
+    return 'Ch $number';
+  }
+
+  @override
+  String get commentsFilterEpisodeTitle => 'Filter by episode';
+
+  @override
+  String get commentsFilterChapterTitle => 'Filter by chapter';
+
+  @override
+  String get commentsFilterTagTitle => 'Enter an episode or chapter number';
+
+  @override
+  String get commentsFilterHint => 'Number';
+
+  @override
+  String get commentsFilterApply => 'Filter';
+
+  @override
+  String get commentsFilterClear => 'Show all';
+
+  @override
+  String get commentsPlaceholder => 'Add a comment…';
+
+  @override
+  String get commentsReplyPlaceholder => 'Write a reply…';
+
+  @override
+  String commentsReplyingTo(String name) {
+    return 'Replying to $name';
+  }
+
+  @override
+  String get commentsSend => 'Send';
+
+  @override
+  String commentsPostAs(String name) {
+    return 'Commenting as $name';
+  }
+
+  @override
+  String get commentsTagButton => 'Tag';
+
+  @override
+  String commentsTagTitle(String label) {
+    return 'Tag $label (optional)';
+  }
+
+  @override
+  String get commentsTagEpisode => 'episode';
+
+  @override
+  String get commentsTagChapter => 'chapter';
+
+  @override
+  String commentsTagRange(int total) {
+    return '1–$total';
+  }
+
+  @override
+  String commentsTagNumber(String label) {
+    return '$label number';
+  }
+
+  @override
+  String commentsTagTooHigh(int total) {
+    return 'Tag cannot exceed the total ($total)';
+  }
+
+  @override
+  String get commentsNoTag => 'No tag';
+
+  @override
+  String get commentsSpoiler => 'Spoiler';
+
+  @override
+  String get commentsGif => 'GIF';
+
+  @override
+  String get commentsGifSearch => 'Search GIFs';
+
+  @override
+  String get commentsGifEmpty => 'No GIFs found';
+
+  @override
+  String get commentsEmptyText => 'Comment cannot be empty';
+
+  @override
+  String commentsTooLong(int max) {
+    return 'Comment cannot be longer than $max characters';
+  }
+
+  @override
+  String get commentsBannedYou => 'You are banned from commenting';
+
+  @override
+  String get commentsEdited => 'Comment edited';
+
+  @override
+  String get commentsDeleted => 'Comment deleted';
+
+  @override
+  String get commentsDeletedPlaceholder => '[deleted]';
+
+  @override
+  String get commentsReported => 'Comment reported';
+
+  @override
+  String get commentsUserBanned => 'User banned';
+
+  @override
+  String get commentsEditedMark => 'edited';
+
+  @override
+  String get commentsReport => 'Report comment';
+
+  @override
+  String get commentsReportAsk => 'Report this comment to the moderators?';
+
+  @override
+  String get commentsDelete => 'Delete comment';
+
+  @override
+  String get commentsDeleteAsk => 'This comment will be removed for everyone.';
+
+  @override
+  String get commentsBan => 'Ban user';
+
+  @override
+  String get commentsBanAsk => 'Ban this user from commenting?';
+
+  @override
+  String get commentsCopy => 'Copy text';
+
+  @override
+  String get commentsViewReply => 'View 1 reply';
+
+  @override
+  String commentsViewReplies(int count) {
+    return 'View $count replies';
+  }
+
+  @override
+  String get commentsHideReplies => 'Hide replies';
+
+  @override
+  String get commentsCollapse => 'Collapse thread';
+
+  @override
+  String get commentsExpand => 'Expand thread';
+
+  @override
+  String get commentsLoadMore => 'Load more comments';
+
+  @override
+  String get commentsEmpty => 'No comments yet. Be the first!';
+
+  @override
+  String get commentsEmptyFiltered => 'No comments for this filter';
+
+  @override
+  String get commentsSignIn => 'Sign in to AniList to read and write comments';
+
+  @override
+  String get commentsSignInMessage =>
+      'Comments are shared between every service and use your AniList account.';
+
+  @override
+  String get commentsUnavailable => 'Comments aren\'t available for this title';
+
+  @override
+  String get commentsUnavailableMessage =>
+      'It couldn\'t be matched to an AniList entry.';
+
+  @override
+  String get commentsDisabled => 'Comments are turned off';
+
+  @override
+  String get commentsDisabledMessage =>
+      'You can turn them back on in Settings › General.';
+
+  @override
+  String get commentsOffline => 'Couldn\'t load comments';
+
+  @override
+  String get commentsSingleTitle => 'Showing one comment';
+
+  @override
+  String get commentsShowAll => 'Show all comments';
+
+  @override
+  String get commentsSettingsHeader => 'Comments';
+
+  @override
+  String get commentsSettingEnabled => 'Comments';
+
+  @override
+  String get commentsSettingEnabledDesc =>
+      'Show the Comments tab on titles and sign in to the comment server with your AniList account';
+
+  @override
+  String get commentsSettingAlerts => 'Reply notifications';
+
+  @override
+  String get commentsSettingAlertsDesc =>
+      'Notify me when someone replies to my comments';
+
+  @override
+  String get commentsSettingRules => 'Commenting rules';
+
+  @override
+  String get commentsNoticeReplyTitle => 'New comment reply';
+
+  @override
+  String commentsNoticeReply(String name) {
+    return '$name replied to your comment';
+  }
+
+  @override
+  String get commentsNoticeWarningTitle => 'You received a warning';
+
+  @override
+  String get commentsNoticeWarning => 'Be more thoughtful with your comments';
+
+  @override
+  String get commentsNoticeUpdateTitle => 'Update from Dantotsu';
+
+  @override
+  String commentsLevel(int level) {
+    return 'Level $level';
+  }
+
+  @override
+  String get imageSearchTitle => 'Search by image';
+
+  @override
+  String get imageSearchTooltip => 'Find an anime from a screenshot';
+
+  @override
+  String get imageSearchIntro =>
+      'Pick a screenshot or paste an image link and trace.moe will find the episode and the moment it comes from.';
+
+  @override
+  String get imageSearchPick => 'Choose image';
+
+  @override
+  String get imageSearchLink => 'Image link';
+
+  @override
+  String get imageSearchLinkHint => 'Paste an image link';
+
+  @override
+  String get imageSearchGo => 'Search';
+
+  @override
+  String get imageSearchSearching => 'Looking for a match…';
+
+  @override
+  String get imageSearchEmpty => 'No match found';
+
+  @override
+  String get imageSearchLowMatch =>
+      'Low similarity, this might be the wrong anime';
+
+  @override
+  String get imageSearchAdult => '18+';
+
+  @override
+  String imageSearchEpisode(String number) {
+    return 'Episode $number';
+  }
+
+  @override
+  String imageSearchAt(String time) {
+    return 'at $time';
+  }
+
+  @override
+  String get imageSearchPreview => 'Preview clip';
+
+  @override
+  String imageSearchSimilarity(int percent) {
+    return '$percent% match';
+  }
+
+  @override
+  String get imageSearchCredit => 'Powered by trace.moe';
+
+  @override
+  String get imageSearchOpenFailed => 'Couldn\'t open this title';
+
+  @override
+  String get groups => 'Groups';
+
+  @override
+  String get groupsYours => 'Your groups';
+
+  @override
+  String get groupsPopular => 'Popular';
+
+  @override
+  String get groupsNew => 'New';
+
+  @override
+  String get groupsFeatured => 'Featured';
+
+  @override
+  String get groupsSearch => 'Search groups';
+
+  @override
+  String get groupsAll => 'All';
+
+  @override
+  String get groupsEmpty => 'No groups found';
+
+  @override
+  String get groupsEmptyYours => 'You haven\'t joined any groups yet';
+
+  @override
+  String get groupsSignIn => 'Sign in to see the groups you joined';
+
+  @override
+  String groupsMembersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count members',
+      one: '1 member',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get groupsJoin => 'Join';
+
+  @override
+  String get groupsJoined => 'Joined';
+
+  @override
+  String get groupsLeave => 'Leave group';
+
+  @override
+  String get groupsLeaveAsk =>
+      'You\'ll stop seeing this group\'s posts in your feed.';
+
+  @override
+  String get groupsJoinFailed =>
+      'Couldn\'t join this group, it may be invite only';
+
+  @override
+  String get groupsLeaveFailed => 'Couldn\'t leave this group';
+
+  @override
+  String get groupsPosts => 'Posts';
+
+  @override
+  String get groupsMembersTab => 'Members';
+
+  @override
+  String get groupsAbout => 'About';
+
+  @override
+  String get groupsRules => 'Rules';
+
+  @override
+  String get groupsPrivacyOpen => 'Open';
+
+  @override
+  String get groupsPrivacyRestricted => 'Restricted';
+
+  @override
+  String get groupsPrivacyClosed => 'Closed';
+
+  @override
+  String get groupsAdult => '18+';
+
+  @override
+  String get groupsRoleAdmin => 'Admin';
+
+  @override
+  String get groupsRoleMod => 'Mod';
+
+  @override
+  String get groupsNoPosts => 'Nothing posted here yet';
+
+  @override
+  String get groupsJoinToPost => 'Join the group to post';
+
+  @override
+  String get groupsCouldntLoad => 'Couldn\'t load this group';
+
+  @override
+  String get groupsNewPost => 'Post to group';
+
+  @override
+  String get groupsPostHint => 'Share something with the group';
+
+  @override
+  String get groupsOpenInBrowser => 'Open in browser';
+
+  @override
+  String get groupsCategory => 'Category';
+
+  @override
+  String get groupsLanguage => 'Language';
+
+  @override
+  String get groupsCreated => 'Created';
+
+  @override
+  String groupsLeaders(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count leaders',
+      one: '1 leader',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get groupsPrivacy => 'Privacy';
+
+  @override
+  String get notificationsAll => 'All';
+
+  @override
+  String get notificationsAiring => 'Airing';
+
+  @override
+  String get notificationsMedia => 'New titles';
+
+  @override
+  String get notificationsReplies => 'Replies';
+
+  @override
+  String get notificationsMentions => 'Mentions';
+
+  @override
+  String get notificationsMessages => 'Messages';
+
+  @override
+  String get notificationsLikes => 'Likes';
+
+  @override
+  String get notificationsFollows => 'Follows';
+
+  @override
+  String get notificationsNoServices =>
+      'No signed-in service has notifications';
+
+  @override
+  String get notificationsNoServicesMessage =>
+      'Sign in to a service that sends notifications and they will show up here.';
+
+  @override
+  String get notificationsEmptyKind => 'Nothing in this category yet';
+
+  @override
+  String get notificationsCommentsEmpty => 'No comment notifications';
+
+  @override
+  String get notificationsCommentsEmptyMessage =>
+      'Replies to your comments and announcements from Dantotsu show up here.';
+
+  @override
+  String get notificationsLoadMore => 'Load more';
+
+  @override
+  String get notificationsSettings => 'Notification settings';
+
+  @override
+  String get notificationsPollTitle => 'Check for new notifications';
+
+  @override
+  String notificationsPollDesc(int minutes) {
+    return 'Every $minutes minutes while the app is open';
+  }
+
+  @override
+  String get notificationsNotifyAbout => 'Notify me about';
+
+  @override
+  String get notificationsCommentsHeader => 'Comment notifications';
+
+  @override
+  String systemNotificationsDescFor(String service) {
+    return 'Show a system notification for each unread $service notification while the app is running.';
+  }
+
+  @override
+  String get notificationsTestSent => 'Test notification sent';
+
+  @override
+  String get notificationsTestDenied =>
+      'Notifications are not allowed for Dartotsu. Turn them on in system settings.';
+
+  @override
+  String get notificationsTestHint => 'Long press to send a test notification';
+
+  @override
+  String get notificationsTestSample => 'This is a test notification';
+
+  @override
+  String commentsNoticeReplyIn(String name, String media) {
+    return '$name replied to your comment in $media';
+  }
+
+  @override
+  String get imageSearchNotLink => 'That doesn\'t look like a link';
+
+  @override
+  String get imageSearchQuota => 'Search quota exceeded';
+
+  @override
+  String get imageSearchBusy => 'Too many requests, try again in a moment';
+
+  @override
+  String imageSearchFailed(int code) {
+    return 'Search failed ($code)';
+  }
+
+  @override
+  String notificationsNewCount(int count) {
+    return '$count new notifications';
+  }
 }

@@ -14,6 +14,7 @@ import '../../Feed/FeedNavigation.dart';
 import '../../Login/LoginScreen.dart';
 import '../../Settings/SettingsScreen.dart';
 import '../../Social/ActivityFeedScreen.dart';
+import '../../Social/GroupsScreen.dart';
 import '../../Social/ProfileScreen.dart';
 import '../../Social/SocialNavigation.dart';
 import 'BellButton.dart';
@@ -49,6 +50,13 @@ void showAccountSheet(BuildContext context, MediaServiceController controller) {
                     title: getString.activity,
                     sheetContext: context,
                     open: ActivityFeedScreen(service: service),
+                  ),
+                if (service.socialView!.hasGroups)
+                  _Destination(
+                    icon: Icons.groups_rounded,
+                    title: getString.groups,
+                    sheetContext: context,
+                    open: GroupsScreen(service: service),
                   ),
               ],
               _Destination(

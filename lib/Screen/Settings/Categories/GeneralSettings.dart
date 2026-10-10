@@ -58,6 +58,22 @@ List<Setting> generalSettings(BuildContext context) => [
     isChecked: PrefName.shareAnalytics.rx.value,
     onSwitchChange: (v) => PrefName.shareAnalytics.rx.value = v,
   ),
+  Setting.header(getString.commentsSettingsHeader),
+  Setting.switchType(
+    name: getString.commentsSettingEnabled,
+    description: getString.commentsSettingEnabledDesc,
+    icon: Icons.forum_rounded,
+    isChecked: PrefName.commentsEnabled.rx.value,
+    onSwitchChange: (v) => PrefName.commentsEnabled.rx.value = v,
+  ),
+  Setting.switchType(
+    name: getString.commentsSettingAlerts,
+    description: getString.commentsSettingAlertsDesc,
+    icon: Icons.notifications_active_outlined,
+    isVisible: PrefName.commentsEnabled.rx.value,
+    isChecked: PrefName.commentsAlerts.rx.value,
+    onSwitchChange: (v) => PrefName.commentsAlerts.rx.value = v,
+  ),
   Setting.header(getString.sectionStorage),
   Setting.normal(
     name: getString.customPath,

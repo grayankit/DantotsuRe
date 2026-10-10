@@ -1,3 +1,4 @@
+import '../../../Core/Services/Model/Media.dart';
 import '../../../Core/Sync/SyncAdapter.dart';
 import '../../../Core/Sync/SyncModels.dart';
 import 'Client.dart';
@@ -57,6 +58,35 @@ class KitsuSync extends SyncAdapter {
       throw syncError(e, status: e.status);
     }
     return used;
+  }
+
+  @override
+  Future<Map<String, int>> foreignIds(Media media) async {
+    final parsed = parseKitsuMediaId(media.id);
+    if (parsed == null) return const {};
+    try {
+      final doc = JsonApi(
+        await mutations.client.get(
+          '/${media.isAnime ? 'anime' : 'manga'}/${parsed.$2}/mappings',
+          query: {'fields[mappings]': 'externalSite,externalId'},
+        ),
+      );
+      final out = <String, int>{};
+      for (final m in doc.data) {
+        final a = attrs(m);
+        final n = int.tryParse('${a['externalId']}');
+        if (n == null) continue;
+        switch (a['externalSite']) {
+          case 'myanimelist/anime' || 'myanimelist/manga':
+            out[SyncKey.mal] = n;
+          case 'anilist/anime' || 'anilist/manga':
+            out[SyncKey.anilist] = n;
+        }
+      }
+      return out;
+    } on KitsuException {
+      return const {};
+    }
   }
 
   @override
