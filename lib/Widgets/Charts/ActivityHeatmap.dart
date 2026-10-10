@@ -1,3 +1,4 @@
+import '../../Utils/Animation/WidgetAnimations.dart';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -158,7 +159,7 @@ class _ActivityHeatmapState extends State<ActivityHeatmap> {
               },
               child: TweenAnimationBuilder<double>(
                 tween: Tween(begin: 0, end: 1),
-                duration: const Duration(milliseconds: 900),
+                duration: animDuration(900),
                 curve: Curves.easeOutCubic,
                 builder: (_, t, _) => CustomPaint(
                   size: Size(width, _top + 7 * _step + 4),
@@ -185,7 +186,7 @@ class _ActivityHeatmapState extends State<ActivityHeatmap> {
           children: [
             Expanded(
               child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 150),
+                duration: animDuration(150),
                 child: Text(
                   hover == null
                       ? getString.tapOrHoverDay

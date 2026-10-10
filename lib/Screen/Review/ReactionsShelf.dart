@@ -1,3 +1,4 @@
+import '../../Utils/Animation/WidgetAnimations.dart';
 import 'package:flutter/material.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
@@ -53,10 +54,12 @@ class _ReactionsShelfState extends State<ReactionsShelf>
           padding: EdgeInsets.symmetric(horizontal: Dimens.pagePad),
           child: Column(
             children: [
-              for (final r in shown)
+              for (final (i, r) in shown.indexed)
                 Padding(
                   padding: EdgeInsets.only(bottom: Dimens.gapSm),
-                  child: _tile(context, r),
+                  child: loading
+                      ? _tile(context, r)
+                      : _tile(context, r).animateStagger(i),
                 ),
             ],
           ),

@@ -1,3 +1,4 @@
+import '../../Utils/Animation/WidgetAnimations.dart';
 import 'dart:convert';
 
 import 'package:flutter/gestures.dart';
@@ -233,7 +234,7 @@ class _AniHtmlState extends State<AniHtml> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AnimatedSize(
-          duration: const Duration(milliseconds: 240),
+          duration: animDuration(240),
           curve: Curves.easeOutCubic,
           alignment: Alignment.topCenter,
           child: collapsed
@@ -1082,7 +1083,7 @@ class _SpoilerBlockState extends State<_SpoilerBlock> {
                     const Spacer(),
                     AnimatedRotation(
                       turns: _open.value ? 0.5 : 0,
-                      duration: const Duration(milliseconds: 200),
+                      duration: animDuration(200),
                       child: Icon(
                         Icons.expand_more_rounded,
                         color: scheme.onSurfaceVariant,
@@ -1093,7 +1094,7 @@ class _SpoilerBlockState extends State<_SpoilerBlock> {
               ),
             ),
             AnimatedSize(
-              duration: const Duration(milliseconds: 220),
+              duration: animDuration(220),
               curve: Curves.easeOutCubic,
               alignment: Alignment.topCenter,
               child: _open.value

@@ -1,3 +1,4 @@
+import '../../Utils/Animation/WidgetAnimations.dart';
 import 'package:flutter/material.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
@@ -166,10 +167,12 @@ class _GroupsScreenState extends BaseScreen<GroupsScreen>
                                 ),
                               );
                             }
-                            return GroupCard(
+                            final card = GroupCard(
+                              key: ValueKey(items[i].id),
                               group: items[i],
                               onTap: () => state.open(items[i]),
                             );
+                            return i < 10 ? card.animateStagger(i) : card;
                           },
                         ),
                       ),

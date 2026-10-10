@@ -1,3 +1,4 @@
+import '../../Utils/Animation/WidgetAnimations.dart';
 import 'dart:async';
 
 import 'package:dartotsu_extension_bridge/dartotsu_extension_bridge.dart';
@@ -20,6 +21,7 @@ class ExtensionBrowserState extends ScreenState {
   late final TabController tabs = TabController(
     length: ItemType.values.length * 2,
     vsync: vsync,
+    animationDuration: animDuration(300),
   );
 
   final searchQuery = ''.live;

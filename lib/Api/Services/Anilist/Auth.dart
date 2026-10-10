@@ -15,7 +15,9 @@ import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 
 AnilistAuth get anilistAuth => find<AnilistAuth>();
 
-class AnilistAuth extends AppController with SharedRefresh implements ServiceAuth {
+class AnilistAuth extends AppController
+    with SharedRefresh
+    implements ServiceAuth {
   static const _mobileClientId = '14959';
   static const _desktopClientId = '53220';
   static String get _clientId =>

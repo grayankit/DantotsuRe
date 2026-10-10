@@ -1,3 +1,4 @@
+import '../../Utils/Animation/WidgetAnimations.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -26,6 +27,7 @@ class GroupState extends ScreenState {
   late final tabs = TabController(
     length: view.hasGroupMembers ? 3 : 2,
     vsync: vsync,
+    animationDuration: animDuration(300),
   );
 
   String get groupId => group.value?.id ?? idOrSlug;

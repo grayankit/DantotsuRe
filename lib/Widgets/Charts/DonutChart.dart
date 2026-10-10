@@ -1,3 +1,4 @@
+import '../../Utils/Animation/WidgetAnimations.dart';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -79,7 +80,7 @@ class _DonutChartState extends State<DonutChart> {
               },
               child: TweenAnimationBuilder<double>(
                 tween: Tween(begin: 0, end: 1),
-                duration: const Duration(milliseconds: 900),
+                duration: animDuration(900),
                 curve: Curves.easeOutCubic,
                 builder: (_, progress, _) => CustomPaint(
                   painter: _DonutPainter(
@@ -157,7 +158,7 @@ class _DonutChartState extends State<DonutChart> {
         behavior: HitTestBehavior.opaque,
         onTap: () => _active.value = selected ? null : i,
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 160),
+          duration: animDuration(160),
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
           decoration: BoxDecoration(
             color: selected ? color.withValues(alpha: 0.14) : null,

@@ -1,3 +1,4 @@
+import '../../../Utils/Animation/WidgetAnimations.dart';
 import '../../../Widgets/Components/ScrollConfig.dart';
 import '../../../Utils/Functions/NavigateToScreen.dart';
 import 'dart:async';
@@ -136,8 +137,8 @@ class _ImageSearchSheetState extends State<ImageSearchSheet>
                 title: getString.imageSearchEmpty,
               )
             else if (hits != null)
-              for (final hit in hits) ...[
-                _HitTile(hit: hit),
+              for (final (i, hit) in hits.indexed) ...[
+                _HitTile(hit: hit).animateStagger(i),
                 SizedBox(height: Dimens.gapSm),
               ],
             SizedBox(height: Dimens.gapSm),

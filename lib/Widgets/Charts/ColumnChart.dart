@@ -1,3 +1,4 @@
+import '../../Utils/Animation/WidgetAnimations.dart';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -63,7 +64,7 @@ class _ColumnChartState extends State<ColumnChart> {
               child: TweenAnimationBuilder<double>(
                 key: ValueKey(data.length),
                 tween: Tween(begin: 0, end: 1),
-                duration: const Duration(milliseconds: 750),
+                duration: animDuration(750),
                 curve: Curves.easeOutCubic,
                 builder: (_, t, _) => CustomPaint(
                   painter: _ColumnPainter(

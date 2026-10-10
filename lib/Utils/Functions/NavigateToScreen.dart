@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 
 import '../Animation/WidgetAnimations.dart';
-import '../Extensions/NumExtensions.dart';
 import '../Nav/DpadLayers.dart';
 import '../../Core/State/State.dart';
 
@@ -13,8 +12,8 @@ Future<T?> navigateToPage<T>(
 }) {
   return Navigator.of(context).push(
     PageRouteBuilder(
-      transitionDuration: 380.ms,
-      reverseTransitionDuration: 300.ms,
+      transitionDuration: animDuration(380),
+      reverseTransitionDuration: animDuration(300),
       pageBuilder: (_, _, _) => DpadEnter(child: page),
       transitionsBuilder: (_, animation, _, child) {
         if (hero) {

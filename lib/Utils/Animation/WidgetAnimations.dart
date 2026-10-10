@@ -5,11 +5,82 @@ import '../../Core/Preferences/PrefManager.dart';
 
 double get kAnimationSpeed => PrefName.animationSpeed.value;
 
+bool get animationsOff => kAnimationSpeed <= 0;
+
+Duration animDuration(int ms) =>
+    Duration(milliseconds: (ms * kAnimationSpeed).round());
+
+Duration animDelay(Duration delay) =>
+    Duration(microseconds: (delay.inMicroseconds * kAnimationSpeed).round());
+
+extension AnimMs on int {
+  Duration get anim => animDuration(this);
+}
+
+class AppSwitcher extends StatelessWidget {
+  final Widget child;
+  final int duration;
+  final Offset slide;
+  final AlignmentGeometry alignment;
+
+  const AppSwitcher({
+    super.key,
+    required this.child,
+    this.duration = 240,
+    this.slide = const Offset(0, 0.02),
+    this.alignment = Alignment.topCenter,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (animationsOff) return child;
+    return AnimatedSwitcher(
+      duration: animDuration(duration),
+      reverseDuration: animDuration((duration * 0.6).round()),
+      switchInCurve: Curves.easeOutCubic,
+      switchOutCurve: Curves.easeIn,
+      layoutBuilder: (current, previous) =>
+          Stack(alignment: alignment, children: [...previous, ?current]),
+      transitionBuilder: (child, animation) => FadeTransition(
+        opacity: animation,
+        child: SlideTransition(
+          position: Tween(begin: slide, end: Offset.zero).animate(animation),
+          child: child,
+        ),
+      ),
+      child: child,
+    );
+  }
+}
+
+class AppSize extends StatelessWidget {
+  final Widget child;
+  final int duration;
+  final AlignmentGeometry alignment;
+
+  const AppSize({
+    super.key,
+    required this.child,
+    this.duration = 220,
+    this.alignment = Alignment.topCenter,
+  });
+
+  @override
+  Widget build(BuildContext context) => AnimatedSize(
+    duration: animDuration(duration),
+    curve: Curves.easeOutCubic,
+    alignment: alignment,
+    child: child,
+  );
+}
+
 extension WidgetAnimations on Widget {
   Duration _duration(int ms) =>
       Duration(milliseconds: (ms * kAnimationSpeed).round());
 
   bool get _disabled => kAnimationSpeed <= 0;
+
+  Duration _delay(Duration delay) => animDelay(delay);
 
   Animate _animation(bool target) => animate(target: target ? 1 : 0);
 
@@ -47,18 +118,22 @@ extension WidgetAnimations on Widget {
     const emphasizedDecelerate = Cubic(0.05, 0.7, 0.1, 1.0);
 
     return _animation(target)
-        .fade(delay: delay, duration: _duration(260), curve: Curves.easeOut)
+        .fade(
+          delay: _delay(delay),
+          duration: _duration(260),
+          curve: Curves.easeOut,
+        )
         .slideY(
           begin: 0.06,
           end: 0,
-          delay: delay,
+          delay: _delay(delay),
           duration: _duration(380),
           curve: emphasizedDecelerate,
         )
         .scale(
           begin: const Offset(0.98, 0.98),
           end: const Offset(1, 1),
-          delay: delay,
+          delay: _delay(delay),
           duration: _duration(380),
           curve: emphasizedDecelerate,
         );
@@ -109,10 +184,14 @@ extension WidgetAnimations on Widget {
   }) {
     if (_disabled || duration <= 0) return this;
 
-    return _fade(target: target, delay: delay, duration: duration).slideY(
+    return _fade(
+      target: target,
+      delay: _delay(delay),
+      duration: duration,
+    ).slideY(
       begin: begin,
       end: 0,
-      delay: delay,
+      delay: _delay(delay),
       duration: _duration(duration),
       curve: curve,
     );
@@ -127,10 +206,14 @@ extension WidgetAnimations on Widget {
   }) {
     if (_disabled || duration <= 0) return this;
 
-    return _fade(target: target, delay: delay, duration: duration).slideX(
+    return _fade(
+      target: target,
+      delay: _delay(delay),
+      duration: duration,
+    ).slideX(
       begin: begin,
       end: 0,
-      delay: delay,
+      delay: _delay(delay),
       duration: _duration(duration),
       curve: curve,
     );
@@ -144,11 +227,11 @@ extension WidgetAnimations on Widget {
   }) {
     if (_disabled) return this;
 
-    return _fade(target: target, delay: delay, duration: 150)
+    return _fade(target: target, delay: _delay(delay), duration: 150)
         .slideY(
           begin: slideBegin,
           end: 0,
-          delay: delay,
+          delay: _delay(delay),
           duration: _duration(250),
           curve: Curves.easeOutCubic,
         )
@@ -169,7 +252,7 @@ extension WidgetAnimations on Widget {
 
     return _fadeScale(
       target: target,
-      delay: delay,
+      delay: _delay(delay),
       fadeDuration: 800,
       begin: begin,
       end: const Offset(1, 1),
@@ -184,7 +267,7 @@ extension WidgetAnimations on Widget {
     if (_disabled) return this;
 
     return _animation(target)
-        .shimmer(delay: delay, duration: _duration(1200))
+        .shimmer(delay: _delay(delay), duration: _duration(1200))
         .then()
         .scale(
           begin: const Offset(0.94, 1),
@@ -200,11 +283,11 @@ extension WidgetAnimations on Widget {
   }) {
     if (_disabled) return this;
 
-    return _fade(target: target, delay: delay, duration: 400)
+    return _fade(target: target, delay: _delay(delay), duration: 400)
         .slideY(
           begin: 0.3,
           end: 0,
-          delay: delay,
+          delay: _delay(delay),
           duration: _duration(400),
           curve: Curves.easeOutCubic,
         )
@@ -222,9 +305,14 @@ extension WidgetAnimations on Widget {
 
     return _fade(
       target: target,
-      delay: delay,
+      delay: _delay(delay),
       duration: duration,
-    ).blurXY(begin: blur, end: 0, delay: delay, duration: _duration(duration));
+    ).blurXY(
+      begin: blur,
+      end: 0,
+      delay: _delay(delay),
+      duration: _duration(duration),
+    );
   }
 
   Widget animatePageTransition(double animation) {
@@ -322,6 +410,39 @@ extension WidgetAnimations on Widget {
       begin: const Offset(.9, .9),
       end: const Offset(1, 1),
       scaleDuration: 300,
+    );
+  }
+
+  Widget animateStagger(
+    int index, {
+    int step = 45,
+    int max = 8,
+    int duration = 380,
+    double begin = 0.12,
+  }) => animateFadeUp(
+    delay: Duration(milliseconds: step * (index < max ? index : max)),
+    duration: duration,
+    begin: begin,
+  );
+
+  Widget animateFadeIn({
+    bool target = true,
+    Duration delay = Duration.zero,
+    int duration = 260,
+  }) {
+    if (_disabled || duration <= 0) return this;
+
+    return _fade(target: target, delay: delay, duration: duration);
+  }
+
+  Widget animatePress({required bool pressed, double scale = 0.96}) {
+    if (_disabled) return this;
+
+    return _animation(pressed).scale(
+      begin: const Offset(1, 1),
+      end: Offset(scale, scale),
+      duration: _duration(120),
+      curve: Curves.easeOut,
     );
   }
 }

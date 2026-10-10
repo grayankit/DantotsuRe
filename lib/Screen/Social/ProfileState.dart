@@ -1,3 +1,4 @@
+import '../../Utils/Animation/WidgetAnimations.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -99,7 +100,7 @@ class ProfileState extends ScreenState {
     unawaited(
       scroll.animateTo(
         pixels < range / 2 ? 0 : range,
-        duration: const Duration(milliseconds: 180),
+        duration: animDuration(180),
         curve: Curves.easeOut,
       ),
     );

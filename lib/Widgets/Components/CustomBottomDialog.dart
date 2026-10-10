@@ -94,7 +94,7 @@ class _CustomBottomDialogState extends State<CustomBottomDialog> {
 
                       return Center(
                         child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 120),
+                          duration: animDuration(120),
                           padding: const EdgeInsets.symmetric(
                             horizontal: 8,
                             vertical: 6,
@@ -233,6 +233,10 @@ Future<T?> showCustomBottomDialog<T>(
     backgroundColor: Colors.transparent,
     useSafeArea: true,
     elevation: 2,
+    sheetAnimationStyle: AnimationStyle(
+      duration: animDuration(300),
+      reverseDuration: animDuration(200),
+    ),
     builder: (context) => DpadEnter(child: child),
   ).whenComplete(() => onDismissed?.call());
 }

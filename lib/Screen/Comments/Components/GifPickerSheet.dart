@@ -1,3 +1,4 @@
+import '../../../Utils/Animation/WidgetAnimations.dart';
 import '../../../Widgets/Components/ScrollConfig.dart';
 import '../../../Utils/Functions/NavigateToScreen.dart';
 import 'dart:async';
@@ -145,16 +146,21 @@ class _GifPickerSheetState extends State<GifPickerSheet> {
                             crossAxisSpacing: 8,
                           ),
                       itemCount: gifs.length,
-                      itemBuilder: (context, i) => Clickable(
-                        onTap: () => popPage(context, gifs[i]),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(14),
-                          child: cachedNetworkImage(
-                            imageUrl: gifs[i],
-                            fit: BoxFit.cover,
+                      itemBuilder: (context, i) =>
+                          Clickable(
+                            onTap: () => popPage(context, gifs[i]),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(14),
+                              child: cachedNetworkImage(
+                                imageUrl: gifs[i],
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ).animateFadeIn(
+                            delay: Duration(
+                              milliseconds: 30 * (i < 12 ? i : 12),
+                            ),
                           ),
-                        ),
-                      ),
                     ),
                   ),
           ),

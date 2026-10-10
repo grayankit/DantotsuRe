@@ -1,3 +1,4 @@
+import '../../Utils/Animation/WidgetAnimations.dart';
 import 'dart:async';
 
 import 'package:dartotsu_extension_bridge/Extensions/DownloadablePlugin.dart';
@@ -168,7 +169,7 @@ class ExtensionScreenState extends BaseScreen<ExtensionScreen>
                 final textStyle = Theme.of(context).textTheme.labelMedium;
 
                 return AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 220),
+                  duration: animDuration(220),
                   transitionBuilder: (child, animation) => FadeTransition(
                     opacity: animation,
                     child: SizeTransition(

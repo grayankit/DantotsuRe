@@ -1,3 +1,4 @@
+import '../../Utils/Animation/WidgetAnimations.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -107,6 +108,7 @@ class NotificationsState extends ScreenState {
   late final TabController tabs = TabController(
     length: feeds.isEmpty ? 1 : feeds.length,
     vsync: vsync,
+    animationDuration: animDuration(300),
     initialIndex: _initialIndex,
   );
 

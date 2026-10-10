@@ -1,3 +1,4 @@
+import '../../../Utils/Animation/WidgetAnimations.dart';
 import 'package:flutter/material.dart';
 
 import '../../../Utils/Extensions/ClickCursor.dart';
@@ -85,7 +86,7 @@ class _TestChip extends StatelessWidget {
     };
 
     return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 220),
+      duration: animDuration(220),
       child: state == _NetTestState.idle
           ? const SizedBox.shrink()
           : Container(

@@ -1,3 +1,4 @@
+import '../../Utils/Animation/WidgetAnimations.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_all/webview_all.dart';
 
@@ -59,7 +60,7 @@ class _WebViewState extends State<WebView>
     final isHttps = uri?.scheme == 'https';
     return Watch(() {
       return AnimatedSwitcher(
-        duration: const Duration(milliseconds: 180),
+        duration: animDuration(180),
         child: Container(
           key: ValueKey(state.isEditing.value),
           margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -183,7 +184,7 @@ class _WebViewState extends State<WebView>
           () => state.progress.value < 1.0
               ? AnimatedOpacity(
                   opacity: state.progress.value < 1.0 ? 1 : 0,
-                  duration: const Duration(milliseconds: 300),
+                  duration: animDuration(300),
                   child: LinearProgressIndicator(
                     value: state.progress.value,
                     minHeight: 2,

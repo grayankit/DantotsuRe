@@ -1,3 +1,4 @@
+import '../../Utils/Animation/WidgetAnimations.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -137,7 +138,7 @@ class DetailState extends ScreenState {
     unawaited(
       scroll.animateTo(
         (pos.pixels + delta).clamp(pos.minScrollExtent, pos.maxScrollExtent),
-        duration: const Duration(milliseconds: 180),
+        duration: animDuration(180),
         curve: Curves.easeOut,
       ),
     );
@@ -219,7 +220,7 @@ class DetailState extends ScreenState {
     unawaited(
       scroll.animateTo(
         pixels < range / 2 ? 0 : range,
-        duration: const Duration(milliseconds: 180),
+        duration: animDuration(180),
         curve: Curves.easeOut,
       ),
     );

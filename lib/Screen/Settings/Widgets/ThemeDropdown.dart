@@ -1,3 +1,4 @@
+import '../../../Utils/Animation/WidgetAnimations.dart';
 import '../../../Utils/Nav/DpadNav.dart';
 import 'dart:async';
 
@@ -194,7 +195,7 @@ class _ThemeCell extends StatelessWidget {
     final color = previewScheme?.primary ?? scheme.primary;
 
     return AnimatedContainer(
-      duration: const Duration(milliseconds: 180),
+      duration: animDuration(180),
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: selected

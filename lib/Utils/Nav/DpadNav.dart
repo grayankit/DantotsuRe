@@ -1,3 +1,4 @@
+import '../Animation/WidgetAnimations.dart';
 import 'package:dpad/dpad.dart' hide DpadFocusable;
 import 'package:dpad/dpad.dart' as base show DpadFocusable;
 export 'package:dpad/dpad.dart' hide DpadFocusable;
@@ -109,7 +110,7 @@ Widget dpadScaleFocus(
   double scale = 1.06,
 }) => AnimatedScale(
   scale: kDpadFocused(state) ? scale : 1.0,
-  duration: Durations.short3,
+  duration: animDuration(150),
   curve: Curves.easeOutBack,
   child: child,
 );
@@ -121,7 +122,7 @@ Widget Function(BuildContext, DpadFocusState, Widget) dpadIconFocus({
   final focused = kDpadFocused(state);
   return AnimatedScale(
     scale: focused ? scale : 1.0,
-    duration: Durations.short3,
+    duration: animDuration(150),
     curve: Curves.easeOutBack,
     child: DecoratedBox(
       decoration: BoxDecoration(

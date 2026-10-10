@@ -1,3 +1,4 @@
+import '../../../Utils/Animation/WidgetAnimations.dart';
 import 'package:flutter/material.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
@@ -94,12 +95,13 @@ class _GroupMembersTabState extends State<GroupMembersTab>
                   child: const Center(child: CircularProgressIndicator()),
                 );
               }
-              return UserCard(
+              final card = UserCard(
                 key: ValueKey(users[i].id),
                 service: widget.service,
                 user: users[i],
                 wide: true,
               );
+              return i < 10 ? card.animateStagger(i) : card;
             },
           ),
         ),

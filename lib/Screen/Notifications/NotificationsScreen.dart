@@ -13,6 +13,7 @@ import '../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../Utils/Extensions/ContextExtensions.dart';
 import '../../Utils/Extensions/IntExtensions.dart';
 import '../../Utils/Extensions/Responsive.dart';
+import '../../Utils/Animation/WidgetAnimations.dart';
 import '../../Widgets/Components/AppBars.dart';
 import '../../Widgets/Components/AppTabs.dart';
 import '../../Widgets/Components/BaseScreen.dart';
@@ -76,7 +77,12 @@ class _NotificationsScreenState extends BaseScreen<NotificationsScreen>
       ),
       body: RefreshIndicator(
         onRefresh: state.refresh,
-        child: onNotices ? _notices(context) : _service(context),
+        child: AppSwitcher(
+          child: KeyedSubtree(
+            key: ValueKey(onNotices),
+            child: onNotices ? _notices(context) : _service(context),
+          ),
+        ),
       ),
     );
 
@@ -187,6 +193,8 @@ class _NotificationsScreenState extends BaseScreen<NotificationsScreen>
         ),
       );
     } else {
+      final grouped = state.grouped(items);
+      var shown = 0;
       body = NotificationListener<ScrollNotification>(
         onNotification: state.onScroll,
         child: ScrollConfig(
@@ -195,7 +203,7 @@ class _NotificationsScreenState extends BaseScreen<NotificationsScreen>
             physics: const AlwaysScrollableScrollPhysics(),
             padding: _padding,
             children: [
-              for (final group in state.grouped(items)) ...[
+              for (final group in grouped) ...[
                 Padding(
                   padding: EdgeInsets.fromLTRB(
                     Dimens.gapSm,
@@ -210,13 +218,7 @@ class _NotificationsScreenState extends BaseScreen<NotificationsScreen>
                     ),
                   ),
                 ),
-                for (final n in group.$2)
-                  NotificationTile(
-                    key: ValueKey('${feed.service.id}/${n.kind.name}/${n.id}'),
-                    item: n,
-                    icon: n.kind.icon,
-                    onTap: state.canOpen(n) ? () => state.open(feed, n) : null,
-                  ),
+                for (final n in group.$2) _tile(feed, n, shown++),
               ],
               if (feed.loadingMore.value)
                 Padding(
@@ -231,9 +233,32 @@ class _NotificationsScreenState extends BaseScreen<NotificationsScreen>
     return Column(
       children: [
         ?header,
-        Expanded(child: body),
+        Expanded(
+          child: AppSwitcher(
+            child: KeyedSubtree(
+              key: ValueKey(
+                '${feed.service.id}/${kind?.name}/${loading && feed.items.isEmpty
+                    ? 's'
+                    : items.isEmpty
+                    ? 'e'
+                    : 'l'}',
+              ),
+              child: body,
+            ),
+          ),
+        ),
       ],
     );
+  }
+
+  Widget _tile(NotificationFeed feed, ServiceNotification n, int index) {
+    final tile = NotificationTile(
+      key: ValueKey('${feed.service.id}/${n.kind.name}/${n.id}'),
+      item: n,
+      icon: n.kind.icon,
+      onTap: state.canOpen(n) ? () => state.open(feed, n) : null,
+    );
+    return index < 12 ? tile.animateStagger(index) : tile;
   }
 
   Widget _skeleton(NotificationFeed feed) => Skeletonizer(
@@ -308,13 +333,13 @@ class _NotificationsScreenState extends BaseScreen<NotificationsScreen>
           child: ListView(
             physics: const AlwaysScrollableScrollPhysics(),
             padding: _padding,
-            children: [for (final n in items) _notice(n)],
+            children: [for (final (i, n) in items.indexed) _notice(n, i)],
           ),
         );
     }
   });
 
-  Widget _notice(CommentNotice n) {
+  Widget _notice(CommentNotice n, int index) {
     final media = n.mediaTitle;
     final (text, icon) = n.isWarning
         ? (n.content ?? getString.commentsNoticeWarning, Icons.warning_rounded)
@@ -326,7 +351,7 @@ class _NotificationsScreenState extends BaseScreen<NotificationsScreen>
                 : getString.commentsNoticeReplyIn(n.username, media),
             Icons.reply_rounded,
           );
-    return NotificationTile(
+    final tile = NotificationTile(
       key: ValueKey('notice${n.key}'),
       item: ServiceNotification(
         id: n.key,
@@ -338,5 +363,6 @@ class _NotificationsScreenState extends BaseScreen<NotificationsScreen>
       showTime: n.receivedAt > 0,
       onTap: n.isReply || n.isWarning ? () => state.openNotice(n) : null,
     );
+    return index < 12 ? tile.animateStagger(index) : tile;
   }
 }

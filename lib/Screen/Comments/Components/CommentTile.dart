@@ -1,3 +1,4 @@
+import '../../../Utils/Animation/WidgetAnimations.dart';
 import '../../../Utils/Extensions/Responsive.dart';
 import 'package:flutter/material.dart';
 
@@ -102,7 +103,9 @@ class CommentTile extends StatelessWidget {
                         onCancel: () => node.replying.value = false,
                       ),
                     ],
-                    if (hasChildren) _replies(),
+                    AppSize(
+                      child: hasChildren ? _replies() : const SizedBox.shrink(),
+                    ),
                   ],
                 ],
               ),
@@ -122,7 +125,7 @@ class CommentTile extends StatelessWidget {
             key: ValueKey('c${child.comment.id}'),
             state: state,
             node: child,
-          ),
+          ).animateFadeUp(begin: 0.06, duration: 320),
       ],
     ),
   );
@@ -349,11 +352,17 @@ class CommentTile extends StatelessWidget {
                   up ? scheme.primary : scheme.onSurfaceVariant,
                   () => state.vote(node, 1),
                 ),
-                Text(
-                  '${comment.score}',
-                  style: text.labelMedium?.copyWith(
-                    color: scoreColor,
-                    fontWeight: FontWeight.w800,
+                AppSwitcher(
+                  duration: 200,
+                  slide: const Offset(0, 0.4),
+                  alignment: Alignment.center,
+                  child: Text(
+                    '${comment.score}',
+                    key: ValueKey(comment.score),
+                    style: text.labelMedium?.copyWith(
+                      color: scoreColor,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                 ),
                 _icon(

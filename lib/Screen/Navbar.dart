@@ -249,7 +249,7 @@ class _FloatingBottomNavBarState extends State<FloatingBottomNavBar> {
             alignment: Alignment.center,
             children: [
               AnimatedContainer(
-                duration: Durations.short4,
+                duration: animDuration(200),
                 curve: Curves.easeOutCubic,
                 width: selected
                     ? 56

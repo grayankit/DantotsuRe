@@ -1,3 +1,4 @@
+import '../../Utils/Animation/WidgetAnimations.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
@@ -243,7 +244,7 @@ class _MarkupTextState extends State<MarkupText> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AnimatedSize(
-          duration: const Duration(milliseconds: 180),
+          duration: animDuration(180),
           alignment: Alignment.topCenter,
           child: Text.rich(
             TextSpan(children: _build(text, base)),

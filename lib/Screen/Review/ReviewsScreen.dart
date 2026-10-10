@@ -1,3 +1,4 @@
+import '../../Utils/Animation/WidgetAnimations.dart';
 import 'package:flutter/material.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
@@ -105,17 +106,21 @@ class _ReviewsScreenState extends BaseScreen<ReviewsScreen>
                       padding: EdgeInsets.all(Dimens.gapLg),
                       child: const Center(child: CircularProgressIndicator()),
                     )
-                  : ReviewCard(
-                      review: items[i],
-                      onUserTap: () => openReviewer(context, service, items[i]),
-                      onTap: () => navigateToPage(
-                        context,
-                        ReviewScreen(
-                          review: items[i],
-                          service: service,
-                          view: widget.view,
+                  : _animated(
+                      ReviewCard(
+                        review: items[i],
+                        onUserTap: () =>
+                            openReviewer(context, service, items[i]),
+                        onTap: () => navigateToPage(
+                          context,
+                          ReviewScreen(
+                            review: items[i],
+                            service: service,
+                            view: widget.view,
+                          ),
                         ),
                       ),
+                      i,
                     ),
             ),
           ),
@@ -123,4 +128,7 @@ class _ReviewsScreenState extends BaseScreen<ReviewsScreen>
       }),
     );
   }
+
+  Widget _animated(Widget card, int index) =>
+      index < 10 ? card.animateStagger(index) : card;
 }

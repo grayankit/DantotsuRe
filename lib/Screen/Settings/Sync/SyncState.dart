@@ -1,3 +1,4 @@
+import '../../../Utils/Animation/WidgetAnimations.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
@@ -27,6 +28,7 @@ class SyncState extends ScreenState {
     final next = TabController(
       length: length,
       vsync: vsync,
+      animationDuration: animDuration(300),
       initialIndex: targets
           .indexWhere((s) => s.id == selected.value)
           .clamp(0, length - 1),

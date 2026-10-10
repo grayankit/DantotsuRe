@@ -1,3 +1,4 @@
+import '../Animation/WidgetAnimations.dart';
 import 'package:flutter/material.dart';
 
 import '../Functions/AppShortcuts.dart';
@@ -105,7 +106,7 @@ class DpadIcon extends StatelessWidget {
       final focused = kDpadFocused(state);
       return AnimatedScale(
         scale: focused ? scale : 1.0,
-        duration: Durations.short3,
+        duration: animDuration(150),
         curve: Curves.easeOutBack,
         child: DecoratedBox(
           decoration: BoxDecoration(

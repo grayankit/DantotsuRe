@@ -1,3 +1,4 @@
+import '../../../Utils/Animation/WidgetAnimations.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -95,7 +96,7 @@ class _UserCardState extends State<UserCard> {
     return SizedBox(
       height: 32,
       child: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 220),
+        duration: animDuration(220),
         child: following
             ? OutlinedButton(
                 key: const ValueKey('unfollow'),

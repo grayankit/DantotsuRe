@@ -1,3 +1,4 @@
+import '../../Utils/Animation/WidgetAnimations.dart';
 import 'package:flutter/material.dart';
 
 import '../../Api/Discord/DiscordPresence.dart';
@@ -12,7 +13,11 @@ class ActivityFeedState extends ScreenState {
   ActivityFeedState(this.service, this.activityId);
 
   late final bool hasGlobal = service.socialView!.hasGlobalFeed;
-  late final tabs = TabController(length: hasGlobal ? 2 : 1, vsync: vsync);
+  late final tabs = TabController(
+    length: hasGlobal ? 2 : 1,
+    vsync: vsync,
+    animationDuration: animDuration(300),
+  );
 
   bool get single => activityId != null;
 

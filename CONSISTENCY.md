@@ -66,6 +66,15 @@ All in `Widgets/Components/AppBars.dart`:
 - Loading → `Skeletonizer` over the real widget built from `Media.skeleton()` / placeholder
   items, not a spinner, wherever the final layout is known. Keep chrome with `Skeleton.keep`.
 
+## Animation speed
+
+Every animation is tied to the Animation speed setting (`PrefName.animationSpeed`, 0 = off). Use the
+`WidgetAnimations` extension (`animateFadeUp`, `animateStagger(index)`, `animateFadeIn`, …), `AppSwitcher`
+(content that swaps) and `AppSize` (content that grows) from `Utils/Animation/WidgetAnimations.dart`, and
+`animDuration(ms)` / `animDelay(...)` for any raw `Animated*` widget, `TweenAnimationBuilder`,
+`animateTo` / `animateToPage`, `TabController(animationDuration:)` or route transition. Never a literal
+`Duration(milliseconds: …)` for an animation; timers and debounces are not animations and stay literal.
+
 ## Scrolling
 
 Every scrollable (list, grid, `TabBarView`, tab bar) is wrapped in `ScrollConfig(context, child:)`

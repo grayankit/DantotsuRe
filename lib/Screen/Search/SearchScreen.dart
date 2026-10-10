@@ -1,3 +1,4 @@
+import '../../Utils/Animation/WidgetAnimations.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -643,7 +644,7 @@ class _SearchScreenState extends BaseScreen<SearchScreen>
             ? FloatingActionButton.small(
                 onPressed: () => state.scroll.animateTo(
                   0,
-                  duration: const Duration(milliseconds: 400),
+                  duration: animDuration(400),
                   curve: Curves.easeOut,
                 ),
                 child: const Icon(Icons.arrow_upward_rounded),

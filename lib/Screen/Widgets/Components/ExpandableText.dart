@@ -1,3 +1,4 @@
+import '../../../Utils/Animation/WidgetAnimations.dart';
 import 'package:flutter/material.dart';
 
 import '../../../Utils/Extensions/ContextExtensions.dart';
@@ -24,7 +25,7 @@ class _ExpandableTextState extends State<ExpandableText> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AnimatedSize(
-          duration: const Duration(milliseconds: 180),
+          duration: animDuration(180),
           alignment: Alignment.topCenter,
           child: SelectionArea(
             child: Text(

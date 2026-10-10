@@ -1,3 +1,4 @@
+import '../../Utils/Animation/WidgetAnimations.dart';
 import 'package:flutter/material.dart';
 
 import '../../Core/Services/MediaService.dart';
@@ -111,7 +112,12 @@ class _ProfileScreenState extends BaseScreen<ProfileScreen>
                     padding: EdgeInsets.only(
                       bottom: context.isPhone ? 96.bottomBar() : 0,
                     ),
-                    child: _page(userId),
+                    child: AppSwitcher(
+                      child: KeyedSubtree(
+                        key: ValueKey(state.tab.value),
+                        child: _page(userId),
+                      ),
+                    ),
                   ),
           ),
         );

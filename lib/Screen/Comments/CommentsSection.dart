@@ -1,3 +1,4 @@
+import '../../Utils/Animation/WidgetAnimations.dart';
 import '../../Widgets/Components/Clickable.dart';
 import 'package:flutter/material.dart';
 
@@ -59,38 +60,60 @@ class _CommentsSectionState extends State<CommentsSection>
         children: [
           _header(context, phase),
           SizedBox(height: Dimens.gapSm),
-          switch (phase) {
-            CommentsPhase.loading => _skeleton(context),
-            CommentsPhase.disabled => EmptyState(
-              icon: Icons.comments_disabled_rounded,
-              title: getString.commentsDisabled,
-              message: getString.commentsDisabledMessage,
+          AppSwitcher(
+            child: KeyedSubtree(
+              key: ValueKey(phase),
+              child: switch (phase) {
+                CommentsPhase.loading => _skeleton(context),
+                CommentsPhase.disabled => EmptyState(
+                  icon: Icons.comments_disabled_rounded,
+                  title: getString.commentsDisabled,
+                  message: getString.commentsDisabledMessage,
+                ),
+                CommentsPhase.signedOut => EmptyState(
+                  icon: Icons.lock_outline_rounded,
+                  title: getString.commentsSignIn,
+                  message: getString.commentsSignInMessage,
+                  actionLabel: getString.signIn,
+                  onAction: _signIn,
+                ),
+                CommentsPhase.unavailable => EmptyState(
+                  icon: Icons.link_off_rounded,
+                  title: getString.commentsUnavailable,
+                  message: getString.commentsUnavailableMessage,
+                ),
+                CommentsPhase.failed => EmptyState(
+                  icon: Icons.cloud_off_rounded,
+                  failed: true,
+                  title: getString.commentsOffline,
+                  message: state.failure.value,
+                  actionLabel: getString.retry,
+                  onAction: state.start,
+                ),
+                CommentsPhase.ready => _list(context),
+              },
             ),
-            CommentsPhase.signedOut => EmptyState(
-              icon: Icons.lock_outline_rounded,
-              title: getString.commentsSignIn,
-              message: getString.commentsSignInMessage,
-              actionLabel: getString.signIn,
-              onAction: _signIn,
-            ),
-            CommentsPhase.unavailable => EmptyState(
-              icon: Icons.link_off_rounded,
-              title: getString.commentsUnavailable,
-              message: getString.commentsUnavailableMessage,
-            ),
-            CommentsPhase.failed => EmptyState(
-              icon: Icons.cloud_off_rounded,
-              failed: true,
-              title: getString.commentsOffline,
-              message: state.failure.value,
-              actionLabel: getString.retry,
-              onAction: state.start,
-            ),
-            CommentsPhase.ready => _list(context),
-          },
+          ),
         ],
       ),
     );
+  }
+
+  Widget _card(CommentNode node, int index) {
+    final card = SizedBox(
+      key: ValueKey('card${node.comment.id}'),
+      width: double.infinity,
+      child: SectionCard(
+        margin: EdgeInsets.only(bottom: Dimens.gapSm),
+        padding: EdgeInsets.fromLTRB(Dimens.gap, 0, Dimens.gap, Dimens.gapSm),
+        child: CommentTile(
+          key: ValueKey('c${node.comment.id}'),
+          state: state,
+          node: node,
+        ),
+      ),
+    );
+    return index < 8 ? card.animateStagger(index) : card;
   }
 
   Widget _skeleton(BuildContext context) {
@@ -267,25 +290,7 @@ class _CommentsSectionState extends State<CommentsSection>
                 : getString.commentsEmpty,
           )
         else
-          for (final node in nodes)
-            SizedBox(
-              key: ValueKey('card${node.comment.id}'),
-              width: double.infinity,
-              child: SectionCard(
-                margin: EdgeInsets.only(bottom: Dimens.gapSm),
-                padding: EdgeInsets.fromLTRB(
-                  Dimens.gap,
-                  0,
-                  Dimens.gap,
-                  Dimens.gapSm,
-                ),
-                child: CommentTile(
-                  key: ValueKey('c${node.comment.id}'),
-                  state: state,
-                  node: node,
-                ),
-              ),
-            ),
+          for (final (i, node) in nodes.indexed) _card(node, i),
         if (state.loadingMore.value)
           Padding(
             padding: EdgeInsets.all(Dimens.gapLg),

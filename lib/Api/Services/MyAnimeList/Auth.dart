@@ -147,7 +147,8 @@ class MalAuth extends AppController with SharedRefresh implements ServiceAuth {
   }
 
   @override
-  Future<void> refreshUser() => shareRefresh(_loadUser, key: MalPref.token.value);
+  Future<void> refreshUser() =>
+      shareRefresh(_loadUser, key: MalPref.token.value);
 
   Future<void> _loadUser() async {
     if (!isLoggedIn) return;

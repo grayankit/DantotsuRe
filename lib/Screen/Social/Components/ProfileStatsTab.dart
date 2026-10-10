@@ -1,3 +1,4 @@
+import '../../../Utils/Animation/WidgetAnimations.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -274,7 +275,7 @@ class _ProfileStatsTabState extends State<ProfileStatsTab>
             )
           : null,
       child: AnimatedSize(
-        duration: const Duration(milliseconds: 240),
+        duration: animDuration(240),
         curve: Curves.easeOutCubic,
         alignment: Alignment.topCenter,
         child: chart.widget,
@@ -413,7 +414,7 @@ class _ProfileStatsTabState extends State<ProfileStatsTab>
                       begin: 0,
                       end: fraction == 0 ? 0.01 : fraction,
                     ),
-                    duration: const Duration(milliseconds: 650),
+                    duration: animDuration(650),
                     curve: Curves.easeOutCubic,
                     builder: (_, value, _) => FractionallySizedBox(
                       widthFactor: value,

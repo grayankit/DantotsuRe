@@ -59,7 +59,7 @@ class _StoriesRowState extends State<StoriesRow> {
     unawaited(
       _scroll.animateTo(
         target,
-        duration: const Duration(milliseconds: 260),
+        duration: animDuration(260),
         curve: Curves.easeOutCubic,
       ),
     );
@@ -259,7 +259,7 @@ class _StoriesRowState extends State<StoriesRow> {
                   children: [
                     TweenAnimationBuilder<double>(
                       tween: Tween(begin: 0, end: fresh ? 1 : 0),
-                      duration: const Duration(milliseconds: 520),
+                      duration: animDuration(520),
                       curve: Curves.easeInOutCubic,
                       builder: (_, glow, _) => CustomPaint(
                         size: const Size(70, 70),

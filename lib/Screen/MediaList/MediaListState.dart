@@ -1,3 +1,4 @@
+import '../../Utils/Animation/WidgetAnimations.dart';
 import 'package:flutter/material.dart';
 
 import '../../Api/Discord/DiscordPresence.dart';
@@ -80,6 +81,7 @@ class MediaListState extends ScreenState {
     return _tabs = TabController(
       length: length,
       vsync: vsync,
+      animationDuration: animDuration(300),
       initialIndex: index,
     );
   }

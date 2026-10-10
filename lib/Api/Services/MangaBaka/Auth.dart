@@ -30,7 +30,9 @@ String get _redirect {
 
 MangaBakaAuth get mangaBakaAuth => find<MangaBakaAuth>();
 
-class MangaBakaAuth extends AppController with SharedRefresh implements ServiceAuth {
+class MangaBakaAuth extends AppController
+    with SharedRefresh
+    implements ServiceAuth {
   static const _userCacheKey = 'mangaBakaUser';
 
   final token = MangaBakaPref.token.rx;
@@ -179,7 +181,8 @@ class MangaBakaAuth extends AppController with SharedRefresh implements ServiceA
   }
 
   @override
-  Future<void> refreshUser() => shareRefresh(_loadUser, key: MangaBakaPref.token.value);
+  Future<void> refreshUser() =>
+      shareRefresh(_loadUser, key: MangaBakaPref.token.value);
 
   Future<void> _loadUser() async {
     if (!isLoggedIn) return;

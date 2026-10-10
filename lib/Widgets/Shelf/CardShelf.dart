@@ -118,7 +118,7 @@ class _CardShelfState extends State<CardShelf> {
 
   Widget _stretchBubble(double progress) {
     return AnimatedContainer(
-      duration: const Duration(milliseconds: 140),
+      duration: animDuration(140),
       curve: Curves.easeOutCubic,
       width: lerpDouble(34, 64, progress),
       height: 42,
@@ -229,7 +229,7 @@ class _CardShelfState extends State<CardShelf> {
               onSelect: () => state.loadMore(widget.onLoadMore),
               child: Center(
                 child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 180),
+                  duration: animDuration(180),
                   child: (overscroll == 0 && !isLoadingMore)
                       ? const SizedBox.shrink()
                       : isLoadingMore

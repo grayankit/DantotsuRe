@@ -1,3 +1,4 @@
+import '../../Utils/Animation/WidgetAnimations.dart';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -56,7 +57,7 @@ class _LineChartState extends State<LineChart> {
               child: TweenAnimationBuilder<double>(
                 key: ValueKey(widget.data.length),
                 tween: Tween(begin: 0, end: 1),
-                duration: const Duration(milliseconds: 1000),
+                duration: animDuration(1000),
                 curve: Curves.easeOutCubic,
                 builder: (_, t, _) => CustomPaint(
                   painter: _LinePainter(

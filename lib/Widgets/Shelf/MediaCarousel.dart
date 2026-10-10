@@ -1,3 +1,4 @@
+import '../../Utils/Animation/WidgetAnimations.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -45,7 +46,7 @@ class _MediaCarouselState extends State<MediaCarousel> {
       }
       unawaited(
         _controller.nextPage(
-          duration: const Duration(milliseconds: 800),
+          duration: animDuration(800),
           curve: Curves.fastOutSlowIn,
         ),
       );
@@ -80,7 +81,7 @@ class _MediaCarouselState extends State<MediaCarousel> {
       _controller
           .animateToPage(
             target,
-            duration: const Duration(milliseconds: 420),
+            duration: animDuration(420),
             curve: Curves.fastOutSlowIn,
           )
           .whenComplete(() => _focusPage = null),
@@ -171,7 +172,7 @@ class _MediaCarouselState extends State<MediaCarousel> {
                       children: [
                         for (var i = 0; i < items.length; i++)
                           AnimatedContainer(
-                            duration: const Duration(milliseconds: 250),
+                            duration: animDuration(250),
                             margin: const EdgeInsets.only(left: 4),
                             width: i == current ? 18 : 6,
                             height: 6,

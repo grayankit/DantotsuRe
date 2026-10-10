@@ -1,3 +1,4 @@
+import '../../Utils/Animation/WidgetAnimations.dart';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -55,7 +56,7 @@ class _RadarChartState extends State<RadarChart> {
                 child: TweenAnimationBuilder<double>(
                   key: ValueKey(data.length),
                   tween: Tween(begin: 0, end: 1),
-                  duration: const Duration(milliseconds: 900),
+                  duration: animDuration(900),
                   curve: Curves.easeOutBack,
                   builder: (_, t, _) => CustomPaint(
                     painter: _RadarPainter(

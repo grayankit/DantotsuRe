@@ -101,7 +101,7 @@ class _StoryViewerState extends State<StoryViewer>
           unawaited(
             state.pages.animateToPage(
               target,
-              duration: const Duration(milliseconds: 380),
+              duration: animDuration(380),
               curve: Curves.easeOutCubic,
             ),
           );
@@ -121,7 +121,7 @@ class _StoryViewerState extends State<StoryViewer>
         child: AnimatedContainer(
           duration: state.dragging.value && state.drag.value > 0
               ? Duration.zero
-              : const Duration(milliseconds: 260),
+              : animDuration(260),
           curve: Curves.easeOutCubic,
           transform: Matrix4.identity()
             ..translateByDouble(0, state.drag.value, 0, 1)
@@ -263,7 +263,7 @@ class _StoryGroupPageState extends State<_StoryGroupPage>
     final url =
         a.media?.banner ?? a.media?.cover ?? a.user?.banner ?? a.user?.avatar;
     return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 400),
+      duration: animDuration(400),
       child: KeyedSubtree(
         key: ValueKey('bg-${a.id}'),
         child: Stack(
@@ -317,7 +317,7 @@ class _StoryGroupPageState extends State<_StoryGroupPage>
       top: top + 86,
       bottom: bottom + 96,
       child: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 340),
+        duration: animDuration(340),
         switchInCurve: Curves.easeOutCubic,
         transitionBuilder: (child, animation) => FadeTransition(
           opacity: animation,
@@ -554,7 +554,7 @@ class _StoryGroupPageState extends State<_StoryGroupPage>
         child: Row(
           children: [
             AnimatedSwitcher(
-              duration: const Duration(milliseconds: 220),
+              duration: animDuration(220),
               transitionBuilder: (child, a) =>
                   ScaleTransition(scale: a, child: child),
               child: Icon(icon, key: ValueKey(icon), color: color, size: 22),

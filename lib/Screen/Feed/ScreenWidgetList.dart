@@ -135,7 +135,7 @@ class _ScreenWidgetListState extends State<ScreenWidgetList>
                     icon: const Icon(Icons.arrow_upward_rounded),
                     onPressed: () => state.scroll.animateTo(
                       0,
-                      duration: const Duration(milliseconds: 500),
+                      duration: animDuration(500),
                       curve: Curves.easeInOut,
                     ),
                   ),

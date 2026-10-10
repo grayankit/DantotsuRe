@@ -1,3 +1,4 @@
+import '../../Utils/Animation/WidgetAnimations.dart';
 import 'package:flutter/material.dart';
 import '../../Core/State/State.dart';
 import '../../Utils/Nav/DpadNav.dart';
@@ -36,7 +37,7 @@ class _ClickableState extends State<Clickable> {
         ? Watch(
             () => AnimatedScale(
               scale: _down.value ? 0.96 : 1,
-              duration: Durations.short3,
+              duration: animDuration(150),
               curve: Curves.easeOutCubic,
               child: widget.child,
             ),

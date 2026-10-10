@@ -542,8 +542,8 @@ defines `handleError(e, st, {softCrash})` (called from the zone handler in `main
   overscroll-to-load-more + haptics; every titled shelf gets a → arrow (and a tappable title) that opens `Screen/Feed/ShelfScreen` — a full-page `PosterCard` grid that keeps paging through the section's `onLoadMore` as you scroll; opt out with `MediaSectionData(fullPage: false)`). `PosterCard` items in a `SuperSliverList`, keyed by
   `media.id` (+ `findChildIndexCallback`) so a cache patch touches only what changed.
 - `Utils/Animation/WidgetAnimations.dart` — `extension WidgetAnimations on Widget` built on
-  `flutter_animate`: `animateFadeUp`, `animateDropIn`, `animatePageTransition`, `animateNav*`,
-  etc. Global `kAnimationSpeed` (`<= 0` disables). Recent commits are heavy on animation polish.
+  `flutter_animate`: `animateFadeUp`, `animateStagger(index)`, `animateFadeIn`, `animateDropIn`, `animatePageTransition`, `animateNav*`,
+  etc., plus `AppSwitcher` / `AppSize` and `animDuration(ms)` / `animDelay(d)` for raw `Animated*` widgets, tab controllers, sheets and routes. Global `kAnimationSpeed` (`<= 0` disables); every animation in the app scales with it. Recent commits are heavy on animation polish.
 - `Utils/Functions/NavigateToScreen.dart` — `navigateToPage(context, widget)` uses a
   `PageRouteBuilder` with `animatePageTransition`.
 - `Utils/Functions/SnackBar.dart` — `snackString(msg, {clipboard, icon, simple, child})`.

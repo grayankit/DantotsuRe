@@ -1,3 +1,4 @@
+import '../../Utils/Animation/WidgetAnimations.dart';
 import 'package:flutter/material.dart';
 
 import '../../Core/Services/ScoreFormat.dart';
@@ -466,7 +467,7 @@ class _PosterCardState extends State<PosterCard> {
 
   Widget _scaled(Widget child, double scale) => AnimatedScale(
     scale: scale,
-    duration: const Duration(milliseconds: 180),
+    duration: animDuration(180),
     curve: Curves.easeOut,
     child: child,
   );

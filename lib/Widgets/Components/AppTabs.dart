@@ -1,3 +1,4 @@
+import '../../Utils/Animation/WidgetAnimations.dart';
 import 'package:flutter/material.dart';
 
 import '../../Utils/Extensions/ContextExtensions.dart';
@@ -28,7 +29,7 @@ class AppTab extends StatelessWidget {
     final color = selected ? scheme.primary : scheme.onSurfaceVariant;
 
     return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
+      duration: animDuration(200),
       curve: Curves.easeOut,
       margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
       child: ThemedContainer(
@@ -53,7 +54,7 @@ class AppTab extends StatelessWidget {
             if (count != null) ...[
               const SizedBox(width: 8),
               AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
+                duration: animDuration(200),
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
                   color: selected

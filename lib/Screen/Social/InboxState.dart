@@ -1,3 +1,4 @@
+import '../../Utils/Animation/WidgetAnimations.dart';
 import 'package:flutter/material.dart';
 
 import '../../Api/Discord/DiscordPresence.dart';
@@ -9,7 +10,11 @@ class InboxState extends ScreenState {
 
   InboxState(this.service);
 
-  late final tabs = TabController(length: 2, vsync: vsync);
+  late final tabs = TabController(
+    length: 2,
+    vsync: vsync,
+    animationDuration: animDuration(300),
+  );
 
   String? get currentUserId => service.socialView!.currentUserId;
 

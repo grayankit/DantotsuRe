@@ -1,3 +1,4 @@
+import '../../../Utils/Animation/WidgetAnimations.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -42,7 +43,7 @@ class StoryViewerState extends ScreenState {
     unawaited(
       pages.animateToPage(
         index,
-        duration: const Duration(milliseconds: 420),
+        duration: animDuration(420),
         curve: Curves.easeOutCubic,
       ),
     );

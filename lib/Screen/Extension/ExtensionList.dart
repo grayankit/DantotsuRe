@@ -319,7 +319,7 @@ class _ExtensionListState extends State<ExtensionList>
 
     if (!widget.isInstalled) {
       return AnimatedSwitcher(
-        duration: const Duration(milliseconds: 180),
+        duration: animDuration(180),
         child: isInstalling
             ? _installProgressIndicator(installProgress)
             : IconButton(
@@ -339,7 +339,7 @@ class _ExtensionListState extends State<ExtensionList>
       children: [
         if ((source.hasUpdate ?? false) || isInstalling)
           AnimatedSwitcher(
-            duration: const Duration(milliseconds: 180),
+            duration: animDuration(180),
             child: isInstalling
                 ? _installProgressIndicator(installProgress)
                 : IconButton(

@@ -1,3 +1,4 @@
+import '../../Utils/Animation/WidgetAnimations.dart';
 import 'package:flutter/material.dart';
 
 import '../../Core/Services/MediaServiceController.dart';
@@ -17,6 +18,7 @@ class ServiceSettingsState extends ScreenState {
   late final TabController tab = TabController(
     length: services.length,
     vsync: vsync,
+    animationDuration: animDuration(300),
     initialIndex: _start < 0 ? 0 : _start,
   );
 
