@@ -1,3 +1,4 @@
+import '../../Logger.dart';
 import 'dart:async';
 import 'dart:convert';
 
@@ -36,7 +37,9 @@ class WebViewState extends ScreenState {
       if (ua == null || ua.isEmpty) return;
       PrefName.fetchedUserAgent.value = ua;
       find<NetworkManager>().reinitialize();
-    } catch (_) {}
+    } catch (e, st) {
+      logError('WebViewState', e, st);
+    }
   }
 
   @override
@@ -113,7 +116,9 @@ class WebViewState extends ScreenState {
       """,
         ),
       );
-    } catch (_) {}
+    } catch (e, st) {
+      logError('WebViewState', e, st);
+    }
   }
 
   Future<void> _updateNavState() async {

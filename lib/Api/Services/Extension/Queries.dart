@@ -1,3 +1,4 @@
+import '../../../Logger.dart';
 import 'package:collection/collection.dart';
 import 'package:dartotsu_extension_bridge/dartotsu_extension_bridge.dart';
 
@@ -164,7 +165,8 @@ class ExtensionQueries extends Queries {
     try {
       final pages = await source.methods.search(term, page, const []);
       return (pages.hasNextPage, pages.toMedia(isAnime: anime, source: source));
-    } catch (_) {
+    } catch (e, st) {
+      logError('Queries', e, st);
       return null;
     }
   }

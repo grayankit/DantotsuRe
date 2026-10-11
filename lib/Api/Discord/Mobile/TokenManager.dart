@@ -1,3 +1,4 @@
+import '../../../Logger.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
@@ -75,7 +76,8 @@ class MobileTokenManager {
       );
 
       return res.statusCode == 200;
-    } catch (_) {
+    } catch (e, st) {
+      logError('TokenManager', e, st);
       return false;
     }
   }

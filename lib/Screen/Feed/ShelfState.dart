@@ -1,3 +1,4 @@
+import '../../Logger.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -48,7 +49,8 @@ class ShelfState extends ScreenState {
       ];
       items.addAll(fresh);
       more.value = fresh.isNotEmpty;
-    } catch (_) {
+    } catch (e, st) {
+      logError('ShelfState', e, st);
       if (mounted) more.value = false;
     } finally {
       if (mounted) loading.value = false;

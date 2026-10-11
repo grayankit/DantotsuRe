@@ -1,3 +1,4 @@
+import '../../../Logger.dart';
 import 'dart:convert';
 
 import 'package:flutter/widgets.dart';
@@ -326,7 +327,8 @@ class SocialScreenView {
     Future<T?> soft<T>(Future<T> Function() run) async {
       try {
         return await run();
-      } catch (_) {
+      } catch (e, st) {
+        logError('ServiceScreens', e, st);
         return null;
       }
     }

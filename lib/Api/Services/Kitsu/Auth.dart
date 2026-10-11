@@ -1,3 +1,4 @@
+import '../../../Logger.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -171,7 +172,8 @@ class KitsuAuth extends AppController
       });
       done.complete(ok);
       return ok;
-    } catch (_) {
+    } catch (e, st) {
+      logError('Auth', e, st);
       done.complete(false);
       return false;
     } finally {

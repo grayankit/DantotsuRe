@@ -42,7 +42,8 @@ extension on AnilistQueries {
       Future<T?> soft<T>(Future<T> Function() run) async {
         try {
           return await run();
-        } catch (_) {
+        } catch (e, st) {
+          logError('GetSocialData', e, st);
           return null;
         }
       }
@@ -67,7 +68,9 @@ extension on AnilistQueries {
     SocialFavourites? favourites;
     try {
       favourites = await _socialFavourites(user.id, firstPage: data);
-    } catch (_) {}
+    } catch (e, st) {
+      logError('GetSocialData', e, st);
+    }
     final rows =
         (((data['User'] as Map?)?['stats'] as Map?)?['activityHistory']
             as List?) ??
@@ -129,7 +132,9 @@ extension on AnilistQueries {
         index.take(_profileCap).toList(),
         location: PrefLocation.CACHE,
       );
-    } catch (_) {}
+    } catch (e, st) {
+      logError('GetSocialData', e, st);
+    }
   }
 
   SocialFavourites _cachedFavourites(Map<String, dynamic>? favourites) {
@@ -166,7 +171,8 @@ extension on AnilistQueries {
         ),
         stats: _statsFromUser(user),
       );
-    } catch (_) {
+    } catch (e, st) {
+      logError('GetSocialData', e, st);
       return null;
     }
   }

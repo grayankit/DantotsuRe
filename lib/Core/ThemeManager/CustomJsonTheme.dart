@@ -1,3 +1,4 @@
+import '../../Logger.dart';
 import 'dart:convert';
 import 'dart:io';
 
@@ -90,7 +91,8 @@ class CustomJsonTheme {
         Brightness.dark,
       );
       return (light, dark);
-    } catch (_) {
+    } catch (e, st) {
+      logError('CustomJsonTheme', e, st);
       return null;
     }
   }

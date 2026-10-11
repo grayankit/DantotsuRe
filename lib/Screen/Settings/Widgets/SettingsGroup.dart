@@ -22,7 +22,7 @@ class SettingsGroup extends StatelessWidget {
     List<Setting> group = [];
 
     void flush() {
-      if (header != null || group.isNotEmpty) {
+      if (group.isNotEmpty) {
         sections.add(_Section(header: header, items: List.of(group)));
         header = null;
         group = [];

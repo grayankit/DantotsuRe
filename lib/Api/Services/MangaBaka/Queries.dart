@@ -1,3 +1,4 @@
+import '../../../Logger.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'dart:async';
@@ -147,7 +148,9 @@ class MangaBakaQueries extends Queries {
         final entry = mine[m.id];
         if (entry != null) m.takeListEntry(entry);
       }
-    } catch (_) {}
+    } catch (e, st) {
+      logError('Queries', e, st);
+    }
     return items;
   }
 
@@ -222,7 +225,9 @@ class MangaBakaQueries extends Queries {
       if (entry != null) applyMangaBakaEntry(media, entry, ratingScale);
     } on MangaBakaException catch (e) {
       if (e.status != 404) rethrow;
-    } catch (_) {}
+    } catch (e, st) {
+      logError('Queries', e, st);
+    }
   }
 
   Future<Media?> _fetch(String id) async {
@@ -273,7 +278,8 @@ class MangaBakaQueries extends Queries {
         }
       }
       return _visible(out);
-    } catch (_) {
+    } catch (e, st) {
+      logError('Queries', e, st);
       return const [];
     }
   }
@@ -289,7 +295,8 @@ class MangaBakaQueries extends Queries {
           if (e is Map && e['series'] is Map)
             mapMangaBakaSeries((e['series'] as Map).cast<String, dynamic>()),
       ]);
-    } catch (_) {
+    } catch (e, st) {
+      logError('Queries', e, st);
       return const [];
     }
   }
@@ -410,7 +417,9 @@ class MangaBakaQueries extends Queries {
           if (g is Map && g['value'] != null) '${g['label']}': '${g['value']}',
       };
       if (slugs.isNotEmpty) saveCustomData(_genreKey, slugs);
-    } catch (_) {}
+    } catch (e, st) {
+      logError('Queries', e, st);
+    }
     return true;
   }
 

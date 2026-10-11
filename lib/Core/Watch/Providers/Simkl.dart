@@ -1,3 +1,4 @@
+import '../../../Logger.dart';
 import '../../../Api/Services/Simkl/Auth.dart';
 import '../../State/State.dart';
 import '../EpisodeMeta.dart';
@@ -22,7 +23,8 @@ class SimklEpisodesProvider extends EpisodeMetaProvider {
         query: {'extended': 'full'},
         auth: false,
       );
-    } catch (_) {
+    } catch (e, st) {
+      logError('Simkl', e, st);
       return const {};
     }
     if (body is! List) return const {};

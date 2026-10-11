@@ -1,3 +1,4 @@
+import '../../Logger.dart';
 import '../../Utils/Animation/WidgetAnimations.dart';
 import 'dart:convert';
 
@@ -1139,7 +1140,8 @@ class _RemoteSvgState extends State<_RemoteSvg> {
       if (text == null || !text.contains('<svg')) return null;
       if (text.contains('<foreignObject')) return null;
       return text;
-    } catch (_) {
+    } catch (e, st) {
+      logError('AniHtml', e, st);
       return null;
     }
   }

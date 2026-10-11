@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../Widgets/Components/AppBars.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
+import '../../../Core/State/State.dart';
 import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../../Utils/Extensions/Responsive.dart';
 import '../../../Widgets/Components/BaseScreen.dart';
@@ -31,7 +32,7 @@ class _DeveloperPageState extends BaseScreen<DeveloperPage>
       backgroundColor: Colors.transparent,
       body: FutureBuilder<List<Developer>>(
         future: state.future,
-        builder: (context, snapshot) {
+        builder: (context, snapshot) => Watch(() {
           final loading = snapshot.connectionState != ConnectionState.done;
           final items = state.itemsFor(loading: loading, list: snapshot.data);
 
@@ -90,7 +91,7 @@ class _DeveloperPageState extends BaseScreen<DeveloperPage>
           );
 
           return loading ? Skeletonizer(child: grid) : grid;
-        },
+        }),
       ),
     );
   }

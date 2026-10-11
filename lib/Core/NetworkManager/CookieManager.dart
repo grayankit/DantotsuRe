@@ -1,3 +1,4 @@
+import '../../Logger.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -10,6 +11,8 @@ import '../Preferences/PrefManager.dart';
 class CookieManager extends Interceptor {
   static const _storageKey = "cookies";
   static const _flushDelay = Duration(seconds: 2);
+
+  String Function()? clearanceAgent;
 
   Map<String, StoredCookie>? _cache;
 
@@ -64,7 +67,8 @@ class CookieManager extends Interceptor {
       _cache = cookies;
 
       return cookies;
-    } catch (_) {
+    } catch (e, st) {
+      logError('CookieManager', e, st);
       return _cache = {};
     }
   }
@@ -208,9 +212,16 @@ class CookieManager extends Interceptor {
 
     final header = cookies.map((e) => "${e.name}=${e.value}").join("; ");
 
-    final headers = (request.headers ?? HttpHeaders.empty)
+    var headers = (request.headers ?? HttpHeaders.empty)
         .copyWithoutRaw("cookie")
         .copyWithRaw(name: "cookie", value: header);
+
+    final agent = clearanceAgent?.call();
+    if (agent != null && cookies.any((c) => c.name == "cf_clearance")) {
+      headers = headers
+          .copyWithoutRaw("user-agent")
+          .copyWithRaw(name: "user-agent", value: agent);
+    }
 
     return Interceptor.next(request.copyWith(headers: headers));
   }
@@ -334,7 +345,9 @@ class CookieManager extends Interceptor {
         case "expires":
           try {
             expires = HttpDate.parse(valuePart);
-          } catch (_) {}
+          } catch (e, st) {
+            logError('CookieManager', e, st);
+          }
 
           break;
 
@@ -496,7 +509,8 @@ class CookieManager extends Interceptor {
             cookie.name == name &&
             domainMatches(domain, cookie.domain, cookie.hostOnly),
       );
-    } catch (_) {
+    } catch (e, st) {
+      logError('CookieManager', e, st);
       return null;
     }
   }

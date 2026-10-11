@@ -87,7 +87,8 @@ class StorageManager {
       return match != null
           ? '/storage/emulated/${match.group(1)}'
           : '/storage/emulated/0';
-    } catch (_) {
+    } catch (e, st) {
+      logError('StorageManager', e, st);
       return '/storage/emulated/0';
     }
   }

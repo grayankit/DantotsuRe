@@ -12,7 +12,38 @@ final DebugPrintCallback _consolePrint = debugPrint;
 
 void logger(String message, {LogLevel logLevel = LogLevel.info, String? tag}) {
   Logger.log(message, logLevel: logLevel, tag: tag);
-  Zone.root.run(() => _consolePrint(tag == null ? message : '[$tag] $message'));
+  final level = switch (logLevel) {
+    LogLevel.warning => 'WARN ',
+    LogLevel.error => 'ERROR ',
+    _ => '',
+  };
+  Zone.root.run(
+    () =>
+        _consolePrint(tag == null ? '$level$message' : '[$tag] $level$message'),
+  );
+}
+
+void logDebug(String message, {String? tag}) =>
+    logger(message, logLevel: LogLevel.debug, tag: tag);
+
+void logWarn(String message, {String? tag}) =>
+    logger(message, logLevel: LogLevel.warning, tag: tag);
+
+void logError(String tag, Object error, [StackTrace? stack, String? message]) {
+  final b = StringBuffer(message == null ? '$error' : '$message: $error');
+  if (stack != null) {
+    final frames = stack
+        .toString()
+        .split('\n')
+        .where((l) => l.trim().isNotEmpty)
+        .take(6);
+    for (final f in frames) {
+      b
+        ..writeln()
+        ..write('  $f');
+    }
+  }
+  logger(b.toString(), logLevel: LogLevel.warning, tag: tag);
 }
 
 class Logger {

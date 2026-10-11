@@ -1,16 +1,27 @@
 import 'package:flutter/material.dart';
 
+import '../../Utils/Extensions/ContextExtensions.dart';
 import '../../Utils/Functions/NavigateToScreen.dart';
 
 import 'AppSheet.dart';
+import 'CachedNetworkImage.dart';
 import 'CustomBottomDialog.dart';
 import 'SheetTile.dart';
 
 class ChoiceOption<T> {
   final T value;
   final String label;
+  final String? subtitle;
+  final IconData? icon;
+  final String? imageUrl;
 
-  const ChoiceOption(this.value, this.label);
+  const ChoiceOption(
+    this.value,
+    this.label, {
+    this.subtitle,
+    this.icon,
+    this.imageUrl,
+  });
 }
 
 Future<T?> showChoiceSheet<T>(
@@ -18,24 +29,88 @@ Future<T?> showChoiceSheet<T>(
   required String title,
   required List<ChoiceOption<T>> options,
   required T selected,
+  IconData? icon,
 }) => showCustomBottomDialog<T>(
   context,
   AppSheet(
     title: title,
     child: ListView(
       shrinkWrap: true,
-      padding: const EdgeInsets.fromLTRB(12, 0, 12, 24),
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
       children: [
-        for (final option in options)
+        for (var i = 0; i < options.length; i++)
           SheetTile(
-            title: Text(option.label),
-            selected: option.value == selected,
-            trailing: option.value == selected
-                ? const Icon(Icons.check_rounded)
-                : null,
-            onTap: () => popPage(context, option.value),
+            tinted: true,
+            radius: BorderRadius.vertical(
+              top: Radius.circular(i == 0 ? 20 : 6),
+              bottom: Radius.circular(i == options.length - 1 ? 20 : 6),
+            ),
+            leading: _Leading(
+              option: options[i],
+              fallback: icon,
+              selected: options[i].value == selected,
+            ),
+            title: Text(options[i].label),
+            subtitle: options[i].subtitle == null
+                ? null
+                : Text(options[i].subtitle!),
+            selected: options[i].value == selected,
+            onTap: () => popPage(context, options[i].value),
           ),
       ],
     ),
   ),
 );
+
+class _Leading<T> extends StatelessWidget {
+  final ChoiceOption<T> option;
+  final IconData? fallback;
+  final bool selected;
+
+  const _Leading({
+    required this.option,
+    required this.fallback,
+    required this.selected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = context.colorScheme;
+    final icon = option.icon ?? fallback;
+    final letter = option.label.trim();
+    final color = selected
+        ? scheme.onPrimaryContainer
+        : scheme.onSecondaryContainer;
+    return Container(
+      width: 36,
+      height: 36,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: selected
+            ? scheme.primary.withValues(alpha: 0.18)
+            : scheme.secondaryContainer,
+        shape: BoxShape.circle,
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: (option.imageUrl ?? '').isNotEmpty
+          ? cachedNetworkImage(
+              imageUrl: option.imageUrl,
+              width: 36,
+              height: 36,
+              fit: BoxFit.cover,
+              errorWidget: (_, _, _) => _letter(context, letter, color),
+            )
+          : icon != null
+          ? Icon(icon, size: 20, color: color)
+          : _letter(context, letter, color),
+    );
+  }
+
+  Widget _letter(BuildContext context, String letter, Color color) => Text(
+    letter.isEmpty ? '?' : letter.characters.first.toUpperCase(),
+    style: context.textTheme.titleSmall?.copyWith(
+      color: color,
+      fontWeight: FontWeight.w700,
+    ),
+  );
+}

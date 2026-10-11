@@ -1,3 +1,4 @@
+import '../../../Logger.dart';
 import 'dart:async';
 import 'dart:convert';
 
@@ -29,7 +30,8 @@ Map<String, dynamic> _body(NetworkResponse<dynamic> res) {
 Object? _tryJson(String text) {
   try {
     return jsonDecode(text);
-  } catch (_) {
+  } catch (e, st) {
+    logError('Client', e, st);
     return null;
   }
 }

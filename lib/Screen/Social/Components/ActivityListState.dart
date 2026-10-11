@@ -1,3 +1,4 @@
+import '../../../Logger.dart';
 import 'dart:async';
 
 import 'package:flutter/widgets.dart';
@@ -82,7 +83,8 @@ class ActivityListState extends ScreenState {
           pages < 10 &&
           visible.length == before);
       failed.value = false;
-    } catch (_) {
+    } catch (e, st) {
+      logError('ActivityListState', e, st);
       failed.value = true;
     }
     if (mounted) {

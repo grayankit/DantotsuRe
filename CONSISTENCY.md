@@ -41,6 +41,7 @@ A screen (page, sheet with logic) is `FooScreen.dart` + `FooState.dart`; see `Sc
 - A selectable row inside a sheet (language picker, font picker, any "pick one of these"
   list) → `SheetTile` (`Widgets/Components/SheetTile.dart`), not a bare `ListTile`. It already
   handles the selected-pill background, M3 colors, and the trailing check icon.
+- "Pick one of these" with a known option list → `showChoiceSheet` (`Widgets/Components/ChoiceSheet.dart`): grouped rounded rows, a circular leading badge (`ChoiceOption.imageUrl` / `icon` / first letter) and a primary check on the selected row. Pass an `imageUrl` whenever the thing has an icon (sources do).
 - Switches in sheets and cards → `SwitchListTile` (radius 14 in sheets, `contentPadding: zero`
   in cards).
 - A modal with title/message/buttons (confirm, radio choice, checkbox list, reorderable list)
@@ -65,6 +66,10 @@ All in `Widgets/Components/AppBars.dart`:
   (`Widgets/Components/EmptyState.dart`). Don't draw an icon + text column by hand.
 - Loading → `Skeletonizer` over the real widget built from `Media.skeleton()` / placeholder
   items, not a spinner, wherever the final layout is known. Keep chrome with `Skeleton.keep`.
+
+## Per-media state
+
+Anything remembered about one title (matches, settings, positions, stream choices, cached ids, player overrides) is a field of `MediaRecord` (`Core/Media/MediaRecord.dart`), saved with `MediaRecords.save` — one key per title. Don't add another `something/<service>/<media>` pref key.
 
 ## Animation speed
 

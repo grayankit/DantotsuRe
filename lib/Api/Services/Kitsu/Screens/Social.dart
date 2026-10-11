@@ -1,3 +1,4 @@
+import '../../../../Logger.dart';
 import 'dart:async';
 
 import '../../../../Core/Services/MediaService.dart';
@@ -124,7 +125,8 @@ class KitsuSocialView extends SocialScreenView {
         },
       );
       return JsonApi(res).data.isNotEmpty;
-    } catch (_) {
+    } catch (e, st) {
+      logError('Social', e, st);
       return false;
     }
   }
@@ -203,7 +205,8 @@ class KitsuSocialView extends SocialScreenView {
           anime: false,
         ),
       );
-    } catch (_) {
+    } catch (e, st) {
+      logError('Social', e, st);
       return const UserStats(anime: UserStatSet(), manga: UserStatSet());
     }
   }
@@ -372,7 +375,8 @@ class KitsuSocialView extends SocialScreenView {
         },
       });
       return true;
-    } catch (_) {
+    } catch (e, st) {
+      logError('Social', e, st);
       return null;
     }
   }
@@ -419,7 +423,8 @@ class KitsuSocialView extends SocialScreenView {
         for (final l in doc.data)
           if (doc.one(l, 'post') case final p?) '${p['id']}',
       };
-    } catch (_) {
+    } catch (e, st) {
+      logError('Social', e, st);
       return {};
     }
   }
@@ -571,7 +576,8 @@ class KitsuSocialView extends SocialScreenView {
         },
       });
       return true;
-    } catch (_) {
+    } catch (e, st) {
+      logError('Social', e, st);
       return false;
     }
   }
@@ -603,7 +609,8 @@ class KitsuSocialView extends SocialScreenView {
         });
       }
       return true;
-    } catch (_) {
+    } catch (e, st) {
+      logError('Social', e, st);
       return false;
     }
   }
@@ -638,7 +645,8 @@ class KitsuSocialView extends SocialScreenView {
         });
       }
       return true;
-    } catch (_) {
+    } catch (e, st) {
+      logError('Social', e, st);
       return false;
     }
   }
@@ -648,7 +656,8 @@ class KitsuSocialView extends SocialScreenView {
     try {
       await _client.delete('/posts/$id');
       return true;
-    } catch (_) {
+    } catch (e, st) {
+      logError('Social', e, st);
       return false;
     }
   }
@@ -658,7 +667,8 @@ class KitsuSocialView extends SocialScreenView {
     try {
       await _client.delete('/comments/$id');
       return true;
-    } catch (_) {
+    } catch (e, st) {
+      logError('Social', e, st);
       return false;
     }
   }
@@ -707,7 +717,8 @@ class KitsuSocialView extends SocialScreenView {
           if (doc.one(m, 'group') case final g?)
             '${g['id']}': attrs(m)['rank'] as String? ?? 'pleb',
       };
-    } catch (_) {
+    } catch (e, st) {
+      logError('Social', e, st);
       return {};
     }
   }
@@ -880,7 +891,8 @@ class KitsuSocialView extends SocialScreenView {
         },
       });
       return true;
-    } catch (_) {
+    } catch (e, st) {
+      logError('Social', e, st);
       return null;
     }
   }
@@ -906,7 +918,8 @@ class KitsuSocialView extends SocialScreenView {
         },
       });
       return true;
-    } catch (_) {
+    } catch (e, st) {
+      logError('Social', e, st);
       return false;
     }
   }

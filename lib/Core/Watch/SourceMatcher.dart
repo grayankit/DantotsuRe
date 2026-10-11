@@ -1,6 +1,6 @@
 import 'package:dartotsu_extension_bridge/dartotsu_extension_bridge.dart';
 
-import '../Preferences/PrefManager.dart';
+import '../Media/MediaRecord.dart';
 import '../Services/MediaService.dart';
 import '../Services/Model/Media.dart';
 import 'TitleMatch.dart';
@@ -14,18 +14,10 @@ class SourceMatch {
 class SourceMatcher {
   SourceMatcher._();
 
-  static String _key(MediaService service, Source source, Media media) =>
-      'watchMatch/${service.id}/${source.id}/${media.id}';
-
   static DMedia? saved(MediaService service, Source source, Media media) {
-    final raw = PrefManager.getCustomVal<Map>(_key(service, source, media));
-    final url = raw?['url'] as String?;
-    if (raw == null || url == null) return null;
-    return DMedia(
-      title: raw['title'] as String?,
-      url: url,
-      cover: raw['cover'] as String?,
-    );
+    final match = MediaRecords.of(service, media).matches[source.id];
+    if (match == null) return null;
+    return DMedia(title: match.title, url: match.url, cover: match.cover);
   }
 
   static void save(
@@ -33,14 +25,22 @@ class SourceMatcher {
     Source source,
     Media media,
     DMedia match,
-  ) => PrefManager.setCustomVal<Map>(_key(service, source, media), {
-    'title': match.title,
-    'url': match.url,
-    'cover': match.cover,
-  });
+  ) {
+    final url = match.url;
+    final id = source.id;
+    if (url == null || id == null) return;
+    MediaRecords.of(service, media).matches[id] = SourceMatchRecord(
+      title: match.title,
+      url: url,
+      cover: match.cover,
+    );
+    MediaRecords.save(service, media);
+  }
 
-  static void forget(MediaService service, Source source, Media media) =>
-      PrefManager.removeCustomVal(_key(service, source, media));
+  static void forget(MediaService service, Source source, Media media) {
+    MediaRecords.of(service, media).matches.remove(source.id);
+    MediaRecords.save(service, media);
+  }
 
   static List<String> names(Media media) {
     final seen = <String>{};

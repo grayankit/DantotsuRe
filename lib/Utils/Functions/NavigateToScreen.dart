@@ -9,10 +9,11 @@ Future<T?> navigateToPage<T>(
   Widget page, {
   bool header = true,
   bool hero = false,
+  bool instant = false,
 }) {
   return Navigator.of(context).push(
     PageRouteBuilder(
-      transitionDuration: animDuration(380),
+      transitionDuration: instant ? Duration.zero : animDuration(380),
       reverseTransitionDuration: animDuration(300),
       pageBuilder: (_, _, _) => DpadEnter(child: page),
       transitionsBuilder: (_, animation, _, child) {

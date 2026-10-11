@@ -1,3 +1,4 @@
+import '../../../Logger.dart';
 import '../../../Utils/Animation/WidgetAnimations.dart';
 import 'package:flutter/material.dart';
 
@@ -169,7 +170,8 @@ _ParsedProxy _parseProxyUrl(String raw) {
       user: userInfo.isNotEmpty ? userInfo[0] : '',
       pass: userInfo.length > 1 ? userInfo.sublist(1).join(':') : '',
     );
-  } catch (_) {
+  } catch (e, st) {
+    logError('NetworkSettings', e, st);
     return (protocol: 'http', host: raw, port: '', user: '', pass: '');
   }
 }

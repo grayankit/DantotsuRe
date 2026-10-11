@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../Utils/Animation/WidgetAnimations.dart';
 import '../../Utils/Extensions/ClickCursor.dart';
 
 import '../../Utils/Extensions/ContextExtensions.dart';
@@ -29,21 +30,107 @@ class AppSegmented<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final control = SegmentedButton<T>(
-      showSelectedIcon: false,
-      segments: [
-        for (final s in segments)
-          ButtonSegment<T>(
-            value: s.value,
-            label: s.label == null ? null : Text(s.label!),
-            icon: s.icon == null ? null : Icon(s.icon, size: 18),
-            tooltip: s.label,
+    final last = segments.length - 1;
+    final row = Row(
+      mainAxisSize: expand ? MainAxisSize.max : MainAxisSize.min,
+      children: [
+        for (var i = 0; i <= last; i++) ...[
+          if (i > 0) const SizedBox(width: 2),
+          _wrap(
+            _SegmentButton(
+              segment: segments[i],
+              selected: segments[i].value == value,
+              first: i == 0,
+              last: i == last,
+              onTap: () => onChanged(segments[i].value),
+            ),
           ),
+        ],
       ],
-      selected: {value},
-      onSelectionChanged: (set) => onChanged(set.first),
     );
-    return expand ? SizedBox(width: double.infinity, child: control) : control;
+    return expand ? SizedBox(width: double.infinity, child: row) : row;
+  }
+
+  Widget _wrap(Widget child) => expand ? Expanded(child: child) : child;
+}
+
+class _SegmentButton<T> extends StatelessWidget {
+  final AppSegment<T> segment;
+  final bool selected;
+  final bool first;
+  final bool last;
+  final VoidCallback onTap;
+
+  const _SegmentButton({
+    required this.segment,
+    required this.selected,
+    required this.first,
+    required this.last,
+    required this.onTap,
+  });
+
+  static const _outer = 18.0;
+  static const _inner = 6.0;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = context.colorScheme;
+    final radius = selected
+        ? BorderRadius.circular(_outer)
+        : BorderRadius.horizontal(
+            left: Radius.circular(first ? _outer : _inner),
+            right: Radius.circular(last ? _outer : _inner),
+          );
+    final foreground = selected
+        ? scheme.onPrimary
+        : scheme.onSecondaryContainer;
+    return AnimatedContainer(
+      duration: animDuration(220),
+      curve: Curves.easeOutCubic,
+      height: 36,
+      decoration: BoxDecoration(
+        color: selected
+            ? scheme.primary
+            : scheme.onSurface.withValues(alpha: 0.08),
+        borderRadius: radius,
+      ),
+      child: Material(
+        type: MaterialType.transparency,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: radius,
+          focusColor: foreground.withValues(alpha: 0.16),
+          mouseCursor: kClickCursor,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (segment.icon != null)
+                  Icon(segment.icon, size: 16, color: foreground),
+                if (segment.icon != null && segment.label != null)
+                  const SizedBox(width: 6),
+                if (segment.label != null)
+                  Flexible(
+                    child: Text(
+                      segment.label!,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: context.textTheme.labelMedium?.copyWith(
+                        color: foreground,
+                        fontWeight: selected
+                            ? FontWeight.w700
+                            : FontWeight.w500,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 

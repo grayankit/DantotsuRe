@@ -479,24 +479,6 @@ abstract class AppLocalizations {
   /// **'Custom'**
   String get colorPickerCustom;
 
-  /// No description provided for @utd.
-  ///
-  /// In en, this message translates to:
-  /// **'Up To Down'**
-  String get utd;
-
-  /// No description provided for @dtu.
-  ///
-  /// In en, this message translates to:
-  /// **'Down To Up'**
-  String get dtu;
-
-  /// No description provided for @rtl.
-  ///
-  /// In en, this message translates to:
-  /// **'Right To Left'**
-  String get rtl;
-
   /// No description provided for @ltr.
   ///
   /// In en, this message translates to:
@@ -562,18 +544,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Release channel and checks'**
   String get settingsUpdatesDesc;
-
-  /// No description provided for @settingsNetwork.
-  ///
-  /// In en, this message translates to:
-  /// **'Network'**
-  String get settingsNetwork;
-
-  /// No description provided for @settingsNetworkDesc.
-  ///
-  /// In en, this message translates to:
-  /// **'User-Agent, DNS, proxy, cookies'**
-  String get settingsNetworkDesc;
 
   /// No description provided for @settingsAboutDesc.
   ///
@@ -760,12 +730,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} settings'**
   String backupKeys(Object count);
-
-  /// No description provided for @backupShowKeys.
-  ///
-  /// In en, this message translates to:
-  /// **'Show settings'**
-  String get backupShowKeys;
 
   /// No description provided for @backupPassword.
   ///
@@ -1115,18 +1079,6 @@ abstract class AppLocalizations {
   /// **'Dynamic colour from the system'**
   String get materialYouDesc;
 
-  /// No description provided for @customAccent.
-  ///
-  /// In en, this message translates to:
-  /// **'Custom accent colour'**
-  String get customAccent;
-
-  /// No description provided for @customAccentDesc.
-  ///
-  /// In en, this message translates to:
-  /// **'Pick your own primary colour'**
-  String get customAccentDesc;
-
   /// No description provided for @jsonTheme.
   ///
   /// In en, this message translates to:
@@ -1138,12 +1090,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Live colours from ~/.config/dartotsu/theme.json (a custom script, or your own edits)'**
   String get jsonThemeDesc;
-
-  /// No description provided for @customAccentDisabledDesc.
-  ///
-  /// In en, this message translates to:
-  /// **'Turn off Material You to use a custom colour'**
-  String get customAccentDisabledDesc;
 
   /// No description provided for @themeMode.
   ///
@@ -1882,12 +1828,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Publishers'**
   String get publishersLabel;
-
-  /// No description provided for @originalLanguage.
-  ///
-  /// In en, this message translates to:
-  /// **'Original language'**
-  String get originalLanguage;
 
   /// No description provided for @licensedLabel.
   ///
@@ -3569,12 +3509,6 @@ abstract class AppLocalizations {
   /// **'System notifications'**
   String get systemNotifications;
 
-  /// No description provided for @systemNotificationsDesc.
-  ///
-  /// In en, this message translates to:
-  /// **'Show a notification for each unread AniList notification while the app is running. Opening the notifications page marks them read.'**
-  String get systemNotificationsDesc;
-
   /// No description provided for @feedLayout.
   ///
   /// In en, this message translates to:
@@ -4691,6 +4625,42 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1{1 week} other{{count} weeks}}'**
   String weeksCount(int count);
 
+  /// No description provided for @resumeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume'**
+  String get resumeTitle;
+
+  /// No description provided for @resumeSourceMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Install this title\'s source to resume'**
+  String get resumeSourceMissing;
+
+  /// No description provided for @resumeRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from resume'**
+  String get resumeRemove;
+
+  /// No description provided for @resumeMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t find {title} in this source'**
+  String resumeMissing(String title);
+
+  /// No description provided for @resumeAt.
+  ///
+  /// In en, this message translates to:
+  /// **'{time} left'**
+  String resumeAt(String time);
+
+  /// No description provided for @resumePage.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {page} of {total}'**
+  String resumePage(int page, int total);
+
   /// No description provided for @continueWatching.
   ///
   /// In en, this message translates to:
@@ -5525,18 +5495,6 @@ abstract class AppLocalizations {
   /// **'No match'**
   String get syncStateUnmapped;
 
-  /// No description provided for @syncStateFailed.
-  ///
-  /// In en, this message translates to:
-  /// **'Failed'**
-  String get syncStateFailed;
-
-  /// No description provided for @syncToSync.
-  ///
-  /// In en, this message translates to:
-  /// **'{count} to sync'**
-  String syncToSync(int count);
-
   /// No description provided for @syncPaused.
   ///
   /// In en, this message translates to:
@@ -5555,29 +5513,11 @@ abstract class AppLocalizations {
   /// **'{done} of {total}'**
   String syncProgressOf(int done, int total);
 
-  /// No description provided for @syncFetched.
-  ///
-  /// In en, this message translates to:
-  /// **'Fetched {time}'**
-  String syncFetched(String time);
-
   /// No description provided for @syncNothingHere.
   ///
   /// In en, this message translates to:
   /// **'Nothing to show'**
   String get syncNothingHere;
-
-  /// No description provided for @syncAllSynced.
-  ///
-  /// In en, this message translates to:
-  /// **'Everything is in sync'**
-  String get syncAllSynced;
-
-  /// No description provided for @syncSelectedMain.
-  ///
-  /// In en, this message translates to:
-  /// **'{name} is the main service'**
-  String syncSelectedMain(String name);
 
   /// No description provided for @syncLimits.
   ///
@@ -5626,12 +5566,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Shares its entry with another item'**
   String get syncShared;
-
-  /// No description provided for @syncFromTo.
-  ///
-  /// In en, this message translates to:
-  /// **'{from} to {to}'**
-  String syncFromTo(String from, String to);
 
   /// No description provided for @syncNotFound.
   ///
@@ -5909,12 +5843,6 @@ abstract class AppLocalizations {
   /// **'Add a comment…'**
   String get commentsPlaceholder;
 
-  /// No description provided for @commentsReplyPlaceholder.
-  ///
-  /// In en, this message translates to:
-  /// **'Write a reply…'**
-  String get commentsReplyPlaceholder;
-
   /// No description provided for @commentsReplyingTo.
   ///
   /// In en, this message translates to:
@@ -5926,12 +5854,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Send'**
   String get commentsSend;
-
-  /// No description provided for @commentsPostAs.
-  ///
-  /// In en, this message translates to:
-  /// **'Commenting as {name}'**
-  String commentsPostAs(String name);
 
   /// No description provided for @commentsTagButton.
   ///
@@ -6011,12 +5933,6 @@ abstract class AppLocalizations {
   /// **'Comment cannot be empty'**
   String get commentsEmptyText;
 
-  /// No description provided for @commentsTooLong.
-  ///
-  /// In en, this message translates to:
-  /// **'Comment cannot be longer than {max} characters'**
-  String commentsTooLong(int max);
-
   /// No description provided for @commentsBannedYou.
   ///
   /// In en, this message translates to:
@@ -6052,12 +5968,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'User banned'**
   String get commentsUserBanned;
-
-  /// No description provided for @commentsEditedMark.
-  ///
-  /// In en, this message translates to:
-  /// **'edited'**
-  String get commentsEditedMark;
 
   /// No description provided for @commentsReport.
   ///
@@ -6118,18 +6028,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Hide replies'**
   String get commentsHideReplies;
-
-  /// No description provided for @commentsCollapse.
-  ///
-  /// In en, this message translates to:
-  /// **'Collapse thread'**
-  String get commentsCollapse;
-
-  /// No description provided for @commentsExpand.
-  ///
-  /// In en, this message translates to:
-  /// **'Expand thread'**
-  String get commentsExpand;
 
   /// No description provided for @commentsLoadMore.
   ///
@@ -6233,12 +6131,6 @@ abstract class AppLocalizations {
   /// **'Notify me when someone replies to my comments'**
   String get commentsSettingAlertsDesc;
 
-  /// No description provided for @commentsSettingRules.
-  ///
-  /// In en, this message translates to:
-  /// **'Commenting rules'**
-  String get commentsSettingRules;
-
   /// No description provided for @commentsNoticeReplyTitle.
   ///
   /// In en, this message translates to:
@@ -6269,12 +6161,6 @@ abstract class AppLocalizations {
   /// **'Update from Dantotsu'**
   String get commentsNoticeUpdateTitle;
 
-  /// No description provided for @commentsLevel.
-  ///
-  /// In en, this message translates to:
-  /// **'Level {level}'**
-  String commentsLevel(int level);
-
   /// No description provided for @imageSearchTitle.
   ///
   /// In en, this message translates to:
@@ -6299,12 +6185,6 @@ abstract class AppLocalizations {
   /// **'Choose image'**
   String get imageSearchPick;
 
-  /// No description provided for @imageSearchLink.
-  ///
-  /// In en, this message translates to:
-  /// **'Image link'**
-  String get imageSearchLink;
-
   /// No description provided for @imageSearchLinkHint.
   ///
   /// In en, this message translates to:
@@ -6317,23 +6197,11 @@ abstract class AppLocalizations {
   /// **'Search'**
   String get imageSearchGo;
 
-  /// No description provided for @imageSearchSearching.
-  ///
-  /// In en, this message translates to:
-  /// **'Looking for a match…'**
-  String get imageSearchSearching;
-
   /// No description provided for @imageSearchEmpty.
   ///
   /// In en, this message translates to:
   /// **'No match found'**
   String get imageSearchEmpty;
-
-  /// No description provided for @imageSearchLowMatch.
-  ///
-  /// In en, this message translates to:
-  /// **'Low similarity, this might be the wrong anime'**
-  String get imageSearchLowMatch;
 
   /// No description provided for @imageSearchAdult.
   ///
@@ -6539,18 +6407,6 @@ abstract class AppLocalizations {
   /// **'Mod'**
   String get groupsRoleMod;
 
-  /// No description provided for @groupsNoPosts.
-  ///
-  /// In en, this message translates to:
-  /// **'Nothing posted here yet'**
-  String get groupsNoPosts;
-
-  /// No description provided for @groupsJoinToPost.
-  ///
-  /// In en, this message translates to:
-  /// **'Join the group to post'**
-  String get groupsJoinToPost;
-
   /// No description provided for @groupsCouldntLoad.
   ///
   /// In en, this message translates to:
@@ -6683,12 +6539,6 @@ abstract class AppLocalizations {
   /// **'Replies to your comments and announcements from Dantotsu show up here.'**
   String get notificationsCommentsEmptyMessage;
 
-  /// No description provided for @notificationsLoadMore.
-  ///
-  /// In en, this message translates to:
-  /// **'Load more'**
-  String get notificationsLoadMore;
-
   /// No description provided for @notificationsSettings.
   ///
   /// In en, this message translates to:
@@ -6790,12 +6640,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reactions'**
   String get reactionsTitle;
-
-  /// No description provided for @reactionsVotes.
-  ///
-  /// In en, this message translates to:
-  /// **'{count} upvotes'**
-  String reactionsVotes(int count);
 
   /// No description provided for @reactionsNeedEntry.
   ///
@@ -7097,18 +6941,6 @@ abstract class AppLocalizations {
   /// **'Sign in to track your progress'**
   String get watchSignInToTrack;
 
-  /// No description provided for @watchPlayerSoon.
-  ///
-  /// In en, this message translates to:
-  /// **'The player isn\'t built yet'**
-  String get watchPlayerSoon;
-
-  /// No description provided for @watchReaderSoon.
-  ///
-  /// In en, this message translates to:
-  /// **'The reader isn\'t built yet'**
-  String get watchReaderSoon;
-
   /// No description provided for @watchInstallSource.
   ///
   /// In en, this message translates to:
@@ -7274,7 +7106,7 @@ abstract class AppLocalizations {
   /// No description provided for @watchClearanceActive.
   ///
   /// In en, this message translates to:
-  /// **'Cloudflare clearance active, expires in {time}'**
+  /// **'Cloudflare clearance active, {time}'**
   String watchClearanceActive(String time);
 
   /// No description provided for @watchClearanceMissing.
@@ -7286,7 +7118,7 @@ abstract class AppLocalizations {
   /// No description provided for @watchClearanceSession.
   ///
   /// In en, this message translates to:
-  /// **'until the app closes'**
+  /// **'lasts until the app closes'**
   String get watchClearanceSession;
 
   /// No description provided for @watchAgentShared.
@@ -7372,6 +7204,1788 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Off'**
   String get watchMetaOff;
+
+  /// No description provided for @settingsPlayer.
+  ///
+  /// In en, this message translates to:
+  /// **'Player'**
+  String get settingsPlayer;
+
+  /// No description provided for @settingsPlayerDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Playback, subtitles, shaders, mpv and opening files'**
+  String get settingsPlayerDesc;
+
+  /// No description provided for @playerSettingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Player settings'**
+  String get playerSettingsTitle;
+
+  /// No description provided for @playerSectionPlayback.
+  ///
+  /// In en, this message translates to:
+  /// **'Playback'**
+  String get playerSectionPlayback;
+
+  /// No description provided for @playerSectionSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skipping'**
+  String get playerSectionSkip;
+
+  /// No description provided for @playerSectionGestures.
+  ///
+  /// In en, this message translates to:
+  /// **'Controls'**
+  String get playerSectionGestures;
+
+  /// No description provided for @playerSectionSubtitles.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtitles'**
+  String get playerSectionSubtitles;
+
+  /// No description provided for @playerSectionShaders.
+  ///
+  /// In en, this message translates to:
+  /// **'Shaders'**
+  String get playerSectionShaders;
+
+  /// No description provided for @playerSectionEngine.
+  ///
+  /// In en, this message translates to:
+  /// **'Engine'**
+  String get playerSectionEngine;
+
+  /// No description provided for @playerSectionMpv.
+  ///
+  /// In en, this message translates to:
+  /// **'mpv'**
+  String get playerSectionMpv;
+
+  /// No description provided for @playerSectionOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open media'**
+  String get playerSectionOpen;
+
+  /// No description provided for @playerSpeed.
+  ///
+  /// In en, this message translates to:
+  /// **'Playback speed'**
+  String get playerSpeed;
+
+  /// No description provided for @playerCursedSpeed.
+  ///
+  /// In en, this message translates to:
+  /// **'Extra speeds'**
+  String get playerCursedSpeed;
+
+  /// No description provided for @playerCursedSpeedDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Add speeds up to 10x to the list'**
+  String get playerCursedSpeedDesc;
+
+  /// No description provided for @playerResize.
+  ///
+  /// In en, this message translates to:
+  /// **'Resize mode'**
+  String get playerResize;
+
+  /// No description provided for @playerFitFit.
+  ///
+  /// In en, this message translates to:
+  /// **'Fit'**
+  String get playerFitFit;
+
+  /// No description provided for @playerFitCover.
+  ///
+  /// In en, this message translates to:
+  /// **'Cover'**
+  String get playerFitCover;
+
+  /// No description provided for @playerFitStretch.
+  ///
+  /// In en, this message translates to:
+  /// **'Stretch'**
+  String get playerFitStretch;
+
+  /// No description provided for @playerSkipDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip button length'**
+  String get playerSkipDuration;
+
+  /// No description provided for @playerSkipDurationDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Seconds the skip button jumps outside openings and endings'**
+  String get playerSkipDurationDesc;
+
+  /// No description provided for @playerSeekDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Double tap seek'**
+  String get playerSeekDuration;
+
+  /// No description provided for @playerSeekDurationDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Seconds to jump on a double tap or arrow key'**
+  String get playerSeekDurationDesc;
+
+  /// No description provided for @playerAutoPlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Play next automatically'**
+  String get playerAutoPlay;
+
+  /// No description provided for @playerAutoPlayDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Start the next episode when this one ends'**
+  String get playerAutoPlayDesc;
+
+  /// No description provided for @playerResume.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume where you left off'**
+  String get playerResume;
+
+  /// No description provided for @playerResumeDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue an episode from its last position'**
+  String get playerResumeDesc;
+
+  /// No description provided for @playerOrientation.
+  ///
+  /// In en, this message translates to:
+  /// **'Orientation'**
+  String get playerOrientation;
+
+  /// No description provided for @playerOrientationAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow the device'**
+  String get playerOrientationAuto;
+
+  /// No description provided for @playerOrientationLandscape.
+  ///
+  /// In en, this message translates to:
+  /// **'Landscape'**
+  String get playerOrientationLandscape;
+
+  /// No description provided for @playerOrientationPortrait.
+  ///
+  /// In en, this message translates to:
+  /// **'Portrait'**
+  String get playerOrientationPortrait;
+
+  /// No description provided for @playerAutoSkipOpening.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip openings'**
+  String get playerAutoSkipOpening;
+
+  /// No description provided for @playerAutoSkipEnding.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip endings'**
+  String get playerAutoSkipEnding;
+
+  /// No description provided for @playerAutoSkipRecap.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip recaps'**
+  String get playerAutoSkipRecap;
+
+  /// No description provided for @playerAutoSkipDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Jump past it as soon as it starts, using AniSkip and stream timestamps'**
+  String get playerAutoSkipDesc;
+
+  /// No description provided for @playerSkipOnce.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip once only'**
+  String get playerSkipOnce;
+
+  /// No description provided for @playerSkipOnceDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t skip the same part again if you seek back into it'**
+  String get playerSkipOnceDesc;
+
+  /// No description provided for @playerAdjustBrightness.
+  ///
+  /// In en, this message translates to:
+  /// **'Brightness gesture'**
+  String get playerAdjustBrightness;
+
+  /// No description provided for @playerAdjustBrightnessDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Swipe up and down on the left half of the screen'**
+  String get playerAdjustBrightnessDesc;
+
+  /// No description provided for @playerAdjustVolume.
+  ///
+  /// In en, this message translates to:
+  /// **'Volume gesture'**
+  String get playerAdjustVolume;
+
+  /// No description provided for @playerAdjustVolumeDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Swipe up and down on the right half of the screen'**
+  String get playerAdjustVolumeDesc;
+
+  /// No description provided for @playerHoldToSpeed.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold to speed up'**
+  String get playerHoldToSpeed;
+
+  /// No description provided for @playerHoldToSpeedDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Press and hold the video to play faster, drag sideways to change the speed'**
+  String get playerHoldToSpeedDesc;
+
+  /// No description provided for @playerThumbless.
+  ///
+  /// In en, this message translates to:
+  /// **'Thicker seek bar'**
+  String get playerThumbless;
+
+  /// No description provided for @playerThumblessDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'A thick bar without a thumb'**
+  String get playerThumblessDesc;
+
+  /// No description provided for @playerShowSubtitles.
+  ///
+  /// In en, this message translates to:
+  /// **'Show subtitles'**
+  String get playerShowSubtitles;
+
+  /// No description provided for @playerShowSubtitlesDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn off to hide every subtitle track'**
+  String get playerShowSubtitlesDesc;
+
+  /// No description provided for @playerSubtitleLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Preferred subtitle language'**
+  String get playerSubtitleLanguage;
+
+  /// No description provided for @playerSubtitleSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtitle size'**
+  String get playerSubtitleSize;
+
+  /// No description provided for @playerSubtitleWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtitle weight'**
+  String get playerSubtitleWeight;
+
+  /// No description provided for @playerSubtitleBottom.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtitle bottom padding'**
+  String get playerSubtitleBottom;
+
+  /// No description provided for @playerSubtitleFont.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtitle font'**
+  String get playerSubtitleFont;
+
+  /// No description provided for @playerSubtitleColor.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtitle colour'**
+  String get playerSubtitleColor;
+
+  /// No description provided for @playerSubtitleBackground.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtitle background'**
+  String get playerSubtitleBackground;
+
+  /// No description provided for @playerSubtitleOutline.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtitle outline'**
+  String get playerSubtitleOutline;
+
+  /// No description provided for @playerLibass.
+  ///
+  /// In en, this message translates to:
+  /// **'Use libass'**
+  String get playerLibass;
+
+  /// No description provided for @playerLibassDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Render styled .ass subtitles. The size, colour and font above then no longer apply'**
+  String get playerLibassDesc;
+
+  /// No description provided for @playerShaders.
+  ///
+  /// In en, this message translates to:
+  /// **'Shaders'**
+  String get playerShaders;
+
+  /// No description provided for @playerShadersEnable.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable shaders'**
+  String get playerShadersEnable;
+
+  /// No description provided for @playerShadersEnableDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Upscale and clean the picture with GLSL shaders such as Anime4K'**
+  String get playerShadersEnableDesc;
+
+  /// No description provided for @playerShadersOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Shaders off'**
+  String get playerShadersOff;
+
+  /// No description provided for @playerShadersMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Anime4K is not installed'**
+  String get playerShadersMissing;
+
+  /// No description provided for @playerShadersMissingDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Download the Anime4K shader pack (about 0.8 MB) to use the built-in modes.'**
+  String get playerShadersMissingDesc;
+
+  /// No description provided for @playerShadersDownload.
+  ///
+  /// In en, this message translates to:
+  /// **'Download Anime4K'**
+  String get playerShadersDownload;
+
+  /// No description provided for @playerShadersPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview on this frame'**
+  String get playerShadersPreview;
+
+  /// No description provided for @playerShadersUse.
+  ///
+  /// In en, this message translates to:
+  /// **'Use this'**
+  String get playerShadersUse;
+
+  /// No description provided for @playerPicture.
+  ///
+  /// In en, this message translates to:
+  /// **'Picture'**
+  String get playerPicture;
+
+  /// No description provided for @playerColors.
+  ///
+  /// In en, this message translates to:
+  /// **'Colors'**
+  String get playerColors;
+
+  /// No description provided for @playerColorDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Default'**
+  String get playerColorDefault;
+
+  /// No description provided for @playerColorVivid.
+  ///
+  /// In en, this message translates to:
+  /// **'Vivid'**
+  String get playerColorVivid;
+
+  /// No description provided for @playerColorPop.
+  ///
+  /// In en, this message translates to:
+  /// **'Anime pop'**
+  String get playerColorPop;
+
+  /// No description provided for @playerColorSoft.
+  ///
+  /// In en, this message translates to:
+  /// **'Soft'**
+  String get playerColorSoft;
+
+  /// No description provided for @playerColorCinematic.
+  ///
+  /// In en, this message translates to:
+  /// **'Cinematic'**
+  String get playerColorCinematic;
+
+  /// No description provided for @playerColorBright.
+  ///
+  /// In en, this message translates to:
+  /// **'Bright'**
+  String get playerColorBright;
+
+  /// No description provided for @playerColorNight.
+  ///
+  /// In en, this message translates to:
+  /// **'Night'**
+  String get playerColorNight;
+
+  /// No description provided for @playerColorMono.
+  ///
+  /// In en, this message translates to:
+  /// **'Mono'**
+  String get playerColorMono;
+
+  /// No description provided for @playerColorCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get playerColorCustom;
+
+  /// No description provided for @playerColorBrightness.
+  ///
+  /// In en, this message translates to:
+  /// **'Brightness'**
+  String get playerColorBrightness;
+
+  /// No description provided for @playerColorContrast.
+  ///
+  /// In en, this message translates to:
+  /// **'Contrast'**
+  String get playerColorContrast;
+
+  /// No description provided for @playerColorSaturation.
+  ///
+  /// In en, this message translates to:
+  /// **'Saturation'**
+  String get playerColorSaturation;
+
+  /// No description provided for @playerColorGamma.
+  ///
+  /// In en, this message translates to:
+  /// **'Gamma'**
+  String get playerColorGamma;
+
+  /// No description provided for @playerColorHue.
+  ///
+  /// In en, this message translates to:
+  /// **'Hue'**
+  String get playerColorHue;
+
+  /// No description provided for @playerColorReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get playerColorReset;
+
+  /// No description provided for @playerColorAdjust.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjust'**
+  String get playerColorAdjust;
+
+  /// No description provided for @playerShadersOriginal.
+  ///
+  /// In en, this message translates to:
+  /// **'Original'**
+  String get playerShadersOriginal;
+
+  /// No description provided for @playerShadersPreviewFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t grab a frame to preview'**
+  String get playerShadersPreviewFailed;
+
+  /// No description provided for @playerShadersCustomFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Your shaders'**
+  String get playerShadersCustomFiles;
+
+  /// No description provided for @playerShadersCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom shaders'**
+  String get playerShadersCustom;
+
+  /// No description provided for @playerShadersImport.
+  ///
+  /// In en, this message translates to:
+  /// **'Import .glsl'**
+  String get playerShadersImport;
+
+  /// No description provided for @playerShadersNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Import your own .glsl or .hook files and tick them to chain them'**
+  String get playerShadersNone;
+
+  /// No description provided for @playerShadersBadFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a .glsl or .hook shader file'**
+  String get playerShadersBadFile;
+
+  /// No description provided for @playerDecoder.
+  ///
+  /// In en, this message translates to:
+  /// **'Decoder'**
+  String get playerDecoder;
+
+  /// No description provided for @playerDecoderAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto'**
+  String get playerDecoderAuto;
+
+  /// No description provided for @playerDecoderAutoSafe.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto (safe)'**
+  String get playerDecoderAutoSafe;
+
+  /// No description provided for @playerDecoderSoftware.
+  ///
+  /// In en, this message translates to:
+  /// **'Software'**
+  String get playerDecoderSoftware;
+
+  /// No description provided for @playerDecoderHardware.
+  ///
+  /// In en, this message translates to:
+  /// **'Hardware'**
+  String get playerDecoderHardware;
+
+  /// No description provided for @playerDecoderHardwarePlus.
+  ///
+  /// In en, this message translates to:
+  /// **'Hardware+'**
+  String get playerDecoderHardwarePlus;
+
+  /// No description provided for @playerVideoOutput.
+  ///
+  /// In en, this message translates to:
+  /// **'Video output'**
+  String get playerVideoOutput;
+
+  /// No description provided for @playerAudioChannels.
+  ///
+  /// In en, this message translates to:
+  /// **'Audio channels'**
+  String get playerAudioChannels;
+
+  /// No description provided for @playerBuffer.
+  ///
+  /// In en, this message translates to:
+  /// **'Buffer size (MB)'**
+  String get playerBuffer;
+
+  /// No description provided for @playerBufferDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Memory the player may use to buffer a stream'**
+  String get playerBufferDesc;
+
+  /// No description provided for @playerUseMpvConf.
+  ///
+  /// In en, this message translates to:
+  /// **'Use mpv.conf'**
+  String get playerUseMpvConf;
+
+  /// No description provided for @playerUseMpvConfDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply the options in your mpv.conf when playback starts'**
+  String get playerUseMpvConfDesc;
+
+  /// No description provided for @playerMpvConf.
+  ///
+  /// In en, this message translates to:
+  /// **'mpv.conf'**
+  String get playerMpvConf;
+
+  /// No description provided for @playerMpvConfEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit the mpv configuration'**
+  String get playerMpvConfEdit;
+
+  /// No description provided for @playerMpvConfDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'One option per line, like --hwdec=auto in a normal mpv.conf. Profiles in [brackets] are ignored.'**
+  String get playerMpvConfDesc;
+
+  /// No description provided for @playerMpvConfSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'mpv.conf saved'**
+  String get playerMpvConfSaved;
+
+  /// No description provided for @playerUseScripts.
+  ///
+  /// In en, this message translates to:
+  /// **'Use mpv scripts'**
+  String get playerUseScripts;
+
+  /// No description provided for @playerUseScriptsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Load the plugins from the scripts folder. They need a libmpv build with Lua or JavaScript support'**
+  String get playerUseScriptsDesc;
+
+  /// No description provided for @playerScripts.
+  ///
+  /// In en, this message translates to:
+  /// **'mpv scripts'**
+  String get playerScripts;
+
+  /// No description provided for @playerScriptsManage.
+  ///
+  /// In en, this message translates to:
+  /// **'Add, remove and switch plugins'**
+  String get playerScriptsManage;
+
+  /// No description provided for @playerScriptsAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add script'**
+  String get playerScriptsAdd;
+
+  /// No description provided for @playerScriptsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Lua, JavaScript and native plugins placed here are loaded when playback starts.'**
+  String get playerScriptsDesc;
+
+  /// No description provided for @playerScriptsNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No scripts yet'**
+  String get playerScriptsNone;
+
+  /// No description provided for @playerScriptsBadFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a .lua, .js or native plugin file'**
+  String get playerScriptsBadFile;
+
+  /// No description provided for @playerTuning.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced video tuning'**
+  String get playerTuning;
+
+  /// No description provided for @playerTuningDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Override sync, caching, scaling and tone mapping. Wrong values can hurt playback'**
+  String get playerTuningDesc;
+
+  /// No description provided for @playerVideoSync.
+  ///
+  /// In en, this message translates to:
+  /// **'Video sync'**
+  String get playerVideoSync;
+
+  /// No description provided for @playerInterpolation.
+  ///
+  /// In en, this message translates to:
+  /// **'Frame interpolation'**
+  String get playerInterpolation;
+
+  /// No description provided for @playerInterpolationDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Smooth motion, needs display-resample sync'**
+  String get playerInterpolationDesc;
+
+  /// No description provided for @playerPitch.
+  ///
+  /// In en, this message translates to:
+  /// **'Pitch correction'**
+  String get playerPitch;
+
+  /// No description provided for @playerPitchDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep voices natural at other speeds'**
+  String get playerPitchDesc;
+
+  /// No description provided for @playerCacheSeconds.
+  ///
+  /// In en, this message translates to:
+  /// **'Cache (seconds)'**
+  String get playerCacheSeconds;
+
+  /// No description provided for @playerReadahead.
+  ///
+  /// In en, this message translates to:
+  /// **'Read ahead (seconds)'**
+  String get playerReadahead;
+
+  /// No description provided for @playerThreads.
+  ///
+  /// In en, this message translates to:
+  /// **'Decoder threads'**
+  String get playerThreads;
+
+  /// No description provided for @playerDeband.
+  ///
+  /// In en, this message translates to:
+  /// **'Deband'**
+  String get playerDeband;
+
+  /// No description provided for @playerDebandDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Reduce colour banding in gradients'**
+  String get playerDebandDesc;
+
+  /// No description provided for @playerDebandIterations.
+  ///
+  /// In en, this message translates to:
+  /// **'Deband iterations'**
+  String get playerDebandIterations;
+
+  /// No description provided for @playerDebandThreshold.
+  ///
+  /// In en, this message translates to:
+  /// **'Deband threshold'**
+  String get playerDebandThreshold;
+
+  /// No description provided for @playerCorrectDownscaling.
+  ///
+  /// In en, this message translates to:
+  /// **'Correct downscaling'**
+  String get playerCorrectDownscaling;
+
+  /// No description provided for @playerSigmoid.
+  ///
+  /// In en, this message translates to:
+  /// **'Sigmoid upscaling'**
+  String get playerSigmoid;
+
+  /// No description provided for @playerScale.
+  ///
+  /// In en, this message translates to:
+  /// **'Upscaler'**
+  String get playerScale;
+
+  /// No description provided for @playerCscale.
+  ///
+  /// In en, this message translates to:
+  /// **'Chroma upscaler'**
+  String get playerCscale;
+
+  /// No description provided for @playerDscale.
+  ///
+  /// In en, this message translates to:
+  /// **'Downscaler'**
+  String get playerDscale;
+
+  /// No description provided for @playerToneMapping.
+  ///
+  /// In en, this message translates to:
+  /// **'Tone mapping'**
+  String get playerToneMapping;
+
+  /// No description provided for @playerTargetPeak.
+  ///
+  /// In en, this message translates to:
+  /// **'Target peak'**
+  String get playerTargetPeak;
+
+  /// No description provided for @playerOpenFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Open video files'**
+  String get playerOpenFiles;
+
+  /// No description provided for @playerOpenFilesDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Play files from this device'**
+  String get playerOpenFilesDesc;
+
+  /// No description provided for @playerOpenFolder.
+  ///
+  /// In en, this message translates to:
+  /// **'Open a folder'**
+  String get playerOpenFolder;
+
+  /// No description provided for @playerOpenFolderDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Play every video in a folder as a playlist'**
+  String get playerOpenFolderDesc;
+
+  /// No description provided for @playerNetworkStream.
+  ///
+  /// In en, this message translates to:
+  /// **'Network stream'**
+  String get playerNetworkStream;
+
+  /// No description provided for @playerNetworkStreamDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Open a direct video or HLS link'**
+  String get playerNetworkStreamDesc;
+
+  /// No description provided for @playerStreamUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'Stream URL'**
+  String get playerStreamUrl;
+
+  /// No description provided for @playerStreamReferer.
+  ///
+  /// In en, this message translates to:
+  /// **'Referer (optional)'**
+  String get playerStreamReferer;
+
+  /// No description provided for @playerTorrent.
+  ///
+  /// In en, this message translates to:
+  /// **'Torrent'**
+  String get playerTorrent;
+
+  /// No description provided for @playerTorrentDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Stream a magnet link or .torrent file'**
+  String get playerTorrentDesc;
+
+  /// No description provided for @playerMagnetLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Magnet link or torrent URL'**
+  String get playerMagnetLink;
+
+  /// No description provided for @playerPickTorrent.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a .torrent file'**
+  String get playerPickTorrent;
+
+  /// No description provided for @playerTorrentMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Install the torrent addon from Settings > Addons first'**
+  String get playerTorrentMissing;
+
+  /// No description provided for @playerNoVideos.
+  ///
+  /// In en, this message translates to:
+  /// **'No playable videos found'**
+  String get playerNoVideos;
+
+  /// No description provided for @playerReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset player settings'**
+  String get playerReset;
+
+  /// No description provided for @playerResetDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore every player option to its default'**
+  String get playerResetDesc;
+
+  /// No description provided for @playerResetConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset all player settings?'**
+  String get playerResetConfirm;
+
+  /// No description provided for @playerResetDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Player settings reset'**
+  String get playerResetDone;
+
+  /// No description provided for @playerStreams.
+  ///
+  /// In en, this message translates to:
+  /// **'Streams'**
+  String get playerStreams;
+
+  /// No description provided for @playerAutoSelect.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto select stream'**
+  String get playerAutoSelect;
+
+  /// No description provided for @playerAutoSelectDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick the stream most like your last choice for this title'**
+  String get playerAutoSelectDesc;
+
+  /// No description provided for @playerLoadingStreams.
+  ///
+  /// In en, this message translates to:
+  /// **'Looking for streams…'**
+  String get playerLoadingStreams;
+
+  /// No description provided for @playerNoStreams.
+  ///
+  /// In en, this message translates to:
+  /// **'This episode has no streams'**
+  String get playerNoStreams;
+
+  /// No description provided for @playerNoStreamsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No streams found'**
+  String get playerNoStreamsTitle;
+
+  /// No description provided for @playerFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Playback failed'**
+  String get playerFailed;
+
+  /// No description provided for @playerTorrentNeeded.
+  ///
+  /// In en, this message translates to:
+  /// **'This stream is a torrent'**
+  String get playerTorrentNeeded;
+
+  /// No description provided for @playerTorrentNeededDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Install the torrent addon to play magnet links and .torrent files'**
+  String get playerTorrentNeededDesc;
+
+  /// No description provided for @playerOpenAddons.
+  ///
+  /// In en, this message translates to:
+  /// **'Open addons'**
+  String get playerOpenAddons;
+
+  /// No description provided for @playerTryAnotherStream.
+  ///
+  /// In en, this message translates to:
+  /// **'Try another stream'**
+  String get playerTryAnotherStream;
+
+  /// No description provided for @playerEpisodes.
+  ///
+  /// In en, this message translates to:
+  /// **'Episodes'**
+  String get playerEpisodes;
+
+  /// No description provided for @playerLock.
+  ///
+  /// In en, this message translates to:
+  /// **'Lock controls'**
+  String get playerLock;
+
+  /// No description provided for @playerFullscreen.
+  ///
+  /// In en, this message translates to:
+  /// **'Fullscreen'**
+  String get playerFullscreen;
+
+  /// No description provided for @settingsReader.
+  ///
+  /// In en, this message translates to:
+  /// **'Reader'**
+  String get settingsReader;
+
+  /// No description provided for @settingsReaderDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Manga, manhwa and novel reading'**
+  String get settingsReaderDesc;
+
+  /// No description provided for @readerChapters.
+  ///
+  /// In en, this message translates to:
+  /// **'Chapters'**
+  String get readerChapters;
+
+  /// No description provided for @readerSettingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reader settings'**
+  String get readerSettingsTitle;
+
+  /// No description provided for @readerPreviousChapter.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous chapter'**
+  String get readerPreviousChapter;
+
+  /// No description provided for @readerNextChapter.
+  ///
+  /// In en, this message translates to:
+  /// **'Next chapter'**
+  String get readerNextChapter;
+
+  /// No description provided for @readerFirstChapter.
+  ///
+  /// In en, this message translates to:
+  /// **'This is the first chapter'**
+  String get readerFirstChapter;
+
+  /// No description provided for @readerLastChapter.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re all caught up'**
+  String get readerLastChapter;
+
+  /// No description provided for @readerFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t open this chapter'**
+  String get readerFailed;
+
+  /// No description provided for @readerNoText.
+  ///
+  /// In en, this message translates to:
+  /// **'This chapter has no text'**
+  String get readerNoText;
+
+  /// No description provided for @readerPerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Only for this title'**
+  String get readerPerTitle;
+
+  /// No description provided for @readerPerTitleDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep these reader settings for this title only'**
+  String get readerPerTitleDesc;
+
+  /// No description provided for @readerSectionReading.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading'**
+  String get readerSectionReading;
+
+  /// No description provided for @readerSectionControls.
+  ///
+  /// In en, this message translates to:
+  /// **'Controls'**
+  String get readerSectionControls;
+
+  /// No description provided for @readerSectionDisplay.
+  ///
+  /// In en, this message translates to:
+  /// **'Display'**
+  String get readerSectionDisplay;
+
+  /// No description provided for @readerSectionNovel.
+  ///
+  /// In en, this message translates to:
+  /// **'Novel'**
+  String get readerSectionNovel;
+
+  /// No description provided for @readerSectionReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get readerSectionReset;
+
+  /// No description provided for @readerMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading mode'**
+  String get readerMode;
+
+  /// No description provided for @readerModeRtl.
+  ///
+  /// In en, this message translates to:
+  /// **'Right to left'**
+  String get readerModeRtl;
+
+  /// No description provided for @readerModeLtr.
+  ///
+  /// In en, this message translates to:
+  /// **'Left to right'**
+  String get readerModeLtr;
+
+  /// No description provided for @readerModeVertical.
+  ///
+  /// In en, this message translates to:
+  /// **'Vertical pages'**
+  String get readerModeVertical;
+
+  /// No description provided for @readerModeWebtoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Webtoon'**
+  String get readerModeWebtoon;
+
+  /// No description provided for @readerModeContinuous.
+  ///
+  /// In en, this message translates to:
+  /// **'Continuous scroll'**
+  String get readerModeContinuous;
+
+  /// No description provided for @readerScale.
+  ///
+  /// In en, this message translates to:
+  /// **'Image scale'**
+  String get readerScale;
+
+  /// No description provided for @readerScaleFit.
+  ///
+  /// In en, this message translates to:
+  /// **'Fit screen'**
+  String get readerScaleFit;
+
+  /// No description provided for @readerScaleWidth.
+  ///
+  /// In en, this message translates to:
+  /// **'Fit width'**
+  String get readerScaleWidth;
+
+  /// No description provided for @readerScaleHeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Fit height'**
+  String get readerScaleHeight;
+
+  /// No description provided for @readerScaleOriginal.
+  ///
+  /// In en, this message translates to:
+  /// **'Original size'**
+  String get readerScaleOriginal;
+
+  /// No description provided for @readerScaleSmart.
+  ///
+  /// In en, this message translates to:
+  /// **'Smart fit'**
+  String get readerScaleSmart;
+
+  /// No description provided for @readerDoublePage.
+  ///
+  /// In en, this message translates to:
+  /// **'Double pages'**
+  String get readerDoublePage;
+
+  /// No description provided for @readerDoublePageDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Show two pages side by side in landscape'**
+  String get readerDoublePageDesc;
+
+  /// No description provided for @readerDoubleTapZoom.
+  ///
+  /// In en, this message translates to:
+  /// **'Double tap to zoom'**
+  String get readerDoubleTapZoom;
+
+  /// No description provided for @readerDoubleTapZoomDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Zoom a page in and out with a double tap'**
+  String get readerDoubleTapZoomDesc;
+
+  /// No description provided for @readerAnimate.
+  ///
+  /// In en, this message translates to:
+  /// **'Page animation'**
+  String get readerAnimate;
+
+  /// No description provided for @readerAnimateDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Animate page turns'**
+  String get readerAnimateDesc;
+
+  /// No description provided for @readerSidePadding.
+  ///
+  /// In en, this message translates to:
+  /// **'Side padding'**
+  String get readerSidePadding;
+
+  /// No description provided for @readerSidePaddingDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Space beside the pages in percent'**
+  String get readerSidePaddingDesc;
+
+  /// No description provided for @readerPageGap.
+  ///
+  /// In en, this message translates to:
+  /// **'Page gap'**
+  String get readerPageGap;
+
+  /// No description provided for @readerPageGapDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Space between pages'**
+  String get readerPageGapDesc;
+
+  /// No description provided for @readerAutoNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue into the next chapter'**
+  String get readerAutoNext;
+
+  /// No description provided for @readerAutoNextDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Load the next chapter while you read the end of this one'**
+  String get readerAutoNextDesc;
+
+  /// No description provided for @readerPreload.
+  ///
+  /// In en, this message translates to:
+  /// **'Preload pages'**
+  String get readerPreload;
+
+  /// No description provided for @readerPreloadDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'How many pages to download ahead'**
+  String get readerPreloadDesc;
+
+  /// No description provided for @readerTapZones.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap zones'**
+  String get readerTapZones;
+
+  /// No description provided for @readerTapDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Default'**
+  String get readerTapDefault;
+
+  /// No description provided for @readerTapLShaped.
+  ///
+  /// In en, this message translates to:
+  /// **'L-shaped'**
+  String get readerTapLShaped;
+
+  /// No description provided for @readerTapKindle.
+  ///
+  /// In en, this message translates to:
+  /// **'Kindle-like'**
+  String get readerTapKindle;
+
+  /// No description provided for @readerTapEdge.
+  ///
+  /// In en, this message translates to:
+  /// **'Edges only'**
+  String get readerTapEdge;
+
+  /// No description provided for @readerTapOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Disabled'**
+  String get readerTapOff;
+
+  /// No description provided for @readerInvertTaps.
+  ///
+  /// In en, this message translates to:
+  /// **'Invert tap zones'**
+  String get readerInvertTaps;
+
+  /// No description provided for @readerInvertTapsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Swap the previous and next areas'**
+  String get readerInvertTapsDesc;
+
+  /// No description provided for @readerBackground.
+  ///
+  /// In en, this message translates to:
+  /// **'Background'**
+  String get readerBackground;
+
+  /// No description provided for @readerBackgroundBlack.
+  ///
+  /// In en, this message translates to:
+  /// **'Black'**
+  String get readerBackgroundBlack;
+
+  /// No description provided for @readerBackgroundGray.
+  ///
+  /// In en, this message translates to:
+  /// **'Gray'**
+  String get readerBackgroundGray;
+
+  /// No description provided for @readerBackgroundWhite.
+  ///
+  /// In en, this message translates to:
+  /// **'White'**
+  String get readerBackgroundWhite;
+
+  /// No description provided for @readerBackgroundTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'App theme'**
+  String get readerBackgroundTheme;
+
+  /// No description provided for @readerFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Color filter'**
+  String get readerFilter;
+
+  /// No description provided for @readerFilterNone.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get readerFilterNone;
+
+  /// No description provided for @readerFilterGrayscale.
+  ///
+  /// In en, this message translates to:
+  /// **'Grayscale'**
+  String get readerFilterGrayscale;
+
+  /// No description provided for @readerFilterInvert.
+  ///
+  /// In en, this message translates to:
+  /// **'Invert'**
+  String get readerFilterInvert;
+
+  /// No description provided for @readerFilterSepia.
+  ///
+  /// In en, this message translates to:
+  /// **'Sepia'**
+  String get readerFilterSepia;
+
+  /// No description provided for @readerDim.
+  ///
+  /// In en, this message translates to:
+  /// **'Dim'**
+  String get readerDim;
+
+  /// No description provided for @readerDimDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Darken the pages'**
+  String get readerDimDesc;
+
+  /// No description provided for @readerPageNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Page number'**
+  String get readerPageNumber;
+
+  /// No description provided for @readerPageNumberDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Show the page number while reading'**
+  String get readerPageNumberDesc;
+
+  /// No description provided for @readerFullscreen.
+  ///
+  /// In en, this message translates to:
+  /// **'Fullscreen'**
+  String get readerFullscreen;
+
+  /// No description provided for @readerFullscreenDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide the system bars'**
+  String get readerFullscreenDesc;
+
+  /// No description provided for @readerKeepOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep screen on'**
+  String get readerKeepOn;
+
+  /// No description provided for @readerKeepOnDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop the screen from turning off while reading'**
+  String get readerKeepOnDesc;
+
+  /// No description provided for @readerOrientation.
+  ///
+  /// In en, this message translates to:
+  /// **'Orientation'**
+  String get readerOrientation;
+
+  /// No description provided for @readerOrientationFree.
+  ///
+  /// In en, this message translates to:
+  /// **'Free'**
+  String get readerOrientationFree;
+
+  /// No description provided for @readerOrientationPortrait.
+  ///
+  /// In en, this message translates to:
+  /// **'Portrait'**
+  String get readerOrientationPortrait;
+
+  /// No description provided for @readerOrientationLandscape.
+  ///
+  /// In en, this message translates to:
+  /// **'Landscape'**
+  String get readerOrientationLandscape;
+
+  /// No description provided for @readerSaveProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Save progress'**
+  String get readerSaveProgress;
+
+  /// No description provided for @readerSaveProgressDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Remember your page and mark chapters as read'**
+  String get readerSaveProgressDesc;
+
+  /// No description provided for @readerReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset reader settings'**
+  String get readerReset;
+
+  /// No description provided for @readerResetDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to the defaults'**
+  String get readerResetDesc;
+
+  /// No description provided for @novelSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Text size'**
+  String get novelSize;
+
+  /// No description provided for @novelFont.
+  ///
+  /// In en, this message translates to:
+  /// **'Font'**
+  String get novelFont;
+
+  /// No description provided for @novelLineHeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Line height'**
+  String get novelLineHeight;
+
+  /// No description provided for @novelParagraph.
+  ///
+  /// In en, this message translates to:
+  /// **'Paragraph spacing'**
+  String get novelParagraph;
+
+  /// No description provided for @novelMargin.
+  ///
+  /// In en, this message translates to:
+  /// **'Margins'**
+  String get novelMargin;
+
+  /// No description provided for @novelTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Reader theme'**
+  String get novelTheme;
+
+  /// No description provided for @novelThemeApp.
+  ///
+  /// In en, this message translates to:
+  /// **'App theme'**
+  String get novelThemeApp;
+
+  /// No description provided for @novelThemeLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get novelThemeLight;
+
+  /// No description provided for @novelThemeSepia.
+  ///
+  /// In en, this message translates to:
+  /// **'Sepia'**
+  String get novelThemeSepia;
+
+  /// No description provided for @novelThemeDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get novelThemeDark;
+
+  /// No description provided for @novelThemeBlack.
+  ///
+  /// In en, this message translates to:
+  /// **'Black'**
+  String get novelThemeBlack;
+
+  /// No description provided for @novelJustify.
+  ///
+  /// In en, this message translates to:
+  /// **'Justify text'**
+  String get novelJustify;
+
+  /// No description provided for @novelJustifyDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Align text to both edges'**
+  String get novelJustifyDesc;
+
+  /// No description provided for @novelBold.
+  ///
+  /// In en, this message translates to:
+  /// **'Bold text'**
+  String get novelBold;
+
+  /// No description provided for @novelBoldDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Use a heavier weight'**
+  String get novelBoldDesc;
+
+  /// No description provided for @readerFinishedChapter.
+  ///
+  /// In en, this message translates to:
+  /// **'Finished {chapter}'**
+  String readerFinishedChapter(String chapter);
+
+  /// No description provided for @readerNextUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Next: {chapter}'**
+  String readerNextUp(String chapter);
+
+  /// No description provided for @readerPreviousUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous: {chapter}'**
+  String readerPreviousUp(String chapter);
+
+  /// No description provided for @readerNoPages.
+  ///
+  /// In en, this message translates to:
+  /// **'This chapter has no pages'**
+  String get readerNoPages;
+
+  /// No description provided for @readerLoadingPages.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading pages…'**
+  String get readerLoadingPages;
+
+  /// No description provided for @readerSlowPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Still loading this page…'**
+  String get readerSlowPage;
+
+  /// No description provided for @readerPageFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load this page'**
+  String get readerPageFailed;
+
+  /// No description provided for @playerShowComments.
+  ///
+  /// In en, this message translates to:
+  /// **'Show comments'**
+  String get playerShowComments;
+
+  /// No description provided for @playerHideComments.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide comments'**
+  String get playerHideComments;
+
+  /// No description provided for @playerSubtitles.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtitles'**
+  String get playerSubtitles;
+
+  /// No description provided for @playerSubtitlesOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtitles off'**
+  String get playerSubtitlesOff;
+
+  /// No description provided for @playerAudio.
+  ///
+  /// In en, this message translates to:
+  /// **'Audio'**
+  String get playerAudio;
+
+  /// No description provided for @playerAddSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add subtitle file'**
+  String get playerAddSubtitle;
+
+  /// No description provided for @playerAddAudio.
+  ///
+  /// In en, this message translates to:
+  /// **'Add audio file'**
+  String get playerAddAudio;
+
+  /// No description provided for @playerChapters.
+  ///
+  /// In en, this message translates to:
+  /// **'Chapters'**
+  String get playerChapters;
+
+  /// No description provided for @playerNoChapters.
+  ///
+  /// In en, this message translates to:
+  /// **'No chapters'**
+  String get playerNoChapters;
+
+  /// No description provided for @playerTimestamp.
+  ///
+  /// In en, this message translates to:
+  /// **'Timestamp'**
+  String get playerTimestamp;
+
+  /// No description provided for @playerAutoPlaying.
+  ///
+  /// In en, this message translates to:
+  /// **'Playing {title} next…'**
+  String playerAutoPlaying(String title);
+
+  /// No description provided for @playerShadersFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t install the shaders: {error}'**
+  String playerShadersFailed(String error);
+
+  /// No description provided for @playerChapter.
+  ///
+  /// In en, this message translates to:
+  /// **'Chapter {number}'**
+  String playerChapter(int number);
+
+  /// No description provided for @playerPerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Only for this title'**
+  String get playerPerTitle;
+
+  /// No description provided for @playerPerTitleDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep these options for this title and leave your defaults alone'**
+  String get playerPerTitleDesc;
+
+  /// No description provided for @playerHoldSpeed.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold speed'**
+  String get playerHoldSpeed;
+
+  /// No description provided for @playerAudioOutput.
+  ///
+  /// In en, this message translates to:
+  /// **'Audio output'**
+  String get playerAudioOutput;
+
+  /// No description provided for @fontAppDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'App font'**
+  String get fontAppDefault;
+
+  /// No description provided for @fontImport.
+  ///
+  /// In en, this message translates to:
+  /// **'Import font'**
+  String get fontImport;
+
+  /// No description provided for @fontSample.
+  ///
+  /// In en, this message translates to:
+  /// **'The quick brown fox jumps over the lazy dog'**
+  String get fontSample;
+
+  /// No description provided for @playerSubtitleDelay.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtitle delay'**
+  String get playerSubtitleDelay;
+
+  /// No description provided for @playerAudioDelay.
+  ///
+  /// In en, this message translates to:
+  /// **'Audio delay'**
+  String get playerAudioDelay;
+
+  /// No description provided for @playerDelayReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get playerDelayReset;
+
+  /// No description provided for @playerOnlineSubtitles.
+  ///
+  /// In en, this message translates to:
+  /// **'Online subtitles'**
+  String get playerOnlineSubtitles;
+
+  /// No description provided for @playerOnlineSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Title and episode'**
+  String get playerOnlineSearchHint;
+
+  /// No description provided for @playerOnlineNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No subtitles found'**
+  String get playerOnlineNone;
+
+  /// No description provided for @playerOnlineFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtitle search failed: {error}'**
+  String playerOnlineFailed(String error);
+
+  /// No description provided for @playerOnlineDownloadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not download this subtitle: {error}'**
+  String playerOnlineDownloadFailed(String error);
+
+  /// No description provided for @playerOnlineMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Matches this file'**
+  String get playerOnlineMatch;
+
+  /// No description provided for @playerOnlineEpisode.
+  ///
+  /// In en, this message translates to:
+  /// **'Episode match'**
+  String get playerOnlineEpisode;
+
+  /// No description provided for @playerOnlineDownloads.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} downloads'**
+  String playerOnlineDownloads(int count);
 }
 
 class _AppLocalizationsDelegate

@@ -76,42 +76,31 @@ class EpisodeMetaService {
     }
     final active = ordered()
         .where((p) => only == null ? enabled(p.id) : p.id == only)
+        .where((p) => p.supports(ids))
         .toList();
-    if (active.isEmpty) return;
-    final runnable = active.where((p) => p.supports(ids)).toList();
     final results = <String, Map<String, EpisodeMeta>>{};
-    final updates = StreamController<void>();
-    var pending = runnable.length;
-    if (pending == 0) return;
-    for (final provider in runnable) {
-      unawaited(
-        provider
-            .fetch(ids)
-            .then((found) {
-              if (found.isNotEmpty) results[provider.id] = found;
-            })
-            .catchError((Object e) {
-              logger(
-                'Watch ${provider.id} failed: $e',
-                logLevel: LogLevel.error,
-                tag: 'WATCH',
-              );
-            })
-            .whenComplete(() {
-              pending--;
-              if (!updates.isClosed) updates.add(null);
-              if (pending == 0) unawaited(updates.close());
-            }),
-      );
+    for (final provider in active) {
+      try {
+        final found = await provider.fetch(ids);
+        if (found.isNotEmpty) {
+          results[provider.id] = found;
+          break;
+        }
+      } catch (e) {
+        logger(
+          'Watch ${provider.id} failed: $e',
+          logLevel: LogLevel.error,
+          tag: 'WATCH',
+        );
+      }
     }
-    await for (final _ in updates.stream) {
-      yield merge(results);
-    }
+    if (results.isEmpty) return;
+    _cache[key] = (DateTime.now(), results);
     logger(
       'Watch metadata ${ids.toJson()} -> ${{for (final e in results.entries) e.key: e.value.length}}',
       tag: 'WATCH',
     );
-    if (results.isNotEmpty) _cache[key] = (DateTime.now(), results);
+    yield merge(results);
   }
 
   static Map<String, EpisodeMeta> merge(

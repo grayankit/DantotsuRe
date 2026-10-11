@@ -9,7 +9,11 @@ import '../../../Logger.dart';
 
 class DesktopRPC extends AppController implements BaseDiscordRPC {
   static const _appId = '1453704458012856401';
-  static const _retryAfter = Duration(seconds: 10);
+  static const _minRetry = Duration(seconds: 10);
+  static const _maxRetry = Duration(minutes: 5);
+
+  Duration _retryAfter = _minRetry;
+  bool _failureLogged = false;
 
   bool _connected = false;
   bool _initialized = false;
@@ -35,12 +39,18 @@ class DesktopRPC extends AppController implements BaseDiscordRPC {
       await FlutterDiscordRPC.instance.connect();
       _connected = true;
       _failedAt = null;
+      _retryAfter = _minRetry;
+      _failureLogged = false;
     } catch (e) {
       _failedAt = DateTime.now();
-      logger(
-        'Discord RPC connect failed: ${e.toString().split('\n').first}',
-        logLevel: LogLevel.error,
-      );
+      _retryAfter = _retryAfter * 2 > _maxRetry ? _maxRetry : _retryAfter * 2;
+      if (!_failureLogged) {
+        _failureLogged = true;
+        logger(
+          'Discord RPC unavailable (retrying quietly): '
+          '${e.toString().split('\n').first}',
+        );
+      }
     }
     return _connected;
   }
@@ -100,7 +110,9 @@ class DesktopRPC extends AppController implements BaseDiscordRPC {
           await FlutterDiscordRPC.instance.clearActivity();
           await FlutterDiscordRPC.instance.disconnect();
           await FlutterDiscordRPC.instance.dispose();
-        } catch (_) {}
+        } catch (e, st) {
+          logError('DesktopRPC', e, st);
+        }
       }());
     }
     super.onClose();

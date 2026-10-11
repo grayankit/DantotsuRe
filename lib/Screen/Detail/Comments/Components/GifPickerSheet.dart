@@ -1,3 +1,4 @@
+import '../../../../Logger.dart';
 import '../../../../Utils/Animation/WidgetAnimations.dart';
 import '../../../../Widgets/Components/ScrollConfig.dart';
 import '../../../../Utils/Functions/NavigateToScreen.dart';
@@ -75,7 +76,8 @@ class _GifPickerSheetState extends State<GifPickerSheet> {
     try {
       final found = await _fetch(query);
       if (mounted) _gifs.value = found;
-    } catch (_) {
+    } catch (e, st) {
+      logError('GifPickerSheet', e, st);
       if (mounted) _gifs.value = const [];
     }
   }

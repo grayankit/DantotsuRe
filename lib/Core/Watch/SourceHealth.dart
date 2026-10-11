@@ -1,3 +1,4 @@
+import '../../Logger.dart';
 import 'package:dartotsu_extension_bridge/dartotsu_extension_bridge.dart';
 
 import '../NetworkManager/CookieManager.dart';
@@ -66,7 +67,8 @@ class SourceHealth {
         return (ProbeResult.blocked, res.statusCode);
       }
       return (ProbeResult.failed, res.statusCode);
-    } catch (_) {
+    } catch (e, st) {
+      logError('SourceHealth', e, st);
       return (ProbeResult.failed, null);
     }
   }

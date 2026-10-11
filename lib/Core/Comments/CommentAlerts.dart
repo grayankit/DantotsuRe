@@ -127,7 +127,8 @@ class CommentAlerts extends AppController {
               (m['coverImage'] as Map?)?['large'] as String?,
             ),
       };
-    } catch (_) {
+    } catch (e, st) {
+      logError('CommentAlerts', e, st);
       return const {};
     }
   }

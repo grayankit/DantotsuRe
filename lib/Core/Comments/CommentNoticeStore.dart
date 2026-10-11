@@ -1,3 +1,4 @@
+import '../../Logger.dart';
 import 'dart:convert';
 
 import '../Preferences/PrefManager.dart';
@@ -20,7 +21,8 @@ class CommentNoticeStore {
         for (final e in jsonDecode(raw) as List)
           if (e is Map) CommentNotice.fromJson(Map<String, dynamic>.from(e)),
       ];
-    } catch (_) {
+    } catch (e, st) {
+      logError('CommentNoticeStore', e, st);
       return [];
     }
   }

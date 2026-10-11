@@ -75,7 +75,8 @@ class NotificationFeed {
         items.addAll(fresh);
         _page++;
       }
-    } catch (_) {
+    } catch (e, st) {
+      logError('NotificationsState', e, st);
       _hasMore = false;
     } finally {
       loadingMore.value = false;

@@ -99,7 +99,9 @@ class NotificationManager extends AppController {
           await entity.delete();
         }
       }
-    } catch (_) {}
+    } catch (e, st) {
+      logError('NotificationManager', e, st);
+    }
   }
 
   Future<String?> _fetch(String? url) async {

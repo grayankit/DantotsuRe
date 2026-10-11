@@ -1,3 +1,4 @@
+import '../../../Logger.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -37,7 +38,8 @@ class RepliesState extends ScreenState {
       page = 2;
       failed.value = false;
       activity.replyCount = replies.value!.length;
-    } catch (_) {
+    } catch (e, st) {
+      logError('RepliesState', e, st);
       if (mounted) failed.value = true;
     }
   }
@@ -54,7 +56,8 @@ class RepliesState extends ScreenState {
       hasNext.value = result.hasNext;
       page++;
       activity.replyCount = replies.value!.length;
-    } catch (_) {
+    } catch (e, st) {
+      logError('RepliesState', e, st);
       if (mounted) hasNext.value = false;
     } finally {
       if (mounted) loadingMore.value = false;

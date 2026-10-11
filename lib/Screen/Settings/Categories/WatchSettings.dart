@@ -9,7 +9,11 @@ import '../../../Model/Setting.dart';
 import '../../../Utils/Extensions/ContextExtensions.dart';
 import '../../../Utils/Functions/SnackBar.dart';
 import '../../../Widgets/Components/AppControls.dart';
+import '../../../Utils/Functions/NavigateToScreen.dart';
+import '../SubSettingsScreen.dart';
 import '../Widgets/SegmentedSetting.dart';
+import 'PlayerSettings.dart';
+import 'ReaderSettings.dart';
 
 String metaProviderDescription(EpisodeMetaProvider provider) =>
     switch (provider.id) {
@@ -22,6 +26,32 @@ String metaProviderDescription(EpisodeMetaProvider provider) =>
     };
 
 List<Setting> watchSettings(BuildContext context) => [
+  Setting.normal(
+    name: getString.settingsPlayer,
+    description: getString.settingsPlayerDesc,
+    icon: Icons.play_circle_outline_rounded,
+    isActivity: true,
+    onClick: () => navigateToPage(
+      context,
+      SubSettingsScreen(
+        title: getString.settingsPlayer,
+        settings: playerSettings,
+      ),
+    ),
+  ),
+  Setting.normal(
+    name: getString.settingsReader,
+    description: getString.settingsReaderDesc,
+    icon: Icons.menu_book_rounded,
+    isActivity: true,
+    onClick: () => navigateToPage(
+      context,
+      SubSettingsScreen(
+        title: getString.settingsReader,
+        settings: readerSettings,
+      ),
+    ),
+  ),
   Setting.header(getString.watchSettingsLayout),
   segmentedSetting<int>(
     name: getString.watchLayout,

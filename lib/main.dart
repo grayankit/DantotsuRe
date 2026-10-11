@@ -11,6 +11,9 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:material_ui/material_ui.dart'
+    as mui
+    show GlobalMaterialLocalizations;
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:sizer/sizer.dart';
@@ -37,6 +40,7 @@ import 'Utils/Functions/LinkSettings.dart';
 import 'Api/Discord/DiscordPresenceController.dart';
 import 'Core/Comments/CommentAlerts.dart';
 import 'Core/Services/ActivityAlerts.dart';
+import 'Screen/Player/PlayerLauncher.dart';
 import 'Utils/Functions/SnackBar.dart';
 import 'Widgets/Components/ScrollConfig.dart';
 import 'l10n/app_localizations.dart';
@@ -126,6 +130,7 @@ Future<void> init(List<String> args) async {
 Future<void> _postInit(List<String> args) async {
   find<ActivityAlerts>().start();
   find<CommentAlerts>().start();
+  installPlayerLinks();
   DeepLink.init();
   unawaited(refreshLinkHandling());
   if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
@@ -187,7 +192,9 @@ class _MyAppState extends State<MyApp> {
     _focusNode.dispose();
     try {
       DartotsuExtensionBridge.dispose();
-    } catch (_) {}
+    } catch (e, st) {
+      logError('main', e, st);
+    }
     super.dispose();
   }
 
@@ -220,6 +227,7 @@ class _MyAppState extends State<MyApp> {
                 localizationsDelegates: const [
                   AppLocalizations.delegate,
                   GlobalMaterialLocalizations.delegate,
+                  mui.GlobalMaterialLocalizations.delegate,
                   GlobalWidgetsLocalizations.delegate,
                   GlobalCupertinoLocalizations.delegate,
                 ],

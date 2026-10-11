@@ -1,3 +1,4 @@
+import '../../../Logger.dart';
 import '../../../Utils/Lru.dart';
 import 'dart:async';
 
@@ -48,7 +49,9 @@ class _AniMediaCardState extends State<AniMediaCard> {
       if (media == null || !mounted) return;
       _cache['${widget.service.id}/${widget.id}'] = media;
       _media.value = media;
-    } catch (_) {}
+    } catch (e, st) {
+      logError('AniMediaCard', e, st);
+    }
   }
 
   @override

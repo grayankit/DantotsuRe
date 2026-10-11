@@ -1,3 +1,4 @@
+import '../../Logger.dart';
 import 'package:dartotsu_extension_bridge/dartotsu_extension_bridge.dart';
 import 'package:flutter/material.dart';
 
@@ -20,7 +21,8 @@ class SourcePreferenceState extends ScreenState {
   Future<void> load() async {
     try {
       prefs.value = await source.methods.getPreference();
-    } catch (_) {
+    } catch (e, st) {
+      logError('SourcePreferenceState', e, st);
       prefs.value = const [];
     }
   }

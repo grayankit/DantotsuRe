@@ -1,3 +1,4 @@
+import '../../Logger.dart';
 import '../../Utils/Animation/WidgetAnimations.dart';
 import 'dart:async';
 
@@ -501,7 +502,8 @@ Future<void> showInstallDialog(
       return;
     }
     if (plugin.installed.value) hasUpdate = await plugin.checkForUpdate();
-  } catch (_) {
+  } catch (e, st) {
+    logError('ExtensionScreen', e, st);
     snackString(getString.pluginFetchFailed);
     return;
   }

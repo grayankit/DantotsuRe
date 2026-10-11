@@ -1,3 +1,4 @@
+import '../../Logger.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -42,7 +43,8 @@ class ReviewsState extends ScreenState {
         items.addAll(fresh);
         _page++;
       }
-    } catch (_) {
+    } catch (e, st) {
+      logError('ReviewsState', e, st);
       _hasMore = false;
       failed.value = items.isEmpty;
     } finally {

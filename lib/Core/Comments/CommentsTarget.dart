@@ -1,6 +1,6 @@
 import '../../Api/Services/Anilist/AnilistService.dart';
 import '../../Logger.dart';
-import '../Preferences/PrefManager.dart';
+import '../Media/MediaRecord.dart';
 import '../Services/MediaServiceController.dart';
 import '../Services/Model/Media.dart';
 import '../State/State.dart';
@@ -17,10 +17,7 @@ class CommentsTarget {
 
   static int? cached(MediaService service, Media media) {
     if (service.id == anilistServiceId) return int.tryParse(media.id);
-    return PrefManager.getCustomVal<int>(
-      _key(service, media),
-      location: PrefLocation.CACHE,
-    );
+    return MediaRecords.of(service, media).commentsId;
   }
 
   static Future<int?> resolve(MediaService service, Media media) {
@@ -68,11 +65,8 @@ class CommentsTarget {
     }
     logger('Comments target ${service.id}/${media.id} -> $ids -> $id');
     if (id != null) {
-      PrefManager.setCustomVal<int>(
-        _key(service, media),
-        id,
-        location: PrefLocation.CACHE,
-      );
+      MediaRecords.of(service, media).commentsId = id;
+      MediaRecords.save(service, media);
     }
     return id;
   }

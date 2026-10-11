@@ -1,3 +1,4 @@
+import '../../Logger.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -95,7 +96,9 @@ class QuickListEditorState extends ScreenState {
     try {
       loaded = await service.getQueries?.mediaDetails(media);
       if (loaded != null) DetailCache.put(key, loaded);
-    } catch (_) {}
+    } catch (e, st) {
+      logError('ListEditorState', e, st);
+    }
     if (mounted) full.value = loaded ?? media;
   }
 

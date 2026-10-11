@@ -1,3 +1,4 @@
+import '../../Logger.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -44,7 +45,8 @@ class GroupState extends ScreenState {
       }
       group.value = found;
       version.fire();
-    } catch (_) {
+    } catch (e, st) {
+      logError('GroupState', e, st);
       if (group.value == null) failed.value = true;
     }
   }

@@ -1,3 +1,4 @@
+import '../../Logger.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -84,7 +85,9 @@ class SearchState extends ScreenState {
       };
       try {
         ids = (await SyncIdIndex.load()).expand(ids, prefer: SyncKey.anilist);
-      } catch (_) {}
+      } catch (e, st) {
+        logError('SearchState', e, st);
+      }
       final native = ids[adapter.key];
       if (native != null) id = adapter.targetId(native, anime: true);
     }
@@ -165,7 +168,8 @@ class SearchState extends ScreenState {
       query.value.page = (query.value.page ?? 1) + 1;
       hasMore = res?.hasNextPage ?? false;
       if (res != null) items.addAll(pick(res));
-    } catch (_) {
+    } catch (e, st) {
+      logError('SearchState', e, st);
       hasMore = false;
     } finally {
       loading.value = false;

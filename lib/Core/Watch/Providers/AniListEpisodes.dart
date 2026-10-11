@@ -1,3 +1,4 @@
+import '../../../Logger.dart';
 import '../../../Api/Services/Anilist/Auth.dart';
 import '../EpisodeMeta.dart';
 import 'MetaHttp.dart';
@@ -33,7 +34,8 @@ query (\$id: Int) {
         useToken: false,
         showErrors: false,
       );
-    } catch (_) {
+    } catch (e, st) {
+      logError('AniListEpisodes', e, st);
       return const {};
     }
     final media = data['Media'];

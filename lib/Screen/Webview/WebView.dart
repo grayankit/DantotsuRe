@@ -36,6 +36,8 @@ class _WebViewState extends State<WebView>
         elevation: 0,
         backgroundColor: scheme.surface,
         foregroundColor: scheme.onSurface,
+        iconTheme: IconThemeData(color: scheme.onSurface),
+        actionsIconTheme: IconThemeData(color: scheme.onSurface),
         leading: IconButton(
           icon: const Icon(Icons.close_rounded),
           onPressed: () => popPage(context),
@@ -68,7 +70,7 @@ class _WebViewState extends State<WebView>
           height: 44,
           decoration: BoxDecoration(
             color: scheme.surfaceContainerHighest,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(22),
           ),
           alignment: Alignment.center,
           child: state.isEditing.value
@@ -80,11 +82,13 @@ class _WebViewState extends State<WebView>
                     child: Row(
                       children: [
                         Icon(
-                          isHttps ? Icons.lock_outline : Icons.info_outline,
+                          isHttps
+                              ? Icons.lock_rounded
+                              : Icons.warning_amber_rounded,
                           size: 16,
                           color: isHttps
-                              ? Theme.of(context).colorScheme.primary
-                              : Theme.of(context).colorScheme.error,
+                              ? scheme.onSurfaceVariant
+                              : scheme.error,
                         ),
                         const SizedBox(width: 8),
                         Expanded(
@@ -94,9 +98,9 @@ class _WebViewState extends State<WebView>
                                 : state.url.value,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: ContextExtensions(
-                              context,
-                            ).theme.textTheme.bodyMedium,
+                            style: context.textTheme.bodyMedium?.copyWith(
+                              color: scheme.onSurface,
+                            ),
                           ),
                         ),
                       ],
@@ -137,13 +141,21 @@ class _WebViewState extends State<WebView>
       children: [
         Watch(
           () => IconButton(
-            icon: const Icon(Icons.arrow_back_ios_rounded),
+            icon: const Icon(Icons.arrow_back_rounded),
+            color: context.colorScheme.onSurface,
+            disabledColor: context.colorScheme.onSurface.withValues(
+              alpha: 0.38,
+            ),
             onPressed: state.canGoBack.value ? state.goBack : null,
           ),
         ),
         Watch(
           () => IconButton(
-            icon: const Icon(Icons.arrow_forward_ios_rounded),
+            icon: const Icon(Icons.arrow_forward_rounded),
+            color: context.colorScheme.onSurface,
+            disabledColor: context.colorScheme.onSurface.withValues(
+              alpha: 0.38,
+            ),
             onPressed: state.canGoForward.value ? state.goForward : null,
           ),
         ),

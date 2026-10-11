@@ -63,8 +63,36 @@ class _SourceToolsSheetState extends State<SourceToolsSheet> {
   String _until(DateTime? date) {
     if (date == null) return getString.watchClearanceSession;
     final left = date.difference(DateTime.now());
-    if (left.inHours >= 1) return '${left.inHours} h';
-    return '${left.inMinutes.clamp(0, 59)} min';
+    if (left.inHours >= 1) return '${left.inHours} h left';
+    return '${left.inMinutes.clamp(0, 59)} min left';
+  }
+
+  BorderRadius _group(int i, int count) => BorderRadius.vertical(
+    top: Radius.circular(i == 0 ? 20 : 6),
+    bottom: Radius.circular(i == count - 1 ? 20 : 6),
+  );
+
+  Widget _badge(
+    BuildContext context,
+    IconData icon, {
+    Color? background,
+    Color? foreground,
+    double size = 40,
+  }) {
+    final scheme = context.colorScheme;
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: background ?? scheme.primaryContainer,
+        shape: BoxShape.circle,
+      ),
+      child: Icon(
+        icon,
+        size: size * 0.5,
+        color: foreground ?? scheme.onPrimaryContainer,
+      ),
+    );
   }
 
   @override
@@ -74,9 +102,9 @@ class _SourceToolsSheetState extends State<SourceToolsSheet> {
       title: widget.source.name,
       child: SingleChildScrollView(
         padding: EdgeInsets.fromLTRB(
-          Dimens.gapSm,
+          Dimens.pagePad,
           0,
-          Dimens.gapSm,
+          Dimens.pagePad,
           Dimens.gapLg,
         ),
         child: Watch(() {
@@ -87,123 +115,55 @@ class _SourceToolsSheetState extends State<SourceToolsSheet> {
               result != null &&
               (result.$1 == ProbeResult.challenge ||
                   result.$1 == ProbeResult.blocked);
+          final hasWeb = h.url != null;
+          final rows = <Widget Function(BorderRadius)>[
+            (r) => SheetTile(
+              tinted: true,
+              radius: r,
+              leading: _badge(context, Icons.tune_rounded),
+              title: Text(getString.watchSourceSettings),
+              trailing: const Icon(Icons.chevron_right_rounded),
+              onTap: () => navigateToPage<void>(
+                context,
+                SourcePreferenceScreen(source: widget.source),
+              ),
+            ),
+            if (hasWeb)
+              (r) => SheetTile(
+                tinted: true,
+                radius: r,
+                leading: _badge(context, Icons.public_rounded),
+                title: Text(getString.watchOpenWebView),
+                subtitle: Text(getString.watchOpenWebViewDesc),
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: _openWebView,
+              ),
+          ];
           return Column(
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              SheetTile(
-                leading: const Icon(Icons.tune_rounded),
-                title: Text(getString.watchSourceSettings),
-                trailing: const Icon(Icons.chevron_right_rounded),
-                onTap: () => navigateToPage<void>(
-                  context,
-                  SourcePreferenceScreen(source: widget.source),
-                ),
-              ),
-              if (h.url != null)
+              for (final (i, row) in rows.indexed) ...[
+                row(_group(i, rows.length)),
+                const SizedBox(height: 2),
+              ],
+              if (hasWeb) ...[
+                SizedBox(height: Dimens.gap),
+                _status(context, h, result, busy, blocked),
+                SizedBox(height: Dimens.gap),
                 SheetTile(
-                  leading: const Icon(Icons.public_rounded),
-                  title: Text(getString.watchOpenWebView),
-                  subtitle: Text(getString.watchOpenWebViewDesc),
-                  trailing: const Icon(Icons.chevron_right_rounded),
-                  onTap: _openWebView,
-                ),
-              if (h.url != null) ...[
-                Padding(
-                  padding: EdgeInsets.fromLTRB(
-                    Dimens.gap,
-                    Dimens.gapSm,
-                    Dimens.gap,
-                    Dimens.gapSm,
+                  tinted: true,
+                  radius: BorderRadius.circular(20),
+                  leading: _badge(
+                    context,
+                    Icons.delete_sweep_rounded,
+                    background: scheme.errorContainer,
+                    foreground: scheme.onErrorContainer,
                   ),
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: scheme.surfaceContainerHigh,
-                      borderRadius: Dimens.borderSm,
-                    ),
-                    child: Padding(
-                      padding: EdgeInsets.all(Dimens.gap),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _line(
-                            context,
-                            Icons.cookie_outlined,
-                            getString.watchCookieCount(h.cookies, h.host),
-                          ),
-                          _line(
-                            context,
-                            h.clearance == null
-                                ? Icons.shield_outlined
-                                : Icons.verified_user_rounded,
-                            h.clearance == null
-                                ? getString.watchClearanceMissing
-                                : getString.watchClearanceActive(
-                                    _until(h.clearance!.expires),
-                                  ),
-                            color: h.clearance == null ? null : scheme.primary,
-                          ),
-                          _line(
-                            context,
-                            Icons.badge_outlined,
-                            h.customAgent
-                                ? getString.watchAgentCustom
-                                : getString.watchAgentShared,
-                            color: h.customAgent ? scheme.error : null,
-                          ),
-                          if (result != null)
-                            _line(
-                              context,
-                              result.$1 == ProbeResult.ok
-                                  ? Icons.check_circle_rounded
-                                  : Icons.error_outline_rounded,
-                              switch (result.$1) {
-                                ProbeResult.ok => getString.watchProbeOk(
-                                  result.$2 ?? 0,
-                                ),
-                                ProbeResult.challenge =>
-                                  getString.watchProbeChallenge,
-                                ProbeResult.blocked =>
-                                  getString.watchProbeBlocked(result.$2 ?? 0),
-                                ProbeResult.failed =>
-                                  getString.watchProbeFailed,
-                              },
-                              color: result.$1 == ProbeResult.ok
-                                  ? scheme.primary
-                                  : scheme.error,
-                            ),
-                          SizedBox(height: Dimens.gapSm),
-                          Row(
-                            children: [
-                              FilledButton.tonalIcon(
-                                onPressed: busy ? null : _test,
-                                icon: busy
-                                    ? const SizedBox(
-                                        width: 16,
-                                        height: 16,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                        ),
-                                      )
-                                    : const Icon(Icons.network_check_rounded),
-                                label: Text(getString.watchTestConnection),
-                              ),
-                              SizedBox(width: Dimens.gapSm),
-                              if (blocked)
-                                FilledButton.icon(
-                                  onPressed: _openWebView,
-                                  icon: const Icon(Icons.public_rounded),
-                                  label: Text(getString.watchSolveChallenge),
-                                ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
+                  title: Text(
+                    getString.watchClearCookies,
+                    style: TextStyle(color: scheme.error),
                   ),
-                ),
-                SheetTile(
-                  leading: const Icon(Icons.delete_sweep_rounded),
-                  title: Text(getString.watchClearCookies),
                   onTap: _clear,
                 ),
               ],
@@ -214,29 +174,128 @@ class _SourceToolsSheetState extends State<SourceToolsSheet> {
     );
   }
 
-  Widget _line(
+  Widget _status(
     BuildContext context,
-    IconData icon,
-    String text, {
-    Color? color,
-  }) => Padding(
-    padding: const EdgeInsets.only(bottom: 6),
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(
-          icon,
-          size: 18,
-          color: color ?? context.colorScheme.onSurfaceVariant,
+    SourceHealth h,
+    (ProbeResult, int?)? result,
+    bool busy,
+    bool blocked,
+  ) {
+    final scheme = context.colorScheme;
+    final lines = <(IconData, String, _Tone)>[
+      (
+        Icons.cookie_outlined,
+        getString.watchCookieCount(h.cookies, h.host),
+        h.cookies > 0 ? _Tone.neutral : _Tone.muted,
+      ),
+      (
+        h.clearance == null
+            ? Icons.shield_outlined
+            : Icons.verified_user_rounded,
+        h.clearance == null
+            ? getString.watchClearanceMissing
+            : getString.watchClearanceActive(_until(h.clearance!.expires)),
+        h.clearance == null ? _Tone.muted : _Tone.good,
+      ),
+      (
+        Icons.badge_outlined,
+        h.customAgent ? getString.watchAgentCustom : getString.watchAgentShared,
+        h.customAgent ? _Tone.bad : _Tone.muted,
+      ),
+      if (result != null)
+        (
+          result.$1 == ProbeResult.ok
+              ? Icons.check_circle_rounded
+              : Icons.error_outline_rounded,
+          switch (result.$1) {
+            ProbeResult.ok => getString.watchProbeOk(result.$2 ?? 0),
+            ProbeResult.challenge => getString.watchProbeChallenge,
+            ProbeResult.blocked => getString.watchProbeBlocked(result.$2 ?? 0),
+            ProbeResult.failed => getString.watchProbeFailed,
+          },
+          result.$1 == ProbeResult.ok ? _Tone.good : _Tone.bad,
         ),
-        SizedBox(width: Dimens.gapSm),
-        Expanded(
-          child: Text(
-            text,
-            style: context.textTheme.bodySmall?.copyWith(color: color),
-          ),
+    ];
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: blocked
+            ? scheme.errorContainer.withValues(alpha: 0.35)
+            : scheme.surfaceContainerHigh,
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(Dimens.gap),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (final (icon, text, tone) in lines)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    _badge(
+                      context,
+                      icon,
+                      size: 32,
+                      background: switch (tone) {
+                        _Tone.good => scheme.primaryContainer,
+                        _Tone.bad => scheme.errorContainer,
+                        _ => scheme.surfaceContainerHighest,
+                      },
+                      foreground: switch (tone) {
+                        _Tone.good => scheme.onPrimaryContainer,
+                        _Tone.bad => scheme.onErrorContainer,
+                        _ => scheme.onSurfaceVariant,
+                      },
+                    ),
+                    SizedBox(width: Dimens.gapSm),
+                    Expanded(
+                      child: Text(
+                        text,
+                        style: context.textTheme.bodyMedium?.copyWith(
+                          color: tone == _Tone.bad
+                              ? scheme.onErrorContainer
+                              : scheme.onSurface,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            SizedBox(height: Dimens.gapXs),
+            Row(
+              children: [
+                Expanded(
+                  child: FilledButton.tonalIcon(
+                    onPressed: busy ? null : _test,
+                    icon: busy
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.network_check_rounded),
+                    label: Text(getString.watchTestConnection),
+                  ),
+                ),
+                if (blocked) ...[
+                  SizedBox(width: Dimens.gapSm),
+                  Expanded(
+                    child: FilledButton.icon(
+                      onPressed: _openWebView,
+                      icon: const Icon(Icons.public_rounded),
+                      label: Text(getString.watchSolveChallenge),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ],
         ),
-      ],
-    ),
-  );
+      ),
+    );
+  }
 }
+
+enum _Tone { good, bad, neutral, muted }

@@ -14,8 +14,14 @@ import 'UnitTile.dart';
 class UnitSheet extends StatelessWidget {
   final WatchState state;
   final WatchUnit unit;
+  final VoidCallback? onPlay;
 
-  const UnitSheet({super.key, required this.state, required this.unit});
+  const UnitSheet({
+    super.key,
+    required this.state,
+    required this.unit,
+    this.onPlay,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -107,7 +113,7 @@ class UnitSheet extends StatelessWidget {
                     child: FilledButton.icon(
                       onPressed: () {
                         popPage(context);
-                        state.playUnavailable();
+                        onPlay?.call();
                       },
                       icon: Icon(
                         anime

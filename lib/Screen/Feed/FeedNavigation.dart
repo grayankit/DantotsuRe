@@ -16,6 +16,7 @@ void openDetail(
   Media media, {
   String? heroTag,
   int? commentId,
+  bool instant = false,
 }) {
   navigateToPage(
     context,
@@ -26,7 +27,8 @@ void openDetail(
       heroTag: heroTag,
       commentId: commentId,
     ),
-    hero: true,
+    hero: !instant,
+    instant: instant,
   );
 }
 

@@ -1,3 +1,4 @@
+import '../../../Logger.dart';
 import 'dart:async';
 import 'dart:convert';
 
@@ -190,7 +191,8 @@ class SimklQueries extends Queries {
       final items = await compute(_decodeLibrary, raw);
       _seen = _Activity('${raw['all']}', '${raw['removed']}');
       return items;
-    } catch (_) {
+    } catch (e, st) {
+      logError('Queries', e, st);
       return null;
     }
   }
@@ -207,7 +209,9 @@ class SimklQueries extends Queries {
         blob,
         location: PrefLocation.CACHE,
       );
-    } catch (_) {}
+    } catch (e, st) {
+      logError('Queries', e, st);
+    }
   }
 
   void invalidateLibrary() => _library.expire();
@@ -313,7 +317,8 @@ class SimklQueries extends Queries {
   Future<Map<String, Media>> _safeLibrary() async {
     try {
       return await library();
-    } catch (_) {
+    } catch (e, st) {
+      logError('Queries', e, st);
       return const {};
     }
   }
@@ -455,7 +460,8 @@ class SimklQueries extends Queries {
           );
         }
         yield [...out]..sort((a, b) => a.airingAt.compareTo(b.airingAt));
-      } catch (_) {
+      } catch (e, st) {
+        logError('Queries', e, st);
         if (out.isEmpty && kind == SimklKind.tv) rethrow;
       }
     }

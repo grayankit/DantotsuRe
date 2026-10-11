@@ -25,6 +25,7 @@ class CommentsSection extends StatefulWidget {
   final Live<Media> media;
   final ScrollController scroll;
   final int? focusId;
+  final Live<int?>? episode;
 
   const CommentsSection({
     super.key,
@@ -32,6 +33,7 @@ class CommentsSection extends StatefulWidget {
     required this.media,
     required this.scroll,
     this.focusId,
+    this.episode,
   });
 
   @override
@@ -46,6 +48,7 @@ class _CommentsSectionState extends State<CommentsSection>
     media: widget.media,
     scroll: widget.scroll,
     focusId: widget.focusId,
+    episode: widget.episode,
   );
 
   @override

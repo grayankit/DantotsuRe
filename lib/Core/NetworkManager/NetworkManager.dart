@@ -44,6 +44,7 @@ class NetworkManager extends AppController {
 
   @override
   void onInit() {
+    cookieManager.clearanceAgent = () => userAgent;
     _initClient();
     super.onInit();
   }
@@ -51,7 +52,6 @@ class NetworkManager extends AppController {
   final cookieManager = CookieManager();
 
   void reinitialize() {
-    _client.dispose();
     _initClient();
   }
 
@@ -98,7 +98,8 @@ class NetworkManager extends AppController {
       );
 
       return _client;
-    } catch (_) {
+    } catch (e, st) {
+      logError('NetworkManager', e, st);
       rethrow;
     }
   }
@@ -279,7 +280,8 @@ class NetworkManager extends AppController {
       return body.length > _isolateThreshold
           ? await compute(_decodeBody, body)
           : jsonDecode(body);
-    } catch (_) {
+    } catch (e, st) {
+      logError('NetworkManager', e, st);
       return body;
     }
   }

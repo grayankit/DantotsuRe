@@ -1,3 +1,4 @@
+import '../../../Logger.dart';
 import '../../../Core/NetworkManager/NetworkManager.dart';
 import '../../../Core/State/State.dart';
 
@@ -53,7 +54,8 @@ Future<List<AppFork>> loadForks() async {
       }
       page++;
     }
-  } catch (_) {
+  } catch (e, st) {
+    logError('Forks', e, st);
     return forks;
   }
 

@@ -32,11 +32,13 @@ class UnitTile extends StatelessWidget {
   final bool anime;
   final int view;
   final bool watched;
+  final double? progress;
   final bool next;
   final bool blur;
   final bool showDescription;
   final VoidCallback onTap;
   final VoidCallback? onLongPress;
+  final VoidCallback? onInfo;
 
   const UnitTile({
     super.key,
@@ -44,11 +46,13 @@ class UnitTile extends StatelessWidget {
     required this.anime,
     required this.view,
     required this.watched,
+    this.progress,
     required this.next,
     required this.blur,
     required this.showDescription,
     required this.onTap,
     this.onLongPress,
+    this.onInfo,
   });
 
   @override
@@ -132,6 +136,14 @@ class UnitTile extends StatelessWidget {
     ];
   }
 
+  Widget _bar(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(top: 6),
+    child: ClipRRect(
+      borderRadius: BorderRadius.circular(2),
+      child: LinearProgressIndicator(value: progress, minHeight: 3),
+    ),
+  );
+
   Widget _list(BuildContext context) {
     final scheme = context.colorScheme;
     final subtitle = unitSubtitle(unit, anime);
@@ -213,6 +225,7 @@ class UnitTile extends StatelessWidget {
                             ],
                           ),
                         ),
+                      if (progress != null) _bar(context),
                     ],
                   ),
                 ),
@@ -223,6 +236,16 @@ class UnitTile extends StatelessWidget {
                       Icons.check_circle_rounded,
                       size: 20,
                       color: scheme.primary,
+                    ),
+                  ),
+                if (onInfo != null)
+                  IconButton(
+                    visualDensity: VisualDensity.compact,
+                    onPressed: onInfo,
+                    icon: Icon(
+                      Icons.info_outline_rounded,
+                      size: 20,
+                      color: scheme.onSurfaceVariant,
                     ),
                   ),
               ],
@@ -273,6 +296,22 @@ class UnitTile extends StatelessWidget {
                           right: 6,
                           top: 6,
                           child: Row(children: _flags(context)),
+                        ),
+                      if (progress != null)
+                        Positioned(
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          child: ClipRRect(
+                            borderRadius: const BorderRadius.vertical(
+                              bottom: Radius.circular(12),
+                            ),
+                            child: LinearProgressIndicator(
+                              value: progress,
+                              minHeight: 4,
+                              backgroundColor: Colors.black38,
+                            ),
+                          ),
                         ),
                       if (watched)
                         const Positioned(
@@ -326,16 +365,34 @@ class UnitTile extends StatelessWidget {
             color: background,
             borderRadius: BorderRadius.circular(14),
           ),
-          child: Center(
-            child: Text(
-              unit.number,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: context.textTheme.labelLarge?.copyWith(
-                color: foreground,
-                fontWeight: FontWeight.w700,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              if (progress != null)
+                Positioned(
+                  left: 8,
+                  right: 8,
+                  bottom: 4,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(2),
+                    child: LinearProgressIndicator(
+                      value: progress,
+                      minHeight: 3,
+                      color: foreground,
+                      backgroundColor: foreground.withValues(alpha: 0.25),
+                    ),
+                  ),
+                ),
+              Text(
+                unit.number,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: context.textTheme.labelLarge?.copyWith(
+                  color: foreground,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
-            ),
+            ],
           ),
         ),
       ),

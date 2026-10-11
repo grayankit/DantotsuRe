@@ -1,3 +1,4 @@
+import '../../../Logger.dart';
 import 'dart:async';
 
 import 'package:flutter/widgets.dart';
@@ -41,7 +42,8 @@ class GroupMembersState extends ScreenState {
       hasNext.value = page.hasNext;
       if (page.hasNext) _page++;
       failed.value = false;
-    } catch (_) {
+    } catch (e, st) {
+      logError('GroupMembersState', e, st);
       failed.value = true;
     }
     if (mounted) {

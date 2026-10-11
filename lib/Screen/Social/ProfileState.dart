@@ -1,3 +1,4 @@
+import '../../Logger.dart';
 import '../../Utils/Animation/WidgetAnimations.dart';
 import 'dart:async';
 
@@ -124,7 +125,8 @@ class ProfileState extends ScreenState {
         return;
       }
       user.value = result.user;
-    } catch (_) {
+    } catch (e, st) {
+      logError('ProfileState', e, st);
       if (mounted) failed.value = true;
     }
   }

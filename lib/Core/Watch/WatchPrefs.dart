@@ -1,6 +1,4 @@
 import '../Preferences/PrefManager.dart';
-import '../Services/MediaService.dart';
-import '../Services/Model/Media.dart';
 
 const watchDefaultViewPref = Pref('watchDefaultView', 0, PrefLocation.OTHER);
 const watchAutoMatchPref = Pref(
@@ -73,20 +71,4 @@ class MediaWatchSettings {
       );
 
   MediaWatchSettings copy() => MediaWatchSettings.fromJson(toJson());
-
-  static String _key(MediaService service, Media media) =>
-      'watchSettings/${service.id}/${media.id}';
-
-  static MediaWatchSettings load(MediaService service, Media media) {
-    final raw = PrefManager.getCustomVal<Map>(_key(service, media));
-    return raw == null
-        ? MediaWatchSettings()
-        : MediaWatchSettings.fromJson(raw);
-  }
-
-  void save(MediaService service, Media media) =>
-      PrefManager.setCustomVal<Map>(_key(service, media), toJson());
-
-  static void reset(MediaService service, Media media) =>
-      PrefManager.removeCustomVal(_key(service, media));
 }

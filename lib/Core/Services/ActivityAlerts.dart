@@ -112,13 +112,17 @@ class ActivityAlerts extends AppController {
           imageUrl: data['i'] as String?,
         ),
       );
-    } catch (_) {}
+    } catch (e, st) {
+      logError('ActivityAlerts', e, st);
+    }
   }
 
   Future<void> _refreshBadge(MediaService service) async {
     try {
       await service.auth?.refreshUser();
-    } catch (_) {}
+    } catch (e, st) {
+      logError('ActivityAlerts', e, st);
+    }
   }
 
   String _key(String serviceId) => 'activityAlerts/seenAt/$serviceId';

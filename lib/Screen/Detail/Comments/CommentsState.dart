@@ -29,12 +29,14 @@ class CommentsState extends ScreenState {
   final Live<Media> media;
   final ScrollController scroll;
   final int? focusId;
+  final Live<int?>? episode;
 
   CommentsState({
     required this.service,
     required this.media,
     required this.scroll,
     this.focusId,
+    this.episode,
   });
 
   CommentsApi get api => find<CommentsApi>();
@@ -56,6 +58,7 @@ class CommentsState extends ScreenState {
   Disposer? _tokenSub;
   Disposer? _enabledSub;
   Disposer? _sortSub;
+  Disposer? _episodeSub;
 
   Live<String> get sort => PrefName.commentsSort.rx;
 
@@ -78,6 +81,10 @@ class CommentsState extends ScreenState {
   @override
   void onInit() {
     scroll.addListener(_nearEnd);
+    if (episode != null) {
+      filterTag.value = episode!.value;
+      _episodeSub = onChange(episode!, setFilter);
+    }
     _tokenSub = onChange(api.anilistToken, (_) => unawaited(start()));
     _enabledSub = onChange(
       PrefName.commentsEnabled.rx,
@@ -93,6 +100,7 @@ class CommentsState extends ScreenState {
     _tokenSub?.dispose();
     _enabledSub?.dispose();
     _sortSub?.dispose();
+    _episodeSub?.dispose();
   }
 
   void _nearEnd() {

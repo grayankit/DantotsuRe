@@ -214,7 +214,9 @@ class KitsuQueries extends Queries {
         final entry = mine[m.id];
         if (entry != null) m.takeListEntry(entry);
       }
-    } catch (_) {}
+    } catch (e, st) {
+      logError('Queries', e, st);
+    }
     return items;
   }
 
@@ -378,7 +380,9 @@ class KitsuQueries extends Queries {
           return ((a['statsData'] as Map?)?['units'] as num?)?.toInt() ?? 0;
         }
       }
-    } catch (_) {}
+    } catch (e, st) {
+      logError('Queries', e, st);
+    }
     return 0;
   }
 
@@ -409,7 +413,9 @@ class KitsuQueries extends Queries {
       );
       final entry = doc.data.firstOrNull;
       if (entry != null) applyKitsuEntry(media, entry);
-    } catch (_) {}
+    } catch (e, st) {
+      logError('Queries', e, st);
+    }
   }
 
   Future<Media?> _bySlug(String id) async {
@@ -468,7 +474,8 @@ class KitsuQueries extends Queries {
         ),
       );
       return mapKitsuCast(doc);
-    } catch (_) {
+    } catch (e, st) {
+      logError('Queries', e, st);
       return const [];
     }
   }
@@ -485,7 +492,8 @@ class KitsuQueries extends Queries {
         ),
       );
       return mapKitsuStaff(doc);
-    } catch (_) {
+    } catch (e, st) {
+      logError('Queries', e, st);
       return const [];
     }
   }
@@ -493,7 +501,8 @@ class KitsuQueries extends Queries {
   Future<JsonApi?> entity(String path, [Map<String, String>? query]) async {
     try {
       return JsonApi(await client.get(path, query: query));
-    } catch (_) {
+    } catch (e, st) {
+      logError('Queries', e, st);
       return null;
     }
   }
@@ -528,7 +537,8 @@ class KitsuQueries extends Queries {
         await _loadVotes(list, me);
       }
       return _reactionCache[mediaId] = list;
-    } catch (_) {
+    } catch (e, st) {
+      logError('Queries', e, st);
       return const [];
     }
   }
@@ -555,7 +565,9 @@ class KitsuQueries extends Queries {
           if (r.id == '$id') r.voted = true;
         }
       }
-    } catch (_) {}
+    } catch (e, st) {
+      logError('Queries', e, st);
+    }
   }
 
   Future<bool?> voteReaction(MediaReaction reaction) async {
@@ -597,7 +609,8 @@ class KitsuQueries extends Queries {
       final id = (res['data'] as Map?)?['id'];
       if (id != null) _voteIds[reaction.id] = '$id';
       return true;
-    } catch (_) {
+    } catch (e, st) {
+      logError('Queries', e, st);
       return null;
     }
   }
@@ -682,7 +695,8 @@ class KitsuQueries extends Queries {
         ),
       );
       return [for (final n in doc.data) ?mapKitsuReview(doc, n, mediaId)];
-    } catch (_) {
+    } catch (e, st) {
+      logError('Queries', e, st);
       return const [];
     }
   }
@@ -855,7 +869,9 @@ class KitsuQueries extends Queries {
         }
       }
       if (slugs.isNotEmpty) saveCustomData(_genreKey, slugs);
-    } catch (_) {}
+    } catch (e, st) {
+      logError('Queries', e, st);
+    }
     return true;
   }
 

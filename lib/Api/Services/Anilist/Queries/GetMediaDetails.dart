@@ -16,7 +16,8 @@ extension on AnilistQueries {
       } on AnilistException catch (e) {
         snackString(getString.serviceError(getString.anilist, e.message));
         return media;
-      } catch (_) {
+      } catch (e, st) {
+        logError('GetMediaDetails', e, st);
         snackString(getString.errorGettingAnilistData);
         return media;
       }

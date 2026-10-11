@@ -1,3 +1,4 @@
+import '../../Logger.dart';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -87,7 +88,8 @@ class CustomFontLoader {
       _loadedPath = path;
       _loadedFamily = family;
       return family;
-    } catch (_) {
+    } catch (e, st) {
+      logError('CustomFontLoader', e, st);
       return null;
     }
   }
@@ -100,7 +102,8 @@ class CustomFontLoader {
     try {
       GoogleFonts.getFont(family);
       await GoogleFonts.pendingFonts();
-    } catch (_) {
+    } catch (e, st) {
+      logError('CustomFontLoader', e, st);
       return null;
     }
 

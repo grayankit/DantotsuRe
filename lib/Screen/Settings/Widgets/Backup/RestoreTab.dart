@@ -1,3 +1,4 @@
+import '../../../../Logger.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
@@ -76,7 +77,8 @@ class _RestoreTabState extends State<RestoreTab> {
       _selected
         ..clear()
         ..addAll({for (final l in found.keys) l: true});
-    } catch (_) {
+    } catch (e, st) {
+      logError('RestoreTab', e, st);
       _found.value = null;
       _error.value = getString.backupWrongPassword;
     } finally {

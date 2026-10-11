@@ -1,3 +1,4 @@
+import '../../../Logger.dart';
 import 'ProfileSkeleton.dart';
 import '../../../Utils/Animation/WidgetAnimations.dart';
 import 'dart:async';
@@ -80,7 +81,8 @@ class _ProfileStatsTabState extends State<ProfileStatsTab>
       _history.value = results[1] as List<ActivityDay>;
       _stats.value = stats;
       _failed.value = stats == null;
-    } catch (_) {
+    } catch (e, st) {
+      logError('ProfileStatsTab', e, st);
       if (mounted) _failed.value = true;
     }
   }

@@ -1,3 +1,4 @@
+import '../../../Logger.dart';
 import 'dart:async';
 import 'dart:math' as math;
 
@@ -114,7 +115,8 @@ class _StoriesRowState extends State<StoriesRow> {
       _groups.value = others;
       _own.value = own;
       _failed.value = false;
-    } catch (_) {
+    } catch (e, st) {
+      logError('StoriesRow', e, st);
       if (mounted) _failed.value = true;
     }
   }

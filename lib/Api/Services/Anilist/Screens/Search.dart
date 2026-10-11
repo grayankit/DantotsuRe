@@ -1,3 +1,4 @@
+import '../../../../Logger.dart';
 import '../../../../Core/Preferences/PrefManager.dart';
 import '../../../../Core/Services/MediaService.dart';
 import '../../../../Core/Services/Model/Author.dart';
@@ -26,7 +27,9 @@ class AnilistSearchView extends SearchScreenView {
   Future<void> prepare() async {
     try {
       await anilistAuth.queries.getGenresAndTags();
-    } catch (_) {}
+    } catch (e, st) {
+      logError('Search', e, st);
+    }
   }
 
   @override

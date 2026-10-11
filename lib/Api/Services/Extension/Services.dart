@@ -18,9 +18,6 @@ ItemType itemTypeOf(MediaType type) => switch (type) {
 ItemType itemTypeFor({required bool anime}) =>
     anime ? ItemType.anime : ItemType.manga;
 
-Pref<String> extensionServicePref(ItemType type) =>
-    Pref('extensionService/${type.name}', '', PrefLocation.OTHER);
-
 Pref<List<String>> mutedSourcesPref(String serviceId, ItemType type) => Pref(
   'extensionMutedSources/$serviceId/${type.name}',
   const [],
@@ -50,19 +47,48 @@ List<Extension> extensionServicesFor(ItemType type) =>
     const [];
 
 Extension? extensionServiceFor(ItemType type) {
-  final saved = extensionServicePref(type).rx.value;
-  final services = extensionServicesFor(type);
-  if (services.isEmpty) return null;
-  return services.firstWhereOrNull((e) => e.id == saved) ?? services.first;
+  final manager = tryFind<ExtensionManager>();
+  if (manager == null) return null;
+  final current = manager.current[type];
+  if (current != null && current.supports(type)) return current;
+  return extensionServicesFor(type).firstOrNull;
 }
 
-void setExtensionService(ItemType type, String id) {
-  extensionServicePref(type).rx.value = id;
-  unawaited(extensionServiceFor(type)?.initializeInstalled(type));
-}
+void setExtensionService(ItemType type, String id) =>
+    tryFind<ExtensionManager>()?.switchManager(type, id);
 
 List<Source> installedSources(ItemType type) =>
     extensionServiceFor(type)?.state(type).installed.value ?? const [];
+
+Source? installedSourceById(String id) {
+  for (final type in ItemType.values) {
+    for (final s in installedSources(type)) {
+      if (s.id == id) return s;
+    }
+  }
+  return null;
+}
+
+List<Source> watchSources(ItemType type) {
+  final extension = extensionServiceFor(type);
+  if (extension == null) return const [];
+  final state = extension.state(type);
+  final languages = state.selectedLanguages;
+  final saved = PrefName.extensionOrder(extension.name, type.name).value;
+  final order = {for (final (i, id) in saved.indexed) id: i};
+  final list = [
+    for (final s in state.installed.value)
+      if (languages.isEmpty || languages.contains(s.lang)) s,
+  ];
+  if (order.isNotEmpty) {
+    mergeSort<Source>(
+      list,
+      compare: (a, b) =>
+          (order[a.id] ?? 1 << 30).compareTo(order[b.id] ?? 1 << 30),
+    );
+  }
+  return list;
+}
 
 final _langSuffix = RegExp(
   r'\s*[\(\[]\s*[a-z]{2,3}(?:[-_][a-z0-9]+)?\s*[\)\]]$',

@@ -1,3 +1,4 @@
+import '../../../Logger.dart';
 import '../../../Api/Services/MyAnimeList/Auth.dart';
 import '../EpisodeMeta.dart';
 import 'MetaHttp.dart';
@@ -43,7 +44,8 @@ class TenraiProvider extends EpisodeMetaProvider {
           query: {'page': '$page'},
           cache: const Duration(hours: 1),
         );
-      } catch (_) {
+      } catch (e, st) {
+        logError('Tenrai', e, st);
         break;
       }
       final rows = body['data'];

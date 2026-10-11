@@ -1,3 +1,4 @@
+import '../../../Logger.dart';
 import 'dart:convert';
 import 'dart:async';
 
@@ -142,7 +143,9 @@ class MalQueries extends Queries {
         if (entry == null) continue;
         m.takeListEntry(entry);
       }
-    } catch (_) {}
+    } catch (e, st) {
+      logError('Queries', e, st);
+    }
     return items;
   }
 
@@ -183,7 +186,8 @@ class MalQueries extends Queries {
     try {
       final data = await tenrai.get(path, cache: const Duration(minutes: 30));
       return (data['data'] as Map?)?.cast<String, dynamic>();
-    } catch (_) {
+    } catch (e, st) {
+      logError('Queries', e, st);
       return null;
     }
   }
@@ -267,7 +271,8 @@ class MalQueries extends Queries {
       return (await library(
         anime: false,
       )).fold<int>(0, (sum, m) => sum + (m.userProgress ?? 0));
-    } catch (_) {
+    } catch (e, st) {
+      logError('Queries', e, st);
       return 0;
     }
   }
@@ -315,7 +320,9 @@ class MalQueries extends Queries {
             if ((e as Map)['name'] is String && e['url'] is String)
               (e['name'] as String, e['url'] as String),
       ];
-    } catch (_) {}
+    } catch (e, st) {
+      logError('Queries', e, st);
+    }
   }
 
   Future<List<Character>> characters(Media media) {
@@ -359,7 +366,8 @@ class MalQueries extends Queries {
             role: ((e['positions'] as List?) ?? const []).join(', '),
           ),
       ];
-    } catch (_) {
+    } catch (e, st) {
+      logError('Queries', e, st);
       return const [];
     }
   }
@@ -371,7 +379,8 @@ class MalQueries extends Queries {
         for (final e in ((data['data'] as List?) ?? const []).take(25))
           mapTenraiCharacter((e as Map).cast<String, dynamic>()),
       ];
-    } catch (_) {
+    } catch (e, st) {
+      logError('Queries', e, st);
       return const [];
     }
   }
@@ -394,7 +403,8 @@ class MalQueries extends Queries {
         for (final r in (data['data'] as List?) ?? const [])
           mapTenraiReview((r as Map).cast<String, dynamic>(), mediaId: mediaId),
       ];
-    } catch (_) {
+    } catch (e, st) {
+      logError('Queries', e, st);
       return const [];
     }
   }
@@ -589,7 +599,9 @@ class MalQueries extends Queries {
             (g as Map)['name'] as String: (g['mal_id'] as num).toInt(),
         };
         if (map.isNotEmpty) saveCustomData(_genreKey(anime), map);
-      } catch (_) {}
+      } catch (e, st) {
+        logError('Queries', e, st);
+      }
     }
     return true;
   }

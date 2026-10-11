@@ -170,15 +170,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get colorPickerCustom => '제품 정보';
 
   @override
-  String get utd => '맨 위로';
-
-  @override
-  String get dtu => '맨 위로';
-
-  @override
-  String get rtl => '왼쪽으로';
-
-  @override
   String get ltr => '오른쪽으로';
 
   @override
@@ -214,12 +205,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get settingsUpdatesDesc => 'Release channel and checks';
-
-  @override
-  String get settingsNetwork => 'Network';
-
-  @override
-  String get settingsNetworkDesc => 'User-Agent, DNS, proxy, cookies';
 
   @override
   String get settingsAboutDesc => 'Version, links, support';
@@ -321,9 +306,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String backupKeys(Object count) {
     return '$count settings';
   }
-
-  @override
-  String get backupShowKeys => 'Show settings';
 
   @override
   String get backupPassword => 'Password (optional)';
@@ -514,21 +496,11 @@ class AppLocalizationsKo extends AppLocalizations {
   String get materialYouDesc => 'Dynamic colour from the system';
 
   @override
-  String get customAccent => 'Custom accent colour';
-
-  @override
-  String get customAccentDesc => 'Pick your own primary colour';
-
-  @override
   String get jsonTheme => 'Custom theme file';
 
   @override
   String get jsonThemeDesc =>
       'Live colours from ~/.config/dartotsu/theme.json (a custom script, or your own edits)';
-
-  @override
-  String get customAccentDisabledDesc =>
-      'Turn off Material You to use a custom colour';
 
   @override
   String get themeMode => 'Theme mode';
@@ -924,9 +896,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get publishersLabel => 'Publishers';
-
-  @override
-  String get originalLanguage => 'Original language';
 
   @override
   String get licensedLabel => 'Licensed';
@@ -1803,10 +1772,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get systemNotifications => 'System notifications';
 
   @override
-  String get systemNotificationsDesc =>
-      'Show a notification for each unread AniList notification while the app is running. Opening the notifications page marks them read.';
-
-  @override
   String get feedLayout => 'Feed layout';
 
   @override
@@ -2464,6 +2429,30 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
+  String get resumeTitle => 'Resume';
+
+  @override
+  String get resumeSourceMissing => 'Install this title\'s source to resume';
+
+  @override
+  String get resumeRemove => 'Remove from resume';
+
+  @override
+  String resumeMissing(String title) {
+    return 'Couldn\'t find $title in this source';
+  }
+
+  @override
+  String resumeAt(String time) {
+    return '$time left';
+  }
+
+  @override
+  String resumePage(int page, int total) {
+    return 'Page $page of $total';
+  }
+
+  @override
   String get continueWatching => '계속 시청';
 
   @override
@@ -2958,14 +2947,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get syncStateUnmapped => 'No match';
 
   @override
-  String get syncStateFailed => 'Failed';
-
-  @override
-  String syncToSync(int count) {
-    return '$count to sync';
-  }
-
-  @override
   String syncPaused(String time) {
     return 'Waiting for the rate limit, resumes in $time';
   }
@@ -2981,20 +2962,7 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
-  String syncFetched(String time) {
-    return 'Fetched $time';
-  }
-
-  @override
   String get syncNothingHere => 'Nothing to show';
-
-  @override
-  String get syncAllSynced => 'Everything is in sync';
-
-  @override
-  String syncSelectedMain(String name) {
-    return '$name is the main service';
-  }
 
   @override
   String syncLimits(int used, int max, String window) {
@@ -3021,11 +2989,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get syncShared => 'Shares its entry with another item';
-
-  @override
-  String syncFromTo(String from, String to) {
-    return '$from to $to';
-  }
 
   @override
   String syncNotFound(String service) {
@@ -3191,20 +3154,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get commentsPlaceholder => 'Add a comment…';
 
   @override
-  String get commentsReplyPlaceholder => 'Write a reply…';
-
-  @override
   String commentsReplyingTo(String name) {
     return 'Replying to $name';
   }
 
   @override
   String get commentsSend => 'Send';
-
-  @override
-  String commentsPostAs(String name) {
-    return 'Commenting as $name';
-  }
 
   @override
   String get commentsTagButton => 'Tag';
@@ -3254,11 +3209,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get commentsEmptyText => 'Comment cannot be empty';
 
   @override
-  String commentsTooLong(int max) {
-    return 'Comment cannot be longer than $max characters';
-  }
-
-  @override
   String get commentsBannedYou => 'You are banned from commenting';
 
   @override
@@ -3275,9 +3225,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get commentsUserBanned => 'User banned';
-
-  @override
-  String get commentsEditedMark => 'edited';
 
   @override
   String get commentsReport => 'Report';
@@ -3310,12 +3257,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get commentsHideReplies => 'Hide replies';
-
-  @override
-  String get commentsCollapse => 'Collapse thread';
-
-  @override
-  String get commentsExpand => 'Expand thread';
 
   @override
   String get commentsLoadMore => 'Load more comments';
@@ -3374,9 +3315,6 @@ class AppLocalizationsKo extends AppLocalizations {
       'Notify me when someone replies to my comments';
 
   @override
-  String get commentsSettingRules => 'Commenting rules';
-
-  @override
   String get commentsNoticeReplyTitle => 'New comment reply';
 
   @override
@@ -3394,11 +3332,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get commentsNoticeUpdateTitle => 'Update from Dantotsu';
 
   @override
-  String commentsLevel(int level) {
-    return 'Level $level';
-  }
-
-  @override
   String get imageSearchTitle => 'Search by image';
 
   @override
@@ -3412,23 +3345,13 @@ class AppLocalizationsKo extends AppLocalizations {
   String get imageSearchPick => 'Choose image';
 
   @override
-  String get imageSearchLink => 'Image link';
-
-  @override
   String get imageSearchLinkHint => 'Paste an image link';
 
   @override
   String get imageSearchGo => 'Search';
 
   @override
-  String get imageSearchSearching => 'Looking for a match…';
-
-  @override
   String get imageSearchEmpty => 'No match found';
-
-  @override
-  String get imageSearchLowMatch =>
-      'Low similarity, this might be the wrong anime';
 
   @override
   String get imageSearchAdult => '18+';
@@ -3549,12 +3472,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get groupsRoleMod => 'Mod';
 
   @override
-  String get groupsNoPosts => 'Nothing posted here yet';
-
-  @override
-  String get groupsJoinToPost => 'Join the group to post';
-
-  @override
   String get groupsCouldntLoad => 'Couldn\'t load this group';
 
   @override
@@ -3632,9 +3549,6 @@ class AppLocalizationsKo extends AppLocalizations {
       'Replies to your comments and announcements from Dantotsu show up here.';
 
   @override
-  String get notificationsLoadMore => 'Load more';
-
-  @override
   String get notificationsSettings => 'Notification settings';
 
   @override
@@ -3695,11 +3609,6 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get reactionsTitle => 'Reactions';
-
-  @override
-  String reactionsVotes(int count) {
-    return '$count upvotes';
-  }
 
   @override
   String get reactionsNeedEntry =>
@@ -3894,12 +3803,6 @@ class AppLocalizationsKo extends AppLocalizations {
   String get watchSignInToTrack => 'Sign in to track your progress';
 
   @override
-  String get watchPlayerSoon => 'The player isn\'t built yet';
-
-  @override
-  String get watchReaderSoon => 'The reader isn\'t built yet';
-
-  @override
   String watchInstallSource(String action) {
     return 'Install an extension to start $action';
   }
@@ -3996,14 +3899,14 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String watchClearanceActive(String time) {
-    return 'Cloudflare clearance active, expires in $time';
+    return 'Cloudflare clearance active, $time';
   }
 
   @override
   String get watchClearanceMissing => 'No Cloudflare clearance cookie';
 
   @override
-  String get watchClearanceSession => 'until the app closes';
+  String get watchClearanceSession => 'lasts until the app closes';
 
   @override
   String get watchAgentShared =>
@@ -4052,4 +3955,941 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get watchMetaOff => 'Off';
+
+  @override
+  String get settingsPlayer => 'Player';
+
+  @override
+  String get settingsPlayerDesc =>
+      'Playback, subtitles, shaders, mpv and opening files';
+
+  @override
+  String get playerSettingsTitle => '플레이어 설정';
+
+  @override
+  String get playerSectionPlayback => 'Playback';
+
+  @override
+  String get playerSectionSkip => 'Skipping';
+
+  @override
+  String get playerSectionGestures => 'Controls';
+
+  @override
+  String get playerSectionSubtitles => 'Subtitles';
+
+  @override
+  String get playerSectionShaders => 'Shaders';
+
+  @override
+  String get playerSectionEngine => 'Engine';
+
+  @override
+  String get playerSectionMpv => 'mpv';
+
+  @override
+  String get playerSectionOpen => 'Open media';
+
+  @override
+  String get playerSpeed => 'Playback speed';
+
+  @override
+  String get playerCursedSpeed => 'Extra speeds';
+
+  @override
+  String get playerCursedSpeedDesc => 'Add speeds up to 10x to the list';
+
+  @override
+  String get playerResize => 'Resize mode';
+
+  @override
+  String get playerFitFit => 'Fit';
+
+  @override
+  String get playerFitCover => 'Cover';
+
+  @override
+  String get playerFitStretch => 'Stretch';
+
+  @override
+  String get playerSkipDuration => 'Skip button length';
+
+  @override
+  String get playerSkipDurationDesc =>
+      'Seconds the skip button jumps outside openings and endings';
+
+  @override
+  String get playerSeekDuration => 'Double tap seek';
+
+  @override
+  String get playerSeekDurationDesc =>
+      'Seconds to jump on a double tap or arrow key';
+
+  @override
+  String get playerAutoPlay => 'Play next automatically';
+
+  @override
+  String get playerAutoPlayDesc => 'Start the next episode when this one ends';
+
+  @override
+  String get playerResume => 'Resume where you left off';
+
+  @override
+  String get playerResumeDesc => 'Continue an episode from its last position';
+
+  @override
+  String get playerOrientation => 'Orientation';
+
+  @override
+  String get playerOrientationAuto => 'Follow the device';
+
+  @override
+  String get playerOrientationLandscape => 'Landscape';
+
+  @override
+  String get playerOrientationPortrait => 'Portrait';
+
+  @override
+  String get playerAutoSkipOpening => 'Skip openings';
+
+  @override
+  String get playerAutoSkipEnding => 'Skip endings';
+
+  @override
+  String get playerAutoSkipRecap => 'Skip recaps';
+
+  @override
+  String get playerAutoSkipDesc =>
+      'Jump past it as soon as it starts, using AniSkip and stream timestamps';
+
+  @override
+  String get playerSkipOnce => 'Skip once only';
+
+  @override
+  String get playerSkipOnceDesc =>
+      'Don\'t skip the same part again if you seek back into it';
+
+  @override
+  String get playerAdjustBrightness => 'Brightness gesture';
+
+  @override
+  String get playerAdjustBrightnessDesc =>
+      'Swipe up and down on the left half of the screen';
+
+  @override
+  String get playerAdjustVolume => 'Volume gesture';
+
+  @override
+  String get playerAdjustVolumeDesc =>
+      'Swipe up and down on the right half of the screen';
+
+  @override
+  String get playerHoldToSpeed => 'Hold to speed up';
+
+  @override
+  String get playerHoldToSpeedDesc =>
+      'Press and hold the video to play faster, drag sideways to change the speed';
+
+  @override
+  String get playerThumbless => 'Thicker seek bar';
+
+  @override
+  String get playerThumblessDesc => 'A thick bar without a thumb';
+
+  @override
+  String get playerShowSubtitles => 'Show subtitles';
+
+  @override
+  String get playerShowSubtitlesDesc => 'Turn off to hide every subtitle track';
+
+  @override
+  String get playerSubtitleLanguage => 'Preferred subtitle language';
+
+  @override
+  String get playerSubtitleSize => 'Subtitle size';
+
+  @override
+  String get playerSubtitleWeight => 'Subtitle weight';
+
+  @override
+  String get playerSubtitleBottom => 'Subtitle bottom padding';
+
+  @override
+  String get playerSubtitleFont => 'Subtitle font';
+
+  @override
+  String get playerSubtitleColor => 'Subtitle colour';
+
+  @override
+  String get playerSubtitleBackground => 'Subtitle background';
+
+  @override
+  String get playerSubtitleOutline => 'Subtitle outline';
+
+  @override
+  String get playerLibass => 'Use libass';
+
+  @override
+  String get playerLibassDesc =>
+      'Render styled .ass subtitles. The size, colour and font above then no longer apply';
+
+  @override
+  String get playerShaders => 'Shaders';
+
+  @override
+  String get playerShadersEnable => 'Enable shaders';
+
+  @override
+  String get playerShadersEnableDesc =>
+      'Upscale and clean the picture with GLSL shaders such as Anime4K';
+
+  @override
+  String get playerShadersOff => 'Shaders off';
+
+  @override
+  String get playerShadersMissing => 'Anime4K is not installed';
+
+  @override
+  String get playerShadersMissingDesc =>
+      'Download the Anime4K shader pack (about 0.8 MB) to use the built-in modes.';
+
+  @override
+  String get playerShadersDownload => 'Download Anime4K';
+
+  @override
+  String get playerShadersPreview => 'Preview on this frame';
+
+  @override
+  String get playerShadersUse => 'Use this';
+
+  @override
+  String get playerPicture => 'Picture';
+
+  @override
+  String get playerColors => 'Colors';
+
+  @override
+  String get playerColorDefault => 'Default';
+
+  @override
+  String get playerColorVivid => 'Vivid';
+
+  @override
+  String get playerColorPop => 'Anime pop';
+
+  @override
+  String get playerColorSoft => 'Soft';
+
+  @override
+  String get playerColorCinematic => 'Cinematic';
+
+  @override
+  String get playerColorBright => 'Bright';
+
+  @override
+  String get playerColorNight => 'Night';
+
+  @override
+  String get playerColorMono => 'Mono';
+
+  @override
+  String get playerColorCustom => 'Custom';
+
+  @override
+  String get playerColorBrightness => 'Brightness';
+
+  @override
+  String get playerColorContrast => 'Contrast';
+
+  @override
+  String get playerColorSaturation => 'Saturation';
+
+  @override
+  String get playerColorGamma => 'Gamma';
+
+  @override
+  String get playerColorHue => 'Hue';
+
+  @override
+  String get playerColorReset => 'Reset';
+
+  @override
+  String get playerColorAdjust => 'Adjust';
+
+  @override
+  String get playerShadersOriginal => 'Original';
+
+  @override
+  String get playerShadersPreviewFailed => 'Couldn\'t grab a frame to preview';
+
+  @override
+  String get playerShadersCustomFiles => 'Your shaders';
+
+  @override
+  String get playerShadersCustom => 'Custom shaders';
+
+  @override
+  String get playerShadersImport => 'Import .glsl';
+
+  @override
+  String get playerShadersNone =>
+      'Import your own .glsl or .hook files and tick them to chain them';
+
+  @override
+  String get playerShadersBadFile => 'Choose a .glsl or .hook shader file';
+
+  @override
+  String get playerDecoder => 'Decoder';
+
+  @override
+  String get playerDecoderAuto => 'Auto';
+
+  @override
+  String get playerDecoderAutoSafe => 'Auto (safe)';
+
+  @override
+  String get playerDecoderSoftware => 'Software';
+
+  @override
+  String get playerDecoderHardware => 'Hardware';
+
+  @override
+  String get playerDecoderHardwarePlus => 'Hardware+';
+
+  @override
+  String get playerVideoOutput => 'Video output';
+
+  @override
+  String get playerAudioChannels => 'Audio channels';
+
+  @override
+  String get playerBuffer => 'Buffer size (MB)';
+
+  @override
+  String get playerBufferDesc => 'Memory the player may use to buffer a stream';
+
+  @override
+  String get playerUseMpvConf => 'Use mpv.conf';
+
+  @override
+  String get playerUseMpvConfDesc =>
+      'Apply the options in your mpv.conf when playback starts';
+
+  @override
+  String get playerMpvConf => 'mpv.conf';
+
+  @override
+  String get playerMpvConfEdit => 'Edit the mpv configuration';
+
+  @override
+  String get playerMpvConfDesc =>
+      'One option per line, like --hwdec=auto in a normal mpv.conf. Profiles in [brackets] are ignored.';
+
+  @override
+  String get playerMpvConfSaved => 'mpv.conf saved';
+
+  @override
+  String get playerUseScripts => 'Use mpv scripts';
+
+  @override
+  String get playerUseScriptsDesc =>
+      'Load the plugins from the scripts folder. They need a libmpv build with Lua or JavaScript support';
+
+  @override
+  String get playerScripts => 'mpv scripts';
+
+  @override
+  String get playerScriptsManage => 'Add, remove and switch plugins';
+
+  @override
+  String get playerScriptsAdd => 'Add script';
+
+  @override
+  String get playerScriptsDesc =>
+      'Lua, JavaScript and native plugins placed here are loaded when playback starts.';
+
+  @override
+  String get playerScriptsNone => 'No scripts yet';
+
+  @override
+  String get playerScriptsBadFile => 'Choose a .lua, .js or native plugin file';
+
+  @override
+  String get playerTuning => 'Advanced video tuning';
+
+  @override
+  String get playerTuningDesc =>
+      'Override sync, caching, scaling and tone mapping. Wrong values can hurt playback';
+
+  @override
+  String get playerVideoSync => 'Video sync';
+
+  @override
+  String get playerInterpolation => 'Frame interpolation';
+
+  @override
+  String get playerInterpolationDesc =>
+      'Smooth motion, needs display-resample sync';
+
+  @override
+  String get playerPitch => 'Pitch correction';
+
+  @override
+  String get playerPitchDesc => 'Keep voices natural at other speeds';
+
+  @override
+  String get playerCacheSeconds => 'Cache (seconds)';
+
+  @override
+  String get playerReadahead => 'Read ahead (seconds)';
+
+  @override
+  String get playerThreads => 'Decoder threads';
+
+  @override
+  String get playerDeband => 'Deband';
+
+  @override
+  String get playerDebandDesc => 'Reduce colour banding in gradients';
+
+  @override
+  String get playerDebandIterations => 'Deband iterations';
+
+  @override
+  String get playerDebandThreshold => 'Deband threshold';
+
+  @override
+  String get playerCorrectDownscaling => 'Correct downscaling';
+
+  @override
+  String get playerSigmoid => 'Sigmoid upscaling';
+
+  @override
+  String get playerScale => 'Upscaler';
+
+  @override
+  String get playerCscale => 'Chroma upscaler';
+
+  @override
+  String get playerDscale => 'Downscaler';
+
+  @override
+  String get playerToneMapping => 'Tone mapping';
+
+  @override
+  String get playerTargetPeak => 'Target peak';
+
+  @override
+  String get playerOpenFiles => 'Open video files';
+
+  @override
+  String get playerOpenFilesDesc => 'Play files from this device';
+
+  @override
+  String get playerOpenFolder => 'Open a folder';
+
+  @override
+  String get playerOpenFolderDesc =>
+      'Play every video in a folder as a playlist';
+
+  @override
+  String get playerNetworkStream => 'Network stream';
+
+  @override
+  String get playerNetworkStreamDesc => 'Open a direct video or HLS link';
+
+  @override
+  String get playerStreamUrl => 'Stream URL';
+
+  @override
+  String get playerStreamReferer => 'Referer (optional)';
+
+  @override
+  String get playerTorrent => 'Torrent';
+
+  @override
+  String get playerTorrentDesc => 'Stream a magnet link or .torrent file';
+
+  @override
+  String get playerMagnetLink => 'Magnet link or torrent URL';
+
+  @override
+  String get playerPickTorrent => 'Choose a .torrent file';
+
+  @override
+  String get playerTorrentMissing =>
+      'Install the torrent addon from Settings > Addons first';
+
+  @override
+  String get playerNoVideos => 'No playable videos found';
+
+  @override
+  String get playerReset => 'Reset player settings';
+
+  @override
+  String get playerResetDesc => 'Restore every player option to its default';
+
+  @override
+  String get playerResetConfirm => 'Reset all player settings?';
+
+  @override
+  String get playerResetDone => 'Player settings reset';
+
+  @override
+  String get playerStreams => 'Streams';
+
+  @override
+  String get playerAutoSelect => 'Auto select stream';
+
+  @override
+  String get playerAutoSelectDesc =>
+      'Pick the stream most like your last choice for this title';
+
+  @override
+  String get playerLoadingStreams => 'Looking for streams…';
+
+  @override
+  String get playerNoStreams => 'This episode has no streams';
+
+  @override
+  String get playerNoStreamsTitle => 'No streams found';
+
+  @override
+  String get playerFailed => 'Playback failed';
+
+  @override
+  String get playerTorrentNeeded => 'This stream is a torrent';
+
+  @override
+  String get playerTorrentNeededDesc =>
+      'Install the torrent addon to play magnet links and .torrent files';
+
+  @override
+  String get playerOpenAddons => 'Open addons';
+
+  @override
+  String get playerTryAnotherStream => 'Try another stream';
+
+  @override
+  String get playerEpisodes => 'Episodes';
+
+  @override
+  String get playerLock => 'Lock controls';
+
+  @override
+  String get playerFullscreen => 'Fullscreen';
+
+  @override
+  String get settingsReader => 'Reader';
+
+  @override
+  String get settingsReaderDesc => 'Manga, manhwa and novel reading';
+
+  @override
+  String get readerChapters => 'Chapters';
+
+  @override
+  String get readerSettingsTitle => 'Reader settings';
+
+  @override
+  String get readerPreviousChapter => 'Previous chapter';
+
+  @override
+  String get readerNextChapter => 'Next chapter';
+
+  @override
+  String get readerFirstChapter => 'This is the first chapter';
+
+  @override
+  String get readerLastChapter => 'You\'re all caught up';
+
+  @override
+  String get readerFailed => 'Couldn\'t open this chapter';
+
+  @override
+  String get readerNoText => 'This chapter has no text';
+
+  @override
+  String get readerPerTitle => 'Only for this title';
+
+  @override
+  String get readerPerTitleDesc =>
+      'Keep these reader settings for this title only';
+
+  @override
+  String get readerSectionReading => 'Reading';
+
+  @override
+  String get readerSectionControls => 'Controls';
+
+  @override
+  String get readerSectionDisplay => 'Display';
+
+  @override
+  String get readerSectionNovel => 'Novel';
+
+  @override
+  String get readerSectionReset => 'Reset';
+
+  @override
+  String get readerMode => 'Reading mode';
+
+  @override
+  String get readerModeRtl => 'Right to left';
+
+  @override
+  String get readerModeLtr => 'Left to right';
+
+  @override
+  String get readerModeVertical => 'Vertical pages';
+
+  @override
+  String get readerModeWebtoon => 'Webtoon';
+
+  @override
+  String get readerModeContinuous => 'Continuous scroll';
+
+  @override
+  String get readerScale => 'Image scale';
+
+  @override
+  String get readerScaleFit => 'Fit screen';
+
+  @override
+  String get readerScaleWidth => 'Fit width';
+
+  @override
+  String get readerScaleHeight => 'Fit height';
+
+  @override
+  String get readerScaleOriginal => 'Original size';
+
+  @override
+  String get readerScaleSmart => 'Smart fit';
+
+  @override
+  String get readerDoublePage => 'Double pages';
+
+  @override
+  String get readerDoublePageDesc => 'Show two pages side by side in landscape';
+
+  @override
+  String get readerDoubleTapZoom => 'Double tap to zoom';
+
+  @override
+  String get readerDoubleTapZoomDesc =>
+      'Zoom a page in and out with a double tap';
+
+  @override
+  String get readerAnimate => 'Page animation';
+
+  @override
+  String get readerAnimateDesc => 'Animate page turns';
+
+  @override
+  String get readerSidePadding => 'Side padding';
+
+  @override
+  String get readerSidePaddingDesc => 'Space beside the pages in percent';
+
+  @override
+  String get readerPageGap => 'Page gap';
+
+  @override
+  String get readerPageGapDesc => 'Space between pages';
+
+  @override
+  String get readerAutoNext => 'Continue into the next chapter';
+
+  @override
+  String get readerAutoNextDesc =>
+      'Load the next chapter while you read the end of this one';
+
+  @override
+  String get readerPreload => 'Preload pages';
+
+  @override
+  String get readerPreloadDesc => 'How many pages to download ahead';
+
+  @override
+  String get readerTapZones => 'Tap zones';
+
+  @override
+  String get readerTapDefault => 'Default';
+
+  @override
+  String get readerTapLShaped => 'L-shaped';
+
+  @override
+  String get readerTapKindle => 'Kindle-like';
+
+  @override
+  String get readerTapEdge => 'Edges only';
+
+  @override
+  String get readerTapOff => 'Disabled';
+
+  @override
+  String get readerInvertTaps => 'Invert tap zones';
+
+  @override
+  String get readerInvertTapsDesc => 'Swap the previous and next areas';
+
+  @override
+  String get readerBackground => 'Background';
+
+  @override
+  String get readerBackgroundBlack => 'Black';
+
+  @override
+  String get readerBackgroundGray => 'Gray';
+
+  @override
+  String get readerBackgroundWhite => 'White';
+
+  @override
+  String get readerBackgroundTheme => 'App theme';
+
+  @override
+  String get readerFilter => 'Color filter';
+
+  @override
+  String get readerFilterNone => 'None';
+
+  @override
+  String get readerFilterGrayscale => 'Grayscale';
+
+  @override
+  String get readerFilterInvert => 'Invert';
+
+  @override
+  String get readerFilterSepia => 'Sepia';
+
+  @override
+  String get readerDim => 'Dim';
+
+  @override
+  String get readerDimDesc => 'Darken the pages';
+
+  @override
+  String get readerPageNumber => 'Page number';
+
+  @override
+  String get readerPageNumberDesc => 'Show the page number while reading';
+
+  @override
+  String get readerFullscreen => 'Fullscreen';
+
+  @override
+  String get readerFullscreenDesc => 'Hide the system bars';
+
+  @override
+  String get readerKeepOn => 'Keep screen on';
+
+  @override
+  String get readerKeepOnDesc =>
+      'Stop the screen from turning off while reading';
+
+  @override
+  String get readerOrientation => 'Orientation';
+
+  @override
+  String get readerOrientationFree => 'Free';
+
+  @override
+  String get readerOrientationPortrait => 'Portrait';
+
+  @override
+  String get readerOrientationLandscape => 'Landscape';
+
+  @override
+  String get readerSaveProgress => 'Save progress';
+
+  @override
+  String get readerSaveProgressDesc =>
+      'Remember your page and mark chapters as read';
+
+  @override
+  String get readerReset => 'Reset reader settings';
+
+  @override
+  String get readerResetDesc => 'Back to the defaults';
+
+  @override
+  String get novelSize => 'Text size';
+
+  @override
+  String get novelFont => 'Font';
+
+  @override
+  String get novelLineHeight => 'Line height';
+
+  @override
+  String get novelParagraph => 'Paragraph spacing';
+
+  @override
+  String get novelMargin => 'Margins';
+
+  @override
+  String get novelTheme => 'Reader theme';
+
+  @override
+  String get novelThemeApp => 'App theme';
+
+  @override
+  String get novelThemeLight => 'Light';
+
+  @override
+  String get novelThemeSepia => 'Sepia';
+
+  @override
+  String get novelThemeDark => 'Dark';
+
+  @override
+  String get novelThemeBlack => 'Black';
+
+  @override
+  String get novelJustify => 'Justify text';
+
+  @override
+  String get novelJustifyDesc => 'Align text to both edges';
+
+  @override
+  String get novelBold => 'Bold text';
+
+  @override
+  String get novelBoldDesc => 'Use a heavier weight';
+
+  @override
+  String readerFinishedChapter(String chapter) {
+    return 'Finished $chapter';
+  }
+
+  @override
+  String readerNextUp(String chapter) {
+    return 'Next: $chapter';
+  }
+
+  @override
+  String readerPreviousUp(String chapter) {
+    return 'Previous: $chapter';
+  }
+
+  @override
+  String get readerNoPages => 'This chapter has no pages';
+
+  @override
+  String get readerLoadingPages => 'Loading pages…';
+
+  @override
+  String get readerSlowPage => 'Still loading this page…';
+
+  @override
+  String get readerPageFailed => 'Couldn\'t load this page';
+
+  @override
+  String get playerShowComments => 'Show comments';
+
+  @override
+  String get playerHideComments => 'Hide comments';
+
+  @override
+  String get playerSubtitles => 'Subtitles';
+
+  @override
+  String get playerSubtitlesOff => 'Subtitles off';
+
+  @override
+  String get playerAudio => 'Audio';
+
+  @override
+  String get playerAddSubtitle => 'Add subtitle file';
+
+  @override
+  String get playerAddAudio => 'Add audio file';
+
+  @override
+  String get playerChapters => 'Chapters';
+
+  @override
+  String get playerNoChapters => 'No chapters';
+
+  @override
+  String get playerTimestamp => 'Timestamp';
+
+  @override
+  String playerAutoPlaying(String title) {
+    return 'Playing $title next…';
+  }
+
+  @override
+  String playerShadersFailed(String error) {
+    return 'Couldn\'t install the shaders: $error';
+  }
+
+  @override
+  String playerChapter(int number) {
+    return 'Chapter $number';
+  }
+
+  @override
+  String get playerPerTitle => 'Only for this title';
+
+  @override
+  String get playerPerTitleDesc =>
+      'Keep these options for this title and leave your defaults alone';
+
+  @override
+  String get playerHoldSpeed => 'Hold speed';
+
+  @override
+  String get playerAudioOutput => 'Audio output';
+
+  @override
+  String get fontAppDefault => 'App font';
+
+  @override
+  String get fontImport => 'Import font';
+
+  @override
+  String get fontSample => 'The quick brown fox jumps over the lazy dog';
+
+  @override
+  String get playerSubtitleDelay => 'Subtitle delay';
+
+  @override
+  String get playerAudioDelay => 'Audio delay';
+
+  @override
+  String get playerDelayReset => 'Reset';
+
+  @override
+  String get playerOnlineSubtitles => 'Online subtitles';
+
+  @override
+  String get playerOnlineSearchHint => 'Title and episode';
+
+  @override
+  String get playerOnlineNone => 'No subtitles found';
+
+  @override
+  String playerOnlineFailed(String error) {
+    return 'Subtitle search failed: $error';
+  }
+
+  @override
+  String playerOnlineDownloadFailed(String error) {
+    return 'Could not download this subtitle: $error';
+  }
+
+  @override
+  String get playerOnlineMatch => 'Matches this file';
+
+  @override
+  String get playerOnlineEpisode => 'Episode match';
+
+  @override
+  String playerOnlineDownloads(int count) {
+    return '$count downloads';
+  }
 }

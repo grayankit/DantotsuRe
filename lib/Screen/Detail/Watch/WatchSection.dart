@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
+import '../../../Core/Player/PlayRequest.dart';
 import '../../../Core/Services/MediaService.dart';
 import '../../../Core/Services/Model/Media.dart';
 import '../../../Core/State/State.dart';
@@ -15,15 +16,19 @@ import '../../../Widgets/Components/ChoiceSheet.dart';
 import '../../../Widgets/Components/CustomBottomDialog.dart';
 import '../../../Widgets/Components/EmptyState.dart';
 import '../../../Widgets/Components/ScreenState.dart';
-import '../../../Widgets/Components/ScrollReveal.dart';
+import '../../Player/PlayerLauncher.dart';
+import '../../Reader/ReaderLauncher.dart';
 import 'Components/ContinueCard.dart';
 import 'Components/RangeBar.dart';
 import 'Components/SourceBar.dart';
 import 'Components/SourceToolsSheet.dart';
+import 'Components/StreamSheet.dart';
 import 'Components/UnitSheet.dart';
+import 'Components/UnitLayout.dart';
 import 'Components/UnitTile.dart';
 import 'Components/WatchOptionsSheet.dart';
 import 'Components/WrongTitleSheet.dart';
+import '../../../Core/Watch/LocalProgress.dart';
 import 'WatchState.dart';
 
 class WatchSection extends StatefulWidget {
@@ -196,7 +201,9 @@ class _WatchSectionState extends State<WatchSection>
             anime: state.anime,
             started: progress > 0,
             media: state.current,
-            onTap: () => _open(next),
+            progress: progress,
+            playback: state.playbackOf(next),
+            onTap: () => state.anime ? _play(next) : _read(next),
           ),
           SizedBox(height: Dimens.gap),
         ],
@@ -222,10 +229,12 @@ class _WatchSectionState extends State<WatchSection>
         anime: state.anime,
         view: view,
         watched: u.isWatched(progress),
+        progress: partialFraction(state.playbackOf(u)),
         next: identical(u, next),
         blur: watchBlurUnwatchedPref.rx.value,
         showDescription: watchShowDescriptionPref.rx.value,
-        onTap: () => _open(u),
+        onTap: () => state.anime ? _play(u) : _read(u),
+        onInfo: view == 0 ? () => _open(u) : null,
         onLongPress: watchMarkOnLongPressPref.rx.value
             ? () => u.isWatched(progress)
                   ? state.markUnwatched(u)
@@ -239,53 +248,50 @@ class _WatchSectionState extends State<WatchSection>
     int view,
     int progress,
     WatchUnit? next,
-  ) {
-    if (view == 0) {
-      return Column(
-        children: [
-          for (final (i, u) in shown.indexed)
-            Padding(
-              padding: EdgeInsets.only(bottom: Dimens.gapSm),
-              child: ScrollReveal(
-                delay: 30 * (i % 6),
-                child: _tile(u, view, progress, next),
-              ),
-            ),
-        ],
-      );
-    }
-    return LayoutBuilder(
-      builder: (context, box) {
-        final gap = Dimens.gapSm;
-        final target = view == 1 ? 190.0 : 64.0;
-        final columns = (box.maxWidth / target).floor().clamp(
-          view == 1 ? 2 : 4,
-          16,
-        );
-        final width = (box.maxWidth - gap * (columns - 1)) / columns;
-        return Wrap(
-          spacing: gap,
-          runSpacing: gap,
-          children: [
-            for (final (i, u) in shown.indexed)
-              SizedBox(
-                width: width,
-                height: view == 2 ? 48 : null,
-                child: ScrollReveal(
-                  delay: 30 * (i % 6),
-                  child: _tile(u, view, progress, next),
-                ),
-              ),
-          ],
-        );
-      },
-    );
-  }
+  ) => UnitLayout(
+    units: shown,
+    view: view,
+    builder: (u) => _tile(u, view, progress, next),
+  );
 
   void _open(WatchUnit unit) => showCustomBottomDialog<void>(
     context,
-    UnitSheet(state: state, unit: unit),
+    UnitSheet(
+      state: state,
+      unit: unit,
+      onPlay: state.anime ? () => _play(unit) : () => _read(unit),
+    ),
   );
+
+  Future<void> _read(WatchUnit unit) async {
+    final request = state.readRequest(unit);
+    if (request == null) return;
+    await openReader(request, context: context);
+    state.afterSession();
+  }
+
+  Future<void> _play(WatchUnit unit) async {
+    final auto = await state.autoStream(unit).catchError((_) => null);
+    if (!mounted) return;
+    final pick =
+        auto ??
+        await showCustomBottomDialog<StreamPick>(
+          context,
+          StreamSheet(state: state, unit: unit),
+        );
+    if (pick == null || !mounted) return;
+    final chosen = pick.videos[pick.index];
+    final src = state.source.value;
+    if (src?.id != null) {
+      state.record.streams.last[src!.id!] = streamLabel(chosen);
+      state.saveRecord();
+    }
+    await openPlayer(
+      state.playRequest(unit, pick.videos, pick.index),
+      context: context,
+    );
+    state.afterSession();
+  }
 
   Future<void> _pickSource() async {
     final list = state.sources.toList();
@@ -298,6 +304,7 @@ class _WatchSectionState extends State<WatchSection>
     final picked = await showChoiceSheet<String>(
       context,
       title: getString.watchSource,
+      icon: Icons.extension_rounded,
       selected: current?.id ?? '',
       options: [
         for (final s in list)
@@ -306,6 +313,7 @@ class _WatchSectionState extends State<WatchSection>
             (names[s.name ?? ''] ?? 0) > 1
                 ? '${s.name} (${(s.lang ?? '').toUpperCase()})'
                 : (s.name ?? ''),
+            imageUrl: s.iconUrl,
           ),
       ],
     );
@@ -319,6 +327,7 @@ class _WatchSectionState extends State<WatchSection>
     final picked = await showChoiceSheet<String>(
       context,
       title: getString.watchMetaSource,
+      icon: Icons.dataset_rounded,
       selected: current,
       options: [
         ChoiceOption('auto', getString.watchMetaAuto),

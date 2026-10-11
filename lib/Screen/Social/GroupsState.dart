@@ -1,3 +1,4 @@
+import '../../Logger.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -51,7 +52,9 @@ class GroupsState extends ScreenState {
   Future<void> _loadCategories() async {
     try {
       categories.assignAll(await view.groupCategories());
-    } catch (_) {}
+    } catch (e, st) {
+      logError('GroupsState', e, st);
+    }
   }
 
   void setScope(GroupScope next) {
@@ -99,7 +102,8 @@ class GroupsState extends ScreenState {
       hasNext.value = page.hasNext;
       if (page.hasNext) _page++;
       failed.value = false;
-    } catch (_) {
+    } catch (e, st) {
+      logError('GroupsState', e, st);
       if (run == _run) failed.value = true;
     } finally {
       if (run == _run) {

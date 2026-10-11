@@ -282,7 +282,8 @@ class ScreenWidgetListState extends ScreenState {
     try {
       final more = await fn(page);
       return more == null || more.isEmpty ? null : more;
-    } catch (_) {
+    } catch (e, st) {
+      logError('ScreenWidgetListState', e, st);
       if (pages[title] == page) pages[title] = page - 1;
       rethrow;
     }
@@ -334,7 +335,8 @@ class ScreenWidgetListState extends ScreenState {
       final picked = chips.firstWhere((c) => c.id == id);
       final media = await onChip(picked);
       if (chip.value == id) chipMedia.value = media;
-    } catch (_) {
+    } catch (e, st) {
+      logError('ScreenWidgetListState', e, st);
       if (chip.value == id) chipMedia.value = null;
     } finally {
       if (chip.value == id) chipLoading.value = false;

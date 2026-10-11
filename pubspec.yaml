@@ -43,6 +43,7 @@ dependencies:
   introduction_screen: ^5.0.1
   flutter_animate: ^4.5.2
   cached_network_image: ^4.0.4
+  flutter_cache_manager: ^3.4.1
   precached_network_image: ^1.4.1
   flutter_svg: ^2.3.0
   flex_color_picker: ^4.0.0

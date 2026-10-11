@@ -1,3 +1,4 @@
+import '../../../Logger.dart';
 import 'dart:async';
 import 'dart:io';
 
@@ -77,7 +78,9 @@ Future<String> _viaLoopback(Uri url, Uri callback, Duration timeout) async {
     try {
       await windowManager.show();
       await windowManager.focus();
-    } catch (_) {}
+    } catch (e, st) {
+      logError('BrowserAuth', e, st);
+    }
     return result;
   } finally {
     await sub.cancel();

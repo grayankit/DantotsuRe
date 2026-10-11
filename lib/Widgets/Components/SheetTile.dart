@@ -11,6 +11,8 @@ class SheetTile extends StatelessWidget {
   final bool enabled;
   final VoidCallback? onTap;
   final Widget? trailing;
+  final BorderRadius? radius;
+  final bool tinted;
 
   const SheetTile({
     super.key,
@@ -21,23 +23,30 @@ class SheetTile extends StatelessWidget {
     this.enabled = true,
     this.onTap,
     this.trailing,
+    this.radius,
+    this.tinted = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final scheme = context.colorScheme;
-    final onColor = selected ? scheme.onSecondaryContainer : scheme.onSurface;
+    final onColor = selected ? scheme.onPrimaryContainer : scheme.onSurface;
+    final shape = radius ?? BorderRadius.circular(14);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
+      padding: EdgeInsets.symmetric(vertical: tinted ? 1 : 2),
       child: Material(
-        color: selected ? scheme.secondaryContainer : Colors.transparent,
-        borderRadius: BorderRadius.circular(14),
+        color: selected
+            ? scheme.primaryContainer
+            : tinted
+            ? scheme.onSurface.withValues(alpha: 0.06)
+            : Colors.transparent,
+        borderRadius: shape,
         child: DpadTap(
           onTap: enabled ? onTap : null,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: shape,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             child: Row(
               children: [
                 if (leading != null) ...[leading!, const SizedBox(width: 14)],
@@ -72,7 +81,19 @@ class SheetTile extends StatelessWidget {
                 if (trailing != null)
                   trailing!
                 else if (selected)
-                  Icon(Icons.check_rounded, color: onColor, size: 20),
+                  Container(
+                    width: 24,
+                    height: 24,
+                    decoration: BoxDecoration(
+                      color: scheme.primary,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.check_rounded,
+                      color: scheme.onPrimary,
+                      size: 16,
+                    ),
+                  ),
               ],
             ),
           ),

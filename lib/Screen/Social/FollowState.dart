@@ -1,3 +1,4 @@
+import '../../Logger.dart';
 import 'dart:async';
 import 'dart:math' as math;
 
@@ -71,7 +72,8 @@ class FollowState extends ScreenState {
       users.value = [...result.items];
       hasNext.value = result.hasNext;
       _page = 2;
-    } catch (_) {
+    } catch (e, st) {
+      logError('FollowState', e, st);
       if (mounted) failed.value = true;
     }
   }
@@ -91,7 +93,8 @@ class FollowState extends ScreenState {
       users.refresh();
       hasNext.value = result.hasNext;
       _page++;
-    } catch (_) {
+    } catch (e, st) {
+      logError('FollowState', e, st);
       if (mounted) hasNext.value = false;
     } finally {
       if (mounted) loadingMore.value = false;

@@ -136,23 +136,6 @@ ThemeData buildAppTheme(
         fontWeight: FontWeight.w700,
       ),
     ),
-    segmentedButtonTheme: SegmentedButtonThemeData(
-      style: ButtonStyle(
-        shape: WidgetStatePropertyAll(
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(_shapeMd)),
-        ),
-        backgroundColor: WidgetStateProperty.resolveWith(
-          (s) => s.contains(WidgetState.selected)
-              ? scheme.secondaryContainer
-              : Colors.transparent,
-        ),
-        side: focusRing,
-        overlayColor: focusOverlay,
-        visualDensity: VisualDensity.compact,
-        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        mouseCursor: kClickCursor,
-      ),
-    ),
     chipTheme: base.chipTheme.copyWith(
       shape: _pill,
       side: BorderSide.none,

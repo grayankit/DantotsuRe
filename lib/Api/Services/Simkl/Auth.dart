@@ -1,3 +1,4 @@
+import '../../../Logger.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
@@ -163,7 +164,8 @@ class SimklAuth extends AppController
       final ok = _store(data);
       done.complete(ok);
       return ok;
-    } catch (_) {
+    } catch (e, st) {
+      logError('Auth', e, st);
       done.complete(false);
       return false;
     } finally {

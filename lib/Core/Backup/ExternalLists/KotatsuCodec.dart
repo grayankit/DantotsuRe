@@ -1,3 +1,4 @@
+import '../../../Logger.dart';
 import 'dart:convert';
 import 'dart:math' as math;
 
@@ -19,7 +20,8 @@ class KotatsuCodec {
       try {
         final decoded = jsonDecode(utf8.decode(file.content as List<int>));
         return decoded is List ? decoded : const [];
-      } catch (_) {
+      } catch (e, st) {
+        logError('KotatsuCodec', e, st);
         return const [];
       }
     }

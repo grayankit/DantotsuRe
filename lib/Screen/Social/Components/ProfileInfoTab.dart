@@ -1,3 +1,4 @@
+import '../../../Logger.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -56,7 +57,8 @@ class _ProfileInfoTabState extends State<ProfileInfoTab>
           (await widget.bundle)?.favourites ??
           await widget.service.socialView!.favourites(widget.userId);
       if (mounted) _favourites.value = result;
-    } catch (_) {
+    } catch (e, st) {
+      logError('ProfileInfoTab', e, st);
       if (mounted) _failed.value = true;
     }
   }

@@ -1,3 +1,4 @@
+import '../../../Logger.dart';
 import '../../../Core/NetworkManager/NetworkManager.dart';
 import '../../../Core/State/State.dart';
 
@@ -164,7 +165,8 @@ Future<List<Developer>> _fetchContributors() async {
       }
       page++;
     }
-  } catch (_) {
+  } catch (e, st) {
+    logError('Developer', e, st);
     return contributors;
   }
   return contributors;

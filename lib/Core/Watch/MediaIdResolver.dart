@@ -2,7 +2,7 @@ import '../../Api/Services/Anilist/Auth.dart';
 import '../../Api/Services/Simkl/IdLookup.dart';
 import '../../Logger.dart';
 import '../../Utils/Lru.dart';
-import '../Preferences/PrefManager.dart';
+import '../Media/MediaRecord.dart';
 import '../Services/MediaService.dart';
 import '../Services/Model/Media.dart';
 import '../Sync/SyncIdIndex.dart';
@@ -35,11 +35,8 @@ class MediaIdResolver {
     String key,
   ) async {
     final anime = media.isAnime;
-    final stored = PrefManager.getCustomVal<Map>(
-      key,
-      location: PrefLocation.CACHE,
-    );
-    if (stored != null) {
+    final stored = MediaRecords.of(service, media).ids;
+    if (stored.isNotEmpty) {
       final ids = MetaIds.fromJson(
         Map<String, dynamic>.from(stored),
         anime: anime,
@@ -100,11 +97,10 @@ class MediaIdResolver {
       tag: 'WATCH',
     );
     if (ids.known) {
-      PrefManager.setCustomVal<Map>(
-        key,
+      MediaRecords.of(service, media).ids = Map<String, Object?>.from(
         ids.toJson(),
-        location: PrefLocation.CACHE,
       );
+      MediaRecords.save(service, media);
     }
     return _remember(key, ids);
   }

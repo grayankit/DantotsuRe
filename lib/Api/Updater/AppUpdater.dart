@@ -1,3 +1,4 @@
+import '../../Logger.dart';
 import 'package:collection/collection.dart';
 import 'dart:async';
 import 'dart:io';
@@ -428,7 +429,8 @@ class AppUpdater extends AppController {
       probe.writeAsStringSync('');
       probe.deleteSync();
       return true;
-    } catch (_) {
+    } catch (e, st) {
+      logError('AppUpdater', e, st);
       return false;
     }
   }
@@ -492,7 +494,9 @@ class AppUpdater extends AppController {
     if (stagingDir.existsSync()) {
       try {
         stagingDir.deleteSync(recursive: true);
-      } catch (_) {}
+      } catch (e, st) {
+        logError('AppUpdater', e, st);
+      }
     }
 
     await Process.start(
@@ -503,7 +507,9 @@ class AppUpdater extends AppController {
 
     try {
       backupDir.deleteSync(recursive: true);
-    } catch (_) {}
+    } catch (e, st) {
+      logError('AppUpdater', e, st);
+    }
 
     exit(0);
   }
@@ -575,12 +581,16 @@ class AppUpdater extends AppController {
 
       try {
         backupDir.deleteSync(recursive: true);
-      } catch (_) {}
+      } catch (e, st) {
+        logError('AppUpdater', e, st);
+      }
     } finally {
       await Process.run('hdiutil', ['detach', mountPoint, '-quiet']);
       try {
         File(dmgPath).deleteSync();
-      } catch (_) {}
+      } catch (e, st) {
+        logError('AppUpdater', e, st);
+      }
     }
 
     exit(0);

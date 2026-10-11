@@ -11,6 +11,7 @@ class DeveloperState extends ScreenState {
     banner: '',
     uri: '',
     role: 'Loading role',
+    contributions: 99,
   );
 
   late final future = loadDevelopers();

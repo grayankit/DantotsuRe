@@ -1,3 +1,4 @@
+import '../../Logger.dart';
 import 'dart:async';
 import 'dart:convert';
 
@@ -86,7 +87,8 @@ class CommentsApi extends AppController {
         final next = cached.refreshed(details);
         _keep(next);
         return next;
-      } catch (_) {
+      } catch (e, st) {
+        logError('CommentsApi', e, st);
         session.value = null;
       }
     }
@@ -170,7 +172,8 @@ class CommentsApi extends AppController {
       if (!data.startsWith('{') && !data.startsWith('[')) return data;
       try {
         return jsonDecode(data);
-      } catch (_) {
+      } catch (e, st) {
+        logError('CommentsApi', e, st);
         return data;
       }
     }

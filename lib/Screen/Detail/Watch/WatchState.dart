@@ -4,6 +4,10 @@ import 'package:dartotsu_extension_bridge/dartotsu_extension_bridge.dart';
 import 'package:flutter/foundation.dart';
 
 import '../../../Api/Services/Extension/Services.dart';
+import '../../../Core/Media/MediaRecord.dart';
+import '../../../Core/Media/ResumeStore.dart';
+import '../../../Core/Player/PlayRequest.dart';
+import '../../../Core/Reader/ReaderRequest.dart';
 import '../../../Core/Services/MediaService.dart';
 import '../../../Core/Services/Model/Media.dart';
 import '../../../Core/State/State.dart';
@@ -11,6 +15,8 @@ import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../../Core/Watch/EpisodeMeta.dart';
 import '../../../Core/Watch/EpisodeMetaService.dart';
 import '../../../Core/Watch/EpisodeUnits.dart';
+import '../../../Core/Watch/LocalProgress.dart';
+import '../../../Core/Watch/UnitLoader.dart';
 import '../../../Core/Watch/MediaIdResolver.dart';
 import '../../../Core/Watch/SourceMatcher.dart';
 import '../../../Core/Watch/WatchPrefs.dart';
@@ -59,13 +65,36 @@ class WatchState extends ScreenState {
   StreamSubscription<Map<String, EpisodeMeta>>? _metaSub;
   bool _chunkPinned = false;
 
-  int get progress => current.userProgress ?? 0;
+  MediaRecord get record => MediaRecords.of(service, current);
+
+  MediaRecord get _record => record;
+
+  void saveRecord() => MediaRecords.save(service, current);
+
+  void _saveSettings() {
+    _record.watch = settings.value.copy();
+    MediaRecords.save(service, current);
+  }
+
+  final localTick = 0.live;
+
+  int get serviceProgress => current.userProgress ?? 0;
+
+  int get progress {
+    localTick.value;
+    return effectiveProgress(serviceProgress, units, record.playback);
+  }
+
+  Playback? playbackOf(WatchUnit unit) {
+    localTick.value;
+    return record.playback[unit.number];
+  }
 
   String get title => anime ? getString.episodes : getString.chapters;
 
   @override
   void onInit() {
-    settings.value = MediaWatchSettings.load(service, current);
+    settings.value = _record.watch.copy();
     _progressSub = onChange(media, (_) => _pickChunk());
     _prefsSub = onAnyChange([
       watchChunkSizePref.rx,
@@ -101,7 +130,7 @@ class WatchState extends ScreenState {
     }
     await ensureSourcesReady(itemType);
     if (generation != _generation) return;
-    final list = loadedSources(itemType);
+    final list = watchSources(itemType);
     sources.value = list;
     if (list.isEmpty) {
       source.value = null;
@@ -120,7 +149,7 @@ class WatchState extends ScreenState {
       settings.value
         ..sourceId = next.id
         ..sourceName = next.name;
-      settings.value.save(service, current);
+      _saveSettings();
     }
     episodes.clear();
     units.clear();
@@ -196,6 +225,10 @@ class WatchState extends ScreenState {
       if (generation != _generation) return;
       final raw = detail.episodes ?? const <DEpisode>[];
       if (raw.isEmpty) {
+        logger(
+          'Watch episodes: ${src.name} returned none for ${target.url}',
+          tag: 'WATCH',
+        );
         failure.value = null;
         phase.value = WatchPhase.empty;
         return;
@@ -224,6 +257,30 @@ class WatchState extends ScreenState {
       );
       failure.value = e.toString();
       phase.value = WatchPhase.failed;
+    }
+  }
+
+  void afterSession() {
+    localTick.value++;
+    if (!_chunkPinned) _pickChunk();
+    media.refresh();
+    unawaited(_refreshProgress());
+  }
+
+  Future<void> _refreshProgress() async {
+    final queries = service.getQueries;
+    if (queries == null || !service.isLoggedIn) return;
+    try {
+      final fresh = await queries.getMedia(current.id);
+      if (fresh == null) return;
+      current
+        ..userProgress = fresh.userProgress
+        ..userStatus = fresh.userStatus
+        ..userScore = fresh.userScore;
+      media.refresh();
+      ResumeStore.noteProgress(service, current, fresh.userProgress);
+    } catch (e) {
+      logger('Progress refresh failed: $e', tag: 'WATCH');
     }
   }
 
@@ -271,7 +328,7 @@ class WatchState extends ScreenState {
   Future<void> setMetaSource(String? choice) async {
     final next = settings.value.copy()..metaSource = choice;
     settings.value = next;
-    next.save(service, current);
+    _saveSettings();
     meta.value = const {};
     _derive();
     await _loadMeta();
@@ -336,13 +393,12 @@ class WatchState extends ScreenState {
     );
     final matchChanged = next.match != settings.value.match;
     settings.value = next;
-    next.save(service, current);
+    _saveSettings();
     if (hiddenChanged) _derive();
     if (matchChanged && !fixedSource) unawaited(resetMatch());
   }
 
   void resetSettings() {
-    MediaWatchSettings.reset(service, current);
     final fresh = MediaWatchSettings(
       sourceId: settings.value.sourceId,
       sourceName: settings.value.sourceName,
@@ -360,6 +416,7 @@ class WatchState extends ScreenState {
     try {
       await m.setProgress(current, target);
       media.refresh();
+      ResumeStore.noteProgress(service, current, target);
     } catch (e) {
       snackString(e.toString());
     }
@@ -372,17 +429,70 @@ class WatchState extends ScreenState {
       return;
     }
     final target = (unit.value.floor() - 1).clamp(0, 1 << 30);
+    final byNumber = {for (final u in units) u.number: u.value};
+    record.playback.removeWhere(
+      (key, saved) => saved.finished && (byNumber[key] ?? 0) >= unit.value,
+    );
+    saveRecord();
+    localTick.value++;
     try {
       await m.setProgress(current, target);
       media.refresh();
+      ResumeStore.noteProgress(service, current, target);
     } catch (e) {
       snackString(e.toString());
     }
   }
 
-  void playUnavailable() => snackString(
-    anime ? getString.watchPlayerSoon : getString.watchReaderSoon,
-  );
+  ReaderRequest? readRequest(WatchUnit unit) {
+    final src = source.value;
+    if (src == null) return null;
+    final list = units.toList();
+    final at = list.indexOf(unit);
+    return ReaderRequest(
+      service: service,
+      media: current,
+      source: src,
+      units: list,
+      index: at < 0 ? 0 : at,
+    );
+  }
+
+  List<PlayItem> get playItems => [
+    for (final u in units)
+      PlayItem(
+        key: u.number,
+        title: playTitleOf(u),
+        number: u.value,
+        episode: u.raw,
+        unit: u,
+      ),
+  ];
+
+  PlayRequest playRequest(WatchUnit unit, List<Video> videos, int videoIndex) {
+    final items = playItems;
+    final at = items.indexWhere((e) => e.unit == unit);
+    return PlayRequest(
+      service: service,
+      media: current,
+      source: source.value,
+      items: items,
+      index: at < 0 ? 0 : at,
+      videos: videos,
+      videoIndex: videoIndex,
+    );
+  }
+
+  Future<StreamPick?> autoStream(WatchUnit unit) async {
+    final src = source.value;
+    if (src == null || !record.streams.auto) return null;
+    final last = record.streams.last[src.id];
+    if (last == null) return null;
+    final list = await src.methods.getVideoList(unit.raw);
+    shareSubtitles(list);
+    final index = bestStreamIndex(list, last);
+    return index == null ? null : StreamPick(list, index);
+  }
 
   Future<void> refresh() async {
     EpisodeMetaService.clearCache();

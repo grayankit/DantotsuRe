@@ -22,9 +22,12 @@ class LogInterceptor extends Interceptor {
         ? DateTime.now().difference(start).inMilliseconds
         : null;
 
+    final type = response.headerMap['content-type']?.split(';').first;
+    final length = response.headerMap['content-length'];
     logger(
       '← ${response.statusCode} ${response.request.url}'
-      '${ms != null ? ' (${ms}ms)' : ''}',
+      '${ms != null ? ' (${ms}ms)' : ''}'
+      '${type != null ? ' [$type${length != null ? ', $length B' : ''}]' : ''}',
     );
 
     final cloudflare =

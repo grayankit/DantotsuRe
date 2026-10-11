@@ -1,3 +1,4 @@
+import '../../Logger.dart';
 import '../../Utils/Animation/WidgetAnimations.dart';
 import 'package:flutter/material.dart';
 
@@ -68,7 +69,8 @@ class MediaListState extends ScreenState {
       if (!mounted) return;
       lists.value = result;
       failed.value = false;
-    } catch (_) {
+    } catch (e, st) {
+      logError('MediaListState', e, st);
       if (mounted) failed.value = true;
     }
   }

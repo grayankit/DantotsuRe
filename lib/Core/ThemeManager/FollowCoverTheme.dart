@@ -1,3 +1,4 @@
+import '../../Logger.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -93,7 +94,8 @@ class FollowCoverTheme {
       final light = await getImageMainColor(url, Brightness.light);
       final dark = await getImageMainColor(url, Brightness.dark);
       return (light, dark);
-    } catch (_) {
+    } catch (e, st) {
+      logError('FollowCoverTheme', e, st);
       return null;
     }
   }

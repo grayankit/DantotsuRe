@@ -1,3 +1,4 @@
+import '../../Logger.dart';
 import 'dart:async';
 
 import '../../Core/Services/MediaServiceController.dart';
@@ -27,7 +28,8 @@ class ReactionsState extends ScreenState {
   Future<void> load() async {
     try {
       items.value = await view.reactions(media);
-    } catch (_) {
+    } catch (e, st) {
+      logError('ReactionsState', e, st);
     } finally {
       loading.value = false;
     }

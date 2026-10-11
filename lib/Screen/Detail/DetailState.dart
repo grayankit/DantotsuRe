@@ -1,5 +1,7 @@
-import '../../Utils/Animation/WidgetAnimations.dart';
 import 'dart:async';
+
+import '../../Core/Media/ResumeStore.dart';
+import '../../Utils/Animation/WidgetAnimations.dart';
 
 import 'package:flutter/material.dart';
 
@@ -46,6 +48,7 @@ class DetailState extends ScreenState {
     refresh: () => load(force: true),
   );
   Disposer? _coverSub;
+  Disposer? _sessionSub;
   final widgets = <ScreenWidget>[].liveList;
   final ready = false.live;
   late final tab = (commentId == null ? 0 : 2).live;
@@ -108,12 +111,18 @@ class DetailState extends ScreenState {
     final theme = find<ThemeController>();
     theme.cover.set(this, host.media.value.cover);
     _coverSub = onChange(host.media, (m) => theme.cover.set(this, m.cover));
+    _sessionSub = onChange(ResumeStore.sessionTick, (_) {
+      if (ResumeStore.sessionKey == '${view.service.id}/${media.id}') {
+        unawaited(load(force: true));
+      }
+    });
     unawaited(load());
   }
 
   @override
   void onClose() {
     _coverSub?.dispose();
+    _sessionSub?.dispose();
     find<ThemeController>().cover.clear(this);
     FocusManager.instance.removeListener(_keepFocusVisible);
     _snapTimer?.cancel();
@@ -167,7 +176,14 @@ class DetailState extends ScreenState {
       failed = true;
       error.value = e.toString();
     } finally {
-      if (!failed) DetailCache.put(cacheKey, host.media.value);
+      if (!failed) {
+        DetailCache.put(cacheKey, host.media.value);
+        ResumeStore.noteProgress(
+          view.service,
+          host.media.value,
+          host.media.value.userProgress,
+        );
+      }
       host.loading.value = false;
       ready.value = true;
       if (usingKeyboard && !_focusedOnce) {

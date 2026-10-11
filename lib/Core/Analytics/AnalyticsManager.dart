@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -24,6 +25,11 @@ class AnalyticsManager extends AppController {
   }
 
   Future<void> _initFirebase() async {
+    if (Platform.isLinux) {
+      _disabled = true;
+      _ready.complete();
+      return;
+    }
     try {
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
@@ -56,7 +62,9 @@ class AnalyticsManager extends AppController {
   ) async {
     try {
       await run(FirebaseAnalytics.instance);
-    } catch (_) {}
+    } catch (e, st) {
+      logError('AnalyticsManager', e, st);
+    }
   }
 
   Future<void> recordError(
@@ -72,6 +80,8 @@ class AnalyticsManager extends AppController {
         stack,
         fatal: fatal,
       );
-    } catch (_) {}
+    } catch (e, st) {
+      logError('AnalyticsManager', e, st);
+    }
   }
 }

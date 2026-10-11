@@ -5,6 +5,7 @@ import '../Feed/FeedNavigation.dart';
 import '../Feed/ScreenWidgetList.dart';
 import '../Social/Stories/StoriesRow.dart';
 import 'Components/LoginPrompt.dart';
+import 'Components/ResumeShelf.dart';
 import 'HomeHeader.dart';
 import '../Detail/ListEditorSheet.dart';
 import '../../Core/State/State.dart';
@@ -35,6 +36,7 @@ class HomeFeed extends StatelessWidget {
               key: ValueKey('stories-${service.id}'),
               service: service,
             ),
+          ResumeShelf(key: ValueKey('resume-${service.id}'), service: service),
         ],
       ),
       loader: signedIn ? view.screenStreamWithLocal : view.screenStream,

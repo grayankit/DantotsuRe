@@ -126,7 +126,8 @@ class SyncController extends AppController {
     if (memory != null) {
       try {
         _memory = SyncMemory.fromJson(memory);
-      } catch (_) {
+      } catch (e, st) {
+        logError('SyncController', e, st);
         removeCustomData(_memoryKey, location: PrefLocation.CACHE);
       }
     }
@@ -402,7 +403,9 @@ class SyncController extends AppController {
           (await SyncIdIndex.load()).flat,
           adapter.key,
         );
-      } catch (_) {}
+      } catch (e, st) {
+        logError('SyncController', e, st);
+      }
     }
     final want = SyncItem.fromMedia(media, ids);
     final done = <String>[];
@@ -719,7 +722,8 @@ SyncPlan? _readPlan(String path) {
         jsonDecode(File(path).readAsStringSync()) as Map,
       ),
     );
-  } catch (_) {
+  } catch (e, st) {
+    logError('SyncController', e, st);
     return null;
   }
 }

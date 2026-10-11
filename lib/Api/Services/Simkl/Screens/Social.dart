@@ -1,3 +1,4 @@
+import '../../../../Logger.dart';
 import '../../../../Core/Services/MediaService.dart';
 import '../Auth.dart';
 
@@ -25,7 +26,8 @@ class SimklSocialView extends SocialScreenView {
     try {
       final settings = await simklAuth.client.get('/users/settings');
       return settings is Map ? settings['user'] as Map? : null;
-    } catch (_) {
+    } catch (e, st) {
+      logError('Social', e, st);
       return null;
     }
   }

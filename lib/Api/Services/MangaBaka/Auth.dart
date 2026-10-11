@@ -1,3 +1,4 @@
+import '../../../Logger.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
@@ -172,7 +173,8 @@ class MangaBakaAuth extends AppController
       });
       done.complete(ok);
       return ok;
-    } catch (_) {
+    } catch (e, st) {
+      logError('Auth', e, st);
       done.complete(false);
       return false;
     } finally {
@@ -203,7 +205,9 @@ class MangaBakaAuth extends AppController
         );
         final data = info.data;
         if (data is Map) avatar = data['picture'] as String?;
-      } catch (_) {}
+      } catch (e, st) {
+        logError('Auth', e, st);
+      }
       final sub = '${profile['id'] ?? ''}';
       final previous = user.value is MangaBakaUser
           ? user.value as MangaBakaUser
