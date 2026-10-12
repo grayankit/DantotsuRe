@@ -114,6 +114,14 @@ List<Setting> playerSettingsRows(
       s.autoPlay,
       (v) => update((x) => x.autoPlay = v),
     ),
+    if (Platform.isAndroid)
+      switchSetting(
+        getString.playerAutoPip,
+        getString.playerAutoPipDesc,
+        Icons.picture_in_picture_alt_rounded,
+        s.autoPip,
+        (v) => update((x) => x.autoPip = v),
+      ),
     sliderSetting(
       getString.playerAutoPlayDelay,
       s.autoPlayDelay == 0 ? getString.off : '${s.autoPlayDelay}s',

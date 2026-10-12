@@ -81,7 +81,10 @@ dependencies:
   flutter_media_session: ^3.0.9
   volume_controller: ^3.7.1
   screen_brightness:
-    path: ../screen_brightness/screen_brightness
+    git:
+      url: https://github.com/aayush2622/screen_brightness.git
+      ref: linux-support
+      path: screen_brightness
   app_links: ^7.2.2
   win32: ^6.4.0
   ffi: ^2.2.0

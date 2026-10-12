@@ -21,6 +21,7 @@ import '../../Core/Media/ResumeStore.dart';
 import '../../Core/Player/AniSkip.dart';
 import '../../Core/Player/LocalPlayback.dart';
 import '../../Core/Player/MpvFiles.dart';
+import '../../Core/Player/Pip.dart';
 import '../../Core/Player/TrackPick.dart';
 import '../../Core/Player/SeekPreview.dart';
 import '../../Core/Player/PlayRequest.dart';
@@ -127,6 +128,7 @@ class PlayerState extends ScreenState {
   Live<Media> get mediaLive => _mediaLive ??= request.media!.live;
 
   final progressTick = 0.live;
+  final pip = false.live;
   final nextCountdown = Live<int?>(null);
   Timer? _countdownTimer;
   final metaLoading = false.live;
@@ -258,7 +260,37 @@ class PlayerState extends ScreenState {
     _bindEngine();
     focus.requestFocus();
     unawaited(mediaSession.start());
+    unawaited(_initPip());
     unawaited(_begin());
+  }
+
+  Future<void> _initPip() async {
+    await PlayerPip.init((active) {
+      if (_closed) return;
+      pip.value = active;
+      if (active) {
+        controlsVisible.value = false;
+        commentsOpen.value = false;
+        panel.value = false;
+      }
+    });
+  }
+
+  Future<void> enterPip() async {
+    if (!PlayerPip.supported || pip.value) return;
+    final state = engine.player.state;
+    await PlayerPip.enter(width: state.width ?? 16, height: state.height ?? 9);
+  }
+
+  Future<void> exitPip() => PlayerPip.exit();
+
+  void _syncPipRatio() {
+    final state = engine.player.state;
+    final width = state.width;
+    final height = state.height;
+    if (width != null && height != null && width > 0 && height > 0) {
+      unawaited(PlayerPip.setRatio(width, height));
+    }
   }
 
   void previewTo(Duration? at) {
@@ -281,7 +313,10 @@ class PlayerState extends ScreenState {
     _completedSub = engine.completed.listen((done) {
       if (done) _onCompleted();
     });
-    _playingSub = engine.playing.listen((_) => _scheduleHide());
+    _playingSub = engine.playing.listen((playing) {
+      _scheduleHide();
+      unawaited(PlayerPip.setAuto(playing && settings.autoPip));
+    });
     mediaSession.rebind();
   }
 
@@ -340,6 +375,9 @@ class PlayerState extends ScreenState {
     _completedSub?.dispose();
     _playingSub?.dispose();
     _saveProgress(force: true);
+    unawaited(PlayerPip.setAuto(false));
+    if (pip.value && PlayerPip.isDesktop) unawaited(PlayerPip.exit());
+    PlayerPip.detach();
     unawaited(seekPreview.dispose());
     unawaited(mediaSession.dispose());
     unawaited(_snapshotAndDispose());
@@ -557,6 +595,7 @@ class PlayerState extends ScreenState {
     ];
     stamps.value = own;
     await _pickDefaultSubtitle(chosen);
+    _syncPipRatio();
     final malId = request.media?.malId;
     if (own.isEmpty && malId != null && request.media!.isAnime) {
       final stamp = await AniSkip.fetch(

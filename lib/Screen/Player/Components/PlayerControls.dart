@@ -6,6 +6,7 @@ import '../../../Core/State/State.dart';
 import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../../Utils/Extensions/ContextExtensions.dart';
 import '../../../Utils/Functions/NavigateToScreen.dart';
+import '../../../Core/Player/Pip.dart';
 import '../PlayerState.dart';
 import 'PlayerSeekBar.dart';
 import 'PlayerSheets.dart';
@@ -177,6 +178,12 @@ class PlayerControls extends StatelessWidget {
                       ),
                     ),
             ),
+            if (!locked && PlayerPip.supported)
+              _icon(
+                Icons.picture_in_picture_alt_rounded,
+                state.enterPip,
+                tooltip: getString.playerPip,
+              ),
             if (!locked &&
                 compact &&
                 (state.videos.length > 1 || state.request.tracked))

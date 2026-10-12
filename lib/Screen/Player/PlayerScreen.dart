@@ -23,6 +23,7 @@ import '../../Widgets/Components/ScreenState.dart';
 import 'Components/EpisodePanel.dart';
 import 'Components/PlayerControls.dart';
 import 'Components/PlayerEpisodes.dart';
+import '../../Core/Player/Pip.dart';
 import 'Components/PlayerIndicators.dart';
 import 'Components/PlayerSheets.dart';
 import 'Components/PlayerSubtitleView.dart';
@@ -69,6 +70,7 @@ class _PlayerScreenState extends State<PlayerScreen>
         (_) => mounted ? state.followOrientation(orientation) : null,
       );
     }
+    if (state.pip.value) return _pip(context);
     final body = PopScope(
       canPop: !fullscreen,
       onPopInvokedWithResult: (didPop, _) {
@@ -96,6 +98,47 @@ class _PlayerScreenState extends State<PlayerScreen>
         thumbnail: item.unit?.thumbnail,
       ),
       child: wrapped,
+    );
+  }
+
+  Widget _pip(BuildContext context) {
+    final engine = state.engine;
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          Video(
+            controller: engine.video,
+            controls: null,
+            fit: BoxFit.contain,
+            subtitleViewConfiguration: const SubtitleViewConfiguration(
+              visible: false,
+            ),
+          ),
+          if (!state.settings.useLibass)
+            PlayerSubtitleView(
+              lines: engine.subtitleLines.value,
+              settings: state.settings,
+              controlsVisible: false,
+            ),
+          GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onTap: () => unawaited(state.engine.toggle()),
+            onDoubleTap: PlayerPip.isDesktop ? state.exitPip : null,
+          ),
+          if (PlayerPip.isDesktop)
+            Positioned(
+              top: 6,
+              right: 6,
+              child: IconButton.filledTonal(
+                tooltip: getString.playerPipRestore,
+                onPressed: state.exitPip,
+                icon: const Icon(Icons.open_in_full_rounded),
+              ),
+            ),
+        ],
+      ),
     );
   }
 

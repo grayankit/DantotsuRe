@@ -1477,9 +1477,11 @@ packages:
   screen_brightness:
     dependency: "direct main"
     description:
-      path: "../screen_brightness/screen_brightness"
-      relative: true
-    source: path
+      path: screen_brightness
+      ref: linux-support
+      resolved-ref: "7ba6931cf408d8637d6f69a55ac4067466f3e644"
+      url: "https://github.com/aayush2622/screen_brightness.git"
+    source: git
     version: "2.1.11"
   screen_brightness_android:
     dependency: transitive
@@ -1500,9 +1502,11 @@ packages:
   screen_brightness_linux:
     dependency: transitive
     description:
-      path: "../screen_brightness/screen_brightness_linux"
-      relative: true
-    source: path
+      path: screen_brightness_linux
+      ref: "7ba6931cf408d8637d6f69a55ac4067466f3e644"
+      resolved-ref: "7ba6931cf408d8637d6f69a55ac4067466f3e644"
+      url: "https://github.com/aayush2622/screen_brightness.git"
+    source: git
     version: "2.1.2"
   screen_brightness_macos:
     dependency: transitive

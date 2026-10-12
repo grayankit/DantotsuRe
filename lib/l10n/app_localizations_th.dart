@@ -5048,6 +5048,19 @@ class AppLocalizationsTh extends AppLocalizations {
       'Separate languages with commas. The first one found is used.';
 
   @override
+  String get playerPip => 'Picture in picture';
+
+  @override
+  String get playerPipRestore => 'Back to the player';
+
+  @override
+  String get playerAutoPip => 'Picture in picture on leave';
+
+  @override
+  String get playerAutoPipDesc =>
+      'Keep playing in a small window when you leave the app';
+
+  @override
   String playerAutoPlaying(String title) {
     return 'Playing $title next…';
   }

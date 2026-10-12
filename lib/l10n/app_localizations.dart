@@ -9269,6 +9269,30 @@ abstract class AppLocalizations {
   /// **'Separate languages with commas. The first one found is used.'**
   String get playerLanguageOrderHint;
 
+  /// No description provided for @playerPip.
+  ///
+  /// In en, this message translates to:
+  /// **'Picture in picture'**
+  String get playerPip;
+
+  /// No description provided for @playerPipRestore.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to the player'**
+  String get playerPipRestore;
+
+  /// No description provided for @playerAutoPip.
+  ///
+  /// In en, this message translates to:
+  /// **'Picture in picture on leave'**
+  String get playerAutoPip;
+
+  /// No description provided for @playerAutoPipDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep playing in a small window when you leave the app'**
+  String get playerAutoPipDesc;
+
   /// No description provided for @playerAutoPlaying.
   ///
   /// In en, this message translates to:

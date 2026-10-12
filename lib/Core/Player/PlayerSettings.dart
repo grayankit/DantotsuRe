@@ -47,6 +47,8 @@ class PlayerSettings {
   set autoPlay(bool v) => _v['autoPlay'] = v;
   bool get resume => _get('resume', true);
   set resume(bool v) => _v['resume'] = v;
+  bool get autoPip => _get('autoPip', true);
+  set autoPip(bool v) => _v['autoPip'] = v;
   int get autoPlayDelay => _get('autoPlayDelay', 5);
   set autoPlayDelay(int v) => _v['autoPlayDelay'] = v;
   bool get autoSkipOpening => _get('autoSkipOpening', false);
