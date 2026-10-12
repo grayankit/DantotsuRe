@@ -8,8 +8,8 @@ Set<PrefLocation> chosenLocations(Map<PrefLocation, bool> map) => {
     if (e.value) e.key,
 };
 
-class SelectAllButton extends StatelessWidget {
-  final Map<PrefLocation, bool> selection;
+class SelectAllButton<K> extends StatelessWidget {
+  final Map<K, bool> selection;
 
   const SelectAllButton({super.key, required this.selection});
 

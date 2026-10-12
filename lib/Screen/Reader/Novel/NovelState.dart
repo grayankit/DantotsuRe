@@ -282,7 +282,11 @@ class NovelState extends ScreenState {
       if (!scroll.hasClients || loading.value) return;
       final max = scroll.position.maxScrollExtent;
       if (scroll.offset >= max) {
-        setAutoScroll(false);
+        if (settings.autoNext && hasNext) {
+          next();
+        } else {
+          setAutoScroll(false);
+        }
         return;
       }
       scroll.jumpTo((scroll.offset + pixels).clamp(0.0, max));

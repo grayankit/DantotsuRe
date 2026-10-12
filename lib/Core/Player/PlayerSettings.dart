@@ -196,6 +196,8 @@ const playerCursedSpeeds = [
   10.0,
 ];
 
+const playerVolumePref = Pref<double>('playerVolume', 1.0, PrefLocation.PLAYER);
+
 class PlayerPrefs {
   PlayerPrefs._();
 

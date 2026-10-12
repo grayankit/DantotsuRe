@@ -10,6 +10,7 @@ import '../../../../Utils/Functions/SnackBar.dart';
 import '../../../../Widgets/Components/CustomBottomDialog.dart';
 import 'BackupActionButton.dart';
 import 'BackupPanel.dart';
+import 'BackupSelection.dart';
 import 'PasswordField.dart';
 
 void showDantotsuImport(BuildContext context) =>
@@ -180,6 +181,7 @@ class _DantotsuImportSheetState extends State<_DantotsuImportSheet> {
           const SizedBox(height: 12),
         ],
         if (items != null && items.isNotEmpty) ...[
+          SelectAllButton<String>(selection: _selected),
           for (final entry in groups.entries) ...[
             Padding(
               padding: const EdgeInsets.only(top: 6, bottom: 4),

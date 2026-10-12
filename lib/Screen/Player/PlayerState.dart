@@ -836,7 +836,8 @@ class PlayerState extends ScreenState {
         VolumeController.instance.showSystemUI = false;
         volume.value = await VolumeController.instance.getVolume();
       } else {
-        volume.value = (engine.player.state.volume / 100).clamp(0.0, 1.0);
+        volume.value = playerVolumePref.value.clamp(0.0, 1.0);
+        await engine.player.setVolume(volume.value * 100);
       }
       if (supportsBrightness) {
         brightness.value = await ScreenBrightness.instance.application;
@@ -856,6 +857,7 @@ class PlayerState extends ScreenState {
         VolumeController.instance.setVolume(next);
       } else {
         unawaited(engine.player.setVolume(next * 100));
+        playerVolumePref.value = next;
       }
     } catch (e, st) {
       logError('PlayerState', e, st);
