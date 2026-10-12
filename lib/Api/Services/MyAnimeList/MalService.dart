@@ -9,7 +9,7 @@ import 'Screens/Detail.dart';
 import 'Screens/Calendar.dart';
 import 'Screens/Settings.dart';
 import 'Screens/Social.dart';
-import '../../../Core/Sync/SyncAdapter.dart';
+import '../../../Screen/Settings/Sync/Data/SyncAdapter.dart';
 import 'Sync.dart';
 
 const malServiceId = 'mal';

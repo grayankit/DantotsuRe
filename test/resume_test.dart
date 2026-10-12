@@ -2,10 +2,10 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:dartotsu_extension_bridge/dartotsu_extension_bridge.dart';
 
-import 'package:dartotsu/Core/Media/MediaRecord.dart';
-import 'package:dartotsu/Core/Media/ResumeStore.dart';
-import 'package:dartotsu/Core/Watch/EpisodeUnits.dart';
-import 'package:dartotsu/Core/Watch/LocalProgress.dart';
+import 'package:dartotsu/Screen/Detail/Watch/Data/Media/MediaRecord.dart';
+import 'package:dartotsu/Screen/Detail/Watch/Data/Media/ResumeStore.dart';
+import 'package:dartotsu/Screen/Detail/Watch/Data/EpisodeUnits.dart';
+import 'package:dartotsu/Screen/Detail/Watch/Data/LocalProgress.dart';
 
 ResumeEntry entry({double number = 5, int? progress}) => ResumeEntry(
   kind: ResumeKind.watch,

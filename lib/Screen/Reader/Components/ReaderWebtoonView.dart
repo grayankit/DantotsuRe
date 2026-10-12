@@ -4,7 +4,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
-import '../../../Core/Reader/ReaderItems.dart';
+import '../Engine/ReaderItems.dart';
 import '../../../Core/State/State.dart';
 import '../../../Utils/Animation/WidgetAnimations.dart';
 import '../ReaderState.dart';

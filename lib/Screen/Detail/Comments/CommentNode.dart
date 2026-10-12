@@ -1,4 +1,4 @@
-import '../../../Core/Comments/CommentModels.dart';
+import 'Data/CommentModels.dart';
 import '../../../Core/State/State.dart';
 
 const commentMaxDepth = 3;

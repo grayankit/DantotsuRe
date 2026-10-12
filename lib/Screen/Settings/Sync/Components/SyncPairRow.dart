@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../Core/Services/Model/Date.dart';
-import '../../../../Core/Sync/SyncModels.dart';
+import '../Data/SyncModels.dart';
 import '../../../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../../../Utils/Extensions/ContextExtensions.dart';
 import '../../../../Utils/Extensions/Responsive.dart';

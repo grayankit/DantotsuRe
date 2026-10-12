@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../../Core/Reader/ReaderItems.dart';
-import '../../Core/Reader/ReaderRequest.dart';
-import '../../Core/Reader/ReaderSettings.dart';
+import 'Engine/ReaderItems.dart';
+import 'Engine/ReaderRequest.dart';
+import 'Engine/ReaderSettings.dart';
 import '../../Core/State/State.dart';
 import '../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../Utils/Extensions/ContextExtensions.dart';

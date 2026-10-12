@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../Core/ThemeManager/LanguageSwitcher.dart';
-import '../../../../Core/Watch/EpisodeUnits.dart';
+import '../Data/EpisodeUnits.dart';
 import '../../../../Utils/Extensions/ContextExtensions.dart';
 import '../../../../Utils/Extensions/Responsive.dart';
 import '../../../../Widgets/Components/CachedNetworkImage.dart';

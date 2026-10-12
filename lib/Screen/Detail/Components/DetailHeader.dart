@@ -12,7 +12,7 @@ import '../../../Utils/Functions/NavigateToScreen.dart';
 import '../../../Widgets/Components/CachedNetworkImage.dart';
 import 'StatusChip.dart';
 import '../../../Core/State/State.dart';
-import '../../../Core/Watch/WatchPrefs.dart';
+import '../Watch/Data/WatchPrefs.dart';
 import '../../../Utils/Functions/SnackBar.dart';
 import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 

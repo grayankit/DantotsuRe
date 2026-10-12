@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
 import '../../../Core/State/State.dart';
-import '../../../Core/Watch/EpisodeMetaService.dart';
+import '../../Detail/Watch/Data/EpisodeMetaService.dart';
 import '../../../Core/ThemeManager/LanguageSwitcher.dart';
-import '../../../Core/Watch/EpisodeUnits.dart';
-import '../../../Core/Watch/LocalProgress.dart';
-import '../../../Core/Watch/WatchPrefs.dart';
+import '../../Detail/Watch/Data/EpisodeUnits.dart';
+import '../../Detail/Watch/Data/LocalProgress.dart';
+import '../../Detail/Watch/Data/WatchPrefs.dart';
 import '../../../Utils/Extensions/ContextExtensions.dart';
 import '../../../Utils/Extensions/Responsive.dart';
 import '../../../Utils/Functions/NavigateToScreen.dart';

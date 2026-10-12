@@ -8,22 +8,22 @@ import 'package:flutter/widgets.dart' show GlobalKey;
 import 'package:dartotsu_extension_bridge/dartotsu_extension_bridge.dart';
 import 'package:flutter/services.dart';
 
-import '../../Core/Media/MediaRecord.dart';
-import '../../Core/Media/ResumeStore.dart';
+import '../Detail/Watch/Data/Media/MediaRecord.dart';
+import '../Detail/Watch/Data/Media/ResumeStore.dart';
 import '../../Core/Preferences/Incognito.dart';
-import '../../Core/Reader/ReaderImageLoader.dart';
-import '../../Core/Reader/ReaderItems.dart';
-import '../../Core/Reader/ReaderRequest.dart';
-import '../../Core/Reader/ReaderSettings.dart';
+import 'Engine/ReaderImageLoader.dart';
+import 'Engine/ReaderItems.dart';
+import 'Engine/ReaderRequest.dart';
+import 'Engine/ReaderSettings.dart';
 import '../../Core/State/State.dart';
 import '../../Core/ThemeManager/LanguageSwitcher.dart';
-import '../../Core/Watch/EpisodeUnits.dart';
+import '../Detail/Watch/Data/EpisodeUnits.dart';
 import '../../Logger.dart';
 import '../../Widgets/Components/ScreenState.dart';
 import '../Detail/Watch/Components/UnitTile.dart';
 import '../../Utils/Functions/Wakelock.dart';
-import '../../Core/Reader/VolumeKeys.dart';
-import '../../Core/Watch/TrackConfirm.dart';
+import 'Engine/VolumeKeys.dart';
+import '../Detail/Watch/Data/TrackConfirm.dart';
 
 class ReaderState extends ScreenState {
   final ReaderRequest request;

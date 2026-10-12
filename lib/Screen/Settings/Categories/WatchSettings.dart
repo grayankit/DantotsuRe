@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../../../Core/State/State.dart';
 import '../../../Core/ThemeManager/LanguageSwitcher.dart';
-import '../../../Core/Watch/EpisodeMeta.dart';
-import '../../../Core/Watch/EpisodeMetaService.dart';
-import '../../../Core/Watch/WatchPrefs.dart';
+import '../../Detail/Watch/Data/EpisodeMeta.dart';
+import '../../Detail/Watch/Data/EpisodeMetaService.dart';
+import '../../Detail/Watch/Data/WatchPrefs.dart';
 import '../../../Model/Setting.dart';
 import '../../../Utils/Extensions/ContextExtensions.dart';
 import '../../../Utils/Functions/SnackBar.dart';

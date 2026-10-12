@@ -7,8 +7,8 @@ import 'package:media_kit_video/media_kit_video.dart';
 
 import '../../Api/Discord/DiscordPresence.dart';
 import '../../Api/Discord/PresenceScope.dart';
-import '../../Core/Player/ColorPresets.dart';
-import '../../Core/Player/PlayRequest.dart';
+import 'Engine/ColorPresets.dart';
+import 'Engine/PlayRequest.dart';
 import '../../Core/State/State.dart';
 import '../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../Utils/Animation/WidgetAnimations.dart';
@@ -23,7 +23,6 @@ import '../../Widgets/Components/ScreenState.dart';
 import 'Components/EpisodePanel.dart';
 import 'Components/PlayerControls.dart';
 import 'Components/PlayerEpisodes.dart';
-import '../../Core/Player/Pip.dart';
 import 'Components/PlayerIndicators.dart';
 import 'Components/PlayerSheets.dart';
 import 'Components/PlayerSubtitleView.dart';
@@ -125,18 +124,7 @@ class _PlayerScreenState extends State<PlayerScreen>
           GestureDetector(
             behavior: HitTestBehavior.translucent,
             onTap: () => unawaited(state.engine.toggle()),
-            onDoubleTap: PlayerPip.isDesktop ? state.exitPip : null,
           ),
-          if (PlayerPip.isDesktop)
-            Positioned(
-              top: 6,
-              right: 6,
-              child: IconButton.filledTonal(
-                tooltip: getString.playerPipRestore,
-                onPressed: state.exitPip,
-                icon: const Icon(Icons.open_in_full_rounded),
-              ),
-            ),
         ],
       ),
     );

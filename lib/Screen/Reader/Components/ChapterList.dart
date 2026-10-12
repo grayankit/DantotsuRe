@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-import '../../../Core/Media/MediaRecord.dart';
-import '../../../Core/Reader/ReaderRequest.dart';
+import '../../Detail/Watch/Data/Media/MediaRecord.dart';
+import '../Engine/ReaderRequest.dart';
 import '../../../Core/State/State.dart';
-import '../../../Core/Watch/EpisodeUnits.dart';
-import '../../../Core/Watch/LocalProgress.dart';
-import '../../../Core/Watch/WatchPrefs.dart';
+import '../../Detail/Watch/Data/EpisodeUnits.dart';
+import '../../Detail/Watch/Data/LocalProgress.dart';
+import '../../Detail/Watch/Data/WatchPrefs.dart';
 import '../../../Utils/Extensions/Responsive.dart';
 import '../../../Utils/Functions/NavigateToScreen.dart';
 import '../../Detail/Watch/Components/RangeBar.dart';

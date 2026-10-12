@@ -9,7 +9,7 @@ import 'Components/ResumeShelf.dart';
 import 'HomeHeader.dart';
 import '../Detail/ListEditorSheet.dart';
 import '../../Core/State/State.dart';
-import '../../Core/Watch/WatchPrefs.dart';
+import '../Detail/Watch/Data/WatchPrefs.dart';
 
 class HomeFeed extends StatelessWidget {
   final MediaService service;

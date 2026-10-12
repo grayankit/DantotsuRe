@@ -1,7 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:dartotsu_extension_bridge/dartotsu_extension_bridge.dart';
 
-import '../../../Core/Backup/ExternalLists/ExternalList.dart';
+import '../../../Screen/Settings/Backup/ExternalLists/ExternalList.dart';
 import '../../../Core/Services/MediaServiceController.dart';
 import 'Services.dart';
 import '../../../Core/State/State.dart';

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
-import '../../../Core/Player/PlayRequest.dart';
+import '../../Player/Engine/PlayRequest.dart';
 import '../../../Core/Services/MediaService.dart';
 import '../../../Core/Services/Model/Media.dart';
 import '../../../Core/State/State.dart';
 import '../../../Core/ThemeManager/LanguageSwitcher.dart';
-import '../../../Core/Watch/EpisodeMetaService.dart';
-import '../../../Core/Watch/EpisodeUnits.dart';
-import '../../../Core/Watch/WatchPrefs.dart';
+import 'Data/EpisodeMetaService.dart';
+import 'Data/EpisodeUnits.dart';
+import 'Data/WatchPrefs.dart';
 import '../../../Utils/Animation/WidgetAnimations.dart';
 import '../../../Utils/Extensions/ContextExtensions.dart';
 import '../../../Utils/Extensions/Responsive.dart';
@@ -28,7 +28,7 @@ import 'Components/UnitLayout.dart';
 import 'Components/UnitTile.dart';
 import 'Components/WatchOptionsSheet.dart';
 import 'Components/WrongTitleSheet.dart';
-import '../../../Core/Watch/LocalProgress.dart';
+import 'Data/LocalProgress.dart';
 import 'WatchState.dart';
 
 class WatchSection extends StatefulWidget {

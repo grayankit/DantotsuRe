@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
-import '../../../Core/Player/PlayerSettings.dart';
+import '../../Player/Engine/PlayerSettings.dart';
 import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../../Model/Setting.dart';
 import '../../../Utils/Functions/SnackBar.dart';
@@ -13,7 +13,7 @@ import '../../Player/Components/MpvSheets.dart';
 import '../../Player/Components/ShaderSheet.dart';
 import '../../Player/PlayerLauncher.dart';
 import '../Widgets/SegmentedSetting.dart';
-import '../../../Core/Player/AudioDevices.dart';
+import '../../Player/Engine/AudioDevices.dart';
 import '../../../Widgets/Components/ChoiceSheet.dart';
 import '../Widgets/SettingRows.dart';
 

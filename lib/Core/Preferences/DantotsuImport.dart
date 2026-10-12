@@ -12,7 +12,7 @@ import '../../Api/Services/MyAnimeList/Auth.dart';
 import '../../Api/Services/MyAnimeList/Prefs.dart';
 import '../../Logger.dart';
 import '../NetworkManager/DnsManager.dart';
-import '../Player/PlayerSettings.dart';
+import '../../Screen/Player/Engine/PlayerSettings.dart';
 import '../State/State.dart';
 import '../ThemeManager/ThemeController.dart';
 import '../ThemeManager/ThemeMode.dart';

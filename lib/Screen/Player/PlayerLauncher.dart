@@ -5,9 +5,9 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
 
-import '../../Core/Player/PlayRequest.dart';
-import '../../Core/Player/PlayerPlaylist.dart';
-import '../../Core/Player/TorrentStream.dart';
+import 'Engine/PlayRequest.dart';
+import 'Engine/PlayerPlaylist.dart';
+import 'Engine/TorrentStream.dart';
 import '../../Core/State/State.dart';
 import '../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../Utils/Functions/DeepLink.dart';

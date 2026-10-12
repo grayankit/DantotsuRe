@@ -6,7 +6,7 @@ import 'Screens/Feed.dart';
 import 'Screens/Home.dart';
 import 'Screens/Search.dart';
 import 'Screens/Settings.dart';
-import '../../../Core/Sync/SyncAdapter.dart';
+import '../../../Screen/Settings/Sync/Data/SyncAdapter.dart';
 import 'Sync.dart';
 
 const mangaBakaServiceId = 'mangabaka';

@@ -1,5 +1,5 @@
-import 'package:dartotsu/Core/Player/PlayerEngine.dart';
-import 'package:dartotsu/Core/Player/TrackPick.dart';
+import 'package:dartotsu/Screen/Player/Engine/PlayerEngine.dart';
+import 'package:dartotsu/Screen/Player/Engine/TrackPick.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

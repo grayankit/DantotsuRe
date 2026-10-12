@@ -2,10 +2,10 @@ import 'package:dartotsu_extension_bridge/Models/Video.dart' as v;
 import 'package:dartotsu_extension_bridge/dartotsu_extension_bridge.dart';
 import 'package:flutter/material.dart';
 
-import '../../../../Core/Player/PlayRequest.dart';
+import '../../../Player/Engine/PlayRequest.dart';
 import '../../../../Core/State/State.dart';
 import '../../../../Core/ThemeManager/LanguageSwitcher.dart';
-import '../../../../Core/Watch/EpisodeUnits.dart';
+import '../Data/EpisodeUnits.dart';
 import '../../../../Logger.dart';
 import '../../../../Utils/Extensions/ContextExtensions.dart';
 import '../../../../Utils/Functions/NavigateToScreen.dart';

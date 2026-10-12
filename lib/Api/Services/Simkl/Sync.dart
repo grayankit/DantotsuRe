@@ -1,5 +1,5 @@
-import '../../../Core/Sync/SyncAdapter.dart';
-import '../../../Core/Sync/SyncModels.dart';
+import '../../../Screen/Settings/Sync/Data/SyncAdapter.dart';
+import '../../../Screen/Settings/Sync/Data/SyncModels.dart';
 import 'Client.dart';
 import 'Data/Mapper.dart';
 import 'IdLookup.dart';

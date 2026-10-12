@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 
-import '../../../Core/Player/AniSkip.dart';
+import '../Engine/AniSkip.dart';
 import '../../../Core/State/State.dart';
 import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../../Utils/Extensions/ContextExtensions.dart';
 import '../../../Utils/Functions/NavigateToScreen.dart';
-import '../../../Core/Player/Pip.dart';
+import '../Engine/Pip.dart';
 import '../PlayerState.dart';
 import 'PlayerSeekBar.dart';
 import 'PlayerSheets.dart';
@@ -191,6 +191,12 @@ class PlayerControls extends StatelessWidget {
                 Icons.source_rounded,
                 () => _streams(context),
                 tooltip: getString.playerStreams,
+              ),
+            if (!locked && state.engine.videoVariants.value.length > 1)
+              _icon(
+                Icons.hd_rounded,
+                () => showQualitySheet(context, state),
+                tooltip: getString.playerQuality,
               ),
             if (!locked && !compact) ...[
               if (state.items.length > 1)

@@ -2,13 +2,13 @@ import 'package:dartotsu_extension_bridge/dartotsu_extension_bridge.dart';
 import 'package:flutter/widgets.dart';
 
 import '../../Api/Services/Extension/Services.dart';
-import '../../Core/Media/ResumeStore.dart';
-import '../../Core/Player/PlayRequest.dart';
-import '../../Core/Reader/ReaderRequest.dart';
+import '../Detail/Watch/Data/Media/ResumeStore.dart';
+import '../Player/Engine/PlayRequest.dart';
+import '../Reader/Engine/ReaderRequest.dart';
 import '../../Core/Services/MediaService.dart';
 import '../../Core/ThemeManager/LanguageSwitcher.dart';
-import '../../Core/Watch/EpisodeUnits.dart';
-import '../../Core/Watch/UnitLoader.dart';
+import '../Detail/Watch/Data/EpisodeUnits.dart';
+import '../Detail/Watch/Data/UnitLoader.dart';
 import '../../Utils/Functions/SnackBar.dart';
 import '../Player/PlayerLauncher.dart';
 import '../Reader/ReaderLauncher.dart';

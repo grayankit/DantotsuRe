@@ -8141,6 +8141,12 @@ abstract class AppLocalizations {
   /// **'Player settings reset'**
   String get playerResetDone;
 
+  /// No description provided for @playerQuality.
+  ///
+  /// In en, this message translates to:
+  /// **'Quality'**
+  String get playerQuality;
+
   /// No description provided for @playerStreams.
   ///
   /// In en, this message translates to:

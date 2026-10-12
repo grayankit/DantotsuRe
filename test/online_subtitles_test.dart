@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:dartotsu/Core/Player/OnlineSubtitles.dart';
+import 'package:dartotsu/Screen/Player/Engine/OnlineSubtitles.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

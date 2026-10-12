@@ -1,14 +1,14 @@
 import 'package:dartotsu/Api/Services/Anilist/Sync.dart';
 import 'package:dartotsu/Api/Services/Simkl/Sync.dart';
 import 'package:dartotsu/Core/Services/Model/Date.dart';
-import 'package:dartotsu/Core/Sync/SyncAdapter.dart';
-import 'package:dartotsu/Core/Sync/SyncAhead.dart';
-import 'package:dartotsu/Core/Sync/SyncBudget.dart';
-import 'package:dartotsu/Core/Sync/SyncCompute.dart';
-import 'package:dartotsu/Core/Sync/SyncIdIndex.dart';
-import 'package:dartotsu/Core/Sync/SyncMemory.dart';
-import 'package:dartotsu/Core/Sync/SyncModels.dart';
-import 'package:dartotsu/Core/Sync/SyncPlanner.dart';
+import 'package:dartotsu/Screen/Settings/Sync/Data/SyncAdapter.dart';
+import 'package:dartotsu/Screen/Settings/Sync/Data/SyncAhead.dart';
+import 'package:dartotsu/Screen/Settings/Sync/Data/SyncBudget.dart';
+import 'package:dartotsu/Screen/Settings/Sync/Data/SyncCompute.dart';
+import 'package:dartotsu/Screen/Settings/Sync/Data/SyncIdIndex.dart';
+import 'package:dartotsu/Screen/Settings/Sync/Data/SyncMemory.dart';
+import 'package:dartotsu/Screen/Settings/Sync/Data/SyncModels.dart';
+import 'package:dartotsu/Screen/Settings/Sync/Data/SyncPlanner.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class _Fake extends SyncAdapter {

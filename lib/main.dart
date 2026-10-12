@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:dartotsu_extension_bridge/dartotsu_extension_bridge.dart';
-import 'Core/Sync/SyncController.dart';
+import 'Screen/Settings/Sync/Data/SyncController.dart';
 import 'Utils/Nav/DpadLayers.dart';
 import 'Utils/Nav/DpadNav.dart';
 import 'package:dynamic_color/dynamic_color.dart';
@@ -35,7 +35,7 @@ import 'Utils/Functions/AppShortcuts.dart';
 import 'Utils/Functions/DeepLink.dart';
 import 'Utils/Functions/LinkSettings.dart';
 import 'Api/Discord/DiscordPresenceController.dart';
-import 'Core/Comments/CommentAlerts.dart';
+import 'Screen/Detail/Comments/Data/CommentAlerts.dart';
 import 'Core/Services/ActivityAlerts.dart';
 import 'Screen/Player/PlayerLauncher.dart';
 import 'Utils/Functions/SnackBar.dart';

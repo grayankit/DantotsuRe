@@ -2,7 +2,7 @@ import 'package:collection/collection.dart';
 
 import 'Api/Mutations.dart';
 import 'Api/Queries.dart';
-import '../Sync/SyncAdapter.dart';
+import '../../Screen/Settings/Sync/Data/SyncAdapter.dart';
 import 'Local/LocalListStore.dart';
 import 'Local/LocalMutations.dart';
 import 'ServiceAuth.dart';

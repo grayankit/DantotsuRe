@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../Core/Reader/ReaderSettings.dart';
-import '../../../Core/Reader/VolumeKeys.dart';
+import '../../Reader/Engine/ReaderSettings.dart';
+import '../../Reader/Engine/VolumeKeys.dart';
 import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../../Model/Setting.dart';
 import '../Widgets/SettingRows.dart';

@@ -1,8 +1,8 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
-import '../../../Core/Player/MpvFiles.dart';
-import '../../../Core/Player/PlayerSettings.dart';
+import '../Engine/MpvFiles.dart';
+import '../Engine/PlayerSettings.dart';
 import '../../../Core/State/State.dart';
 import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../../Utils/Extensions/ContextExtensions.dart';

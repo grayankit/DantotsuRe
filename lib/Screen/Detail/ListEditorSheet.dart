@@ -12,7 +12,7 @@ import '../../Utils/Functions/SnackBar.dart';
 import '../../Widgets/Components/CustomBottomDialog.dart';
 import '../Widgets/ScreenWidgetView.dart';
 import '../../Core/State/State.dart';
-import '../../Core/Sync/SyncController.dart';
+import '../Settings/Sync/Data/SyncController.dart';
 import '../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../Widgets/Components/ScreenState.dart';
 import 'ListEditorState.dart';

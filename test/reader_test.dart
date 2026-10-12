@@ -5,11 +5,11 @@ import 'package:flutter/painting.dart';
 import 'package:dartotsu_extension_bridge/dartotsu_extension_bridge.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:dartotsu/Core/Media/MediaRecord.dart';
-import 'package:dartotsu/Core/Reader/NovelText.dart';
-import 'package:dartotsu/Core/Reader/ReaderImageLoader.dart';
-import 'package:dartotsu/Core/Reader/ReaderItems.dart';
-import 'package:dartotsu/Core/Reader/ReaderSettings.dart';
+import 'package:dartotsu/Screen/Detail/Watch/Data/Media/MediaRecord.dart';
+import 'package:dartotsu/Screen/Reader/Engine/NovelText.dart';
+import 'package:dartotsu/Screen/Reader/Engine/ReaderImageLoader.dart';
+import 'package:dartotsu/Screen/Reader/Engine/ReaderItems.dart';
+import 'package:dartotsu/Screen/Reader/Engine/ReaderSettings.dart';
 
 List<PageUrl> pages(int n) => [for (var i = 0; i < n; i++) PageUrl('u$i')];
 

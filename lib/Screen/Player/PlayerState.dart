@@ -9,31 +9,31 @@ import 'package:screen_brightness/screen_brightness.dart';
 import 'package:volume_controller/volume_controller.dart';
 import 'package:window_manager/window_manager.dart';
 
-import '../../Core/Media/MediaRecord.dart';
-import '../../Core/Watch/EpisodeMeta.dart';
-import '../../Core/Watch/EpisodeMetaService.dart';
-import '../../Core/Watch/EpisodeUnits.dart';
-import '../../Core/Watch/MediaIdResolver.dart';
-import '../../Core/Watch/UnitLoader.dart';
-import '../../Core/Watch/TrackConfirm.dart';
-import '../../Core/Watch/WatchPrefs.dart';
-import '../../Core/Media/ResumeStore.dart';
-import '../../Core/Player/AniSkip.dart';
-import '../../Core/Player/LocalPlayback.dart';
-import '../../Core/Player/MpvFiles.dart';
-import '../../Core/Player/Pip.dart';
-import '../../Core/Player/TrackPick.dart';
-import '../../Core/Player/SeekPreview.dart';
-import '../../Core/Player/PlayRequest.dart';
-import '../../Core/Player/ColorPresets.dart';
-import '../../Core/Player/PlayerEngine.dart';
-import '../../Core/Player/PlayerSettings.dart';
-import '../../Core/Player/TorrentStream.dart';
+import '../Detail/Watch/Data/Media/MediaRecord.dart';
+import '../Detail/Watch/Data/EpisodeMeta.dart';
+import '../Detail/Watch/Data/EpisodeMetaService.dart';
+import '../Detail/Watch/Data/EpisodeUnits.dart';
+import '../Detail/Watch/Data/MediaIdResolver.dart';
+import '../Detail/Watch/Data/UnitLoader.dart';
+import '../Detail/Watch/Data/TrackConfirm.dart';
+import '../Detail/Watch/Data/WatchPrefs.dart';
+import '../Detail/Watch/Data/Media/ResumeStore.dart';
+import 'Engine/AniSkip.dart';
+import 'Engine/LocalPlayback.dart';
+import 'Engine/MpvFiles.dart';
+import 'Engine/Pip.dart';
+import 'Engine/TrackPick.dart';
+import 'Engine/SeekPreview.dart';
+import 'Engine/PlayRequest.dart';
+import 'Engine/ColorPresets.dart';
+import 'Engine/PlayerEngine.dart';
+import 'Engine/PlayerSettings.dart';
+import 'Engine/TorrentStream.dart';
 import '../../Core/Services/Model/Media.dart';
 import '../../Core/Preferences/Incognito.dart';
 import '../../Core/State/State.dart';
 import '../../Core/ThemeManager/LanguageSwitcher.dart';
-import '../../Core/Watch/TitleMatch.dart';
+import '../Detail/Watch/Data/TitleMatch.dart';
 import '../../Logger.dart';
 import '../../Utils/Functions/SnackBar.dart';
 import '../../Widgets/Components/ScreenState.dart';
@@ -129,6 +129,7 @@ class PlayerState extends ScreenState {
 
   final progressTick = 0.live;
   final pip = false.live;
+
   final nextCountdown = Live<int?>(null);
   Timer? _countdownTimer;
   final metaLoading = false.live;
@@ -376,7 +377,6 @@ class PlayerState extends ScreenState {
     _playingSub?.dispose();
     _saveProgress(force: true);
     unawaited(PlayerPip.setAuto(false));
-    if (pip.value && PlayerPip.isDesktop) unawaited(PlayerPip.exit());
     PlayerPip.detach();
     unawaited(seekPreview.dispose());
     unawaited(mediaSession.dispose());
@@ -844,7 +844,7 @@ class PlayerState extends ScreenState {
       _localSave = true;
       return;
     }
-    if (trackAnimePref.value == 'ask') unawaited(engine.player.pause());
+    if (trackAnimePref.value == 'ask') unawaited(engine.pause());
     final choice = await confirmTracking(
       context,
       anime: true,

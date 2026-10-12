@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:dartotsu/Core/Reader/BorderCrop.dart';
+import 'package:dartotsu/Screen/Reader/Engine/BorderCrop.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Uint8List page(int w, int h, {required int border, int ink = 60}) {

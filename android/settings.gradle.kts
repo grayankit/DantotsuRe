@@ -49,6 +49,5 @@ if (pluginsFile.exists()) {
         include(":dartotsu_extension_bridge")
         project(":dartotsu_extension_bridge").projectDir =   bridgeDir.resolve("android")
 
-        apply(from = bridgeDir.resolve("android/settings.gradle"))
     }
 }

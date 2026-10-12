@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../../../Core/State/State.dart';
 import '../../../../Core/Services/MediaService.dart';
-import '../../../../Core/Sync/SyncController.dart';
-import '../../../../Core/Sync/SyncModels.dart';
+import '../Data/SyncController.dart';
+import '../Data/SyncModels.dart';
 import '../../../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../../../Utils/Extensions/ContextExtensions.dart';
 import '../../../../Utils/Extensions/Responsive.dart';

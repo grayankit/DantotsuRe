@@ -1,7 +1,7 @@
 import 'package:dartotsu_extension_bridge/dartotsu_extension_bridge.dart';
 import 'package:flutter/material.dart';
 
-import '../../Core/Reader/ReaderRequest.dart';
+import 'Engine/ReaderRequest.dart';
 import '../../Core/State/State.dart';
 import '../../Utils/Functions/NavigateToScreen.dart';
 import '../../Widgets/Components/CustomBottomDialog.dart';

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../Core/Reader/ReaderRequest.dart';
+import '../Engine/ReaderRequest.dart';
 import '../../../Core/State/State.dart';
 import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../../Model/Setting.dart';

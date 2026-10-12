@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../Api/Discord/DiscordPresence.dart';
-import '../../Core/Comments/CommentModels.dart';
+import '../Detail/Comments/Data/CommentModels.dart';
 import '../../Core/Services/MediaServiceController.dart';
 import '../../Core/Services/NotificationKindInfo.dart';
 import '../../Core/State/State.dart';

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../Core/Comments/CommentSettings.dart';
+import '../Detail/Comments/Data/CommentSettings.dart';
 import '../../Core/Services/MediaServiceController.dart';
 import '../../Core/State/State.dart';
 import '../../Core/ThemeManager/LanguageSwitcher.dart';

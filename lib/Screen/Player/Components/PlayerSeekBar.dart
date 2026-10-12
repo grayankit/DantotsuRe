@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../Core/Player/AniSkip.dart';
-import '../../../Core/Player/PlayerEngine.dart';
+import '../Engine/AniSkip.dart';
+import '../Engine/PlayerEngine.dart';
 import '../../../Utils/Extensions/ContextExtensions.dart';
 
 String formatClock(int seconds) {

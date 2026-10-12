@@ -3,14 +3,14 @@ import 'dart:convert';
 import 'package:dartotsu_extension_bridge/Models/Video.dart' as v;
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:dartotsu/Core/Media/MediaRecord.dart';
-import 'package:dartotsu/Core/Player/AniSkip.dart';
-import 'package:dartotsu/Core/Player/MpvFiles.dart';
-import 'package:dartotsu/Core/Player/PlayRequest.dart';
-import 'package:dartotsu/Core/Player/PlayerPlaylist.dart';
-import 'package:dartotsu/Core/Player/PlayerSettings.dart';
-import 'package:dartotsu/Core/Player/TorrentStream.dart';
-import 'package:dartotsu/Core/Watch/WatchPrefs.dart';
+import 'package:dartotsu/Screen/Detail/Watch/Data/Media/MediaRecord.dart';
+import 'package:dartotsu/Screen/Player/Engine/AniSkip.dart';
+import 'package:dartotsu/Screen/Player/Engine/MpvFiles.dart';
+import 'package:dartotsu/Screen/Player/Engine/PlayRequest.dart';
+import 'package:dartotsu/Screen/Player/Engine/PlayerPlaylist.dart';
+import 'package:dartotsu/Screen/Player/Engine/PlayerSettings.dart';
+import 'package:dartotsu/Screen/Player/Engine/TorrentStream.dart';
+import 'package:dartotsu/Screen/Detail/Watch/Data/WatchPrefs.dart';
 
 void main() {
   group('MediaRecord', () {

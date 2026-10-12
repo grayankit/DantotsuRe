@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../Core/Watch/EpisodeUnits.dart';
+import '../Data/EpisodeUnits.dart';
 import '../../../../Utils/Extensions/Responsive.dart';
 import '../../../../Widgets/Components/ScrollReveal.dart';
 

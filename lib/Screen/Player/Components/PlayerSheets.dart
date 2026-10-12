@@ -6,10 +6,10 @@ import 'package:dartotsu_extension_bridge/Models/Video.dart' as v;
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
-import '../../../Core/Player/PlayRequest.dart';
-import '../../../Core/Player/PlayerPlaylist.dart';
-import '../../../Core/Player/PlayerSettings.dart';
-import '../../../Core/Media/MediaRecord.dart';
+import '../Engine/PlayRequest.dart';
+import '../Engine/PlayerPlaylist.dart';
+import '../Engine/PlayerSettings.dart';
+import '../../Detail/Watch/Data/Media/MediaRecord.dart';
 import '../../../Core/State/State.dart';
 import '../../../Model/Setting.dart';
 import '../../../Core/ThemeManager/LanguageSwitcher.dart';
@@ -54,6 +54,25 @@ Future<void> showSpeedSheet(BuildContext context, PlayerState state) async {
     ),
   );
   if (picked != null) state.setSpeed(picked);
+}
+
+Future<void> showQualitySheet(BuildContext context, PlayerState state) async {
+  final engine = state.engine;
+  final variants = engine.videoVariants.value;
+  final active = engine.activeVariant.value;
+  final picked = await _paused(
+    state,
+    () => showChoiceSheet<String>(
+      context,
+      title: getString.playerQuality,
+      icon: Icons.hd_rounded,
+      selected: variants.any((v) => v.id == active) ? active! : '',
+      options: [
+        for (final v in variants) ChoiceOption(v.id, v.label),
+      ],
+    ),
+  );
+  if (picked != null && picked.isNotEmpty) await engine.setVariant(picked);
 }
 
 Future<int?> showStreamSheet(

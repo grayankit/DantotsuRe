@@ -4,8 +4,8 @@ import 'dart:typed_data';
 import 'package:dartotsu_extension_bridge/dartotsu_extension_bridge.dart';
 import 'package:file_picker/file_picker.dart';
 
-import '../../../Core/Backup/ExternalLists/ExternalList.dart';
-import '../../../Core/Backup/ExternalLists/ExternalListService.dart';
+import '../Backup/ExternalLists/ExternalList.dart';
+import '../Backup/ExternalLists/ExternalListService.dart';
 import '../../../Core/Preferences/StorageManager.dart';
 import '../../../Core/Services/MediaService.dart';
 import '../../../Core/State/State.dart';

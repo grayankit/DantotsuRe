@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../Core/Reader/ReaderItems.dart';
-import '../../../Core/Reader/ReaderSettings.dart';
+import '../Engine/ReaderItems.dart';
+import '../Engine/ReaderSettings.dart';
 import '../../../Core/State/State.dart';
 import '../../../Utils/Animation/WidgetAnimations.dart';
 import '../ReaderState.dart';

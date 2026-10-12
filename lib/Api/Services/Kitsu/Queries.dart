@@ -16,7 +16,7 @@ import '../../../Core/Services/Model/MediaReaction.dart';
 import '../../../Core/Services/Model/Review.dart';
 import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../../Model/SearchResults.dart';
-import '../../../Core/Sync/SyncModels.dart';
+import '../../../Screen/Settings/Sync/Data/SyncModels.dart';
 import '../../../Logger.dart';
 import '../../../Core/Services/Model/User.dart';
 import '../../../Utils/Functions/SnackBar.dart';

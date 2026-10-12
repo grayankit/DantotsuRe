@@ -4,12 +4,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../Api/Discord/DiscordPresence.dart';
-import '../../Core/Comments/CommentAlerts.dart';
+import '../Detail/Comments/Data/CommentAlerts.dart';
 import '../../Core/Services/ActivityAlerts.dart';
 import '../../Logger.dart';
 import '../../Utils/Functions/SnackBar.dart';
-import '../../Core/Comments/CommentModels.dart';
-import '../../Core/Comments/CommentsApi.dart';
+import '../Detail/Comments/Data/CommentModels.dart';
+import '../Detail/Comments/Data/CommentsApi.dart';
 import '../../Core/Services/MediaServiceController.dart';
 import '../../Core/State/State.dart';
 import '../../Core/ThemeManager/LanguageSwitcher.dart';

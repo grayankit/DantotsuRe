@@ -3,7 +3,7 @@ import '../../../Widgets/Components/Clickable.dart';
 import 'package:flutter/material.dart';
 
 import '../../../Api/Services/Anilist/AnilistService.dart';
-import '../../../Core/Comments/CommentsApi.dart';
+import 'Data/CommentsApi.dart';
 import '../../../Core/Services/MediaServiceController.dart';
 import '../../../Core/Services/Model/Media.dart';
 import '../../../Core/State/State.dart';
@@ -15,7 +15,7 @@ import '../../../Widgets/Components/ScreenState.dart';
 import 'CommentsState.dart';
 import '../../../Widgets/Components/SectionCard.dart';
 import 'package:skeletonizer/skeletonizer.dart';
-import '../../../Core/Comments/CommentModels.dart';
+import 'Data/CommentModels.dart';
 import 'CommentNode.dart';
 import 'Components/CommentComposer.dart';
 import 'Components/CommentTile.dart';

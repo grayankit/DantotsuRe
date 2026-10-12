@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../../../../Core/Media/MediaRecord.dart';
+import '../Data/Media/MediaRecord.dart';
 import '../../../../Core/Services/Model/Media.dart';
 import '../../../../Core/ThemeManager/LanguageSwitcher.dart';
-import '../../../../Core/Watch/EpisodeUnits.dart';
-import '../../../../Core/Watch/LocalProgress.dart';
+import '../Data/EpisodeUnits.dart';
+import '../Data/LocalProgress.dart';
 import '../../../../Utils/Extensions/ContextExtensions.dart';
 import '../../../../Utils/Extensions/Responsive.dart';
 import '../../../../Widgets/Components/CachedNetworkImage.dart';

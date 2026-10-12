@@ -2036,6 +2036,8 @@
   "@playerResetConfirm": {},
   "playerResetDone": "Player settings reset",
   "@playerResetDone": {},
+  "playerQuality": "Quality",
+  "@playerQuality": {},
   "playerStreams": "Streams",
   "@playerStreams": {},
   "playerAutoSelect": "Auto select stream",

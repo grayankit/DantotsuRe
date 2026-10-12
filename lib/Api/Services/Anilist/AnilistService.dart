@@ -10,7 +10,7 @@ import 'Screens/Search.dart';
 import 'Screens/Settings.dart';
 import 'Screens/Social.dart';
 import '../../../Core/State/State.dart';
-import '../../../Core/Sync/SyncAdapter.dart';
+import '../../../Screen/Settings/Sync/Data/SyncAdapter.dart';
 import 'Sync.dart';
 
 const anilistServiceId = 'anilist';

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../Core/Media/MediaRecord.dart';
+import '../../Detail/Watch/Data/Media/MediaRecord.dart';
 import '../../../Core/State/State.dart';
 import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../../Utils/Functions/NavigateToScreen.dart';

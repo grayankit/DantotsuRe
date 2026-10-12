@@ -1,8 +1,8 @@
-import 'package:dartotsu/Core/Watch/EpisodeMeta.dart';
-import 'package:dartotsu/Core/Watch/EpisodeMetaService.dart';
-import 'package:dartotsu/Core/Watch/EpisodeUnits.dart';
-import 'package:dartotsu/Core/Watch/Providers/AniZip.dart';
-import 'package:dartotsu/Core/Watch/TitleMatch.dart';
+import 'package:dartotsu/Screen/Detail/Watch/Data/EpisodeMeta.dart';
+import 'package:dartotsu/Screen/Detail/Watch/Data/EpisodeMetaService.dart';
+import 'package:dartotsu/Screen/Detail/Watch/Data/EpisodeUnits.dart';
+import 'package:dartotsu/Screen/Detail/Watch/Data/Providers/AniZip.dart';
+import 'package:dartotsu/Screen/Detail/Watch/Data/TitleMatch.dart';
 import 'package:dartotsu_extension_bridge/dartotsu_extension_bridge.dart';
 import 'package:flutter_test/flutter_test.dart';
 

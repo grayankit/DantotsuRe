@@ -7,14 +7,14 @@ import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:path/path.dart' as p;
 
-import '../../../Core/Player/MpvFiles.dart';
-import '../../../Core/Player/PlayerSettings.dart';
+import '../Engine/MpvFiles.dart';
+import '../Engine/PlayerSettings.dart';
 import '../../../Core/State/State.dart';
 import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../../Logger.dart';
 import '../../../Utils/Functions/NavigateToScreen.dart';
-import '../../../Core/Player/ColorPresets.dart';
-import '../../../Core/Player/ColorShader.dart';
+import '../Engine/ColorPresets.dart';
+import '../Engine/ColorShader.dart';
 import 'ColorSheet.dart';
 import 'ShaderSheet.dart';
 import '../../../Utils/Animation/WidgetAnimations.dart';

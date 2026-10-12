@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import '../../../../Core/NetworkManager/NetworkManager.dart';
 import '../../../../Core/State/State.dart';
 import '../../../../Core/ThemeManager/LanguageSwitcher.dart';
-import '../../../../Core/Watch/SourceHealth.dart';
+import '../Data/SourceHealth.dart';
 import '../../../../Utils/Extensions/ContextExtensions.dart';
 import '../../../../Utils/Extensions/Responsive.dart';
 import '../../../../Utils/Functions/NavigateToScreen.dart';

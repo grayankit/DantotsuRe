@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../../../Core/Comments/CommentModels.dart';
-import '../../../Core/Comments/CommentsApi.dart';
-import '../../../Core/Comments/CommentsTarget.dart';
+import 'Data/CommentModels.dart';
+import 'Data/CommentsApi.dart';
+import 'Data/CommentsTarget.dart';
 import '../../../Core/Preferences/PrefManager.dart';
 import '../../../Core/Services/MediaService.dart';
 import '../../../Core/Services/Model/Media.dart';

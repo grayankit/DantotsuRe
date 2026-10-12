@@ -103,10 +103,10 @@ class PlayerMediaSession implements MediaSessionAdapter {
           await engine.pause();
         case 'stop':
           await engine.pause();
-          await engine.player.seek(Duration.zero);
+          await engine.seek(Duration.zero);
         case 'seekTo':
           final at = action.seekPosition;
-          if (at != null) await engine.player.seek(at);
+          if (at != null) await engine.seek(at);
         case 'rewind':
           await engine.seekBy(Duration(seconds: -state.settings.seekDuration));
         case 'fastForward':

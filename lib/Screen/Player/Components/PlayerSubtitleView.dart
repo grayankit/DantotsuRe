@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../Core/Fonts/AppFonts.dart';
-import '../../../Core/Player/PlayerSettings.dart';
+import '../Engine/PlayerSettings.dart';
 import '../../../Core/State/State.dart';
 import '../../../Utils/Animation/WidgetAnimations.dart';
 

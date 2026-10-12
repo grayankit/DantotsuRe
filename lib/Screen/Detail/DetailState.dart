@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import '../../Core/Media/ResumeStore.dart';
+import 'Watch/Data/Media/ResumeStore.dart';
 import '../../Utils/Animation/WidgetAnimations.dart';
 
 import 'package:flutter/material.dart';

@@ -2,8 +2,8 @@ import 'package:dartotsu_extension_bridge/dartotsu_extension_bridge.dart';
 
 import 'package:flutter/material.dart';
 
-import '../../../Core/Backup/ExternalLists/ExternalList.dart';
-import '../../../Core/Backup/ExternalLists/ExternalListService.dart';
+import '../Backup/ExternalLists/ExternalList.dart';
+import '../Backup/ExternalLists/ExternalListService.dart';
 import '../../../Core/Services/MediaService.dart';
 import '../../../Utils/Extensions/ContextExtensions.dart';
 import '../../../Widgets/Components/AppControls.dart';

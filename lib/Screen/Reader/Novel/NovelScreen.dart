@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../Core/Fonts/AppFonts.dart';
-import '../../../Core/Reader/NovelText.dart';
-import '../../../Core/Reader/ReaderRequest.dart';
-import '../../../Core/Reader/ReaderSettings.dart';
+import '../Engine/NovelText.dart';
+import '../Engine/ReaderRequest.dart';
+import '../Engine/ReaderSettings.dart';
 import '../../../Core/State/State.dart';
 import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../../Model/Setting.dart';

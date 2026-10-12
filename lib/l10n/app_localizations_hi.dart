@@ -4447,6 +4447,9 @@ class AppLocalizationsHi extends AppLocalizations {
   String get playerResetDone => 'Player settings reset';
 
   @override
+  String get playerQuality => 'Quality';
+
+  @override
   String get playerStreams => 'Streams';
 
   @override

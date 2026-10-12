@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:dartotsu_extension_bridge/dartotsu_extension_bridge.dart';
 import 'package:flutter/material.dart';
 
-import '../../../Core/Reader/BorderCrop.dart';
-import '../../../Core/Reader/ReaderImageLoader.dart';
+import '../Engine/BorderCrop.dart';
+import '../Engine/ReaderImageLoader.dart';
 import '../../../Core/State/State.dart';
 import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../../Logger.dart';

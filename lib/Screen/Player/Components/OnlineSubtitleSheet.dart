@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../Core/Player/OnlineSubtitles.dart';
+import '../Engine/OnlineSubtitles.dart';
 import '../../../Core/State/State.dart';
 import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../../Logger.dart';

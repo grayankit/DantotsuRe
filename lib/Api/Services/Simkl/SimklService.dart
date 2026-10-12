@@ -10,7 +10,7 @@ import 'Screens/Entity.dart';
 import 'Screens/Settings.dart';
 import 'Screens/Social.dart';
 import '../../../Core/ThemeManager/LanguageSwitcher.dart';
-import '../../../Core/Sync/SyncAdapter.dart';
+import '../../../Screen/Settings/Sync/Data/SyncAdapter.dart';
 import 'Sync.dart';
 
 const simklServiceId = 'simkl';
