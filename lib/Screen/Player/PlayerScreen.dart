@@ -442,6 +442,13 @@ class _PlayerScreenState extends State<PlayerScreen>
           forward: false,
         ),
         PlayerSeekRipple(seconds: state.seekLabelForward.value, forward: true),
+        if (state.hasNext)
+          PlayerNextCard(
+            seconds: state.nextCountdown.value,
+            title: state.items[state.index.value + 1].title,
+            onCancel: state.cancelCountdown,
+            onPlay: state.playNextNow,
+          ),
         PlayerLevelIndicator(
           value: state.volume.value,
           icon: Icons.volume_up_rounded,

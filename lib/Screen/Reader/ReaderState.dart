@@ -232,7 +232,7 @@ class ReaderState extends ScreenState {
     }
   }
 
-  Future<void> _open(int index, {bool atEnd = false}) async {
+  Future<void> _open(int index, {bool atEnd = false, int? startPage}) async {
     final run = ++_openRun;
     loading.value = true;
     error.value = null;
@@ -244,7 +244,9 @@ class ReaderState extends ScreenState {
       _failedNext.clear();
       final saved = record.playback[unitKey(units[index])];
       var start = 0;
-      if (atEnd) {
+      if (startPage != null) {
+        start = startPage.clamp(0, pages.length - 1);
+      } else if (atEnd) {
         start = pages.length - 1;
       } else if (saved != null && !saved.finished && saved.position > 0) {
         start = saved.position.clamp(0, pages.length - 1);
@@ -275,10 +277,58 @@ class ReaderState extends ScreenState {
 
   void retry() => unawaited(_open(chapter));
 
-  void openChapter(int index, {bool atEnd = false}) {
+  void openChapter(int index, {bool atEnd = false, int? startPage}) {
     if (index < 0 || index >= units.length) return;
     _flushProgress();
-    unawaited(_open(index, atEnd: atEnd));
+    unawaited(_open(index, atEnd: atEnd, startPage: startPage));
+  }
+
+  final bookmarkTick = 0.live;
+
+  bool get bookmarked {
+    bookmarkTick.value;
+    final key = unitKey(unit);
+    final at = page;
+    return record.bookmarks.any((b) => b.unit == key && b.position == at);
+  }
+
+  void toggleBookmark() {
+    final key = unitKey(unit);
+    final at = page;
+    final existing = record.bookmarks
+        .where((b) => b.unit == key && b.position == at)
+        .toList();
+    if (existing.isNotEmpty) {
+      record.bookmarks.removeWhere((b) => b.unit == key && b.position == at);
+    } else {
+      record.bookmarks.add(
+        Bookmark(
+          unit: key,
+          position: at,
+          total: pageCount,
+          label: chapterTitle,
+          at: DateTime.now().millisecondsSinceEpoch,
+        ),
+      );
+    }
+    MediaRecords.save(request.service, request.media);
+    bookmarkTick.value++;
+  }
+
+  void removeBookmark(Bookmark b) {
+    record.bookmarks.remove(b);
+    MediaRecords.save(request.service, request.media);
+    bookmarkTick.value++;
+  }
+
+  void openBookmark(Bookmark b) {
+    final index = units.indexWhere((u) => unitKey(u) == b.unit);
+    if (index < 0) return;
+    if (index == chapter && _pagesOf(index) > 0) {
+      unawaited(go(flatIndexOf(index, b.position)));
+    } else {
+      openChapter(index, startPage: b.position);
+    }
   }
 
   void openNextChapter() => openChapter(chapter + 1);

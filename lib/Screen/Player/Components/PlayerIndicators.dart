@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../../Utils/Extensions/ContextExtensions.dart';
 import '../../../Utils/Animation/WidgetAnimations.dart';
 
@@ -185,6 +186,83 @@ class PlayerChip extends StatelessWidget {
                   ],
                 ),
               ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class PlayerNextCard extends StatelessWidget {
+  final int? seconds;
+  final String title;
+  final VoidCallback onCancel;
+  final VoidCallback onPlay;
+
+  const PlayerNextCard({
+    super.key,
+    required this.seconds,
+    required this.title,
+    required this.onCancel,
+    required this.onPlay,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final shown = seconds != null;
+    return Positioned(
+      right: 16,
+      bottom: 56,
+      child: IgnorePointer(
+        ignoring: !shown,
+        child: AnimatedOpacity(
+          opacity: shown ? 1 : 0,
+          duration: animDuration(200),
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 280),
+            padding: const EdgeInsets.fromLTRB(16, 12, 12, 12),
+            decoration: BoxDecoration(
+              color: Colors.black.withValues(alpha: 0.78),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: Colors.white12),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  getString.playerNextIn(seconds ?? 0),
+                  style: context.textTheme.labelLarge?.copyWith(
+                    color: Colors.white70,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: context.textTheme.titleSmall?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextButton(
+                      onPressed: onCancel,
+                      child: Text(getString.cancel),
+                    ),
+                    const SizedBox(width: 8),
+                    FilledButton(
+                      onPressed: onPlay,
+                      child: Text(getString.playerPlayNow),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         ),

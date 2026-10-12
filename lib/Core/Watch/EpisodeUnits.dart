@@ -132,6 +132,24 @@ List<WatchUnit> buildUnits(
   ];
 }
 
+void refreshUnit(
+  WatchUnit unit,
+  EpisodeMeta? meta, {
+  required String fallbackThumb,
+  required bool anime,
+}) {
+  final fresh = _unit(unit.raw, meta, fallbackThumb, anime);
+  unit
+    ..title = fresh.title
+    ..description = fresh.description
+    ..thumbnail = fresh.thumbnail
+    ..filler = fresh.filler
+    ..recap = fresh.recap
+    ..aired = fresh.aired
+    ..runtime = fresh.runtime
+    ..rating = fresh.rating;
+}
+
 WatchUnit _unit(DEpisode ep, EpisodeMeta? meta, String fallback, bool anime) {
   final value = double.tryParse(ep.episodeNumber) ?? 0;
   final own = ep.name?.trim();

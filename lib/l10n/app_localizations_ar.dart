@@ -4707,6 +4707,23 @@ class AppLocalizationsAr extends AppLocalizations {
       'Volume down goes forward, volume up goes back';
 
   @override
+  String get readerBookmarks => 'Bookmarks';
+
+  @override
+  String get readerBookmarkAdd => 'Add bookmark';
+
+  @override
+  String get readerBookmarkRemove => 'Remove bookmark';
+
+  @override
+  String get readerBookmarksEmpty => 'No bookmarks yet';
+
+  @override
+  String readerBookmarkPage(int page, int total) {
+    return 'Page $page of $total';
+  }
+
+  @override
   String get readerAutoScroll => 'Auto scroll';
 
   @override
@@ -5000,6 +5017,34 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get playerTimestamp => 'Timestamp';
+
+  @override
+  String get playerAutoPlayDelay => 'Next episode countdown';
+
+  @override
+  String playerNextIn(int seconds) {
+    return 'Next episode in ${seconds}s';
+  }
+
+  @override
+  String get playerPlayNow => 'Play now';
+
+  @override
+  String playerAutoSkipOn(String name) {
+    return '$name: will skip automatically for this title';
+  }
+
+  @override
+  String playerAutoSkipOff(String name) {
+    return '$name: will not skip automatically for this title';
+  }
+
+  @override
+  String get playerAudioLanguage => 'Preferred audio language';
+
+  @override
+  String get playerLanguageOrderHint =>
+      'Separate languages with commas. The first one found is used.';
 
   @override
   String playerAutoPlaying(String title) {

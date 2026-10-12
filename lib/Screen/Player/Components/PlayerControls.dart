@@ -312,12 +312,19 @@ class PlayerControls extends StatelessWidget {
                 if (!locked && (!compact || stamp != null))
                   FilledButton.tonalIcon(
                     onPressed: state.skipStamp,
+                    onLongPress: stamp != null && state.canRememberSkip
+                        ? () => state.toggleRememberedSkip(stamp)
+                        : null,
                     style: FilledButton.styleFrom(
                       backgroundColor: Colors.black.withValues(alpha: 0.35),
                       foregroundColor: Colors.white,
                       side: BorderSide(color: scheme.primary),
                     ),
-                    icon: const Icon(Icons.fast_forward_rounded),
+                    icon: Icon(
+                      stamp != null && state.skipRemembered(stamp)
+                          ? Icons.autorenew_rounded
+                          : Icons.fast_forward_rounded,
+                    ),
                     label: Text(
                       stamp?.name ?? '+${state.settings.skipDuration}s',
                     ),

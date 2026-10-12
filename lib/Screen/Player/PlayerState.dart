@@ -10,12 +10,18 @@ import 'package:volume_controller/volume_controller.dart';
 import 'package:window_manager/window_manager.dart';
 
 import '../../Core/Media/MediaRecord.dart';
+import '../../Core/Watch/EpisodeMeta.dart';
+import '../../Core/Watch/EpisodeMetaService.dart';
+import '../../Core/Watch/EpisodeUnits.dart';
+import '../../Core/Watch/MediaIdResolver.dart';
+import '../../Core/Watch/UnitLoader.dart';
 import '../../Core/Watch/TrackConfirm.dart';
 import '../../Core/Watch/WatchPrefs.dart';
 import '../../Core/Media/ResumeStore.dart';
 import '../../Core/Player/AniSkip.dart';
 import '../../Core/Player/LocalPlayback.dart';
 import '../../Core/Player/MpvFiles.dart';
+import '../../Core/Player/TrackPick.dart';
 import '../../Core/Player/SeekPreview.dart';
 import '../../Core/Player/PlayRequest.dart';
 import '../../Core/Player/ColorPresets.dart';
@@ -36,7 +42,9 @@ import '../../Utils/Functions/Wakelock.dart';
 const resizeFits = [BoxFit.contain, BoxFit.cover, BoxFit.fill];
 
 bool get isMobilePlatform => Platform.isAndroid || Platform.isIOS;
-bool get supportsBrightness => !Platform.isLinux;
+bool _linuxBacklight = false;
+
+bool get supportsBrightness => !Platform.isLinux || _linuxBacklight;
 
 class PlayerState extends ScreenState {
   final PlayRequest request;
@@ -119,6 +127,89 @@ class PlayerState extends ScreenState {
   Live<Media> get mediaLive => _mediaLive ??= request.media!.live;
 
   final progressTick = 0.live;
+  final nextCountdown = Live<int?>(null);
+  Timer? _countdownTimer;
+  final metaLoading = false.live;
+  int _metaGeneration = 0;
+  StreamSubscription<Map<String, EpisodeMeta>>? _metaSub;
+
+  bool get canPickMeta => record != null && request.media?.isAnime == true;
+
+  Future<void> loadMeta() async {
+    final rec = record;
+    final media = request.media;
+    final service = request.service;
+    if (rec == null || media == null || service == null || !media.isAnime) {
+      return;
+    }
+    final generation = ++_metaGeneration;
+    await _metaSub?.cancel();
+    final choice = rec.watch.metaSource;
+    if (choice == 'off') {
+      _applyMeta(const {});
+      return;
+    }
+    metaLoading.value = true;
+    try {
+      final ids = await MediaIdResolver.resolve(service, media);
+      if (generation != _metaGeneration || _closed) return;
+      final done = Completer<void>();
+      _metaSub = EpisodeMetaService.load(ids, only: choice).listen(
+        (merged) {
+          if (generation == _metaGeneration && !_closed) _applyMeta(merged);
+        },
+        onError: (Object e) => logger(
+          'Player metadata failed: $e',
+          logLevel: LogLevel.error,
+          tag: 'PLAYER',
+        ),
+        onDone: done.complete,
+      );
+      await done.future;
+    } catch (e) {
+      logger(
+        'Player metadata failed: $e',
+        logLevel: LogLevel.error,
+        tag: 'PLAYER',
+      );
+    } finally {
+      if (generation == _metaGeneration) metaLoading.value = false;
+    }
+  }
+
+  void _applyMeta(Map<String, EpisodeMeta> meta) {
+    final media = request.media;
+    if (media == null) return;
+    final fallback = media.banner ?? media.cover ?? '';
+    for (var i = 0; i < items.length; i++) {
+      final old = items[i];
+      final unit = old.unit;
+      if (unit == null) continue;
+      refreshUnit(
+        unit,
+        meta[episodeKey(unit.number)],
+        fallbackThumb: fallback,
+        anime: true,
+      );
+      items[i] = PlayItem(
+        key: old.key,
+        title: playTitleOf(unit),
+        subtitle: old.subtitle,
+        number: old.number,
+        episode: old.episode,
+        unit: unit,
+        fixed: old.fixed,
+      );
+    }
+    progressTick.value++;
+  }
+
+  Future<void> setMetaSource(String? choice) async {
+    final rec = record;
+    if (rec == null) return;
+    updateWatchSettings(rec.watch.copy()..metaSource = choice);
+    await loadMeta();
+  }
 
   void updateWatchSettings(MediaWatchSettings next) {
     final rec = record;
@@ -238,11 +329,13 @@ class PlayerState extends ScreenState {
     commentsScroll.dispose();
     _hideTimer?.cancel();
     _volumeTimer?.cancel();
+    _countdownTimer?.cancel();
     _brightnessTimer?.cancel();
     _seekForwardTimer?.cancel();
     _seekBackwardTimer?.cancel();
     _osdTimer?.cancel();
     _saveTimer?.cancel();
+    unawaited(_metaSub?.cancel());
     _positionSub?.dispose();
     _completedSub?.dispose();
     _playingSub?.dispose();
@@ -255,6 +348,9 @@ class PlayerState extends ScreenState {
       unawaited(ScreenBrightness.instance.resetApplicationScreenBrightness());
       SystemChrome.setPreferredOrientations(DeviceOrientation.values);
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    }
+    if (Platform.isLinux && _linuxBacklight) {
+      unawaited(ScreenBrightness.instance.resetApplicationScreenBrightness());
     }
     if (!keepOrientation) unawaited(setWakelock(false));
     if (!isMobilePlatform && fullscreen.value) {
@@ -279,7 +375,7 @@ class PlayerState extends ScreenState {
   }
 
   Future<void> _begin() async {
-    unawaited(_extendItems());
+    unawaited(_extendItems().then((_) => request.resume ? loadMeta() : null));
     await engine.configure();
     await loadItem(
       request.index,
@@ -305,6 +401,7 @@ class PlayerState extends ScreenState {
   }) async {
     if (next < 0 || next >= items.length) return;
     final generation = ++_generation;
+    cancelCountdown();
     _saveProgress(force: true);
     index.value = next;
     chunk.value = null;
@@ -473,19 +570,43 @@ class PlayerState extends ScreenState {
   }
 
   Future<void> _pickDefaultSubtitle(v.Video chosen) async {
+    await _pickDefaultAudio();
     if (!settings.showSubtitle) {
       await engine.noSubtitle();
       return;
     }
-    final wanted = settings.subtitleLanguage.toLowerCase();
+    final priority = languageList(settings.subtitleLanguage);
     final tracks = chosen.subtitles ?? const <v.Track>[];
-    final external = tracks.where((t) {
-      final label = (t.label ?? '').toLowerCase();
-      return label.isNotEmpty &&
-          (label == wanted || titleRatio(label, wanted) >= 80);
-    }).firstOrNull;
-    if (external?.file != null) {
-      await engine.addSubtitle(external!.file!, external.label ?? wanted);
+    for (final wanted in priority) {
+      final key = wanted.toLowerCase();
+      final external = tracks.where((t) {
+        final label = (t.label ?? '').toLowerCase();
+        return label.isNotEmpty &&
+            (label == key || titleRatio(label, key) >= 80);
+      }).firstOrNull;
+      if (external?.file != null) {
+        await engine.addSubtitle(external!.file!, external.label ?? wanted);
+        return;
+      }
+    }
+    final embedded = pickTrack(
+      engine.subtitleTracks.value,
+      priority,
+      avoidSigns: true,
+    );
+    if (embedded != null && embedded.id != engine.activeSubtitle.value) {
+      await engine.setSubtitle(embedded.id);
+    }
+  }
+
+  Future<void> _pickDefaultAudio() async {
+    final priority = languageList(settings.audioLanguage);
+    if (priority.isEmpty) return;
+    final tracks = engine.audioTracks.value;
+    if (tracks.length < 2) return;
+    final pick = pickTrack(tracks, priority);
+    if (pick != null && pick.id != engine.activeAudio.value) {
+      await engine.setAudio(pick.id);
     }
   }
 
@@ -517,14 +638,36 @@ class PlayerState extends ScreenState {
     }
   }
 
+  bool _wantsSkip(SkipKind kind) =>
+      record?.skips[kind.name] ??
+      switch (kind) {
+        SkipKind.opening => settings.autoSkipOpening,
+        SkipKind.ending => settings.autoSkipEnding,
+        SkipKind.recap => settings.autoSkipRecap,
+        SkipKind.other => false,
+      };
+
+  void toggleRememberedSkip(SkipStamp stamp) {
+    final rec = record;
+    if (rec == null || stamp.kind == SkipKind.other) return;
+    final next = !_wantsSkip(stamp.kind);
+    rec.skips[stamp.kind.name] = next;
+    MediaRecords.save(request.service!, request.media!);
+    progressTick.value++;
+    flashOsd(
+      next
+          ? getString.playerAutoSkipOn(stamp.name)
+          : getString.playerAutoSkipOff(stamp.name),
+    );
+  }
+
+  bool get canRememberSkip => record != null;
+
+  bool skipRemembered(SkipStamp stamp) =>
+      record?.skips[stamp.kind.name] == true;
+
   void _autoSkip(SkipStamp stamp) {
-    final wanted = switch (stamp.kind) {
-      SkipKind.opening => settings.autoSkipOpening,
-      SkipKind.ending => settings.autoSkipEnding,
-      SkipKind.recap => settings.autoSkipRecap,
-      SkipKind.other => false,
-    };
-    if (!wanted) return;
+    if (!_wantsSkip(stamp.kind)) return;
     if (settings.skipOnce && !_skipped.add(stamp.kind)) return;
     unawaited(engine.seek(Duration(seconds: stamp.end.ceil())));
   }
@@ -557,6 +700,32 @@ class PlayerState extends ScreenState {
 
   void _onCompleted() {
     if (!settings.autoPlay || !hasNext || loading.value) return;
+    final delay = settings.autoPlayDelay;
+    if (delay <= 0) {
+      playNextNow();
+      return;
+    }
+    nextCountdown.value = delay;
+    _countdownTimer?.cancel();
+    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      final left = (nextCountdown.value ?? 1) - 1;
+      if (left <= 0) {
+        playNextNow();
+      } else {
+        nextCountdown.value = left;
+      }
+    });
+  }
+
+  void cancelCountdown() {
+    _countdownTimer?.cancel();
+    _countdownTimer = null;
+    nextCountdown.value = null;
+  }
+
+  void playNextNow() {
+    cancelCountdown();
+    if (!hasNext || loading.value) return;
     snackString(getString.playerAutoPlaying(items[index.value + 1].title));
     unawaited(loadItem(index.value + 1));
   }
@@ -838,6 +1007,10 @@ class PlayerState extends ScreenState {
       } else {
         volume.value = playerVolumePref.value.clamp(0.0, 1.0);
         await engine.player.setVolume(volume.value * 100);
+      }
+      if (Platform.isLinux) {
+        _linuxBacklight =
+            await ScreenBrightness.instance.canChangeSystemBrightness;
       }
       if (supportsBrightness) {
         brightness.value = await ScreenBrightness.instance.application;

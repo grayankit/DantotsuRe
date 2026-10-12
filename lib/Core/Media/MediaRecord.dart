@@ -75,6 +75,43 @@ class StreamPrefs {
 Iterable<MapEntry<dynamic, dynamic>> _entries(Object? value) =>
     value is Map ? value.entries : const [];
 
+class Bookmark {
+  final String unit;
+  final int position;
+  final int total;
+  final String label;
+  final int at;
+
+  const Bookmark({
+    required this.unit,
+    required this.position,
+    required this.total,
+    required this.label,
+    required this.at,
+  });
+
+  Map<String, Object?> toJson() => {
+    'unit': unit,
+    'position': position,
+    'total': total,
+    'label': label,
+    'at': at,
+  };
+
+  static Bookmark? fromJson(Object? json) {
+    if (json is! Map) return null;
+    final unit = json['unit'];
+    if (unit is! String) return null;
+    return Bookmark(
+      unit: unit,
+      position: (json['position'] as num?)?.toInt() ?? 0,
+      total: (json['total'] as num?)?.toInt() ?? 0,
+      label: '${json['label'] ?? ''}',
+      at: (json['at'] as num?)?.toInt() ?? 0,
+    );
+  }
+}
+
 class MediaRecord {
   MediaWatchSettings watch;
   final Map<String, SourceMatchRecord> matches;
@@ -85,6 +122,8 @@ class MediaRecord {
   Map<String, Object?> reader;
   int? commentsId;
   bool saveProgress;
+  Map<String, bool> skips;
+  List<Bookmark> bookmarks;
 
   MediaRecord({
     MediaWatchSettings? watch,
@@ -96,7 +135,11 @@ class MediaRecord {
     Map<String, Object?>? reader,
     this.commentsId,
     this.saveProgress = true,
-  }) : watch = watch ?? MediaWatchSettings(),
+    Map<String, bool>? skips,
+    List<Bookmark>? bookmarks,
+  }) : skips = skips ?? {},
+       bookmarks = bookmarks ?? [],
+       watch = watch ?? MediaWatchSettings(),
        matches = matches ?? {},
        playback = playback ?? {},
        streams = streams ?? StreamPrefs(),
@@ -114,6 +157,8 @@ class MediaRecord {
     'reader': reader,
     'commentsId': commentsId,
     'saveProgress': saveProgress,
+    'skips': skips,
+    'bookmarks': [for (final b in bookmarks) b.toJson()],
   };
 
   factory MediaRecord.fromJson(Map<dynamic, dynamic> json) {
@@ -145,6 +190,15 @@ class MediaRecord {
           : null,
       commentsId: (json['commentsId'] as num?)?.toInt(),
       saveProgress: json['saveProgress'] != false,
+      skips: {
+        for (final e in _entries(json['skips']))
+          if (e.value is bool) '${e.key}': e.value as bool,
+      },
+      bookmarks: [
+        for (final e
+            in json['bookmarks'] is List ? json['bookmarks'] as List : const [])
+          ?Bookmark.fromJson(e),
+      ],
     );
   }
 }

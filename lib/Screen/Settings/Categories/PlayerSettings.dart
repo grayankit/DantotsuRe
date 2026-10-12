@@ -114,6 +114,15 @@ List<Setting> playerSettingsRows(
       s.autoPlay,
       (v) => update((x) => x.autoPlay = v),
     ),
+    sliderSetting(
+      getString.playerAutoPlayDelay,
+      s.autoPlayDelay == 0 ? getString.off : '${s.autoPlayDelay}s',
+      Icons.timer_outlined,
+      s.autoPlayDelay,
+      0,
+      15,
+      (v) => update((x) => x.autoPlayDelay = v),
+    ),
     switchSetting(
       getString.playerResume,
       getString.playerResumeDesc,
@@ -216,7 +225,7 @@ List<Setting> playerSettingsRows(
             .setCustomView(
               TextField(
                 controller: controller,
-                decoration: const InputDecoration(hintText: 'English'),
+                decoration: const InputDecoration(hintText: 'English, Spanish'),
               ),
             )
             .setNegativeButton(getString.cancel, null)
@@ -224,6 +233,34 @@ List<Setting> playerSettingsRows(
               final value = controller.text.trim();
               if (value.isNotEmpty) update((x) => x.subtitleLanguage = value);
             })
+            .show();
+      },
+    ),
+    Setting.normal(
+      name: getString.playerAudioLanguage,
+      description: s.audioLanguage.isEmpty
+          ? getString.settingDefault
+          : s.audioLanguage,
+      icon: Icons.record_voice_over_rounded,
+      isActivity: true,
+      onClick: () {
+        final controller = TextEditingController(text: s.audioLanguage);
+        AlertDialogBuilder(context)
+            .setTitle(getString.playerAudioLanguage)
+            .setMessage(getString.playerLanguageOrderHint)
+            .setCustomView(
+              TextField(
+                controller: controller,
+                decoration: const InputDecoration(
+                  hintText: 'Japanese, English',
+                ),
+              ),
+            )
+            .setNegativeButton(getString.cancel, null)
+            .setPositiveButton(
+              getString.ok,
+              () => update((x) => x.audioLanguage = controller.text.trim()),
+            )
             .show();
       },
     ),

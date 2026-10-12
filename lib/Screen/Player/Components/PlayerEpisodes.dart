@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../Core/State/State.dart';
+import '../../../Core/Watch/EpisodeMetaService.dart';
 import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../../Core/Watch/EpisodeUnits.dart';
 import '../../../Core/Watch/LocalProgress.dart';
@@ -10,6 +11,7 @@ import '../../../Utils/Extensions/Responsive.dart';
 import '../../../Utils/Functions/NavigateToScreen.dart';
 import '../../../Widgets/Components/AppControls.dart';
 import '../../../Widgets/Components/AppSheet.dart';
+import '../../../Widgets/Components/ChoiceSheet.dart';
 import '../../../Widgets/Components/CustomBottomDialog.dart';
 import '../../Detail/Watch/Components/RangeBar.dart';
 import '../../Detail/Watch/Components/UnitLayout.dart';
@@ -94,6 +96,24 @@ class PlayerEpisodes extends StatelessWidget {
     );
   }
 
+  Future<void> _pickMeta(BuildContext context) async {
+    final current = state.record?.watch.metaSource ?? 'auto';
+    final picked = await showChoiceSheet<String>(
+      context,
+      title: getString.watchMetaSource,
+      icon: Icons.dataset_rounded,
+      selected: current,
+      options: [
+        ChoiceOption('auto', getString.watchMetaAuto),
+        for (final p in EpisodeMetaService.ordered())
+          if (EpisodeMetaService.enabled(p.id)) ChoiceOption(p.id, p.name),
+        ChoiceOption('off', getString.watchMetaOff),
+      ],
+    );
+    if (picked == null || picked == current) return;
+    await state.setMetaSource(picked == 'auto' ? null : picked);
+  }
+
   Widget _header(BuildContext context, int count) => Row(
     children: [
       Expanded(
@@ -104,6 +124,28 @@ class PlayerEpisodes extends StatelessWidget {
           ),
         ),
       ),
+      if (state.metaLoading.value)
+        Padding(
+          padding: const EdgeInsets.only(right: 8),
+          child: SizedBox(
+            width: 16,
+            height: 16,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              color: context.colorScheme.primary,
+            ),
+          ),
+        ),
+      if (state.canPickMeta)
+        IconButton(
+          tooltip: getString.watchMetaSource,
+          onPressed: () => _pickMeta(context),
+          icon: Icon(switch (state.record?.watch.metaSource) {
+            null => Icons.auto_awesome_rounded,
+            'off' => Icons.hide_image_outlined,
+            _ => Icons.image_search_rounded,
+          }),
+        ),
       IconButton(
         tooltip: getString.watchOptions,
         onPressed: () => showCustomBottomDialog<void>(

@@ -18,6 +18,7 @@ import '../../../Widgets/Components/EmptyState.dart';
 import '../../../Widgets/Components/ScreenState.dart';
 import '../../Settings/Categories/ReaderSettings.dart';
 import '../../Settings/Widgets/SettingsGroup.dart';
+import '../Components/BookmarksSheet.dart';
 import '../Components/ReaderSheets.dart';
 import 'NovelState.dart';
 import '../../../Utils/Animation/WidgetAnimations.dart';
@@ -293,6 +294,30 @@ class _NovelScreenState extends State<NovelScreen>
                 : Icons.play_circle_outline_rounded,
           ),
         ),
+        IconButton(
+          tooltip: state.bookmarked
+              ? getString.readerBookmarkRemove
+              : getString.readerBookmarkAdd,
+          onPressed: state.toggleBookmark,
+          icon: Icon(
+            state.bookmarked
+                ? Icons.bookmark_rounded
+                : Icons.bookmark_border_rounded,
+          ),
+        ),
+        if (state.record.bookmarks.isNotEmpty)
+          IconButton(
+            tooltip: getString.readerBookmarks,
+            onPressed: () => showBookmarks(
+              context,
+              record: state.record,
+              tick: state.bookmarkTick,
+              detail: (b) => '${(b.position * 100 / b.total).round()}%',
+              onOpen: state.openBookmark,
+              onRemove: state.removeBookmark,
+            ),
+            icon: const Icon(Icons.bookmarks_outlined),
+          ),
         IconButton(
           tooltip: getString.readerChapters,
           onPressed: () => showChapterList(

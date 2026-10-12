@@ -102,7 +102,7 @@ class NovelState extends ScreenState {
     );
   }
 
-  Future<void> _open(int target) async {
+  Future<void> _open(int target, {double? jump}) async {
     final run = ++_run;
     _save();
     loading.value = true;
@@ -119,9 +119,11 @@ class NovelState extends ScreenState {
       if (parsed.isEmpty) throw StateError(getString.readerNoText);
       blocks.value = parsed;
       final saved = record.playback[unit.number];
-      _restore = saved != null && !saved.finished && saved.position > 0
-          ? saved.position / _scale
-          : null;
+      _restore =
+          jump ??
+          (saved != null && !saved.finished && saved.position > 0
+              ? saved.position / _scale
+              : null);
       loading.value = false;
       _scheduleRestore();
     } catch (e, st) {
@@ -157,6 +159,57 @@ class NovelState extends ScreenState {
     }
 
     attempt();
+  }
+
+  final bookmarkTick = 0.live;
+
+  bool get bookmarked {
+    bookmarkTick.value;
+    final key = unit.number;
+    final at = (fraction.value * _scale).round();
+    return record.bookmarks.any(
+      (b) => b.unit == key && (b.position - at).abs() <= _scale ~/ 100,
+    );
+  }
+
+  void toggleBookmark() {
+    final key = unit.number;
+    final at = (fraction.value * _scale).round();
+    final near = record.bookmarks
+        .where((b) => b.unit == key && (b.position - at).abs() <= _scale ~/ 100)
+        .toList();
+    if (near.isNotEmpty) {
+      record.bookmarks.removeWhere(near.contains);
+    } else {
+      record.bookmarks.add(
+        Bookmark(
+          unit: key,
+          position: at,
+          total: _scale,
+          label: title,
+          at: DateTime.now().millisecondsSinceEpoch,
+        ),
+      );
+    }
+    MediaRecords.save(request.service, request.media);
+    bookmarkTick.value++;
+  }
+
+  void removeBookmark(Bookmark b) {
+    record.bookmarks.remove(b);
+    MediaRecords.save(request.service, request.media);
+    bookmarkTick.value++;
+  }
+
+  void openBookmark(Bookmark b) {
+    final index = units.indexWhere((u) => u.number == b.unit);
+    if (index < 0) return;
+    final target = b.position / _scale;
+    if (index == this.index.value && !loading.value) {
+      seekTo(target);
+    } else {
+      unawaited(_open(index, jump: target));
+    }
   }
 
   void retry() => unawaited(_open(index.value));

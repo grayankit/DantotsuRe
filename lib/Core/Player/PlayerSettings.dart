@@ -47,6 +47,8 @@ class PlayerSettings {
   set autoPlay(bool v) => _v['autoPlay'] = v;
   bool get resume => _get('resume', true);
   set resume(bool v) => _v['resume'] = v;
+  int get autoPlayDelay => _get('autoPlayDelay', 5);
+  set autoPlayDelay(int v) => _v['autoPlayDelay'] = v;
   bool get autoSkipOpening => _get('autoSkipOpening', false);
   set autoSkipOpening(bool v) => _v['autoSkipOpening'] = v;
   bool get autoSkipEnding => _get('autoSkipEnding', false);
@@ -72,6 +74,8 @@ class PlayerSettings {
   set showSubtitle(bool v) => _v['showSubtitle'] = v;
   String get subtitleLanguage => _get('subtitleLanguage', 'English');
   set subtitleLanguage(String v) => _v['subtitleLanguage'] = v;
+  String get audioLanguage => _get('audioLanguage', '');
+  set audioLanguage(String v) => _v['audioLanguage'] = v;
   int get subtitleSize => _get('subtitleSize', 32);
   set subtitleSize(int v) => _v['subtitleSize'] = v;
   int get subtitleColor => _get('subtitleColor', 0xFFFFFFFF);

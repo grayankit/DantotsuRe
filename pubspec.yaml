@@ -80,7 +80,8 @@ dependencies:
   wakelock_plus: ^1.6.1
   flutter_media_session: ^3.0.9
   volume_controller: ^3.7.1
-  screen_brightness: ^2.1.11
+  screen_brightness:
+    path: ../screen_brightness/screen_brightness
   app_links: ^7.2.2
   win32: ^6.4.0
   ffi: ^2.2.0

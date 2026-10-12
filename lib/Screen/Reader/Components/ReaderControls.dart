@@ -6,6 +6,7 @@ import '../../../Utils/Animation/WidgetAnimations.dart';
 import '../../../Utils/Extensions/ContextExtensions.dart';
 import '../../../Utils/Functions/NavigateToScreen.dart';
 import '../ReaderState.dart';
+import 'BookmarksSheet.dart';
 import 'ReaderSheets.dart';
 
 class ReaderControls extends StatelessWidget {
@@ -117,6 +118,29 @@ class ReaderControls extends StatelessWidget {
                     ? getString.readerAutoScrollStop
                     : getString.readerAutoScroll,
               ),
+              _icon(
+                state.bookmarked
+                    ? Icons.bookmark_rounded
+                    : Icons.bookmark_border_rounded,
+                state.toggleBookmark,
+                tooltip: state.bookmarked
+                    ? getString.readerBookmarkRemove
+                    : getString.readerBookmarkAdd,
+              ),
+              if (state.record.bookmarks.isNotEmpty)
+                _icon(
+                  Icons.bookmarks_outlined,
+                  () => showBookmarks(
+                    context,
+                    record: state.record,
+                    tick: state.bookmarkTick,
+                    detail: (b) =>
+                        getString.readerBookmarkPage(b.position + 1, b.total),
+                    onOpen: state.openBookmark,
+                    onRemove: state.removeBookmark,
+                  ),
+                  tooltip: getString.readerBookmarks,
+                ),
               _icon(
                 Icons.format_list_numbered_rounded,
                 () => showChapterList(

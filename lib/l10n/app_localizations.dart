@@ -8651,6 +8651,36 @@ abstract class AppLocalizations {
   /// **'Volume down goes forward, volume up goes back'**
   String get readerVolumeKeysDesc;
 
+  /// No description provided for @readerBookmarks.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmarks'**
+  String get readerBookmarks;
+
+  /// No description provided for @readerBookmarkAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add bookmark'**
+  String get readerBookmarkAdd;
+
+  /// No description provided for @readerBookmarkRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove bookmark'**
+  String get readerBookmarkRemove;
+
+  /// No description provided for @readerBookmarksEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No bookmarks yet'**
+  String get readerBookmarksEmpty;
+
+  /// No description provided for @readerBookmarkPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {page} of {total}'**
+  String readerBookmarkPage(int page, int total);
+
   /// No description provided for @readerAutoScroll.
   ///
   /// In en, this message translates to:
@@ -9196,6 +9226,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Timestamp'**
   String get playerTimestamp;
+
+  /// No description provided for @playerAutoPlayDelay.
+  ///
+  /// In en, this message translates to:
+  /// **'Next episode countdown'**
+  String get playerAutoPlayDelay;
+
+  /// No description provided for @playerNextIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Next episode in {seconds}s'**
+  String playerNextIn(int seconds);
+
+  /// No description provided for @playerPlayNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Play now'**
+  String get playerPlayNow;
+
+  /// No description provided for @playerAutoSkipOn.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}: will skip automatically for this title'**
+  String playerAutoSkipOn(String name);
+
+  /// No description provided for @playerAutoSkipOff.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}: will not skip automatically for this title'**
+  String playerAutoSkipOff(String name);
+
+  /// No description provided for @playerAudioLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Preferred audio language'**
+  String get playerAudioLanguage;
+
+  /// No description provided for @playerLanguageOrderHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Separate languages with commas. The first one found is used.'**
+  String get playerLanguageOrderHint;
 
   /// No description provided for @playerAutoPlaying.
   ///
