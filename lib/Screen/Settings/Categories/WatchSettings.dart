@@ -53,6 +53,13 @@ List<Setting> watchSettings(BuildContext context) => [
     ),
   ),
   Setting.header(getString.watchSettingsLayout),
+  Setting.switchType(
+    name: getString.watchResumeShelf,
+    description: getString.watchResumeShelfDesc,
+    icon: Icons.history_rounded,
+    isChecked: watchResumeShelfPref.rx.value,
+    onSwitchChange: (v) => watchResumeShelfPref.rx.value = v,
+  ),
   segmentedSetting<int>(
     name: getString.watchLayout,
     description: getString.watchDefaultLayoutDesc,
@@ -110,6 +117,34 @@ List<Setting> watchSettings(BuildContext context) => [
   ),
   Setting.header(getString.watchSettingsSources),
   segmentedSetting<String>(
+    name: getString.trackProgressSettingAnime,
+    description: getString.trackProgressSettingDesc,
+    icon: Icons.play_circle_outline_rounded,
+    label: getString.trackProgressSettingAnime,
+    value: trackAnimePref.rx.value,
+    onChanged: (v) => trackAnimePref.rx.value = v,
+    segments: [
+      AppSegment('ask', label: getString.trackProgressAsk),
+      AppSegment('always', label: getString.trackProgressAlways),
+      AppSegment('never', label: getString.trackProgressLocal),
+      AppSegment('off', label: getString.trackProgressOff),
+    ],
+  ),
+  segmentedSetting<String>(
+    name: getString.trackProgressSettingManga,
+    description: getString.trackProgressSettingDesc,
+    icon: Icons.menu_book_rounded,
+    label: getString.trackProgressSettingManga,
+    value: trackMangaPref.rx.value,
+    onChanged: (v) => trackMangaPref.rx.value = v,
+    segments: [
+      AppSegment('ask', label: getString.trackProgressAsk),
+      AppSegment('always', label: getString.trackProgressAlways),
+      AppSegment('never', label: getString.trackProgressLocal),
+      AppSegment('off', label: getString.trackProgressOff),
+    ],
+  ),
+  segmentedSetting<String>(
     name: getString.watchMatching,
     description: getString.watchMatchingDesc,
     icon: Icons.search_rounded,
@@ -145,9 +180,9 @@ class _MetaProviders extends StatelessWidget {
   Widget build(BuildContext context) => Watch(() {
     watchMetaDisabledPref.rx.value;
     final list = EpisodeMetaService.ordered();
-    final scheme = context.colorScheme;
     return ReorderableListView(
       shrinkWrap: true,
+      buildDefaultDragHandles: false,
       physics: const NeverScrollableScrollPhysics(),
       onReorder: (from, to) {
         final ids = [for (final p in list) p.id];
@@ -157,22 +192,32 @@ class _MetaProviders extends StatelessWidget {
         EpisodeMetaService.clearCache();
       },
       children: [
-        for (final provider in list)
-          SwitchListTile(
-            key: ValueKey(provider.id),
-            contentPadding: EdgeInsets.zero,
-            title: Text(provider.name),
-            subtitle: Text(
-              metaProviderDescription(provider),
-              style: TextStyle(color: scheme.onSurfaceVariant),
-            ),
-            value: EpisodeMetaService.enabled(provider.id),
-            onChanged: (on) {
-              EpisodeMetaService.setEnabled(provider.id, on);
-              EpisodeMetaService.clearCache();
-            },
-          ),
+        for (var i = 0; i < list.length; i++) _row(context, list[i], i),
       ],
     );
   });
+
+  Widget _row(BuildContext context, EpisodeMetaProvider provider, int index) {
+    final scheme = context.colorScheme;
+    return SwitchListTile(
+      key: ValueKey(provider.id),
+      contentPadding: EdgeInsets.zero,
+      secondary: ReorderableDragStartListener(
+        index: index,
+        child: Icon(Icons.drag_indicator_rounded, color: scheme.outline),
+      ),
+      title: Text(provider.name),
+      subtitle: Text(
+        metaProviderDescription(provider),
+        style: context.textTheme.bodySmall?.copyWith(
+          color: scheme.onSurfaceVariant,
+        ),
+      ),
+      value: EpisodeMetaService.enabled(provider.id),
+      onChanged: (on) {
+        EpisodeMetaService.setEnabled(provider.id, on);
+        EpisodeMetaService.clearCache();
+      },
+    );
+  }
 }

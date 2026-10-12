@@ -5,6 +5,7 @@ import '../../../../Core/Sync/SyncController.dart';
 import '../../../../Core/Sync/SyncModels.dart';
 import '../../../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../../../Utils/Extensions/ContextExtensions.dart';
+import '../../../../Utils/Functions/NavigateToScreen.dart';
 import '../../../../Widgets/Components/AppSheet.dart';
 import '../../../../Widgets/Components/CustomBottomDialog.dart';
 import '../../../../Widgets/Components/SheetTile.dart';
@@ -65,7 +66,7 @@ class _Preview extends StatelessWidget {
               children: [
                 Expanded(
                   child: TextButton(
-                    onPressed: () => Navigator.of(context).pop(false),
+                    onPressed: () => popPage(context, false),
                     child: Text(getString.cancel),
                   ),
                 ),
@@ -75,9 +76,7 @@ class _Preview extends StatelessWidget {
                     style: FilledButton.styleFrom(
                       backgroundColor: scheme.primary,
                     ),
-                    onPressed: total == 0
-                        ? null
-                        : () => Navigator.of(context).pop(true),
+                    onPressed: total == 0 ? null : () => popPage(context, true),
                     child: Text(getString.syncStart),
                   ),
                 ),
@@ -150,7 +149,7 @@ class _PairSheet extends StatelessWidget {
                 title: Text(getString.syncRetry),
                 onTap: () {
                   state.retry(pair);
-                  Navigator.of(context).pop();
+                  popPage(context);
                 },
               ),
             if (pair.state != SyncStatus.unmapped)
@@ -163,7 +162,7 @@ class _PairSheet extends StatelessWidget {
                 ),
                 onTap: () {
                   state.skip(service, pair, !skipped);
-                  Navigator.of(context).pop();
+                  popPage(context);
                 },
               ),
           ],

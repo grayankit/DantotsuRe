@@ -7,7 +7,6 @@ import 'package:flutter/widgets.dart' show GlobalKey;
 
 import 'package:dartotsu_extension_bridge/dartotsu_extension_bridge.dart';
 import 'package:flutter/services.dart';
-import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../../Core/Media/MediaRecord.dart';
 import '../../Core/Media/ResumeStore.dart';
@@ -22,6 +21,9 @@ import '../../Core/Watch/EpisodeUnits.dart';
 import '../../Logger.dart';
 import '../../Widgets/Components/ScreenState.dart';
 import '../Detail/Watch/Components/UnitTile.dart';
+import '../../Utils/Functions/Wakelock.dart';
+import '../../Core/Reader/VolumeKeys.dart';
+import '../../Core/Watch/TrackConfirm.dart';
 
 class ReaderState extends ScreenState {
   final ReaderRequest request;
@@ -45,6 +47,9 @@ class ReaderState extends ScreenState {
 
   Future<void> Function(int index)? jumper;
   Future<void> Function(double fraction)? scroller;
+  void Function(double pixels)? nudger;
+  final autoScrolling = false.live;
+  Timer? _autoTimer;
 
   Timer? _saveTimer;
   int _openRun = 0;
@@ -145,18 +150,25 @@ class ReaderState extends ScreenState {
     _saveTimer?.cancel();
     _shotTimer?.cancel();
     _hideTimer?.cancel();
+    _autoTimer?.cancel();
+    unawaited(VolumeKeys.disable());
     _flushProgress();
     unawaited(snapshot());
-    WakelockPlus.disable();
+    unawaited(setWakelock(false));
     SystemChrome.setPreferredOrientations(DeviceOrientation.values);
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   }
 
   void _applySystem() {
-    if (settings.keepOn) {
-      WakelockPlus.enable();
+    if (settings.volumeKeys) {
+      unawaited(VolumeKeys.enable(move));
     } else {
-      WakelockPlus.disable();
+      unawaited(VolumeKeys.disable());
+    }
+    if (settings.keepOn) {
+      unawaited(setWakelock(true));
+    } else {
+      unawaited(setWakelock(false));
     }
     SystemChrome.setEnabledSystemUIMode(
       settings.fullscreen
@@ -430,11 +442,20 @@ class ReaderState extends ScreenState {
     });
   }
 
+  final _unsaved = <String>{};
+
+  void _discard(WatchUnit unit) {
+    _unsaved.add(unitKey(unit));
+    record.playback.remove(unitKey(unit));
+    MediaRecords.save(request.service, request.media);
+  }
+
   void _flushProgress() {
     _saveTimer?.cancel();
     if (segments.isEmpty || !settings.saveProgress || isIncognito) return;
     final it = item;
     if (it is! ReaderPage && it is! ReaderSpread) return;
+    if (_unsaved.contains(unitKey(unit))) return;
     final count = pageCount;
     if (count <= 0) return;
     record.playback[unitKey(unit)] = Playback(
@@ -463,6 +484,16 @@ class ReaderState extends ScreenState {
     if (!record.saveProgress || isIncognito || mutations == null) return;
     final target = units[chapterIndex].value.floor();
     if (target <= 0 || target <= (media.userProgress ?? 0)) return;
+    final choice = await confirmTracking(
+      context,
+      anime: false,
+      name: media.mainName,
+    );
+    if (choice == TrackChoice.none) {
+      _discard(units[chapterIndex]);
+      return;
+    }
+    if (choice == TrackChoice.local) return;
     try {
       await mutations.setProgress(media, target);
       media.userProgress = target;
@@ -490,6 +521,7 @@ class ReaderState extends ScreenState {
     if (settings.scrolls) spreads.value = false;
     _rebuild();
     if (settings.mode != before) generation.value++;
+    if (autoScrolling.value) setAutoScroll(true, hide: false);
   }
 
   void setPerTitle(bool value) {
@@ -518,6 +550,34 @@ class ReaderState extends ScreenState {
   Future<void> go(int index, {bool animate = true}) async {
     if (index < 0 || index >= items.length) return;
     await jumper?.call(index);
+  }
+
+  void move(int direction) {
+    if (settings.scrolls) {
+      unawaited(scroller?.call(0.85 * direction) ?? Future.value());
+    } else {
+      step(direction);
+    }
+  }
+
+  void toggleAutoScroll() => setAutoScroll(!autoScrolling.value);
+
+  void setAutoScroll(bool on, {bool hide = true}) {
+    _autoTimer?.cancel();
+    autoScrolling.value = on;
+    if (!on) return;
+    if (hide) hideControls();
+    final speed = settings.autoScrollSpeed.clamp(1, 10);
+    if (settings.scrolls) {
+      const frame = Duration(milliseconds: 16);
+      final pixels = (20 + speed * 25) * frame.inMilliseconds / 1000;
+      _autoTimer = Timer.periodic(frame, (_) => nudger?.call(pixels));
+    } else {
+      _autoTimer = Timer.periodic(
+        Duration(seconds: 12 - speed),
+        (_) => step(1),
+      );
+    }
   }
 
   void step(int delta) {

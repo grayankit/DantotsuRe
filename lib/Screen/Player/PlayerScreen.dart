@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:media_kit_video/media_kit_video.dart';
@@ -148,29 +149,26 @@ class _PlayerScreenState extends State<PlayerScreen>
           final top = MediaQuery.paddingOf(context).top;
           final height = (box.maxWidth * 9 / 16).clamp(
             0.0,
-            box.maxHeight * 0.6,
+            box.maxHeight * 0.7,
           );
+          final stage = ColoredBox(
+            color: Colors.black,
+            child: Padding(
+              padding: EdgeInsets.only(top: top),
+              child: SizedBox(
+                height: height,
+                width: double.infinity,
+                child: _stage(context, compact: true),
+              ),
+            ),
+          );
+          if (!state.commentsOpen.value) {
+            return _episodes(context, scheme, stage);
+          }
           return Column(
             children: [
-              ColoredBox(
-                color: Colors.black,
-                child: Padding(
-                  padding: EdgeInsets.only(top: top),
-                  child: SizedBox(
-                    height: height,
-                    width: double.infinity,
-                    child: _stage(context, compact: true),
-                  ),
-                ),
-              ),
-              Expanded(
-                child: Stack(
-                  children: [
-                    Positioned.fill(child: _episodes(context, scheme)),
-                    Positioned.fill(child: _commentsLayer(context, scheme)),
-                  ],
-                ),
-              ),
+              stage,
+              Expanded(child: _commentsLayer(context, scheme)),
             ],
           );
         }),
@@ -178,13 +176,14 @@ class _PlayerScreenState extends State<PlayerScreen>
     );
   }
 
-  Widget _episodes(BuildContext context, ColorScheme scheme) {
+  Widget _episodes(BuildContext context, ColorScheme scheme, Widget stage) {
     final tracked = widget.request.media != null;
     final item = state.item;
     final media = widget.request.media;
     return CustomScrollView(
       controller: state.pageScroll,
       slivers: [
+        SliverToBoxAdapter(child: stage),
         SliverToBoxAdapter(
           child: Padding(
             padding: EdgeInsets.fromLTRB(
@@ -198,17 +197,25 @@ class _PlayerScreenState extends State<PlayerScreen>
               children: [
                 Text(
                   item.title,
-                  style: context.textTheme.titleMedium?.copyWith(
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: context.textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.w800,
+                    height: 1.2,
                   ),
                 ),
-                if ((media?.mainName ?? item.subtitle) != null)
+                if ((media?.mainName ?? item.subtitle) != null) ...[
+                  SizedBox(height: Dimens.gapXs),
                   Text(
                     media?.mainName ?? item.subtitle!,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: context.textTheme.bodyMedium?.copyWith(
-                      color: scheme.onSurfaceVariant,
+                      color: scheme.primary,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
+                ],
               ],
             ),
           ),
@@ -217,16 +224,29 @@ class _PlayerScreenState extends State<PlayerScreen>
         if (tracked)
           SliverToBoxAdapter(
             child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: Dimens.pagePad,
-                vertical: Dimens.gapSm,
+              padding: EdgeInsets.fromLTRB(
+                Dimens.pagePad,
+                Dimens.gapSm,
+                Dimens.pagePad,
+                Dimens.gapSm,
               ),
-              child: SizedBox(
-                width: double.infinity,
-                child: FilledButton.tonalIcon(
-                  onPressed: () => state.commentsOpen.value = true,
-                  icon: const Icon(Icons.forum_rounded),
-                  label: Text(getString.playerShowComments),
+              child: Material(
+                color: scheme.surfaceContainerHigh,
+                borderRadius: Dimens.borderSm,
+                clipBehavior: Clip.antiAlias,
+                child: ListTile(
+                  onTap: () => state.commentsOpen.value = true,
+                  leading: Icon(Icons.forum_rounded, color: scheme.primary),
+                  title: Text(
+                    getString.playerShowComments,
+                    style: context.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  trailing: Icon(
+                    Icons.keyboard_arrow_right_rounded,
+                    color: scheme.onSurfaceVariant,
+                  ),
                 ),
               ),
             ),
@@ -251,6 +271,8 @@ class _PlayerScreenState extends State<PlayerScreen>
         avatar: Icon(icon, size: 18),
         label: Text(label),
         onPressed: onTap,
+        side: BorderSide.none,
+        backgroundColor: context.colorScheme.surfaceContainerHigh,
       ),
     );
     return SizedBox(
@@ -292,7 +314,7 @@ class _PlayerScreenState extends State<PlayerScreen>
           ),
           chip(
             Icons.video_settings_rounded,
-            getString.playerSettingsTitle,
+            getString.playerSettingsChip,
             () => showPlayerOptions(context, state),
           ),
         ],
@@ -408,7 +430,7 @@ class _PlayerScreenState extends State<PlayerScreen>
         Positioned.fill(
           child: AnimatedOpacity(
             opacity: visible ? 1 : 0,
-            duration: const Duration(milliseconds: 220),
+            duration: animDuration(220),
             child: IgnorePointer(
               ignoring: !visible,
               child: PlayerControls(state: state, compact: compact),
@@ -426,12 +448,13 @@ class _PlayerScreenState extends State<PlayerScreen>
           shown: state.volumeShown.value,
           left: false,
         ),
-        PlayerLevelIndicator(
-          value: state.brightness.value,
-          icon: Icons.brightness_6_rounded,
-          shown: state.brightnessShown.value,
-          left: true,
-        ),
+        if (supportsBrightness)
+          PlayerLevelIndicator(
+            value: state.brightness.value,
+            icon: Icons.brightness_6_rounded,
+            shown: state.brightnessShown.value,
+            left: true,
+          ),
         PlayerChip(
           text: state.holdActive.value
               ? '${state.holdSpeedValue.value}x'
@@ -500,9 +523,16 @@ class _PlayerScreenState extends State<PlayerScreen>
   }
 
   Widget _gestures(BuildContext context, double width) {
-    return GestureDetector(
+    final pad = GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: state.toggleControls,
+      onTap: () {
+        if (isMobilePlatform || state.locked.value) {
+          state.toggleControls();
+          return;
+        }
+        unawaited(state.engine.toggle());
+        state.showControls();
+      },
       onDoubleTapDown: (d) {
         if (state.locked.value) return;
         _lastTapDown = d.localPosition;
@@ -527,15 +557,23 @@ class _PlayerScreenState extends State<PlayerScreen>
           state.holdMove(d.localPosition.dx - _holdStart.dx),
       onLongPressEnd: (_) => state.holdEnd(),
       onVerticalDragUpdate: (d) {
-        if (state.locked.value || !isMobilePlatform) return;
+        if (state.locked.value) return;
         final delta = -d.delta.dy / 300;
-        if (d.localPosition.dx < width / 2) {
+        if (supportsBrightness && d.localPosition.dx < width / 2) {
           state.changeBrightness(delta);
         } else {
           state.changeVolume(delta);
         }
       },
       child: const SizedBox.expand(),
+    );
+    return Listener(
+      onPointerSignal: (e) {
+        if (e is PointerScrollEvent && !state.locked.value) {
+          state.changeVolume(-e.scrollDelta.dy / 1500);
+        }
+      },
+      child: pad,
     );
   }
 
@@ -561,8 +599,9 @@ class _PlayerScreenState extends State<PlayerScreen>
           (engine.player.state.volume +
                   (key == LogicalKeyboardKey.arrowUp ? 5 : -5))
               .clamp(0.0, 100.0);
+      state.volume.value = next / 100;
+      state.volumeShown.value = true;
       unawaited(engine.player.setVolume(next));
-      state.flashOsd('${next.round()}%');
     } else if (key == LogicalKeyboardKey.keyF) {
       unawaited(state.toggleFullscreen());
     } else if (key == LogicalKeyboardKey.keyN) {

@@ -221,7 +221,9 @@ class _ShaderSheetState extends State<ShaderSheet> {
                         problem,
                         maxLines: 3,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(color: scheme.error),
+                        style: context.textTheme.bodySmall?.copyWith(
+                          color: scheme.error,
+                        ),
                       )
                     : null,
                 selected: chosen == name && profile != customShaderProfile,

@@ -24,6 +24,11 @@ const watchMarkOnLongPressPref = Pref(
   PrefLocation.OTHER,
 );
 
+const watchResumeShelfPref = Pref('watchResumeShelf', true, PrefLocation.OTHER);
+
+const trackAnimePref = Pref('trackProgressAnime', 'ask', PrefLocation.OTHER);
+const trackMangaPref = Pref('trackProgressManga', 'ask', PrefLocation.OTHER);
+
 class MediaWatchSettings {
   int? viewType;
   bool reverse;

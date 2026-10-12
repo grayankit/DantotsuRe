@@ -347,10 +347,10 @@ Future<void> showPlayerOptions(BuildContext context, PlayerState state) =>
           child: SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(8, 0, 8, 24),
             child: Watch(() {
-              final tick = state.settingsVersion.value;
+              state.settingsVersion.value;
               final perTitle = state.perTitle.value;
               return SettingsGroup(
-                key: ValueKey(tick),
+                key: ValueKey(perTitle),
                 settings: [
                   if (state.request.tracked)
                     Setting.switchType(

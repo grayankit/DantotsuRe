@@ -17,6 +17,8 @@ import '../../../Core/Player/ColorPresets.dart';
 import '../../../Core/Player/ColorShader.dart';
 import 'ColorSheet.dart';
 import 'ShaderSheet.dart';
+import '../../../Utils/Animation/WidgetAnimations.dart';
+import '../../../Utils/Extensions/ContextExtensions.dart';
 
 class ShaderPreview extends StatefulWidget {
   final Uint8List frame;
@@ -170,35 +172,38 @@ class _ShaderPreviewState extends State<ShaderPreview> {
     });
   }
 
-  Widget _slider(String label, int value, ColorValues Function(int v) build) =>
-      Row(
-        children: [
-          SizedBox(
-            width: 92,
-            child: Text(
-              label,
-              style: const TextStyle(color: Colors.white70, fontSize: 12),
-            ),
-          ),
-          Expanded(
-            child: Slider(
-              value: value.toDouble(),
-              min: -100,
-              max: 100,
-              divisions: 100,
-              onChanged: (v) => _pickColor(build(v.round())),
-            ),
-          ),
-          SizedBox(
-            width: 34,
-            child: Text(
-              '$value',
-              textAlign: TextAlign.end,
-              style: const TextStyle(color: Colors.white70, fontSize: 12),
-            ),
-          ),
-        ],
-      );
+  Widget _slider(
+    String label,
+    int value,
+    ColorValues Function(int v) build,
+  ) => Row(
+    children: [
+      SizedBox(
+        width: 92,
+        child: Text(
+          label,
+          style: context.textTheme.bodySmall?.copyWith(color: Colors.white70),
+        ),
+      ),
+      Expanded(
+        child: Slider(
+          value: value.toDouble(),
+          min: -100,
+          max: 100,
+          divisions: 100,
+          onChanged: (v) => _pickColor(build(v.round())),
+        ),
+      ),
+      SizedBox(
+        width: 34,
+        child: Text(
+          '$value',
+          textAlign: TextAlign.end,
+          style: context.textTheme.bodySmall?.copyWith(color: Colors.white70),
+        ),
+      ),
+    ],
+  );
 
   Future<void> _reload() async {
     await _apply();
@@ -313,7 +318,9 @@ class _ShaderPreviewState extends State<ShaderPreview> {
                     _problem.value!,
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(color: Colors.white, fontSize: 12),
+                    style: context.textTheme.bodySmall?.copyWith(
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),
@@ -322,7 +329,7 @@ class _ShaderPreviewState extends State<ShaderPreview> {
             const Center(child: CircularProgressIndicator(color: Colors.white)),
           AnimatedOpacity(
             opacity: controls ? 1 : 0,
-            duration: const Duration(milliseconds: 200),
+            duration: animDuration(200),
             child: IgnorePointer(
               ignoring: !controls,
               child: Column(
@@ -348,7 +355,7 @@ class _ShaderPreviewState extends State<ShaderPreview> {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       child: Text(
         text,
-        style: const TextStyle(color: Colors.white, fontSize: 12),
+        style: context.textTheme.bodySmall?.copyWith(color: Colors.white),
       ),
     ),
   );
@@ -377,10 +384,9 @@ class _ShaderPreviewState extends State<ShaderPreview> {
                 chosen.isEmpty ? getString.playerShadersOff : chosen,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
+                style: context.textTheme.titleMedium?.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.w700,
-                  fontSize: 16,
                 ),
               ),
             ),

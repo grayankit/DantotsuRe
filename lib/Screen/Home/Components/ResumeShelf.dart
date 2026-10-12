@@ -101,7 +101,7 @@ class _ResumeCard extends StatelessWidget {
       children: [
         PosterCard(
           title: entry.mediaTitle,
-          subtitle: '${_unit()}  •  ${_left()}',
+          subtitle: '${_unit()} • ${_left()}',
           imageUrl: entry.thumbnail,
           progress: entry.fraction.clamp(0.0, 1.0),
           progressText: _left(),

@@ -55,7 +55,7 @@ class ReaderSettings {
   set doublePage(bool v) => _v['doublePage'] = v;
   bool get doubleTapZoom => _get('doubleTapZoom', true);
   set doubleTapZoom(bool v) => _v['doubleTapZoom'] = v;
-  String get background => _get('background', 'black');
+  String get background => _get('background', 'theme');
   set background(String v) => _v['background'] = v;
   bool get pageNumber => _get('pageNumber', true);
   set pageNumber(bool v) => _v['pageNumber'] = v;
@@ -79,6 +79,12 @@ class ReaderSettings {
   set pageGap(int v) => _v['pageGap'] = v;
   String get orientation => _get('orientation', 'free');
   set orientation(String v) => _v['orientation'] = v;
+  bool get cropBorders => _get('cropBorders', false);
+  set cropBorders(bool v) => _v['cropBorders'] = v;
+  bool get volumeKeys => _get('volumeKeys', false);
+  set volumeKeys(bool v) => _v['volumeKeys'] = v;
+  int get autoScrollSpeed => _get('autoScrollSpeed', 4);
+  set autoScrollSpeed(int v) => _v['autoScrollSpeed'] = v;
   bool get saveProgress => _get('saveProgress', true);
   set saveProgress(bool v) => _v['saveProgress'] = v;
 
@@ -96,6 +102,12 @@ class ReaderSettings {
   set novelJustify(bool v) => _v['novelJustify'] = v;
   bool get novelBold => _get('novelBold', false);
   set novelBold(bool v) => _v['novelBold'] = v;
+  bool get novelIndent => _get('novelIndent', false);
+  set novelIndent(bool v) => _v['novelIndent'] = v;
+  int get novelLetterSpacing => _get('novelLetterSpacing', 0);
+  set novelLetterSpacing(int v) => _v['novelLetterSpacing'] = v;
+  bool get novelTapPaging => _get('novelTapPaging', false);
+  set novelTapPaging(bool v) => _v['novelTapPaging'] = v;
   int get novelParagraph => _get('novelParagraph', 12);
   set novelParagraph(int v) => _v['novelParagraph'] = v;
 }

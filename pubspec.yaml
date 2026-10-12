@@ -46,7 +46,6 @@ dependencies:
   flutter_cache_manager: ^3.4.1
   precached_network_image: ^1.4.1
   flutter_svg: ^2.3.0
-  flex_color_picker: ^4.0.0
   skeletonizer: ^3.0.0
   blurbox: ^0.0.6
   markdown_widget: ^2.3.2+8
@@ -79,6 +78,7 @@ dependencies:
   permission_handler: ^13.0.2
   flutter_local_notifications: ^22.3.1
   wakelock_plus: ^1.6.1
+  flutter_media_session: ^3.0.9
   volume_controller: ^3.7.1
   screen_brightness: ^2.1.11
   app_links: ^7.2.2

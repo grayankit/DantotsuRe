@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../Core/Reader/ReaderSettings.dart';
+import '../../../Core/Reader/VolumeKeys.dart';
 import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../../Model/Setting.dart';
 import '../Widgets/SettingRows.dart';
@@ -128,6 +129,13 @@ List<Setting> mangaReaderRows(
       ),
     ],
     switchSetting(
+      getString.readerCropBorders,
+      getString.readerCropBordersDesc,
+      Icons.crop_rounded,
+      s.cropBorders,
+      (v) => update((x) => x.cropBorders = v),
+    ),
+    switchSetting(
       getString.readerAutoNext,
       getString.readerAutoNextDesc,
       Icons.skip_next_rounded,
@@ -160,6 +168,23 @@ List<Setting> mangaReaderRows(
       s.invertTaps,
       (v) => update((x) => x.invertTaps = v),
     ),
+    sliderSetting(
+      getString.readerAutoScrollSpeed,
+      getString.readerAutoScrollSpeedDesc,
+      Icons.speed_rounded,
+      s.autoScrollSpeed,
+      1,
+      10,
+      (v) => update((x) => x.autoScrollSpeed = v),
+    ),
+    if (VolumeKeys.supported)
+      switchSetting(
+        getString.readerVolumeKeys,
+        getString.readerVolumeKeysDesc,
+        Icons.volume_up_rounded,
+        s.volumeKeys,
+        (v) => update((x) => x.volumeKeys = v),
+      ),
     Setting.header(getString.readerSectionDisplay),
     choiceSetting<String>(
       context,
@@ -278,6 +303,15 @@ List<Setting> novelReaderRows(
       64,
       (v) => update((x) => x.novelMargin = v),
     ),
+    sliderSetting(
+      getString.novelLetterSpacing,
+      (s.novelLetterSpacing / 10).toStringAsFixed(1),
+      Icons.space_bar_rounded,
+      s.novelLetterSpacing,
+      0,
+      20,
+      (v) => update((x) => x.novelLetterSpacing = v),
+    ),
     choiceSetting<String>(
       context,
       name: getString.novelTheme,
@@ -294,6 +328,37 @@ List<Setting> novelReaderRows(
       s.novelJustify,
       (v) => update((x) => x.novelJustify = v),
     ),
+    switchSetting(
+      getString.novelIndent,
+      getString.novelIndentDesc,
+      Icons.format_indent_increase_rounded,
+      s.novelIndent,
+      (v) => update((x) => x.novelIndent = v),
+    ),
+    switchSetting(
+      getString.novelTapPaging,
+      getString.novelTapPagingDesc,
+      Icons.touch_app_rounded,
+      s.novelTapPaging,
+      (v) => update((x) => x.novelTapPaging = v),
+    ),
+    sliderSetting(
+      getString.readerAutoScrollSpeed,
+      getString.readerAutoScrollSpeedDesc,
+      Icons.speed_rounded,
+      s.autoScrollSpeed,
+      1,
+      10,
+      (v) => update((x) => x.autoScrollSpeed = v),
+    ),
+    if (VolumeKeys.supported)
+      switchSetting(
+        getString.readerVolumeKeys,
+        getString.readerVolumeKeysDesc,
+        Icons.volume_up_rounded,
+        s.volumeKeys,
+        (v) => update((x) => x.volumeKeys = v),
+      ),
     switchSetting(
       getString.novelBold,
       getString.novelBoldDesc,

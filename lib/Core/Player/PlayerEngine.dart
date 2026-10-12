@@ -71,6 +71,8 @@ class PlayerEngine {
   final subtitleDelay = 0.0.live;
   final audioDelay = 0.0.live;
   String? source;
+  String? previewTarget;
+  Map<String, String> previewHeaders = const {};
   final buffering = true.live;
   final completed = false.live;
   final rate = 1.0.live;
@@ -208,10 +210,7 @@ class PlayerEngine {
       'audio-pitch-correction',
       settings.pitchCorrection ? 'yes' : 'no',
     );
-    if (settings.audioOutput != 'auto') await set('ao', settings.audioOutput);
-    if (settings.audioChannels != 'auto') {
-      await set('audio-channels', settings.audioChannels);
-    }
+    await applyAudioOutput(initial: true);
     await set('network-timeout', 30);
     if (settings.tuning) {
       await set('video-sync', settings.videoSync);
@@ -248,6 +247,31 @@ class PlayerEngine {
   }
 
   List<String> _shaderFiles = const [];
+  Future<void> applyAudioOutput({bool initial = false}) async {
+    final mpv = native;
+    if (mpv == null) return;
+    Future<void> set(String key, String value) async {
+      try {
+        await mpv.setProperty(key, value);
+      } catch (e, st) {
+        logError('PlayerEngine', e, st, 'mpv $key=$value failed');
+      }
+    }
+
+    if (settings.audioOutput != 'auto' || !initial) {
+      await set(
+        'ao',
+        settings.audioOutput == 'auto' ? '' : settings.audioOutput,
+      );
+    }
+    if (settings.audioDevice != 'auto' || !initial) {
+      await set('audio-device', settings.audioDevice);
+    }
+    if (settings.audioChannels != 'auto' || !initial) {
+      await set('audio-channels', settings.audioChannels);
+    }
+  }
+
   Future<void> applySubtitleStyle() async {
     final mpv = native;
     if (mpv == null || !settings.useLibass) return;
@@ -392,6 +416,8 @@ class PlayerEngine {
     for (final key in sent.keys.toList()) {
       if (key.toLowerCase() == 'user-agent') agent = sent.remove(key);
     }
+    previewTarget = target;
+    previewHeaders = {...sent, 'User-Agent': agent ?? _defaultAgent};
     try {
       await native?.setProperty('user-agent', agent ?? _defaultAgent);
     } catch (e) {

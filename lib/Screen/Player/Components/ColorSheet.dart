@@ -81,23 +81,18 @@ class _ColorSheetState extends State<ColorSheet> {
               ),
             ),
           const SizedBox(height: 12),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
+          AppChoiceChips<String>(
+            options: [
               for (final key in colorPresets.keys)
-                ChoiceChip(
-                  label: Text(colorPresetLabel(key)),
-                  selected: current == key,
-                  onSelected: (_) => _set(colorPresets[key]!),
-                ),
+                AppSegment(key, label: colorPresetLabel(key)),
               if (current == 'custom')
-                ChoiceChip(
-                  label: Text(getString.playerColorCustom),
-                  selected: true,
-                  onSelected: (_) {},
-                ),
+                AppSegment('custom', label: getString.playerColorCustom),
             ],
+            value: current,
+            onChanged: (key) {
+              final preset = colorPresets[key];
+              if (preset != null) _set(preset);
+            },
           ),
           const SizedBox(height: 12),
           _slider(

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../Core/Fonts/AppFonts.dart';
 import '../../../Core/Player/PlayerSettings.dart';
 import '../../../Core/State/State.dart';
+import '../../../Utils/Animation/WidgetAnimations.dart';
 
 class PlayerSubtitleView extends StatelessWidget {
   final List<String> lines;
@@ -29,7 +30,7 @@ class PlayerSubtitleView extends StatelessWidget {
     if (text.isEmpty || !settings.showSubtitle) return const SizedBox.shrink();
     final outline = Color(settings.subtitleOutlineColor);
     return AnimatedPositioned(
-      duration: const Duration(milliseconds: 200),
+      duration: animDuration(200),
       left: 16,
       right: 16,
       top: 0,

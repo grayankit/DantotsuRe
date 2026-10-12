@@ -7,14 +7,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:volume_controller/volume_controller.dart';
-import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:window_manager/window_manager.dart';
 
 import '../../Core/Media/MediaRecord.dart';
+import '../../Core/Watch/TrackConfirm.dart';
+import '../../Core/Watch/WatchPrefs.dart';
 import '../../Core/Media/ResumeStore.dart';
 import '../../Core/Player/AniSkip.dart';
 import '../../Core/Player/LocalPlayback.dart';
 import '../../Core/Player/MpvFiles.dart';
+import '../../Core/Player/SeekPreview.dart';
 import '../../Core/Player/PlayRequest.dart';
 import '../../Core/Player/ColorPresets.dart';
 import '../../Core/Player/PlayerEngine.dart';
@@ -28,10 +30,13 @@ import '../../Core/Watch/TitleMatch.dart';
 import '../../Logger.dart';
 import '../../Utils/Functions/SnackBar.dart';
 import '../../Widgets/Components/ScreenState.dart';
+import 'PlayerMediaSession.dart';
+import '../../Utils/Functions/Wakelock.dart';
 
 const resizeFits = [BoxFit.contain, BoxFit.cover, BoxFit.fill];
 
 bool get isMobilePlatform => Platform.isAndroid || Platform.isIOS;
+bool get supportsBrightness => !Platform.isLinux;
 
 class PlayerState extends ScreenState {
   final PlayRequest request;
@@ -70,6 +75,8 @@ class PlayerState extends ScreenState {
   late final perTitle = (record?.player.isNotEmpty ?? false).live;
   final scrubbing = false.live;
   final scrubPosition = Duration.zero.live;
+  final previewAt = Live<Duration?>(null);
+  final seekPreview = SeekPreview();
   final commentsOpen = false.live;
   final episodeTag = Live<int?>(null);
   final pageScroll = ScrollController();
@@ -93,8 +100,11 @@ class PlayerState extends ScreenState {
   Disposer? _completedSub;
   Disposer? _playingSub;
   int _generation = 0;
+  late final mediaSession = PlayerMediaSession(this);
   int _lastSave = -1;
   bool _watchedMarked = false;
+  bool _tracking = true;
+  bool _localSave = true;
   bool _preloading = false;
   List<v.Video>? _nextStreams;
   int? _nextFor;
@@ -109,6 +119,14 @@ class PlayerState extends ScreenState {
   Live<Media> get mediaLive => _mediaLive ??= request.media!.live;
 
   final progressTick = 0.live;
+
+  void updateWatchSettings(MediaWatchSettings next) {
+    final rec = record;
+    if (rec == null) return;
+    rec.watch = next;
+    MediaRecords.save(request.service!, request.media!);
+    progressTick.value++;
+  }
 
   late final items = request.items.toList().liveList;
 
@@ -138,7 +156,7 @@ class PlayerState extends ScreenState {
     fit.value = resizeFits[settings.resizeMode.clamp(0, 2)];
     index.value = request.index;
     _tagEpisode(request.index);
-    WakelockPlus.enable();
+    unawaited(setWakelock(true));
     if (isMobilePlatform) {
       SystemChrome.setPreferredOrientations(DeviceOrientation.values);
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
@@ -148,7 +166,20 @@ class PlayerState extends ScreenState {
     }
     _bindEngine();
     focus.requestFocus();
+    unawaited(mediaSession.start());
     unawaited(_begin());
+  }
+
+  void previewTo(Duration? at) {
+    previewAt.value = at;
+    if (at == null || !settings.seekPreview) return;
+    final target = engine.previewTarget;
+    if (target == null || engine.duration.value <= Duration.zero) return;
+    unawaited(
+      seekPreview.open(target, engine.previewHeaders).then((_) {
+        if (previewAt.value != null) seekPreview.seek(previewAt.value!);
+      }),
+    );
   }
 
   void _bindEngine() {
@@ -160,6 +191,7 @@ class PlayerState extends ScreenState {
       if (done) _onCompleted();
     });
     _playingSub = engine.playing.listen((_) => _scheduleHide());
+    mediaSession.rebind();
   }
 
   Future<void> _watchRender(int generation) async {
@@ -215,6 +247,8 @@ class PlayerState extends ScreenState {
     _completedSub?.dispose();
     _playingSub?.dispose();
     _saveProgress(force: true);
+    unawaited(seekPreview.dispose());
+    unawaited(mediaSession.dispose());
     unawaited(_snapshotAndDispose());
     focus.dispose();
     if (isMobilePlatform && !keepOrientation) {
@@ -222,7 +256,7 @@ class PlayerState extends ScreenState {
       SystemChrome.setPreferredOrientations(DeviceOrientation.values);
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     }
-    if (!keepOrientation) WakelockPlus.disable();
+    if (!keepOrientation) unawaited(setWakelock(false));
     if (!isMobilePlatform && fullscreen.value) {
       unawaited(windowManager.setFullScreen(false));
     }
@@ -284,6 +318,8 @@ class PlayerState extends ScreenState {
     _preloading = false;
     _lastSave = -1;
     try {
+      await _confirmTracking();
+      if (generation != _generation) return;
       List<v.Video> list;
       if (preset != null) {
         list = preset;
@@ -557,7 +593,7 @@ class PlayerState extends ScreenState {
   void _saveProgress({bool force = false}) {
     final position = engine.position.value.inSeconds;
     final total = engine.duration.value.inSeconds;
-    if (total <= 0 || position <= 0) return;
+    if (total <= 0 || position <= 0 || !_localSave) return;
     if (!force && position == _lastSave) return;
     _lastSave = position;
     final entry = Playback(position: position, duration: total);
@@ -587,7 +623,31 @@ class PlayerState extends ScreenState {
     }
   }
 
+  Future<void> _confirmTracking() async {
+    final rec = record;
+    final media = request.media;
+    if (rec == null ||
+        media == null ||
+        !media.isAnime ||
+        !rec.saveProgress ||
+        isIncognito ||
+        request.service?.getMutations == null) {
+      _tracking = true;
+      _localSave = true;
+      return;
+    }
+    if (trackAnimePref.value == 'ask') unawaited(engine.player.pause());
+    final choice = await confirmTracking(
+      context,
+      anime: true,
+      name: media.mainName,
+    );
+    _tracking = choice == TrackChoice.service;
+    _localSave = choice != TrackChoice.none;
+  }
+
   Future<void> _trackProgress() async {
+    if (!_tracking) return;
     final rec = record;
     final media = request.media;
     final mutations = request.service?.getMutations;
@@ -616,6 +676,7 @@ class PlayerState extends ScreenState {
   void updateSettings(void Function(PlayerSettings s) change) {
     change(settings);
     unawaited(engine.applySubtitleStyle());
+    unawaited(engine.applyAudioOutput());
     final rec = record;
     if (rec != null && perTitle.value) {
       rec.player = settings.diff(PlayerPrefs.global.value);
@@ -771,21 +832,31 @@ class PlayerState extends ScreenState {
 
   Future<void> _initVolumeAndBrightness() async {
     try {
-      VolumeController.instance.showSystemUI = false;
-      volume.value = await VolumeController.instance.getVolume();
-      brightness.value = await ScreenBrightness.instance.application;
+      if (isMobilePlatform) {
+        VolumeController.instance.showSystemUI = false;
+        volume.value = await VolumeController.instance.getVolume();
+      } else {
+        volume.value = (engine.player.state.volume / 100).clamp(0.0, 1.0);
+      }
+      if (supportsBrightness) {
+        brightness.value = await ScreenBrightness.instance.application;
+      }
     } catch (e, st) {
       logError('PlayerState', e, st);
     }
   }
 
   void changeVolume(double delta) {
-    if (!isMobilePlatform || !settings.adjustVolume) return;
+    if (!settings.adjustVolume) return;
     final next = (volume.value + delta).clamp(0.0, 1.0);
     volume.value = next;
     volumeShown.value = true;
     try {
-      VolumeController.instance.setVolume(next);
+      if (isMobilePlatform) {
+        VolumeController.instance.setVolume(next);
+      } else {
+        unawaited(engine.player.setVolume(next * 100));
+      }
     } catch (e, st) {
       logError('PlayerState', e, st);
     }
@@ -797,14 +868,16 @@ class PlayerState extends ScreenState {
   }
 
   void changeBrightness(double delta) {
-    if (!isMobilePlatform || !settings.adjustBrightness) return;
+    if (!supportsBrightness || !settings.adjustBrightness) return;
     final next = (brightness.value + delta).clamp(0.0, 1.0);
     brightness.value = next;
     brightnessShown.value = true;
     unawaited(
       ScreenBrightness.instance
           .setApplicationScreenBrightness(next)
-          .catchError((_) {}),
+          .catchError(
+            (Object e, StackTrace st) => logError('PlayerState', e, st),
+          ),
     );
     _brightnessTimer?.cancel();
     _brightnessTimer = Timer(

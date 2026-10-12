@@ -32,6 +32,7 @@ class ListEditorSession {
   bool get canRemove {
     final local = mutations;
     return media.userListId != null ||
+        media.userStatus != null ||
         (local is LocalMutations && local.has(media));
   }
 

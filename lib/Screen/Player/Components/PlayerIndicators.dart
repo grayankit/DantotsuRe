@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../Utils/Extensions/ContextExtensions.dart';
+import '../../../Utils/Animation/WidgetAnimations.dart';
 
 class PlayerLevelIndicator extends StatelessWidget {
   final double value;
@@ -28,7 +29,7 @@ class PlayerLevelIndicator extends StatelessWidget {
         child: Center(
           child: AnimatedOpacity(
             opacity: shown ? 1 : 0,
-            duration: const Duration(milliseconds: 200),
+            duration: animDuration(200),
             child: Container(
               width: 44,
               height: 180,
@@ -77,43 +78,52 @@ class PlayerSeekRipple extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.sizeOf(context).width;
     return Positioned(
       top: 0,
       bottom: 0,
-      left: forward ? null : 0,
-      right: forward ? 0 : null,
-      width: MediaQuery.sizeOf(context).width * 0.28,
+      left: forward ? null : width * 0.08,
+      right: forward ? width * 0.08 : null,
+      width: width * 0.26,
       child: IgnorePointer(
-        child: AnimatedOpacity(
-          opacity: seconds > 0 ? 1 : 0,
-          duration: const Duration(milliseconds: 180),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.14),
-              borderRadius: BorderRadius.horizontal(
-                left: Radius.circular(forward ? 400 : 0),
-                right: Radius.circular(forward ? 0 : 400),
+        child: Center(
+          child: AnimatedScale(
+            scale: seconds > 0 ? 1 : 0.8,
+            duration: animDuration(180),
+            curve: Curves.easeOutBack,
+            child: AnimatedOpacity(
+              opacity: seconds > 0 ? 1 : 0,
+              duration: animDuration(180),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 18,
+                  vertical: 12,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.55),
+                  borderRadius: BorderRadius.circular(28),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      forward
+                          ? Icons.fast_forward_rounded
+                          : Icons.fast_rewind_rounded,
+                      color: Colors.white,
+                      size: 30,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '${forward ? '+' : '-'}${seconds}s',
+                      style: context.textTheme.titleMedium?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  forward
-                      ? Icons.fast_forward_rounded
-                      : Icons.fast_rewind_rounded,
-                  color: Colors.white,
-                  size: 36,
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  '${seconds}s',
-                  style: context.textTheme.titleMedium?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ],
             ),
           ),
         ),
@@ -147,7 +157,7 @@ class PlayerChip extends StatelessWidget {
             padding: margin,
             child: AnimatedOpacity(
               opacity: text == null ? 0 : 1,
-              duration: const Duration(milliseconds: 200),
+              duration: animDuration(200),
               child: Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 14,

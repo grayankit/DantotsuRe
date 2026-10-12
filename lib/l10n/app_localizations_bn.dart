@@ -171,6 +171,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get colorPickerCustom => 'কাস্টম';
 
   @override
+  String get colorPickerTransparent => 'Transparent';
+
+  @override
   String get ltr => 'Left To Right';
 
   @override
@@ -3689,6 +3692,12 @@ class AppLocalizationsBn extends AppLocalizations {
       'Blur the thumbnail of episodes you have not watched yet';
 
   @override
+  String get watchResumeShelf => 'Resume shelf';
+
+  @override
+  String get watchResumeShelfDesc => 'Show the Resume row on Home';
+
+  @override
   String get watchMarkOnLongPress => 'Long press marks progress';
 
   @override
@@ -4686,6 +4695,33 @@ class AppLocalizationsBn extends AppLocalizations {
   String get readerFullscreenDesc => 'Hide the system bars';
 
   @override
+  String get readerCropBorders => 'Crop borders';
+
+  @override
+  String get readerCropBordersDesc =>
+      'Trim blank white or black margins from pages';
+
+  @override
+  String get readerVolumeKeys => 'Volume keys turn pages';
+
+  @override
+  String get readerVolumeKeysDesc =>
+      'Volume down goes forward, volume up goes back';
+
+  @override
+  String get readerAutoScroll => 'Auto scroll';
+
+  @override
+  String get readerAutoScrollStop => 'Stop auto scroll';
+
+  @override
+  String get readerAutoScrollSpeed => 'Auto scroll speed';
+
+  @override
+  String get readerAutoScrollSpeedDesc =>
+      'How fast pages scroll or turn on their own';
+
+  @override
   String get readerKeepOn => 'Keep screen on';
 
   @override
@@ -4755,6 +4791,154 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get novelJustifyDesc => 'Align text to both edges';
+
+  @override
+  String get trackProgressTitle => 'Save progress?';
+
+  @override
+  String trackProgressAnime(String name) {
+    return 'Track $name on your list as you watch? Choose \"This device only\" to keep it local, or No to save nothing.';
+  }
+
+  @override
+  String trackProgressManga(String name) {
+    return 'Track $name on your list when you finish a chapter? Choose \"This device only\" to keep it local, or No to save nothing.';
+  }
+
+  @override
+  String get trackProgressRemember => 'Remember my choice';
+
+  @override
+  String get trackProgressYes => 'Save';
+
+  @override
+  String get trackProgressReset =>
+      'Save progress prompt reset for this type, it will ask again';
+
+  @override
+  String get trackProgressNo => 'No';
+
+  @override
+  String get trackProgressOff => 'Off';
+
+  @override
+  String get trackProgressLocal => 'This device only';
+
+  @override
+  String get trackProgressSettingAnime => 'Track anime progress';
+
+  @override
+  String get trackProgressSettingManga => 'Track manga and novel progress';
+
+  @override
+  String get trackProgressSettingDesc =>
+      'What to do when you open an episode or finish a chapter';
+
+  @override
+  String get trackProgressAsk => 'Ask';
+
+  @override
+  String get trackProgressAlways => 'Always';
+
+  @override
+  String get trackProgressNever => 'Never';
+
+  @override
+  String get dantotsuImport => 'Import from Dantotsu';
+
+  @override
+  String get dantotsuImportDesc =>
+      'Read a Dantotsu settings backup (.ani, or encrypted .sani)';
+
+  @override
+  String get dantotsuPick => 'Choose a Dantotsu backup';
+
+  @override
+  String get dantotsuNothing => 'Nothing in this file can be imported';
+
+  @override
+  String get dantotsuApply => 'Import selected';
+
+  @override
+  String dantotsuDone(int done, int total) {
+    return 'Imported $done of $total';
+  }
+
+  @override
+  String get dantotsuGroupAccounts => 'Accounts';
+
+  @override
+  String get dantotsuGroupAppearance => 'Appearance';
+
+  @override
+  String get dantotsuGroupExtensions => 'Extensions';
+
+  @override
+  String get dantotsuGroupApp => 'App';
+
+  @override
+  String get dantotsuGroupPlayer => 'Player';
+
+  @override
+  String get dantotsuAnilist => 'AniList login';
+
+  @override
+  String get dantotsuMal => 'MyAnimeList login';
+
+  @override
+  String get dantotsuDiscord => 'Discord Rich Presence token';
+
+  @override
+  String get dantotsuTheme => 'Theme';
+
+  @override
+  String get dantotsuReposAnime => 'Anime extension repositories';
+
+  @override
+  String get dantotsuReposManga => 'Manga extension repositories';
+
+  @override
+  String get dantotsuReposNovel => 'Novel extension repositories';
+
+  @override
+  String get dantotsuUpdates => 'Update check';
+
+  @override
+  String get dantotsuComments => 'Comments';
+
+  @override
+  String get dantotsuActivity => 'AniList notification polling';
+
+  @override
+  String get dantotsuDns => 'DNS provider';
+
+  @override
+  String get dantotsuPlayer => 'Player speed and subtitle colours';
+
+  @override
+  String get dantotsuWarning =>
+      'This file holds login tokens. Keep it private.';
+
+  @override
+  String get novelIndent => 'Indent paragraphs';
+
+  @override
+  String get novelIndentDesc => 'Start each paragraph with a first-line indent';
+
+  @override
+  String get novelLetterSpacing => 'Letter spacing';
+
+  @override
+  String get novelTapPaging => 'Tap edges to turn page';
+
+  @override
+  String get novelTapPagingDesc =>
+      'Tap the left or right side to scroll a page, the middle shows the controls';
+
+  @override
+  String novelMinutesLeft(int count) {
+    return '$count min left';
+  }
 
   @override
   String get novelBold => 'Bold text';
@@ -4894,4 +5078,17 @@ class AppLocalizationsBn extends AppLocalizations {
   String playerOnlineDownloads(int count) {
     return '$count downloads';
   }
+
+  @override
+  String get playerSeekPreview => 'Seek preview';
+
+  @override
+  String get playerSeekPreviewDesc =>
+      'Show a small frame preview above the seek bar while scrubbing. Opens a second low resolution decoder, so it uses extra data on streams.';
+
+  @override
+  String get playerSettingsChip => 'Settings';
+
+  @override
+  String get playerAudioDevice => 'Audio device';
 }

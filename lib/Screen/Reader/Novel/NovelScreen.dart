@@ -20,6 +20,7 @@ import '../../Settings/Categories/ReaderSettings.dart';
 import '../../Settings/Widgets/SettingsGroup.dart';
 import '../Components/ReaderSheets.dart';
 import 'NovelState.dart';
+import '../../../Utils/Animation/WidgetAnimations.dart';
 
 class NovelScreen extends StatefulWidget {
   final ReaderRequest request;
@@ -89,9 +90,25 @@ class _NovelScreenState extends State<NovelScreen>
               Positioned.fill(child: body),
               if (!state.loading.value && state.error.value == null)
                 Positioned.fill(
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.translucent,
-                    onTap: state.toggleControls,
+                  child: LayoutBuilder(
+                    builder: (context, box) => GestureDetector(
+                      behavior: HitTestBehavior.translucent,
+                      onTapUp: (d) {
+                        if (!settings.novelTapPaging ||
+                            state.controlsVisible.value) {
+                          state.toggleControls();
+                          return;
+                        }
+                        final x = d.localPosition.dx / box.maxWidth;
+                        if (x < 0.25) {
+                          state.pageBy(-1);
+                        } else if (x > 0.75) {
+                          state.pageBy(1);
+                        } else {
+                          state.toggleControls();
+                        }
+                      },
+                    ),
                   ),
                 ),
               _bar(context, background, foreground, top: true),
@@ -111,6 +128,7 @@ class _NovelScreenState extends State<NovelScreen>
       height: s.novelLineHeight,
       color: foreground,
       fontWeight: s.novelBold ? FontWeight.w600 : FontWeight.w400,
+      letterSpacing: s.novelLetterSpacing / 10,
     );
     final margin = s.novelMargin.toDouble();
     return SelectionArea(
@@ -162,7 +180,7 @@ class _NovelScreenState extends State<NovelScreen>
         return Padding(
           padding: EdgeInsets.only(bottom: gap, top: p.heading > 0 ? gap : 0),
           child: Text(
-            p.text,
+            p.heading == 0 && s.novelIndent ? '\u2003\u2003${p.text}' : p.text,
             textAlign: s.novelJustify ? TextAlign.justify : TextAlign.start,
             style: p.heading > 0
                 ? base.copyWith(
@@ -227,7 +245,7 @@ class _NovelScreenState extends State<NovelScreen>
         ignoring: !visible,
         child: AnimatedSlide(
           offset: visible ? Offset.zero : Offset(0, top ? -1 : 1),
-          duration: const Duration(milliseconds: 200),
+          duration: animDuration(200),
           curve: Curves.easeOutCubic,
           child: bar,
         ),
@@ -265,6 +283,17 @@ class _NovelScreenState extends State<NovelScreen>
           ),
         ),
         IconButton(
+          tooltip: state.autoScrolling.value
+              ? getString.readerAutoScrollStop
+              : getString.readerAutoScroll,
+          onPressed: state.toggleAutoScroll,
+          icon: Icon(
+            state.autoScrolling.value
+                ? Icons.pause_circle_outline_rounded
+                : Icons.play_circle_outline_rounded,
+          ),
+        ),
+        IconButton(
           tooltip: getString.readerChapters,
           onPressed: () => showChapterList(
             context,
@@ -283,37 +312,75 @@ class _NovelScreenState extends State<NovelScreen>
     ),
   );
 
-  Widget _bottomRow(BuildContext context) => Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 4),
-    child: Row(
+  Widget _bottomRow(BuildContext context) {
+    final minutes = (state.wordsLeft / 230).ceil();
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (state.autoScrolling.value) _speed(context),
+          Row(
+            children: [
+              IconButton(
+                tooltip: getString.readerPreviousChapter,
+                onPressed: state.hasPrevious ? state.previous : null,
+                icon: const Icon(Icons.skip_previous_rounded),
+              ),
+              Expanded(
+                child: Slider(
+                  value: state.fraction.value.clamp(0.0, 1.0),
+                  onChanged: state.seekTo,
+                ),
+              ),
+              IconButton(
+                tooltip: getString.readerNextChapter,
+                onPressed: state.hasNext ? state.next : null,
+                icon: const Icon(Icons.skip_next_rounded),
+              ),
+            ],
+          ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 6),
+            child: Text(
+              '${(state.fraction.value * 100).round()}%  ·  '
+              '${getString.novelMinutesLeft(minutes)}',
+              style: context.textTheme.labelMedium,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _speed(BuildContext context) {
+    final speed = state.settings.autoScrollSpeed.clamp(1, 10);
+    void set(int v) =>
+        state.updateSettings((s) => s.autoScrollSpeed = v.clamp(1, 10));
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         IconButton(
-          tooltip: getString.readerPreviousChapter,
-          onPressed: state.hasPrevious ? state.previous : null,
-          icon: const Icon(Icons.skip_previous_rounded),
-        ),
-        Expanded(
-          child: Slider(
-            value: state.fraction.value.clamp(0.0, 1.0),
-            onChanged: state.seekTo,
-          ),
+          onPressed: speed > 1 ? () => set(speed - 1) : null,
+          icon: const Icon(Icons.remove_rounded),
         ),
         SizedBox(
-          width: 44,
+          width: 72,
           child: Text(
-            '${(state.fraction.value * 100).round()}%',
+            '$speed',
             textAlign: TextAlign.center,
-            style: context.textTheme.labelMedium,
+            style: context.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ),
         IconButton(
-          tooltip: getString.readerNextChapter,
-          onPressed: state.hasNext ? state.next : null,
-          icon: const Icon(Icons.skip_next_rounded),
+          onPressed: speed < 10 ? () => set(speed + 1) : null,
+          icon: const Icon(Icons.add_rounded),
         ),
       ],
-    ),
-  );
+    );
+  }
 
   Future<void> _options(BuildContext context) => showCustomBottomDialog<void>(
     context,
@@ -323,10 +390,10 @@ class _NovelScreenState extends State<NovelScreen>
       child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(8, 0, 8, 24),
         child: Watch(() {
-          final tick = state.settingsVersion.value;
+          state.settingsVersion.value;
           final perTitle = state.perTitle.value;
           return SettingsGroup(
-            key: ValueKey(tick),
+            key: ValueKey(perTitle),
             settings: [
               Setting.switchType(
                 name: getString.readerPerTitle,

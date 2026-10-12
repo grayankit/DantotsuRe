@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../../Core/Services/Model/Media.dart';
 import '../../../Core/Services/Screens/DetailHost.dart';
@@ -11,6 +12,8 @@ import '../../../Utils/Functions/NavigateToScreen.dart';
 import '../../../Widgets/Components/CachedNetworkImage.dart';
 import 'StatusChip.dart';
 import '../../../Core/State/State.dart';
+import '../../../Core/Watch/WatchPrefs.dart';
+import '../../../Utils/Functions/SnackBar.dart';
 import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 
 const _toolbarHeight = 56.0;
@@ -329,6 +332,11 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
             FilledButton.icon(
               focusNode: actionFocus,
               onPressed: host.loading.value ? null : onEditList,
+              onLongPress: () {
+                HapticFeedback.mediumImpact();
+                (m.isAnime ? trackAnimePref : trackMangaPref).value = 'ask';
+                snackString(getString.trackProgressReset);
+              },
               icon: Icon(
                 onList ? Icons.edit_rounded : Icons.add_rounded,
                 size: 18,

@@ -39,6 +39,7 @@ class _ReaderWebtoonViewState extends State<ReaderWebtoonView> {
     _controller.addListener(_scan);
     state.jumper = _jump;
     state.scroller = _scrollBy;
+    state.nudger = _nudge;
     SchedulerBinding.instance.addPostFrameCallback((_) {
       if (mounted) unawaited(_jump(state.current.value, quiet: true));
     });
@@ -48,6 +49,7 @@ class _ReaderWebtoonViewState extends State<ReaderWebtoonView> {
   void dispose() {
     if (state.jumper == _jump) state.jumper = null;
     if (state.scroller == _scrollBy) state.scroller = null;
+    if (state.nudger == _nudge) state.nudger = null;
     _controller.dispose();
     super.dispose();
   }
@@ -101,6 +103,15 @@ class _ReaderWebtoonViewState extends State<ReaderWebtoonView> {
       _lastId = id;
       state.onVisible(found);
     }
+  }
+
+  void _nudge(double pixels) {
+    if (!_controller.hasClients) return;
+    final position = _controller.position;
+    final target = (_controller.offset + pixels)
+        .clamp(position.minScrollExtent, position.maxScrollExtent)
+        .toDouble();
+    if (target != _controller.offset) _controller.jumpTo(target);
   }
 
   Future<void> _scrollBy(double fraction) async {

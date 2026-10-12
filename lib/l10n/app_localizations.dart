@@ -479,6 +479,12 @@ abstract class AppLocalizations {
   /// **'Custom'**
   String get colorPickerCustom;
 
+  /// No description provided for @colorPickerTransparent.
+  ///
+  /// In en, this message translates to:
+  /// **'Transparent'**
+  String get colorPickerTransparent;
+
   /// No description provided for @ltr.
   ///
   /// In en, this message translates to:
@@ -6779,6 +6785,18 @@ abstract class AppLocalizations {
   /// **'Blur the thumbnail of episodes you have not watched yet'**
   String get watchBlurUnwatchedDesc;
 
+  /// No description provided for @watchResumeShelf.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume shelf'**
+  String get watchResumeShelf;
+
+  /// No description provided for @watchResumeShelfDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Show the Resume row on Home'**
+  String get watchResumeShelfDesc;
+
   /// No description provided for @watchMarkOnLongPress.
   ///
   /// In en, this message translates to:
@@ -8609,6 +8627,54 @@ abstract class AppLocalizations {
   /// **'Hide the system bars'**
   String get readerFullscreenDesc;
 
+  /// No description provided for @readerCropBorders.
+  ///
+  /// In en, this message translates to:
+  /// **'Crop borders'**
+  String get readerCropBorders;
+
+  /// No description provided for @readerCropBordersDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Trim blank white or black margins from pages'**
+  String get readerCropBordersDesc;
+
+  /// No description provided for @readerVolumeKeys.
+  ///
+  /// In en, this message translates to:
+  /// **'Volume keys turn pages'**
+  String get readerVolumeKeys;
+
+  /// No description provided for @readerVolumeKeysDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Volume down goes forward, volume up goes back'**
+  String get readerVolumeKeysDesc;
+
+  /// No description provided for @readerAutoScroll.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto scroll'**
+  String get readerAutoScroll;
+
+  /// No description provided for @readerAutoScrollStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop auto scroll'**
+  String get readerAutoScrollStop;
+
+  /// No description provided for @readerAutoScrollSpeed.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto scroll speed'**
+  String get readerAutoScrollSpeed;
+
+  /// No description provided for @readerAutoScrollSpeedDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'How fast pages scroll or turn on their own'**
+  String get readerAutoScrollSpeedDesc;
+
   /// No description provided for @readerKeepOn.
   ///
   /// In en, this message translates to:
@@ -8746,6 +8812,276 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Align text to both edges'**
   String get novelJustifyDesc;
+
+  /// No description provided for @trackProgressTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Save progress?'**
+  String get trackProgressTitle;
+
+  /// No description provided for @trackProgressAnime.
+  ///
+  /// In en, this message translates to:
+  /// **'Track {name} on your list as you watch? Choose \"This device only\" to keep it local, or No to save nothing.'**
+  String trackProgressAnime(String name);
+
+  /// No description provided for @trackProgressManga.
+  ///
+  /// In en, this message translates to:
+  /// **'Track {name} on your list when you finish a chapter? Choose \"This device only\" to keep it local, or No to save nothing.'**
+  String trackProgressManga(String name);
+
+  /// No description provided for @trackProgressRemember.
+  ///
+  /// In en, this message translates to:
+  /// **'Remember my choice'**
+  String get trackProgressRemember;
+
+  /// No description provided for @trackProgressYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get trackProgressYes;
+
+  /// No description provided for @trackProgressReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Save progress prompt reset for this type, it will ask again'**
+  String get trackProgressReset;
+
+  /// No description provided for @trackProgressNo.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get trackProgressNo;
+
+  /// No description provided for @trackProgressOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get trackProgressOff;
+
+  /// No description provided for @trackProgressLocal.
+  ///
+  /// In en, this message translates to:
+  /// **'This device only'**
+  String get trackProgressLocal;
+
+  /// No description provided for @trackProgressSettingAnime.
+  ///
+  /// In en, this message translates to:
+  /// **'Track anime progress'**
+  String get trackProgressSettingAnime;
+
+  /// No description provided for @trackProgressSettingManga.
+  ///
+  /// In en, this message translates to:
+  /// **'Track manga and novel progress'**
+  String get trackProgressSettingManga;
+
+  /// No description provided for @trackProgressSettingDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'What to do when you open an episode or finish a chapter'**
+  String get trackProgressSettingDesc;
+
+  /// No description provided for @trackProgressAsk.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask'**
+  String get trackProgressAsk;
+
+  /// No description provided for @trackProgressAlways.
+  ///
+  /// In en, this message translates to:
+  /// **'Always'**
+  String get trackProgressAlways;
+
+  /// No description provided for @trackProgressNever.
+  ///
+  /// In en, this message translates to:
+  /// **'Never'**
+  String get trackProgressNever;
+
+  /// No description provided for @dantotsuImport.
+  ///
+  /// In en, this message translates to:
+  /// **'Import from Dantotsu'**
+  String get dantotsuImport;
+
+  /// No description provided for @dantotsuImportDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Read a Dantotsu settings backup (.ani, or encrypted .sani)'**
+  String get dantotsuImportDesc;
+
+  /// No description provided for @dantotsuPick.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a Dantotsu backup'**
+  String get dantotsuPick;
+
+  /// No description provided for @dantotsuNothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing in this file can be imported'**
+  String get dantotsuNothing;
+
+  /// No description provided for @dantotsuApply.
+  ///
+  /// In en, this message translates to:
+  /// **'Import selected'**
+  String get dantotsuApply;
+
+  /// No description provided for @dantotsuDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported {done} of {total}'**
+  String dantotsuDone(int done, int total);
+
+  /// No description provided for @dantotsuGroupAccounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Accounts'**
+  String get dantotsuGroupAccounts;
+
+  /// No description provided for @dantotsuGroupAppearance.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get dantotsuGroupAppearance;
+
+  /// No description provided for @dantotsuGroupExtensions.
+  ///
+  /// In en, this message translates to:
+  /// **'Extensions'**
+  String get dantotsuGroupExtensions;
+
+  /// No description provided for @dantotsuGroupApp.
+  ///
+  /// In en, this message translates to:
+  /// **'App'**
+  String get dantotsuGroupApp;
+
+  /// No description provided for @dantotsuGroupPlayer.
+  ///
+  /// In en, this message translates to:
+  /// **'Player'**
+  String get dantotsuGroupPlayer;
+
+  /// No description provided for @dantotsuAnilist.
+  ///
+  /// In en, this message translates to:
+  /// **'AniList login'**
+  String get dantotsuAnilist;
+
+  /// No description provided for @dantotsuMal.
+  ///
+  /// In en, this message translates to:
+  /// **'MyAnimeList login'**
+  String get dantotsuMal;
+
+  /// No description provided for @dantotsuDiscord.
+  ///
+  /// In en, this message translates to:
+  /// **'Discord Rich Presence token'**
+  String get dantotsuDiscord;
+
+  /// No description provided for @dantotsuTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme'**
+  String get dantotsuTheme;
+
+  /// No description provided for @dantotsuReposAnime.
+  ///
+  /// In en, this message translates to:
+  /// **'Anime extension repositories'**
+  String get dantotsuReposAnime;
+
+  /// No description provided for @dantotsuReposManga.
+  ///
+  /// In en, this message translates to:
+  /// **'Manga extension repositories'**
+  String get dantotsuReposManga;
+
+  /// No description provided for @dantotsuReposNovel.
+  ///
+  /// In en, this message translates to:
+  /// **'Novel extension repositories'**
+  String get dantotsuReposNovel;
+
+  /// No description provided for @dantotsuUpdates.
+  ///
+  /// In en, this message translates to:
+  /// **'Update check'**
+  String get dantotsuUpdates;
+
+  /// No description provided for @dantotsuComments.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments'**
+  String get dantotsuComments;
+
+  /// No description provided for @dantotsuActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'AniList notification polling'**
+  String get dantotsuActivity;
+
+  /// No description provided for @dantotsuDns.
+  ///
+  /// In en, this message translates to:
+  /// **'DNS provider'**
+  String get dantotsuDns;
+
+  /// No description provided for @dantotsuPlayer.
+  ///
+  /// In en, this message translates to:
+  /// **'Player speed and subtitle colours'**
+  String get dantotsuPlayer;
+
+  /// No description provided for @dantotsuWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'This file holds login tokens. Keep it private.'**
+  String get dantotsuWarning;
+
+  /// No description provided for @novelIndent.
+  ///
+  /// In en, this message translates to:
+  /// **'Indent paragraphs'**
+  String get novelIndent;
+
+  /// No description provided for @novelIndentDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Start each paragraph with a first-line indent'**
+  String get novelIndentDesc;
+
+  /// No description provided for @novelLetterSpacing.
+  ///
+  /// In en, this message translates to:
+  /// **'Letter spacing'**
+  String get novelLetterSpacing;
+
+  /// No description provided for @novelTapPaging.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap edges to turn page'**
+  String get novelTapPaging;
+
+  /// No description provided for @novelTapPagingDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the left or right side to scroll a page, the middle shows the controls'**
+  String get novelTapPagingDesc;
+
+  /// No description provided for @novelMinutesLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} min left'**
+  String novelMinutesLeft(int count);
 
   /// No description provided for @novelBold.
   ///
@@ -8986,6 +9322,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} downloads'**
   String playerOnlineDownloads(int count);
+
+  /// No description provided for @playerSeekPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Seek preview'**
+  String get playerSeekPreview;
+
+  /// No description provided for @playerSeekPreviewDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Show a small frame preview above the seek bar while scrubbing. Opens a second low resolution decoder, so it uses extra data on streams.'**
+  String get playerSeekPreviewDesc;
+
+  /// No description provided for @playerSettingsChip.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get playerSettingsChip;
+
+  /// No description provided for @playerAudioDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Audio device'**
+  String get playerAudioDevice;
 }
 
 class _AppLocalizationsDelegate

@@ -7,14 +7,25 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.view.KeyEvent
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
 class MainActivity : FlutterActivity() {
+    private var volumeChannel: MethodChannel? = null
+    private var interceptVolume = false
+
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         flutterEngine.plugins.add(NativeLogger())
+        volumeChannel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "dartotsu/volumekeys").also { channel ->
+            channel.setMethodCallHandler { call, result ->
+                if (call.method != "setEnabled") return@setMethodCallHandler result.notImplemented()
+                interceptVolume = call.arguments as? Boolean ?: false
+                result.success(null)
+            }
+        }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "dartotsu/links")
             .setMethodCallHandler { call, result ->
                 if (call.method == "isLinkHandlingEnabled") {
@@ -50,6 +61,17 @@ class MainActivity : FlutterActivity() {
         } catch (e: Exception) {
             true
         }
+    }
+
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        val code = event.keyCode
+        if (interceptVolume && (code == KeyEvent.KEYCODE_VOLUME_UP || code == KeyEvent.KEYCODE_VOLUME_DOWN)) {
+            if (event.action == KeyEvent.ACTION_DOWN && event.repeatCount == 0) {
+                volumeChannel?.invokeMethod("key", if (code == KeyEvent.KEYCODE_VOLUME_UP) "up" else "down")
+            }
+            return true
+        }
+        return super.dispatchKeyEvent(event)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

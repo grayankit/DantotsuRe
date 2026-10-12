@@ -63,6 +63,8 @@ class PlayerSettings {
   set holdToSpeed(bool v) => _v['holdToSpeed'] = v;
   bool get thumbLessSeekBar => _get('thumbLessSeekBar', false);
   set thumbLessSeekBar(bool v) => _v['thumbLessSeekBar'] = v;
+  bool get seekPreview => _get('seekPreview', true);
+  set seekPreview(bool v) => _v['seekPreview'] = v;
   String get orientation => _get('orientation', 'landscape');
   set orientation(String v) => _v['orientation'] = v;
 
@@ -94,6 +96,8 @@ class PlayerSettings {
   set videoOutput(String v) => _v['videoOutput'] = v;
   String get audioOutput => _get('audioOutput', 'auto');
   set audioOutput(String v) => _v['audioOutput'] = v;
+  String get audioDevice => _get('audioDevice', 'auto');
+  set audioDevice(String v) => _v['audioDevice'] = v;
   String get audioChannels => _get('audioChannels', 'auto');
   set audioChannels(String v) => _v['audioChannels'] = v;
 

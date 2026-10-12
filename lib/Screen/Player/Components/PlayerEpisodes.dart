@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 
 import '../../../Core/State/State.dart';
+import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../../Core/Watch/EpisodeUnits.dart';
 import '../../../Core/Watch/LocalProgress.dart';
 import '../../../Core/Watch/WatchPrefs.dart';
+import '../../../Utils/Extensions/ContextExtensions.dart';
 import '../../../Utils/Extensions/Responsive.dart';
+import '../../../Utils/Functions/NavigateToScreen.dart';
+import '../../../Widgets/Components/AppControls.dart';
+import '../../../Widgets/Components/AppSheet.dart';
+import '../../../Widgets/Components/CustomBottomDialog.dart';
 import '../../Detail/Watch/Components/RangeBar.dart';
 import '../../Detail/Watch/Components/UnitLayout.dart';
 import '../../Detail/Watch/Components/UnitTile.dart';
@@ -54,6 +60,7 @@ class PlayerEpisodes extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        _header(context, units.length),
         if (chunks.length > 1) ...[
           RangeBar(
             selected: chunk,
@@ -86,4 +93,102 @@ class PlayerEpisodes extends StatelessWidget {
       ],
     );
   }
+
+  Widget _header(BuildContext context, int count) => Row(
+    children: [
+      Expanded(
+        child: Text(
+          getString.watchEpisodeCount(count),
+          style: context.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ),
+      IconButton(
+        tooltip: getString.watchOptions,
+        onPressed: () => showCustomBottomDialog<void>(
+          context,
+          _PlayerOptionsSheet(state: state),
+        ),
+        icon: const Icon(Icons.tune_rounded),
+      ),
+    ],
+  );
+}
+
+class _PlayerOptionsSheet extends StatelessWidget {
+  final PlayerState state;
+
+  const _PlayerOptionsSheet({required this.state});
+
+  @override
+  Widget build(BuildContext context) => AppSheet(
+    title: getString.watchOptions,
+    child: SingleChildScrollView(
+      padding: EdgeInsets.fromLTRB(
+        Dimens.pagePad,
+        0,
+        Dimens.pagePad,
+        Dimens.gapLg,
+      ),
+      child: Watch(() {
+        state.progressTick.value;
+        final s = state.record!.watch;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            LabeledField(
+              label: getString.watchLayout,
+              child: AppSegmented<int>(
+                value: s.view,
+                onChanged: (v) =>
+                    state.updateWatchSettings(s.copy()..viewType = v),
+                segments: [
+                  AppSegment(
+                    0,
+                    icon: Icons.view_list_rounded,
+                    label: getString.watchListView,
+                  ),
+                  AppSegment(
+                    1,
+                    icon: Icons.grid_view_rounded,
+                    label: getString.watchGridView,
+                  ),
+                  AppSegment(
+                    2,
+                    icon: Icons.view_comfy_rounded,
+                    label: getString.watchCompactView,
+                  ),
+                ],
+              ),
+            ),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(getString.watchReverse),
+              value: s.reverse,
+              onChanged: (v) =>
+                  state.updateWatchSettings(s.copy()..reverse = v),
+            ),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton.icon(
+                onPressed: () {
+                  state.updateWatchSettings(
+                    MediaWatchSettings(
+                      sourceId: s.sourceId,
+                      sourceName: s.sourceName,
+                    ),
+                  );
+                  popPage(context);
+                },
+                icon: const Icon(Icons.restart_alt_rounded),
+                label: Text(getString.watchResetOptions),
+              ),
+            ),
+          ],
+        );
+      }),
+    ),
+  );
 }

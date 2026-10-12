@@ -109,6 +109,15 @@ class ReaderControls extends StatelessWidget {
                 ),
               ),
               _icon(
+                state.autoScrolling.value
+                    ? Icons.pause_circle_outline_rounded
+                    : Icons.play_circle_outline_rounded,
+                state.toggleAutoScroll,
+                tooltip: state.autoScrolling.value
+                    ? getString.readerAutoScrollStop
+                    : getString.readerAutoScroll,
+              ),
+              _icon(
                 Icons.format_list_numbered_rounded,
                 () => showChapterList(
                   context,
@@ -146,55 +155,90 @@ class ReaderControls extends StatelessWidget {
         top: false,
         child: Padding(
           padding: const EdgeInsets.fromLTRB(8, 16, 8, 8),
-          child: Directionality(
-            textDirection: rtl ? TextDirection.rtl : TextDirection.ltr,
-            child: Row(
-              children: [
-                _icon(
-                  Icons.skip_previous_rounded,
-                  state.hasPreviousChapter ? state.openPreviousChapter : null,
-                  tooltip: getString.readerPreviousChapter,
-                ),
-                Directionality(
-                  textDirection: TextDirection.ltr,
-                  child: Text(
-                    '${page + 1}',
-                    style: context.textTheme.labelLarge?.copyWith(
-                      color: Colors.white,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (state.autoScrolling.value) _speed(context),
+              Directionality(
+                textDirection: rtl ? TextDirection.rtl : TextDirection.ltr,
+                child: Row(
+                  children: [
+                    _icon(
+                      Icons.skip_previous_rounded,
+                      state.hasPreviousChapter
+                          ? state.openPreviousChapter
+                          : null,
+                      tooltip: getString.readerPreviousChapter,
                     ),
-                  ),
-                ),
-                Expanded(
-                  child: count < 2
-                      ? const SizedBox.shrink()
-                      : Slider(
-                          min: 0,
-                          max: (count - 1).toDouble(),
-                          divisions: count - 1,
-                          value: page.clamp(0, count - 1).toDouble(),
-                          onChanged: (v) => state.go(
-                            state.flatIndexOf(state.chapter, v.round()),
-                          ),
+                    Directionality(
+                      textDirection: TextDirection.ltr,
+                      child: Text(
+                        '${page + 1}',
+                        style: context.textTheme.labelLarge?.copyWith(
+                          color: Colors.white,
                         ),
-                ),
-                Directionality(
-                  textDirection: TextDirection.ltr,
-                  child: Text(
-                    '$count',
-                    style: context.textTheme.labelLarge?.copyWith(
-                      color: Colors.white70,
+                      ),
                     ),
-                  ),
+                    Expanded(
+                      child: count < 2
+                          ? const SizedBox.shrink()
+                          : Slider(
+                              min: 0,
+                              max: (count - 1).toDouble(),
+                              divisions: count - 1,
+                              value: page.clamp(0, count - 1).toDouble(),
+                              onChanged: (v) => state.go(
+                                state.flatIndexOf(state.chapter, v.round()),
+                              ),
+                            ),
+                    ),
+                    Directionality(
+                      textDirection: TextDirection.ltr,
+                      child: Text(
+                        '$count',
+                        style: context.textTheme.labelLarge?.copyWith(
+                          color: Colors.white70,
+                        ),
+                      ),
+                    ),
+                    _icon(
+                      Icons.skip_next_rounded,
+                      state.hasNextChapter ? state.openNextChapter : null,
+                      tooltip: getString.readerNextChapter,
+                    ),
+                  ],
                 ),
-                _icon(
-                  Icons.skip_next_rounded,
-                  state.hasNextChapter ? state.openNextChapter : null,
-                  tooltip: getString.readerNextChapter,
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _speed(BuildContext context) {
+    final speed = state.settings.autoScrollSpeed.clamp(1, 10);
+    void set(int v) =>
+        state.updateSettings((s) => s.autoScrollSpeed = v.clamp(1, 10));
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          _icon(Icons.remove_rounded, speed > 1 ? () => set(speed - 1) : null),
+          SizedBox(
+            width: 72,
+            child: Text(
+              '$speed',
+              textAlign: TextAlign.center,
+              style: context.textTheme.titleMedium?.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+          _icon(Icons.add_rounded, speed < 10 ? () => set(speed + 1) : null),
+        ],
       ),
     );
   }

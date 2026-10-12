@@ -12,6 +12,7 @@ import '../../Utils/Extensions/ContextExtensions.dart';
 import '../../Widgets/Components/EmptyState.dart';
 import '../../Widgets/Components/ScreenState.dart';
 import 'Components/ReaderControls.dart';
+import 'Components/ReaderImage.dart';
 import 'Components/ReaderPagedView.dart';
 import 'Components/ReaderWebtoonView.dart';
 import 'ReaderState.dart';
@@ -150,9 +151,10 @@ class _ReaderScreenState extends State<ReaderScreen>
             key: ValueKey('p-${state.generation.value}'),
             state: state,
           );
+    final scoped = ReaderCropScope(enabled: settings.cropBorders, child: view);
     return filter == null
-        ? view
-        : ColorFiltered(colorFilter: filter, child: view);
+        ? scoped
+        : ColorFiltered(colorFilter: filter, child: scoped);
   }
 
   Widget _taps(ReaderSettings settings, Widget child) => LayoutBuilder(
@@ -189,13 +191,7 @@ class _ReaderScreenState extends State<ReaderScreen>
     }
   }
 
-  void _move(int direction) {
-    if (state.settings.scrolls) {
-      unawaited(state.scroller?.call(0.85 * direction) ?? Future.value());
-    } else {
-      state.step(direction);
-    }
-  }
+  void _move(int direction) => state.move(direction);
 
   Widget _pageNumber(BuildContext context) {
     final count = state.pageCount;

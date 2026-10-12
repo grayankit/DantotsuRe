@@ -13,6 +13,8 @@ import '../../Player/Components/MpvSheets.dart';
 import '../../Player/Components/ShaderSheet.dart';
 import '../../Player/PlayerLauncher.dart';
 import '../Widgets/SegmentedSetting.dart';
+import '../../../Core/Player/AudioDevices.dart';
+import '../../../Widgets/Components/ChoiceSheet.dart';
 import '../Widgets/SettingRows.dart';
 
 typedef PlayerUpdate = void Function(void Function(PlayerSettings s) change);
@@ -35,14 +37,6 @@ const _toneMappings = [
   'clip',
 ];
 const _audioChannels = ['auto', 'stereo', '5.1', '7.1'];
-
-List<String> get _audioOutputs => [
-  'auto',
-  if (Platform.isAndroid) ...['audiotrack', 'opensles'],
-  if (Platform.isWindows) ...['wasapi', 'sdl'],
-  if (Platform.isMacOS || Platform.isIOS) ...['coreaudio', 'sdl'],
-  if (Platform.isLinux) ...['pipewire', 'pulse', 'alsa', 'sdl'],
-];
 
 String decoderLabel(String id) => switch (id) {
   'auto-safe' => getString.playerDecoderAutoSafe,
@@ -195,6 +189,13 @@ List<Setting> playerSettingsRows(
       s.thumbLessSeekBar,
       (v) => update((x) => x.thumbLessSeekBar = v),
     ),
+    switchSetting(
+      getString.playerSeekPreview,
+      getString.playerSeekPreviewDesc,
+      Icons.image_search_rounded,
+      s.seekPreview,
+      (v) => update((x) => x.seekPreview = v),
+    ),
     Setting.header(getString.playerSectionSubtitles),
     switchSetting(
       getString.playerShowSubtitles,
@@ -336,14 +337,59 @@ List<Setting> playerSettingsRows(
           label: (v) => v,
           onPick: (v) => update((x) => x.videoOutput = v),
         ),
-      choiceSetting<String>(
-        context,
+      Setting.normal(
         name: getString.playerAudioOutput,
+        description: s.audioOutput,
         icon: Icons.speaker_rounded,
-        value: _audioOutputs.contains(s.audioOutput) ? s.audioOutput : 'auto',
-        values: _audioOutputs,
-        label: (v) => v,
-        onPick: (v) => update((x) => x.audioOutput = v),
+        isActivity: true,
+        onClick: () async {
+          final devices = await listAudioDevices();
+          if (!context.mounted) return;
+          final picked = await showChoiceSheet<String>(
+            context,
+            title: getString.playerAudioOutput,
+            icon: Icons.speaker_rounded,
+            selected: s.audioOutput,
+            options: [
+              for (final d in audioDrivers(devices)) ChoiceOption(d, d),
+            ],
+          );
+          if (picked == null) return;
+          update((x) {
+            x.audioOutput = picked;
+            x.audioDevice = 'auto';
+          });
+        },
+      ),
+      Setting.normal(
+        name: getString.playerAudioDevice,
+        description: s.audioDevice,
+        icon: Icons.headphones_rounded,
+        isActivity: true,
+        onClick: () async {
+          final devices = await listAudioDevices();
+          if (!context.mounted) return;
+          final driver = s.audioOutput;
+          final shown = [
+            for (final d in devices)
+              if (d.name == 'auto' || driver == 'auto' || d.driver == driver) d,
+          ];
+          final picked = await showChoiceSheet<String>(
+            context,
+            title: getString.playerAudioDevice,
+            icon: Icons.headphones_rounded,
+            selected: s.audioDevice,
+            options: [
+              for (final d in shown)
+                ChoiceOption(
+                  d.name,
+                  d.description,
+                  subtitle: d.name == d.description ? null : d.name,
+                ),
+            ],
+          );
+          if (picked != null) update((x) => x.audioDevice = picked);
+        },
       ),
       choiceSetting<String>(
         context,

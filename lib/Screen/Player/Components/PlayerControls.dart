@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:media_kit_video/media_kit_video.dart';
 
 import '../../../Core/Player/AniSkip.dart';
 import '../../../Core/State/State.dart';
@@ -71,6 +72,50 @@ class PlayerControls extends StatelessWidget {
     );
   }
 
+  Widget? _preview(BuildContext context, PlayerState state) {
+    final at = state.previewAt.value;
+    if (at == null) return null;
+    final controller = state.settings.seekPreview
+        ? state.seekPreview.controller
+        : null;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (controller != null)
+          Container(
+            width: 176,
+            height: 99,
+            decoration: BoxDecoration(
+              color: Colors.black,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.white24),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: Video(
+              controller: controller,
+              controls: null,
+              fit: BoxFit.cover,
+              subtitleViewConfiguration: const SubtitleViewConfiguration(
+                visible: false,
+              ),
+            ),
+          ),
+        const SizedBox(height: 4),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+          decoration: BoxDecoration(
+            color: Colors.black.withValues(alpha: 0.7),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(
+            formatClock(at.inSeconds),
+            style: context.textTheme.bodySmall?.copyWith(color: Colors.white),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _icon(
     IconData icon,
     VoidCallback onTap, {
@@ -103,7 +148,7 @@ class PlayerControls extends StatelessWidget {
                 size: compact ? 24 : 32,
               ),
             Expanded(
-              child: locked
+              child: locked || compact
                   ? const SizedBox(height: 40)
                   : Padding(
                       padding: const EdgeInsets.only(top: 6),
@@ -250,7 +295,9 @@ class PlayerControls extends StatelessWidget {
                         TextSpan(text: formatClock(position.inSeconds)),
                         TextSpan(
                           text: ' / ${formatClock(duration.inSeconds)}',
-                          style: const TextStyle(color: Colors.white54),
+                          style: context.textTheme.bodySmall?.copyWith(
+                            color: Colors.white54,
+                          ),
                         ),
                         if (label.isNotEmpty) TextSpan(text: '  •  $label'),
                       ],
@@ -293,14 +340,21 @@ class PlayerControls extends StatelessWidget {
                 chapters: engine.chapters.value,
                 thumbless: state.settings.thumbLessSeekBar,
                 enabled: !locked,
+                previewAt: state.previewAt.value,
+                preview: _preview(context, state),
+                onHover: state.scrubbing.value ? null : state.previewTo,
                 onScrubStart: () {
                   state.holdControls();
                   state.scrubbing.value = true;
                   state.scrubPosition.value = engine.position.value;
                 },
-                onScrub: (d) => state.scrubPosition.value = d,
+                onScrub: (d) {
+                  state.scrubPosition.value = d;
+                  state.previewTo(d);
+                },
                 onSeek: (d) {
                   state.scrubbing.value = false;
+                  state.previewTo(null);
                   state.seekTo(d);
                   state.showControls();
                 },

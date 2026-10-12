@@ -3,19 +3,22 @@ import 'dart:async';
 import 'package:dartotsu_extension_bridge/dartotsu_extension_bridge.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../../../Core/Media/MediaRecord.dart';
 import '../../../Core/Preferences/Incognito.dart';
 import '../../../Core/Reader/NovelText.dart';
 import '../../../Core/Reader/ReaderRequest.dart';
 import '../../../Core/Reader/ReaderSettings.dart';
+import '../../../Core/Reader/VolumeKeys.dart';
+import '../../../Core/Watch/TrackConfirm.dart';
 import '../../../Core/State/State.dart';
 import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../../Core/Watch/EpisodeUnits.dart';
 import '../../../Logger.dart';
 import '../../../Widgets/Components/ScreenState.dart';
 import '../../Detail/Watch/Components/UnitTile.dart';
+import '../../../Utils/Animation/WidgetAnimations.dart';
+import '../../../Utils/Functions/Wakelock.dart';
 
 const _scale = 10000;
 
@@ -36,7 +39,9 @@ class NovelState extends ScreenState {
   final perTitle = false.live;
   final scroll = ScrollController();
 
+  final autoScrolling = false.live;
   Timer? _saveTimer;
+  Timer? _autoTimer;
   int _run = 0;
   bool _marked = false;
   bool _closed = false;
@@ -71,17 +76,24 @@ class NovelState extends ScreenState {
   void onClose() {
     _closed = true;
     _saveTimer?.cancel();
+    _autoTimer?.cancel();
+    unawaited(VolumeKeys.disable());
     _save();
     scroll.dispose();
-    WakelockPlus.disable();
+    unawaited(setWakelock(false));
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   }
 
   void _applySystem() {
-    if (settings.keepOn) {
-      WakelockPlus.enable();
+    if (settings.volumeKeys) {
+      unawaited(VolumeKeys.enable((d) => pageBy(d.toDouble())));
     } else {
-      WakelockPlus.disable();
+      unawaited(VolumeKeys.disable());
+    }
+    if (settings.keepOn) {
+      unawaited(setWakelock(true));
+    } else {
+      unawaited(setWakelock(false));
     }
     SystemChrome.setEnabledSystemUIMode(
       settings.fullscreen
@@ -183,13 +195,22 @@ class NovelState extends ScreenState {
     unawaited(
       scroll.animateTo(
         target,
-        duration: const Duration(milliseconds: 220),
+        duration: animDuration(220),
         curve: Curves.easeOutCubic,
       ),
     );
   }
 
+  final _unsaved = <String>{};
+
+  void _discard(WatchUnit unit) {
+    _unsaved.add(unit.number);
+    record.playback.remove(unit.number);
+    MediaRecords.save(request.service, request.media);
+  }
+
   void _save() {
+    if (_unsaved.contains(unit.number)) return;
     if (blocks.isEmpty || !settings.saveProgress || isIncognito) return;
     record.playback[unit.number] = Playback(
       position: (fraction.value * _scale).round(),
@@ -204,6 +225,16 @@ class NovelState extends ScreenState {
     if (!record.saveProgress || isIncognito || mutations == null) return;
     final target = unit.value.floor();
     if (target <= 0 || target <= (media.userProgress ?? 0)) return;
+    final choice = await confirmTracking(
+      context,
+      anime: false,
+      name: media.mainName,
+    );
+    if (choice == TrackChoice.none) {
+      _discard(unit);
+      return;
+    }
+    if (choice == TrackChoice.local) return;
     try {
       await mutations.setProgress(media, target);
       media.userProgress = target;
@@ -226,6 +257,36 @@ class NovelState extends ScreenState {
     }
     _applySystem();
     settingsVersion.value++;
+    if (autoScrolling.value) setAutoScroll(true, hide: false);
+  }
+
+  int get wordsLeft {
+    var words = 0;
+    for (final b in blocks) {
+      if (b is NovelParagraph) words += b.text.split(RegExp(r'\s+')).length;
+    }
+    return (words * (1 - fraction.value)).round();
+  }
+
+  void toggleAutoScroll() => setAutoScroll(!autoScrolling.value);
+
+  void setAutoScroll(bool on, {bool hide = true}) {
+    _autoTimer?.cancel();
+    autoScrolling.value = on;
+    if (!on) return;
+    if (hide) controlsVisible.value = false;
+    final speed = settings.autoScrollSpeed.clamp(1, 10);
+    const frame = Duration(milliseconds: 16);
+    final pixels = (10 + speed * 12) * frame.inMilliseconds / 1000;
+    _autoTimer = Timer.periodic(frame, (_) {
+      if (!scroll.hasClients || loading.value) return;
+      final max = scroll.position.maxScrollExtent;
+      if (scroll.offset >= max) {
+        setAutoScroll(false);
+        return;
+      }
+      scroll.jumpTo((scroll.offset + pixels).clamp(0.0, max));
+    });
   }
 
   void setPerTitle(bool value) {

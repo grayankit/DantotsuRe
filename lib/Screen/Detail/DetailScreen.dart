@@ -248,11 +248,10 @@ class _DetailScreenState extends BaseScreen<DetailScreen>
 
   Widget _errorCard() => Padding(
     padding: EdgeInsets.symmetric(horizontal: Dimens.pagePad),
-    child: DecoratedBox(
-      decoration: BoxDecoration(
-        color: context.colorScheme.errorContainer,
-        borderRadius: Dimens.borderSm,
-      ),
+    child: Material(
+      color: context.colorScheme.errorContainer,
+      borderRadius: Dimens.borderSm,
+      clipBehavior: Clip.antiAlias,
       child: ListTile(
         leading: Icon(
           Icons.cloud_off_rounded,
@@ -260,7 +259,9 @@ class _DetailScreenState extends BaseScreen<DetailScreen>
         ),
         title: Text(
           getString.couldntLoadAllDetails,
-          style: TextStyle(color: context.colorScheme.onErrorContainer),
+          style: context.textTheme.bodyLarge?.copyWith(
+            color: context.colorScheme.onErrorContainer,
+          ),
         ),
         trailing: FilledButton.tonal(
           onPressed: () => state.load(force: true),

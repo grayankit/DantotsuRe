@@ -26,6 +26,9 @@ class PlayerSeekBar extends StatelessWidget {
   final ValueChanged<Duration> onScrub;
   final ValueChanged<Duration> onSeek;
   final VoidCallback onScrubStart;
+  final Duration? previewAt;
+  final Widget? preview;
+  final ValueChanged<Duration?>? onHover;
 
   const PlayerSeekBar({
     super.key,
@@ -39,6 +42,9 @@ class PlayerSeekBar extends StatelessWidget {
     required this.onScrub,
     required this.onSeek,
     required this.onScrubStart,
+    this.previewAt,
+    this.preview,
+    this.onHover,
   });
 
   @override
@@ -51,7 +57,7 @@ class PlayerSeekBar extends StatelessWidget {
           return Duration(milliseconds: (duration.inMilliseconds * f).round());
         }
 
-        return GestureDetector(
+        final bar = GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTapUp: enabled && duration > Duration.zero
               ? (d) => onSeek(at(d.localPosition.dx))
@@ -83,6 +89,40 @@ class PlayerSeekBar extends StatelessWidget {
               ),
             ),
           ),
+        );
+
+        final hoverable = onHover == null || duration <= Duration.zero
+            ? bar
+            : MouseRegion(
+                onHover: (e) => onHover!(at(e.localPosition.dx)),
+                onExit: (_) => onHover!(null),
+                child: bar,
+              );
+        final shown = previewAt;
+        const previewWidth = 176.0;
+        return Stack(
+          clipBehavior: Clip.none,
+          children: [
+            hoverable,
+            if (shown != null && preview != null && duration > Duration.zero)
+              Positioned(
+                left:
+                    (shown.inMilliseconds /
+                                duration.inMilliseconds *
+                                box.maxWidth -
+                            previewWidth / 2)
+                        .clamp(
+                          0.0,
+                          (box.maxWidth - previewWidth).clamp(
+                            0.0,
+                            double.infinity,
+                          ),
+                        ),
+                bottom: 34,
+                width: previewWidth,
+                child: IgnorePointer(child: preview!),
+              ),
+          ],
         );
       },
     );

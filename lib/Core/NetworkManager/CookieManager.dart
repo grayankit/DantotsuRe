@@ -343,10 +343,12 @@ class CookieManager extends Interceptor {
           }
           break;
         case "expires":
-          try {
-            expires = HttpDate.parse(valuePart);
-          } catch (e, st) {
-            logError('CookieManager', e, st);
+          expires = _parseCookieDate(valuePart);
+          if (expires == null) {
+            logWarn(
+              'Unreadable cookie expiry: $valuePart',
+              tag: 'CookieManager',
+            );
           }
 
           break;
@@ -718,4 +720,44 @@ bool isDomainAllowed(String requestHost, String cookieDomain) {
   cookieDomain = normalizeDomain(cookieDomain);
 
   return requestHost == cookieDomain || requestHost.endsWith(".$cookieDomain");
+}
+
+const _months = {
+  'jan': 1,
+  'feb': 2,
+  'mar': 3,
+  'apr': 4,
+  'may': 5,
+  'jun': 6,
+  'jul': 7,
+  'aug': 8,
+  'sep': 9,
+  'oct': 10,
+  'nov': 11,
+  'dec': 12,
+};
+
+DateTime? _parseCookieDate(String value) {
+  try {
+    return HttpDate.parse(value);
+  } catch (_) {}
+  final m = RegExp(
+    r'(\d{1,2})[ -]([A-Za-z]{3})[A-Za-z]*[ -](\d{2,4})\s+(\d{1,2}):(\d{2}):(\d{2})',
+  ).firstMatch(value);
+  final month = m == null ? null : _months[m.group(2)!.toLowerCase()];
+  if (m == null || month == null) return null;
+  var year = int.parse(m.group(3)!);
+  if (year < 70) {
+    year += 2000;
+  } else if (year < 100) {
+    year += 1900;
+  }
+  return DateTime.utc(
+    year,
+    month,
+    int.parse(m.group(1)!),
+    int.parse(m.group(4)!),
+    int.parse(m.group(5)!),
+    int.parse(m.group(6)!),
+  );
 }
