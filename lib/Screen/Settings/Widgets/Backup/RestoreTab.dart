@@ -14,6 +14,7 @@ import '../../../../Widgets/Components/AlertDialogBuilder.dart';
 import 'BackupActionButton.dart';
 import 'BackupCategoryTile.dart';
 import 'BackupPanel.dart';
+import 'DantotsuImportSheet.dart';
 import 'BackupSelection.dart';
 import 'PasswordField.dart';
 import '../../../../Core/State/State.dart';
@@ -182,6 +183,15 @@ class _RestoreTabState extends State<RestoreTab> {
                     ? getString.backupPickFile
                     : getString.backupChooseAnother,
               ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          SizedBox(
+            width: double.infinity,
+            child: TextButton.icon(
+              onPressed: () => showDantotsuImport(context),
+              icon: const Icon(Icons.move_down_rounded),
+              label: Text(getString.dantotsuImport),
             ),
           ),
         ],
