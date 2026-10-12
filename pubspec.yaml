@@ -79,6 +79,7 @@ dependencies:
   flutter_local_notifications: ^22.3.1
   wakelock_plus: ^1.6.1
   flutter_media_session: ^3.0.9
+  fl_pip: ^3.2.3
   volume_controller: ^3.7.1
   screen_brightness:
     git:

@@ -1,27 +1,20 @@
 package ani.aayush262.dartotsu
 
-import android.app.PictureInPictureParams
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.content.res.Configuration
 import android.content.pm.verify.domain.DomainVerificationManager
 import android.content.pm.verify.domain.DomainVerificationUserState
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import android.util.Rational
 import android.view.KeyEvent
-import io.flutter.embedding.android.FlutterActivity
+import fl.pip.FlPiPActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
-class MainActivity : FlutterActivity() {
+class MainActivity : FlPiPActivity() {
     private var volumeChannel: MethodChannel? = null
     private var interceptVolume = false
-    private var pipChannel: MethodChannel? = null
-    private var pipAuto = false
-    private var pipRatio = Rational(16, 9)
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -31,28 +24,6 @@ class MainActivity : FlutterActivity() {
                 if (call.method != "setEnabled") return@setMethodCallHandler result.notImplemented()
                 interceptVolume = call.arguments as? Boolean ?: false
                 result.success(null)
-            }
-        }
-        pipChannel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "dartotsu/pip").also { channel ->
-            channel.setMethodCallHandler { call, result ->
-                when (call.method) {
-                    "supported" -> result.success(pipSupported())
-                    "enter" -> {
-                        updateRatio(call.argument<Int>("width"), call.argument<Int>("height"))
-                        result.success(enterPip())
-                    }
-                    "setAuto" -> {
-                        pipAuto = call.arguments as? Boolean ?: false
-                        applyPipParams()
-                        result.success(null)
-                    }
-                    "setRatio" -> {
-                        updateRatio(call.argument<Int>("width"), call.argument<Int>("height"))
-                        applyPipParams()
-                        result.success(null)
-                    }
-                    else -> result.notImplemented()
-                }
             }
         }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "dartotsu/links")
@@ -77,52 +48,6 @@ class MainActivity : FlutterActivity() {
                     }
                 }
             }
-    }
-
-    private fun pipSupported(): Boolean =
-        Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
-            packageManager.hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE)
-
-    private fun updateRatio(width: Int?, height: Int?) {
-        if (width == null || height == null || width <= 0 || height <= 0) return
-        val ratio = width.toDouble() / height
-        pipRatio = if (ratio in 0.42..2.38) Rational(width, height) else Rational(16, 9)
-    }
-
-    private fun pipParams(): PictureInPictureParams? {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return null
-        val builder = PictureInPictureParams.Builder().setAspectRatio(pipRatio)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            builder.setAutoEnterEnabled(pipAuto).setSeamlessResizeEnabled(false)
-        }
-        return builder.build()
-    }
-
-    private fun applyPipParams() {
-        val params = pipParams() ?: return
-        try {
-            setPictureInPictureParams(params)
-        } catch (e: Exception) {
-        }
-    }
-
-    private fun enterPip(): Boolean {
-        val params = pipParams() ?: return false
-        return try {
-            enterPictureInPictureMode(params)
-        } catch (e: Exception) {
-            false
-        }
-    }
-
-    override fun onUserLeaveHint() {
-        super.onUserLeaveHint()
-        if (pipAuto && Build.VERSION.SDK_INT < Build.VERSION_CODES.S) enterPip()
-    }
-
-    override fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean, newConfig: Configuration) {
-        super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
-        pipChannel?.invokeMethod("changed", isInPictureInPictureMode)
     }
 
     private fun isLinkHandlingEnabled(): Boolean {
