@@ -113,15 +113,15 @@ It tracks with [**AniList**](https://anilist.co/), [**MyAnimeList**](https://mya
 ### Nix / NixOS
 
 ```bash
-nix run github:aayush2622/Dartotsu/rewrite-re#prerelease
-nix profile install github:aayush2622/Dartotsu/rewrite-re#prerelease
+nix run github:aayush2622/Dartotsu/main#prerelease
+nix profile install github:aayush2622/Dartotsu/main#prerelease
 ```
 
 Channels: `stable`, `prerelease` (WebKitGTK 4.1 build, recommended) and `alpha`. A NixOS or home-manager module is included:
 
 ```nix
 {
-  inputs.dartotsu.url = "github:aayush2622/Dartotsu/rewrite-re";
+  inputs.dartotsu.url = "github:aayush2622/Dartotsu/main";
 
   # NixOS
   imports = [ inputs.dartotsu.nixosModules.default ];
