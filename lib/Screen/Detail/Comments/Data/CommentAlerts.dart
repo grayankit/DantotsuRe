@@ -25,7 +25,11 @@ class CommentAlerts extends AppController {
 
   CommentsApi get _api => find<CommentsApi>();
 
+  bool _started = false;
+
   void start() {
+    if (_started) return;
+    _started = true;
     _schedule();
     _watched.add(onChange(PrefName.commentsPollMinutes.rx, (_) => _schedule()));
     _tapSub = onChange(find<NotificationManager>().tapped, _tapped);

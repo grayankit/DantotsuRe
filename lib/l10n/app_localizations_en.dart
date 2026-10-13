@@ -599,6 +599,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get clearCookiesDesc => 'Remove every stored cookie';
 
   @override
+  String notImplementedArea(String area) {
+    return '$area — coming soon';
+  }
+
+  @override
+  String notImplementedService(String service) {
+    return '$service doesn\'t support this yet.';
+  }
+
+  @override
+  String get couldNotLoadResults => 'Couldn\'t load results';
+
+  @override
+  String get updateCheckFailed => 'Couldn\'t check for updates';
+
+  @override
+  String get verifyTls => 'Verify certificates';
+
+  @override
+  String get verifyTlsDesc =>
+      'Reject servers with invalid HTTPS certificates. Turn off only for a source that uses a self-signed one';
+
+  @override
   String get clearCookiesConfirm =>
       'Remove all stored cookies? This may sign you out of some sources.';
 

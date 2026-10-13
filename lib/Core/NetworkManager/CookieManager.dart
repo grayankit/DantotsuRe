@@ -43,6 +43,13 @@ class CookieManager extends Interceptor {
 
   void dispose() => flush();
 
+  void reload() {
+    _flushTimer?.cancel();
+    _flushTimer = null;
+    _dirty = false;
+    _cache = null;
+  }
+
   Map<String, StoredCookie> _loadAll() {
     if (_cache != null) {
       return _cache!;

@@ -15,7 +15,7 @@ class PrefBackup {
   static Map<PrefLocation, List<String>> currentKeys() {
     final result = <PrefLocation, List<String>>{};
     for (final kv in PrefManager.allEntries()) {
-      if (kv.location == PrefLocation.CACHE) continue;
+      if (kv.location == PrefLocation.CACHE || isInternal(kv.key)) continue;
       (result[kv.location] ??= []).add(_name(kv.key));
     }
     for (final keys in result.values) {
@@ -34,7 +34,7 @@ class PrefBackup {
     final result = <String, Map<String, dynamic>>{};
 
     for (final kv in PrefManager.allEntries()) {
-      if (!selected.contains(kv.location)) continue;
+      if (!selected.contains(kv.location) || isInternal(kv.key)) continue;
       (result[kv.location.name] ??= {})[kv.key] = kv.toJson();
     }
 
@@ -84,13 +84,19 @@ class PrefBackup {
       );
       final values = (section.value as Map).cast<String, dynamic>();
       if (location == PrefLocation.CACHE) continue;
-      result[location] = [for (final k in values.keys) _name(k)]..sort();
+      result[location] = [
+        for (final k in values.keys)
+          if (!isInternal(k)) _name(k),
+      ]..sort();
     }
     return result;
   }
 
   static Set<PrefLocation> _backable(Set<PrefLocation>? locations) =>
       {...(locations ?? PrefLocation.values)}..remove(PrefLocation.CACHE);
+
+  static bool isInternal(String storageKey) =>
+      _name(storageKey).startsWith('__');
 
   static String _name(String storageKey) => storageKey.contains('/')
       ? storageKey.substring(storageKey.indexOf('/') + 1)
@@ -118,7 +124,8 @@ class PrefBackup {
 
       final values = (section.value as Map).cast<String, dynamic>();
       for (final value in values.values) {
-        entries.add(KeyValue.fromJson(value as Map<String, dynamic>));
+        final entry = KeyValue.fromJson(value as Map<String, dynamic>);
+        if (!isInternal(entry.key)) entries.add(entry);
       }
     }
 

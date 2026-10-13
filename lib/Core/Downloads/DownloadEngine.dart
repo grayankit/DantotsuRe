@@ -59,13 +59,17 @@ class DownloadEngine extends AppController {
   final blockedReason = Live<String?>(null);
   late final scanner = DownloadScanner(this);
 
-  @override
-  void onInit() {
+  void reload() {
     final raw = PrefManager.getCustomVal<Map>(_key);
     final list = raw?['items'];
-    if (list is List) {
-      tasks.value = [for (final item in list) ?DownloadTask.fromJson(item)];
-    }
+    tasks.value = list is List
+        ? [for (final item in list) ?DownloadTask.fromJson(item)]
+        : [];
+  }
+
+  @override
+  void onInit() {
+    reload();
     _indexWatch = onAnyChange([tasks], () => _byId = null);
     final net = find<NetStatus>();
     _net = onAnyChange([

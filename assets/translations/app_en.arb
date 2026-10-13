@@ -403,6 +403,22 @@
   "@clearCookies": {},
   "clearCookiesDesc": "Remove every stored cookie",
   "@clearCookiesDesc": {},
+  "notImplementedArea": "{area} — coming soon",
+  "@notImplementedArea": {
+    "placeholders": { "area": { "type": "String" } }
+  },
+  "notImplementedService": "{service} doesn't support this yet.",
+  "@notImplementedService": {
+    "placeholders": { "service": { "type": "String" } }
+  },
+  "couldNotLoadResults": "Couldn't load results",
+  "@couldNotLoadResults": {},
+  "updateCheckFailed": "Couldn't check for updates",
+  "@updateCheckFailed": {},
+  "verifyTls": "Verify certificates",
+  "@verifyTls": {},
+  "verifyTlsDesc": "Reject servers with invalid HTTPS certificates. Turn off only for a source that uses a self-signed one",
+  "@verifyTlsDesc": {},
   "clearCookiesConfirm": "Remove all stored cookies? This may sign you out of some sources.",
   "@clearCookiesConfirm": {},
 

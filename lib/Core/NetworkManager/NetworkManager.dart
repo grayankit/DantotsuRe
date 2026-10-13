@@ -12,8 +12,6 @@ import 'LogInterceptor.dart';
 import '../State/State.dart';
 import '../../Logger.dart';
 
-const bool kVerifyTlsCertificates = false;
-
 class NetworkManager extends AppController {
   late RhttpClient _client;
 
@@ -73,9 +71,9 @@ class NetworkManager extends AppController {
     final settings = ClientSettings(
       userAgent: userAgent,
       throwOnStatusCode: false,
-      tlsSettings: const TlsSettings(
+      tlsSettings: TlsSettings(
         rootCertSource: RootCertSource.webpki,
-        verifyCertificates: kVerifyTlsCertificates,
+        verifyCertificates: PrefName.verifyTls.value,
       ),
       timeoutSettings: TimeoutSettings(
         connectTimeout: const Duration(seconds: 15),

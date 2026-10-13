@@ -65,6 +65,8 @@ class PrefManager {
 
   static final Map<String, Object?> _cache = {};
   static final Map<String, Live<dynamic>> _rx = {};
+  static final Map<String, void Function()> _reloadRx = {};
+  static final List<void Function()> restoreHooks = [];
   static final Map<String, _Pending> _pending = {};
   static bool _flushScheduled = false;
   static Future<void> init() async {
@@ -176,6 +178,10 @@ class PrefManager {
 
     final rx = getVal(pref).live;
     _rx[pref.storageKey] = rx;
+    _reloadRx[pref.storageKey] = () {
+      final fresh = getVal(pref);
+      if (rx.value != fresh) rx.value = fresh;
+    };
     onChange(rx, (v) => setVal(pref, v));
     return rx;
   }
@@ -234,6 +240,16 @@ class PrefManager {
     });
     for (final e in entries) {
       _cache[e.key] = e.value;
+    }
+    for (final e in entries) {
+      _reloadRx[e.key]?.call();
+    }
+    for (final hook in restoreHooks) {
+      try {
+        hook();
+      } catch (err, st) {
+        logError('PrefManager', err, st);
+      }
     }
   }
 

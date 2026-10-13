@@ -208,6 +208,8 @@ class MediaRecords {
 
   static final _memo = Lru<String, MediaRecord>(64);
 
+  static void reload() => _memo.clear();
+
   static String key(MediaService service, Media media) =>
       'media/${service.id}/${media.id}';
 

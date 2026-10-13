@@ -42,6 +42,15 @@ class AppUpdater extends AppController {
   /// a bottom sheet with update details and options to download and install.
   /// [force]: If true, forces the update check regardless of user settings.
   Future<void> checkForUpdate({bool force = false}) async {
+    try {
+      await _check(force);
+    } catch (e, st) {
+      logError('AppUpdater', e, st);
+      if (force) snackString(getString.updateCheckFailed);
+    }
+  }
+
+  Future<void> _check(bool force) async {
     if (!_checkForUpdates && !force) return;
     var hash = await loadEnv("hash");
 

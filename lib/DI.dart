@@ -27,7 +27,10 @@ import 'Core/ThemeManager/CardStyleController.dart';
 import 'Core/ThemeManager/LocaleController.dart';
 import 'Core/ThemeManager/ThemeController.dart';
 import 'Utils/Functions/RefreshController.dart';
+import 'Core/Preferences/PrefManager.dart';
 import 'Core/State/State.dart';
+import 'Screen/Detail/Watch/Data/Media/MediaRecord.dart';
+import 'Screen/Detail/Watch/Data/Media/ResumeStore.dart';
 
 /// Single registration point for every long-lived controller.
 ///
@@ -35,6 +38,13 @@ import 'Core/State/State.dart';
 /// Lazy (`lazyPut`): built on first `find<T>()`.
 class DI {
   static void init() {
+    PrefManager.restoreHooks.addAll([
+      MediaRecords.reload,
+      ResumeStore.reload,
+      () => tryFind<PendingWrites>()?.reload(),
+      () => tryFind<DownloadEngine>()?.reload(),
+      () => tryFind<NetworkManager>()?.cookieManager.reload(),
+    ]);
     // Eager — used during startup / must observe every error.
     put(NetworkManager());
     put(AnalyticsManager());

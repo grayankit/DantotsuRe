@@ -162,7 +162,6 @@ class PrefName {
     'auto',
     PrefLocation.COMMON,
   );
-  static const offlineMode = Pref('offlineMode', false, PrefLocation.COMMON);
 
   static const lastBackupAt = Pref('lastBackupAt', '', PrefLocation.COMMON);
 
@@ -205,4 +204,5 @@ class PrefName {
   );
   static const customDnsUrl = Pref('customDnsUrl', '', PrefLocation.COMMON);
   static const proxyUrl = Pref('proxyUrl', '', PrefLocation.COMMON);
+  static const verifyTls = Pref('verifyTls', true, PrefLocation.COMMON);
 }

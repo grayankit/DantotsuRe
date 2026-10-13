@@ -1271,6 +1271,42 @@ abstract class AppLocalizations {
   /// **'Remove every stored cookie'**
   String get clearCookiesDesc;
 
+  /// No description provided for @notImplementedArea.
+  ///
+  /// In en, this message translates to:
+  /// **'{area} — coming soon'**
+  String notImplementedArea(String area);
+
+  /// No description provided for @notImplementedService.
+  ///
+  /// In en, this message translates to:
+  /// **'{service} doesn\'t support this yet.'**
+  String notImplementedService(String service);
+
+  /// No description provided for @couldNotLoadResults.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load results'**
+  String get couldNotLoadResults;
+
+  /// No description provided for @updateCheckFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t check for updates'**
+  String get updateCheckFailed;
+
+  /// No description provided for @verifyTls.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify certificates'**
+  String get verifyTls;
+
+  /// No description provided for @verifyTlsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject servers with invalid HTTPS certificates. Turn off only for a source that uses a self-signed one'**
+  String get verifyTlsDesc;
+
   /// No description provided for @clearCookiesConfirm.
   ///
   /// In en, this message translates to:

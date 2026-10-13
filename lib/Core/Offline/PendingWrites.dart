@@ -83,11 +83,14 @@ class PendingWrites extends AppController {
   final busy = false.live;
 
   @override
-  void onInit() {
+  void onInit() => reload();
+
+  void reload() {
     final raw = PrefManager.getCustomVal<Map>(_key);
     final list = raw?['items'];
-    if (list is! List) return;
-    entries.value = [for (final item in list) ?PendingWrite.fromJson(item)];
+    entries.value = list is List
+        ? [for (final item in list) ?PendingWrite.fromJson(item)]
+        : [];
   }
 
   void _persist() => PrefManager.setCustomVal<Map>(_key, {

@@ -30,6 +30,16 @@ List<Setting> networkSettings(BuildContext context) {
       isActivity: true,
       onClick: () => _showUaSheet(context, network),
     ),
+    Setting.switchType(
+      name: getString.verifyTls,
+      description: getString.verifyTlsDesc,
+      icon: Icons.verified_user_outlined,
+      isChecked: PrefName.verifyTls.rx.value,
+      onSwitchChange: (v) {
+        PrefName.verifyTls.value = v;
+        network.reinitialize();
+      },
+    ),
     Setting.header(getString.sectionDnsProxy),
     Setting.normal(
       name: getString.dnsOverHttps,

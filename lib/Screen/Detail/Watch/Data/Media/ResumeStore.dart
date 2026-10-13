@@ -161,6 +161,12 @@ class ResumeStore {
     sessionTick.value++;
   }
 
+  static void reload() {
+    _loaded = false;
+    entries.value = [];
+    _load();
+  }
+
   static void _load() {
     if (_loaded) return;
     _loaded = true;

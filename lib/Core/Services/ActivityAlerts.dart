@@ -25,7 +25,11 @@ class ActivityAlerts extends AppController {
   Iterable<MediaService> get _badged => find<MediaServiceController>().services
       .where((s) => s.notificationView != null);
 
+  bool _started = false;
+
   void start() {
+    if (_started) return;
+    _started = true;
     _tapSub = onChange(find<NotificationManager>().tapped, _tapped);
     for (final s in _services) {
       final view = s.notificationView!;
