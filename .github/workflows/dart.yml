@@ -397,8 +397,6 @@ jobs:
 
       - name: Get Dependencies
         run: flutter pub get
-      - name: Use CocoaPods (the bridge mixes Swift and Objective-C++, which Swift Package Manager rejects)
-        run: flutter config --no-enable-swift-package-manager
       - name: Prepare iOS runtimes
         run: |
           cd ../DartotsuExtensionBridge/ios
