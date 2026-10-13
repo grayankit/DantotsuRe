@@ -83,10 +83,12 @@ class _ProfileInfoTabState extends State<ProfileInfoTab>
             SectionCard(
               title: getString.about,
               margin: _margin,
-              child: AniHtml(
-                html: user!.about!,
-                onLink: (url) => openAppLink(context, service, url),
-                linkCard: aniLinkCards(service),
+              child: SelectionArea(
+                child: AniHtml(
+                  html: user!.about!,
+                  onLink: (url) => openAppLink(context, service, url),
+                  linkCard: aniLinkCards(service),
+                ),
               ),
             ),
           if (user != null) _stats(context, user),

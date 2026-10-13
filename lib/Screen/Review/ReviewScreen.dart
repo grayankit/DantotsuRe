@@ -184,11 +184,13 @@ class _ReviewScreenState extends BaseScreen<ReviewScreen>
                     ),
                   SectionCard(
                     title: review.summary,
-                    child: AniHtml(
-                      html: review.body ?? '',
-                      onLink: (link) =>
-                          openAppLink(context, widget.service, link),
-                      linkCard: aniLinkCards(widget.service),
+                    child: SelectionArea(
+                      child: AniHtml(
+                        html: review.body ?? '',
+                        onLink: (link) =>
+                            openAppLink(context, widget.service, link),
+                        linkCard: aniLinkCards(widget.service),
+                      ),
                     ),
                   ),
                   if (state.canVote) ...[

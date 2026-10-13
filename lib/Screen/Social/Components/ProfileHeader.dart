@@ -11,6 +11,7 @@ import '../../../Utils/Function.dart';
 import '../../../Utils/Functions/CopyToClip.dart';
 import '../../../Widgets/Components/AppBars.dart';
 import '../../../Widgets/Components/Clickable.dart';
+import '../../../Widgets/Components/ImageSheet.dart';
 import '../../../Widgets/Components/CachedNetworkImage.dart';
 import '../../../Widgets/Components/UserAvatar.dart';
 import '../../../Core/State/State.dart';
@@ -100,7 +101,19 @@ class ProfileHeaderDelegate extends SliverPersistentHeaderDelegate {
             ),
             if (!glass && banner != null)
               Positioned.fill(
-                child: Opacity(opacity: 1 - t, child: _banner(context, banner)),
+                child: Opacity(
+                  opacity: 1 - t,
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.translucent,
+                    onLongPress: () => showImageSheet(
+                      context,
+                      url: banner,
+                      name: '$name banner',
+                      title: getString.imageTitleBanner,
+                    ),
+                    child: _banner(context, banner),
+                  ),
+                ),
               ),
             Positioned(
               left: 0,
@@ -126,7 +139,7 @@ class ProfileHeaderDelegate extends SliverPersistentHeaderDelegate {
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Clickable(
-                              onTap: () => _openAvatar(context, avatar),
+                              onTap: () => _openAvatar(context, avatar, name),
                               child: DecoratedBox(
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
@@ -270,19 +283,13 @@ class ProfileHeaderDelegate extends SliverPersistentHeaderDelegate {
     });
   }
 
-  void _openAvatar(BuildContext context, String? avatar) {
-    if (avatar == null) return;
-    showDialog<void>(
-      context: context,
-      builder: (_) => Dialog(
-        backgroundColor: Colors.transparent,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(24),
-          child: Image.network(avatar, fit: BoxFit.contain),
-        ),
-      ),
-    );
-  }
+  void _openAvatar(BuildContext context, String? avatar, String name) =>
+      showImageSheet(
+        context,
+        url: avatar,
+        name: '$name avatar',
+        title: getString.imageTitleAvatar,
+      );
 
   Widget _followButton(SocialUser? u) {
     return Watch(() {

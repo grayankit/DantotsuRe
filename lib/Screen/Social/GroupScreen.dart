@@ -321,13 +321,13 @@ class _GroupScreenState extends BaseScreen<GroupScreen>
           if (group.about != null && group.about!.isNotEmpty)
             SectionCard(
               title: getString.groupsAbout,
-              child: MarkupText(text: group.about!),
+              child: SelectionArea(child: MarkupText(text: group.about!)),
             ),
           if (group.rules != null && group.rules!.isNotEmpty) ...[
             SizedBox(height: Dimens.gapSm),
             SectionCard(
               title: getString.groupsRules,
-              child: MarkupText(text: group.rules!),
+              child: SelectionArea(child: MarkupText(text: group.rules!)),
             ),
           ],
           SizedBox(height: Dimens.gapSm),

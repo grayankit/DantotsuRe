@@ -189,11 +189,13 @@ class _EntityScreenState extends BaseScreen<EntityScreen>
             ),
           ),
           SizedBox(height: Dimens.gapSm),
-          AniHtml(
-            html: description,
-            collapsedHeight: 240,
-            onLink: state.openLink,
-            linkCard: aniLinkCards(state.service),
+          SelectionArea(
+            child: AniHtml(
+              html: description,
+              collapsedHeight: 240,
+              onLink: state.openLink,
+              linkCard: aniLinkCards(state.service),
+            ),
           ),
         ],
       ),

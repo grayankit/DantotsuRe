@@ -1295,6 +1295,54 @@ abstract class AppLocalizations {
   /// **'Couldn\'t check for updates'**
   String get updateCheckFailed;
 
+  /// No description provided for @highRefreshRate.
+  ///
+  /// In en, this message translates to:
+  /// **'High refresh rate'**
+  String get highRefreshRate;
+
+  /// No description provided for @highRefreshRateDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the highest refresh rate your screen supports'**
+  String get highRefreshRateDesc;
+
+  /// No description provided for @imageSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save image'**
+  String get imageSave;
+
+  /// No description provided for @imageSavedTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved to {path}'**
+  String imageSavedTo(String path);
+
+  /// No description provided for @imageActionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t download the image'**
+  String get imageActionFailed;
+
+  /// No description provided for @imageTitleCover.
+  ///
+  /// In en, this message translates to:
+  /// **'Cover'**
+  String get imageTitleCover;
+
+  /// No description provided for @imageTitleBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Banner'**
+  String get imageTitleBanner;
+
+  /// No description provided for @imageTitleAvatar.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile picture'**
+  String get imageTitleAvatar;
+
   /// No description provided for @verifyTls.
   ///
   /// In en, this message translates to:

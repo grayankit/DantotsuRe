@@ -10,6 +10,8 @@ import '../../../Utils/Functions/CopyToClip.dart';
 import '../../../Utils/Nav/DpadNav.dart';
 import '../../../Utils/Functions/NavigateToScreen.dart';
 import '../../../Widgets/Components/CachedNetworkImage.dart';
+import '../../../Widgets/Components/Clickable.dart';
+import '../../../Widgets/Components/ImageSheet.dart';
 import 'StatusChip.dart';
 import '../../../Core/State/State.dart';
 import '../Watch/Data/WatchPrefs.dart';
@@ -116,7 +118,21 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
                   right: 0,
                   top: 0,
                   bottom: _below * (1 - t),
-                  child: Opacity(opacity: 1 - t, child: _banner(m, scheme)),
+                  child: Opacity(
+                    opacity: 1 - t,
+                    child: Builder(
+                      builder: (c) => GestureDetector(
+                        behavior: HitTestBehavior.translucent,
+                        onLongPress: () => showImageSheet(
+                          c,
+                          url: m.banner ?? m.cover,
+                          name: '${m.mainName} banner',
+                          title: getString.imageTitleBanner,
+                        ),
+                        child: _banner(m, scheme),
+                      ),
+                    ),
+                  ),
                 ),
               Positioned(
                 left: 0,
@@ -313,12 +329,21 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
       ),
     );
     final tag = host.heroTag;
-    if (tag == null) return image;
+    final tappable = Clickable(
+      onTap: () => showImageSheet(
+        context,
+        url: m.cover,
+        name: '${m.mainName} cover',
+        title: getString.imageTitleCover,
+      ),
+      child: image,
+    );
+    if (tag == null) return tappable;
     return Hero(
       tag: tag,
       flightShuttleBuilder: (_, _, _, _, toContext) =>
           (toContext.widget as Hero).child,
-      child: image,
+      child: tappable,
     );
   }
 

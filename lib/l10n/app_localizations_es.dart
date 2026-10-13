@@ -615,6 +615,33 @@ class AppLocalizationsEs extends AppLocalizations {
   String get updateCheckFailed => 'Couldn\'t check for updates';
 
   @override
+  String get highRefreshRate => 'High refresh rate';
+
+  @override
+  String get highRefreshRateDesc =>
+      'Use the highest refresh rate your screen supports';
+
+  @override
+  String get imageSave => 'Save image';
+
+  @override
+  String imageSavedTo(String path) {
+    return 'Saved to $path';
+  }
+
+  @override
+  String get imageActionFailed => 'Couldn\'t download the image';
+
+  @override
+  String get imageTitleCover => 'Cover';
+
+  @override
+  String get imageTitleBanner => 'Banner';
+
+  @override
+  String get imageTitleAvatar => 'Profile picture';
+
+  @override
   String get verifyTls => 'Verify certificates';
 
   @override
