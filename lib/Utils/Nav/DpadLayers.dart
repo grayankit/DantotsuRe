@@ -142,12 +142,26 @@ class _DpadEnterState extends State<DpadEnter> {
   }
 
   void _enter() {
-    if (!mounted || !usingKeyboard) return;
+    if (!mounted) return;
     final scope = FocusScope.of(context);
     final focused = scope.focusedChild;
     if (focused != null && focused.hasPrimaryFocus) return;
-    if (scope.traversalDescendants.isEmpty) return;
-    scope.nextFocus();
+    final candidates = scope.traversalDescendants;
+    if (candidates.isEmpty) return;
+    if (usingKeyboard) {
+      scope.nextFocus();
+      return;
+    }
+    for (final node in candidates) {
+      final ctx = node.context;
+      if (ctx == null) continue;
+      final text =
+          ctx.widget is EditableText ||
+          ctx.findAncestorWidgetOfExactType<EditableText>() != null;
+      if (text) continue;
+      node.requestFocus();
+      return;
+    }
   }
 
   @override
