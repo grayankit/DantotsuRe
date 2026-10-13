@@ -397,6 +397,8 @@ jobs:
 
       - name: Get Dependencies
         run: flutter pub get
+      - name: Install the iOS Rust target
+        run: rustup target add aarch64-apple-ios
       - name: Patch fl_pip for the non-optional FlutterEngine
         run: |
           for f in "$PUB_CACHE"/hosted/pub.dev/fl_pip-*/ios/Classes/PiPHelper.swift; do
