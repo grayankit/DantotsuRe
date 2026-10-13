@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 env:
-  FLUTTER_VERSION: 3.35.7
+  FLUTTER_VERSION: 3.47.4
 
 jobs:
   anchors:
@@ -29,6 +29,9 @@ jobs:
             echo "FLUTTER_VERSION=${FLUTTER_VERSION_SECRET}" >> $GITHUB_ENV
           else
             echo "FLUTTER_VERSION=${FLUTTER_VERSION}" >> $GITHUB_ENV
+          fi
+          if [ ! -d ../DartotsuExtensionBridge ]; then
+            git clone --depth 1 https://github.com/aayush2622/DartotsuExtensionBridge.git ../DartotsuExtensionBridge
           fi
 
       - &setup_flutter
