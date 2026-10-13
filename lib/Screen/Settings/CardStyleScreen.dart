@@ -291,12 +291,14 @@ class _CardStyleScreenState extends BaseScreen<CardStyleScreen>
               segments: [
                 AppSegment(CardProgressStyle.pill, label: getString.pill),
                 AppSegment(CardProgressStyle.bar, label: getString.bar),
+                AppSegment(
+                  CardProgressStyle.outside,
+                  label: s.mode == CardMode.onCard
+                      ? getString.count
+                      : getString.outside,
+                ),
                 if (s.mode != CardMode.onCard)
-                  AppSegment(
-                    CardProgressStyle.outside,
-                    label: getString.outside,
-                  ),
-                AppSegment(CardProgressStyle.none, label: getString.off),
+                  AppSegment(CardProgressStyle.none, label: getString.off),
               ],
             ),
           ),

@@ -93,12 +93,7 @@ class CardStyle {
   bool get showScore => !compact && scoreCorner != CardCorner.none;
   bool get showAiring => !compact && airingDot;
 
-  /// On-card mode has nothing "outside" the poster, so [CardProgressStyle.outside]
-  /// resolves to the pill there.
-  CardProgressStyle get effectiveProgress =>
-      (mode == CardMode.onCard && progress == CardProgressStyle.outside)
-      ? CardProgressStyle.pill
-      : progress;
+  CardProgressStyle get effectiveProgress => progress;
 
   bool get showProgress =>
       !compact &&

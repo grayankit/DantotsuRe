@@ -126,7 +126,7 @@ class _PosterCardState extends State<PosterCard> {
 
   Widget _onCard(CardStyle s) {
     final pill = _pillOn && widget.progressText != null;
-    final showSub = _showSub(s);
+    final showSub = s.showInfo && (widget.subtitle?.isNotEmpty ?? false);
     return _poster(
       s,
       round: true,
