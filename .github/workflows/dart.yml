@@ -397,6 +397,11 @@ jobs:
 
       - name: Get Dependencies
         run: flutter pub get
+      - name: Patch fl_pip for the non-optional FlutterEngine
+        run: |
+          for f in "$PUB_CACHE"/hosted/pub.dev/fl_pip-*/ios/Classes/PiPHelper.swift; do
+            sed -i '' 's/let engine = flController.engine$/let engine: FlutterEngine? = flController.engine/' "$f"
+          done
       - name: Prepare iOS runtimes
         run: |
           cd ../DartotsuExtensionBridge/ios
