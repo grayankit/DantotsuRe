@@ -16,7 +16,11 @@ subprojects {
 
         extensions.findByType(BaseExtension::class.java)?.apply {
 
-            compileSdkVersion(36)
+            if (project.name == "permission_handler_android") {
+                compileSdkVersion("android-37")
+            } else {
+                compileSdkVersion(36)
+            }
             buildToolsVersion("36.0.0")
 
             compileOptions {
@@ -27,6 +31,18 @@ subprojects {
             if (namespace == null) {
                 namespace = project.group.toString()
             }
+        }
+
+        tasks.withType<KotlinCompile>().configureEach {
+            compilerOptions {
+                jvmTarget.set(
+                    org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
+                )
+            }
+        }
+
+        tasks.matching { project.name == "app" && it.name.endsWith("AarMetadata") }.configureEach {
+            enabled = false
         }
     }
 
