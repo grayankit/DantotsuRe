@@ -5588,13 +5588,13 @@ abstract class AppLocalizations {
   /// No description provided for @syncOnEdit.
   ///
   /// In en, this message translates to:
-  /// **'Sync to other services'**
+  /// **'Sync changes instantly'**
   String get syncOnEdit;
 
   /// No description provided for @syncOnEditDesc.
   ///
   /// In en, this message translates to:
-  /// **'Also push this change to your other signed-in services'**
+  /// **'Push every progress update and list edit to your other signed-in services right away'**
   String get syncOnEditDesc;
 
   /// No description provided for @syncPushed.
@@ -10054,6 +10054,258 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{Throw away the change that was never sent? This can\'t be undone.} other{Throw away {count} changes that were never sent? This can\'t be undone.}}'**
   String offlineDiscardConfirm(int count);
+
+  /// No description provided for @downloadWaitingWifi.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for Wi-Fi'**
+  String get downloadWaitingWifi;
+
+  /// No description provided for @downloadWaitingMetered.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused on a metered connection'**
+  String get downloadWaitingMetered;
+
+  /// No description provided for @downloadWifiOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Wi-Fi only'**
+  String get downloadWifiOnly;
+
+  /// No description provided for @downloadWifiOnlyDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloads wait while you are on mobile data'**
+  String get downloadWifiOnlyDesc;
+
+  /// No description provided for @downloadMetered.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause on metered connections'**
+  String get downloadMetered;
+
+  /// No description provided for @downloadMeteredDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Also waits on Wi-Fi that your device marks as metered'**
+  String get downloadMeteredDesc;
+
+  /// No description provided for @downloadSpeedLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Speed limit'**
+  String get downloadSpeedLimit;
+
+  /// No description provided for @downloadSpeedLimitDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Caps the total download speed'**
+  String get downloadSpeedLimitDesc;
+
+  /// No description provided for @downloadUnlimited.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlimited'**
+  String get downloadUnlimited;
+
+  /// No description provided for @downloadMoveToTop.
+  ///
+  /// In en, this message translates to:
+  /// **'Move to top'**
+  String get downloadMoveToTop;
+
+  /// No description provided for @downloadSwarm.
+  ///
+  /// In en, this message translates to:
+  /// **'{seeds} seeds · {peers} peers'**
+  String downloadSwarm(int seeds, int peers);
+
+  /// No description provided for @downloadTorrentFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Which file?'**
+  String get downloadTorrentFile;
+
+  /// No description provided for @downloadTorrentAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Match the episode automatically'**
+  String get downloadTorrentAuto;
+
+  /// No description provided for @downloadTorrentLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading the torrent…'**
+  String get downloadTorrentLoading;
+
+  /// No description provided for @watchAutoSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to the next source automatically'**
+  String get watchAutoSource;
+
+  /// No description provided for @watchAutoSourceDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'If the source can\'t find the title or fails to load, try the next installed source'**
+  String get watchAutoSourceDesc;
+
+  /// No description provided for @extensionTest.
+  ///
+  /// In en, this message translates to:
+  /// **'Test extensions'**
+  String get extensionTest;
+
+  /// No description provided for @extensionTestCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy the failures and their logs'**
+  String get extensionTestCopy;
+
+  /// No description provided for @extensionTestQuery.
+  ///
+  /// In en, this message translates to:
+  /// **'Search term'**
+  String get extensionTestQuery;
+
+  /// No description provided for @extensionTestRun.
+  ///
+  /// In en, this message translates to:
+  /// **'Run'**
+  String get extensionTestRun;
+
+  /// No description provided for @extensionTestStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop'**
+  String get extensionTestStop;
+
+  /// No description provided for @extensionTestNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No installed extensions of this type'**
+  String get extensionTestNone;
+
+  /// No description provided for @extensionTestNotRun.
+  ///
+  /// In en, this message translates to:
+  /// **'Not tested yet'**
+  String get extensionTestNotRun;
+
+  /// No description provided for @extensionTestSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get extensionTestSearch;
+
+  /// No description provided for @extensionTestDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get extensionTestDetail;
+
+  /// No description provided for @extensionTestUnits.
+  ///
+  /// In en, this message translates to:
+  /// **'Episodes / chapters'**
+  String get extensionTestUnits;
+
+  /// No description provided for @extensionTestLinks.
+  ///
+  /// In en, this message translates to:
+  /// **'Streams / pages'**
+  String get extensionTestLinks;
+
+  /// No description provided for @extensionTestFailedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed at {step}'**
+  String extensionTestFailedAt(String step);
+
+  /// No description provided for @extensionTestSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} of {total} tested · {passed} passed · {failed} failed'**
+  String extensionTestSummary(int done, int total, int passed, int failed);
+
+  /// No description provided for @extensionTestCopyLogs.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy everything with the full logs'**
+  String get extensionTestCopyLogs;
+
+  /// No description provided for @onboardingFeaturesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'All of it in one place'**
+  String get onboardingFeaturesTitle;
+
+  /// No description provided for @onboardingFeaturesBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything you track, watch and read, without juggling apps.'**
+  String get onboardingFeaturesBody;
+
+  /// No description provided for @onboardingFeatureTrack.
+  ///
+  /// In en, this message translates to:
+  /// **'Track everything'**
+  String get onboardingFeatureTrack;
+
+  /// No description provided for @onboardingFeatureTrackDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Lists, progress and scores on AniList, MyAnimeList, Simkl, Kitsu and MangaBaka.'**
+  String get onboardingFeatureTrackDesc;
+
+  /// No description provided for @onboardingFeatureWatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch and read'**
+  String get onboardingFeatureWatch;
+
+  /// No description provided for @onboardingFeatureWatchDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Install extensions and stream anime or read manga and novels right in the app.'**
+  String get onboardingFeatureWatchDesc;
+
+  /// No description provided for @onboardingFeatureOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Take it offline'**
+  String get onboardingFeatureOffline;
+
+  /// No description provided for @onboardingFeatureOfflineDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Download episodes and chapters, and keep going without a connection.'**
+  String get onboardingFeatureOfflineDesc;
+
+  /// No description provided for @onboardingFeatureSync.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep lists in sync'**
+  String get onboardingFeatureSync;
+
+  /// No description provided for @onboardingFeatureSyncDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Mirror your list across services, or let whichever is ahead win.'**
+  String get onboardingFeatureSyncDesc;
+
+  /// No description provided for @onboardingThemeShape.
+  ///
+  /// In en, this message translates to:
+  /// **'Colours'**
+  String get onboardingThemeShape;
+
+  /// No description provided for @onboardingServices.
+  ///
+  /// In en, this message translates to:
+  /// **'Works with'**
+  String get onboardingServices;
 }
 
 class _AppLocalizationsDelegate

@@ -3007,11 +3007,11 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get syncOnEdit => 'Sync to other services';
+  String get syncOnEdit => 'Sync changes instantly';
 
   @override
   String get syncOnEditDesc =>
-      'Also push this change to your other signed-in services';
+      'Push every progress update and list edit to your other signed-in services right away';
 
   @override
   String syncPushed(String services) {
@@ -5544,4 +5544,144 @@ class AppLocalizationsFr extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get downloadWaitingWifi => 'Waiting for Wi-Fi';
+
+  @override
+  String get downloadWaitingMetered => 'Paused on a metered connection';
+
+  @override
+  String get downloadWifiOnly => 'Wi-Fi only';
+
+  @override
+  String get downloadWifiOnlyDesc =>
+      'Downloads wait while you are on mobile data';
+
+  @override
+  String get downloadMetered => 'Pause on metered connections';
+
+  @override
+  String get downloadMeteredDesc =>
+      'Also waits on Wi-Fi that your device marks as metered';
+
+  @override
+  String get downloadSpeedLimit => 'Speed limit';
+
+  @override
+  String get downloadSpeedLimitDesc => 'Caps the total download speed';
+
+  @override
+  String get downloadUnlimited => 'Unlimited';
+
+  @override
+  String get downloadMoveToTop => 'Move to top';
+
+  @override
+  String downloadSwarm(int seeds, int peers) {
+    return '$seeds seeds · $peers peers';
+  }
+
+  @override
+  String get downloadTorrentFile => 'Which file?';
+
+  @override
+  String get downloadTorrentAuto => 'Match the episode automatically';
+
+  @override
+  String get downloadTorrentLoading => 'Reading the torrent…';
+
+  @override
+  String get watchAutoSource => 'Switch to the next source automatically';
+
+  @override
+  String get watchAutoSourceDesc =>
+      'If the source can\'t find the title or fails to load, try the next installed source';
+
+  @override
+  String get extensionTest => 'Test extensions';
+
+  @override
+  String get extensionTestCopy => 'Copy the failures and their logs';
+
+  @override
+  String get extensionTestQuery => 'Search term';
+
+  @override
+  String get extensionTestRun => 'Run';
+
+  @override
+  String get extensionTestStop => 'Stop';
+
+  @override
+  String get extensionTestNone => 'No installed extensions of this type';
+
+  @override
+  String get extensionTestNotRun => 'Not tested yet';
+
+  @override
+  String get extensionTestSearch => 'Search';
+
+  @override
+  String get extensionTestDetail => 'Details';
+
+  @override
+  String get extensionTestUnits => 'Episodes / chapters';
+
+  @override
+  String get extensionTestLinks => 'Streams / pages';
+
+  @override
+  String extensionTestFailedAt(String step) {
+    return 'Failed at $step';
+  }
+
+  @override
+  String extensionTestSummary(int done, int total, int passed, int failed) {
+    return '$done of $total tested · $passed passed · $failed failed';
+  }
+
+  @override
+  String get extensionTestCopyLogs => 'Copy everything with the full logs';
+
+  @override
+  String get onboardingFeaturesTitle => 'All of it in one place';
+
+  @override
+  String get onboardingFeaturesBody =>
+      'Everything you track, watch and read, without juggling apps.';
+
+  @override
+  String get onboardingFeatureTrack => 'Track everything';
+
+  @override
+  String get onboardingFeatureTrackDesc =>
+      'Lists, progress and scores on AniList, MyAnimeList, Simkl, Kitsu and MangaBaka.';
+
+  @override
+  String get onboardingFeatureWatch => 'Watch and read';
+
+  @override
+  String get onboardingFeatureWatchDesc =>
+      'Install extensions and stream anime or read manga and novels right in the app.';
+
+  @override
+  String get onboardingFeatureOffline => 'Take it offline';
+
+  @override
+  String get onboardingFeatureOfflineDesc =>
+      'Download episodes and chapters, and keep going without a connection.';
+
+  @override
+  String get onboardingFeatureSync => 'Keep lists in sync';
+
+  @override
+  String get onboardingFeatureSyncDesc =>
+      'Mirror your list across services, or let whichever is ahead win.';
+
+  @override
+  String get onboardingThemeShape => 'Colours';
+
+  @override
+  String get onboardingServices => 'Works with';
 }
