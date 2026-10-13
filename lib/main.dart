@@ -34,8 +34,10 @@ import 'Screen/Downloads/DownloadsLauncher.dart';
 import 'Screen/Error/ErrorScreen.dart';
 import 'Screen/MainScreen.dart';
 import 'Screen/Onboarding/OnboardingScreen.dart';
+import 'Screen/Splash/SplashApp.dart';
 import 'Utils/Functions/AppShortcuts.dart';
 import 'Utils/Functions/DeepLink.dart';
+import 'Utils/Functions/DisplayMode.dart';
 import 'Utils/Functions/LinkSettings.dart';
 import 'Api/Discord/DiscordPresenceController.dart';
 import 'Screen/Detail/Comments/Data/CommentAlerts.dart';
@@ -72,6 +74,7 @@ void main(List<String> args) async {
         softCrash: true,
       );
 
+      if (!Platform.isAndroid && !Platform.isIOS) runApp(const SplashApp());
       await init(args);
       runApp(const MyApp());
     },
@@ -112,6 +115,7 @@ Future<void> init(List<String> args) async {
       WindowManager.instance.ensureInitialized(),
   ]);
 
+  unawaited(applyRefreshRate());
   MediaKit.ensureInitialized();
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(

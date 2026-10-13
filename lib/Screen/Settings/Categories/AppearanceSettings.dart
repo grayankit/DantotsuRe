@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -9,6 +10,7 @@ import '../../../Core/ThemeManager/ThemeController.dart';
 import '../../../Core/ThemeManager/ThemeMode.dart';
 import '../../../Model/Setting.dart';
 import '../../../Utils/Extensions/ContextExtensions.dart';
+import '../../../Utils/Functions/DisplayMode.dart';
 import '../../../Utils/Functions/NavigateToScreen.dart';
 import '../../../Widgets/Components/AppControls.dart';
 import '../CardStyleScreen.dart';
@@ -56,6 +58,17 @@ List<Setting> appearanceSettings(BuildContext context) {
         onSwitchChange: t.setUseJsonTheme,
       ),
     Setting.header(getString.sectionDisplay),
+    if (Platform.isAndroid)
+      Setting.switchType(
+        name: getString.highRefreshRate,
+        description: getString.highRefreshRateDesc,
+        icon: Icons.speed_rounded,
+        isChecked: PrefName.highRefreshRate.rx.value,
+        onSwitchChange: (v) {
+          PrefName.highRefreshRate.value = v;
+          unawaited(applyRefreshRate());
+        },
+      ),
     segmentedSetting<ThemeModePref>(
       name: getString.themeMode,
       icon: Icons.brightness_6_rounded,

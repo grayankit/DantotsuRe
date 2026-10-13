@@ -5,6 +5,11 @@ enum UpdateChannel { stable, prerelease, alpha }
 class PrefName {
   PrefName._();
 
+  static const highRefreshRate = Pref(
+    'highRefreshRate',
+    true,
+    PrefLocation.THEME,
+  );
   static const useGlassMode = Pref('useGlassMode', false, PrefLocation.THEME);
   static const isOled = Pref('isOled', false, PrefLocation.THEME);
   static const useMaterialYou = Pref(
