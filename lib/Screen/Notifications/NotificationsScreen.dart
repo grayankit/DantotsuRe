@@ -182,6 +182,13 @@ class _NotificationsScreenState extends BaseScreen<NotificationsScreen>
               height: 320,
               child: feed.loadingMore.value
                   ? const Center(child: CircularProgressIndicator())
+                  : feed.failed.value
+                  ? EmptyState(
+                      icon: Icons.cloud_off_rounded,
+                      title: getString.couldNotLoadResults,
+                      failed: true,
+                      onAction: () => unawaited(feed.load()),
+                    )
                   : EmptyState(
                       icon: Icons.notifications_off_rounded,
                       title: kind == null

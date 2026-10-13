@@ -625,6 +625,17 @@ class _SearchScreenState extends BaseScreen<SearchScreen>
   ];
 
   Widget _empty() {
+    if (state.failed.value) {
+      return EmptyState(
+        icon: Icons.cloud_off_rounded,
+        title: getString.couldNotLoadResults,
+        failed: true,
+        onAction: () {
+          state.hasMore = true;
+          state.restart();
+        },
+      );
+    }
     final searched = state.hasCriteria && !state.loading.value;
     return EmptyState(
       icon: searched ? Icons.search_off_rounded : Icons.search_rounded,

@@ -26,6 +26,7 @@ class NotificationFeed {
   final items = <ServiceNotification>[].liveList;
   final loading = true.live;
   final loadingMore = false.live;
+  final failed = false.live;
   final kind = Live<NotificationKind?>(null);
   var started = false;
   var _page = 1;
@@ -45,6 +46,7 @@ class NotificationFeed {
   Future<void> load() async {
     started = true;
     loading.value = true;
+    failed.value = false;
     _page = 1;
     _hasMore = true;
     try {
@@ -57,6 +59,7 @@ class NotificationFeed {
         logLevel: LogLevel.error,
         tag: 'NOTIFICATION',
       );
+      failed.value = true;
     } finally {
       loading.value = false;
     }

@@ -7,8 +7,11 @@ import '../MainScreen.dart';
 class LoginState extends ScreenState {
   void enter() {
     PrefName.hasCompletedOnboarding.value = true;
-    Navigator.of(
-      context,
-    ).pushReplacement(MaterialPageRoute(builder: (_) => const MainScreen()));
+    final nav = Navigator.of(context);
+    if (nav.canPop()) {
+      nav.pop();
+      return;
+    }
+    nav.pushReplacement(MaterialPageRoute(builder: (_) => const MainScreen()));
   }
 }

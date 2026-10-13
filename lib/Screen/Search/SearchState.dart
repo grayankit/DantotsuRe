@@ -45,6 +45,7 @@ class SearchState extends ScreenState {
   final scroll = ScrollController();
   final items = <Object>[].liveList;
   final loading = false.live;
+  final failed = false.live;
   final showTop = false.live;
   final historyTick = 0.live;
   late final type = initialType.searchType.live;
@@ -147,6 +148,7 @@ class SearchState extends ScreenState {
   void restart() {
     query.value.page = 1;
     hasMore = true;
+    failed.value = false;
     items.clear();
     query.refresh();
     if (hasCriteria) unawaited(search());
@@ -163,6 +165,7 @@ class SearchState extends ScreenState {
   Future<void> search() async {
     if (loading.value || !hasMore || !hasCriteria) return;
     loading.value = true;
+    failed.value = false;
     try {
       final res = await view.search(query.value);
       query.value.page = (query.value.page ?? 1) + 1;
@@ -171,6 +174,7 @@ class SearchState extends ScreenState {
     } catch (e, st) {
       logError('SearchState', e, st);
       hasMore = false;
+      failed.value = true;
     } finally {
       loading.value = false;
     }

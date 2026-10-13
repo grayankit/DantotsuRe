@@ -8,6 +8,7 @@ import '../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../Utils/Function.dart';
 import '../../Utils/Functions/CopyToClip.dart';
 import '../../Widgets/Components/ScreenState.dart';
+import '../MainScreen.dart';
 
 class ErrorState extends ScreenState {
   final String error;
@@ -43,7 +44,16 @@ class ErrorState extends ScreenState {
   void onClose() => onClosed?.call();
 
   void goBack() {
-    if (appNavigator?.canPop() ?? false) appNavigator?.pop();
+    final nav = appNavigator;
+    if (nav == null) return;
+    if (nav.canPop()) {
+      nav.pop();
+    } else {
+      nav.pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const MainScreen()),
+        (_) => false,
+      );
+    }
   }
 
   Future<void> shareLogFile() async {

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../Utils/Extensions/ContextExtensions.dart';
 import '../../Utils/Extensions/Responsive.dart';
+import '../../Core/ThemeManager/LanguageSwitcher.dart';
+import 'AppBars.dart';
 import 'SectionCard.dart';
 
 class NotImplemented extends StatelessWidget {
@@ -13,7 +15,8 @@ class NotImplemented extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = context.colorScheme;
-    return Center(
+    final canPop = ModalRoute.of(context)?.canPop ?? false;
+    final body = Center(
       child: Padding(
         padding: EdgeInsets.all(Dimens.gapXl),
         child: SectionCard(
@@ -35,13 +38,13 @@ class NotImplemented extends StatelessWidget {
               ),
               SizedBox(height: Dimens.gapLg),
               Text(
-                '$area — coming soon',
+                getString.notImplementedArea(area),
                 textAlign: TextAlign.center,
                 style: context.textTheme.titleMedium,
               ),
               SizedBox(height: Dimens.gapXs),
               Text(
-                '$service doesn\'t support this yet.',
+                getString.notImplementedService(service),
                 textAlign: TextAlign.center,
                 style: context.textTheme.bodyMedium?.copyWith(
                   color: scheme.onSurfaceVariant,
@@ -50,6 +53,20 @@ class NotImplemented extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+    if (!canPop) return body;
+    return Material(
+      type: MaterialType.transparency,
+      child: Stack(
+        children: [
+          body,
+          const Positioned(
+            top: 0,
+            left: 8,
+            child: SafeArea(child: AppBackButton()),
+          ),
+        ],
       ),
     );
   }
