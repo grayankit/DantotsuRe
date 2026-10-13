@@ -73,6 +73,7 @@ class StoryGroupState extends ScreenState {
   @override
   void onClose() {
     holdSub?.dispose();
+    _heartTimer?.cancel();
     timer.dispose();
   }
 
@@ -120,6 +121,21 @@ class StoryGroupState extends ScreenState {
       onBack();
       start();
     }
+  }
+
+  bool heart = false;
+  Timer? _heartTimer;
+
+  void doubleTapLike() {
+    if (!story.isLiked) unawaited(like());
+    if (!view.canInteract) return;
+    heart = true;
+    version.fire();
+    _heartTimer?.cancel();
+    _heartTimer = Timer(const Duration(milliseconds: 750), () {
+      heart = false;
+      if (mounted) version.fire();
+    });
   }
 
   Future<void> like() async {

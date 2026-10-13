@@ -258,6 +258,7 @@ class PlayerState extends ScreenState {
       unawaited(_initVolumeAndBrightness());
     } else {
       unawaited(_initFullscreen());
+      unawaited(_initVolumeAndBrightness());
     }
     _bindEngine();
     focus.requestFocus();
@@ -1064,6 +1065,10 @@ class PlayerState extends ScreenState {
         volume.value = playerVolumePref.value.clamp(0.0, 1.0);
         await engine.player.setVolume(volume.value * 100);
       }
+    } catch (e, st) {
+      logError('PlayerState', e, st);
+    }
+    try {
       if (Platform.isLinux) {
         _linuxBacklight =
             await ScreenBrightness.instance.canChangeSystemBrightness;

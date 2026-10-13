@@ -240,6 +240,7 @@ class _StoryGroupPageState extends State<_StoryGroupPage>
       behavior: HitTestBehavior.opaque,
       onTapUp: (d) =>
           d.localPosition.dx < width / 3 ? state.previous() : state.next(),
+      onDoubleTap: state.doubleTapLike,
       onLongPressStart: (_) => state.holdNow(),
       onLongPressEnd: (_) => state.release(),
       child: MouseRegion(
@@ -251,6 +252,24 @@ class _StoryGroupPageState extends State<_StoryGroupPage>
             _content(context),
             _header(context),
             _footer(context),
+            IgnorePointer(
+              child: Center(
+                child: AnimatedScale(
+                  scale: state.heart ? 1 : 0.4,
+                  duration: animDuration(260),
+                  curve: Curves.easeOutBack,
+                  child: AnimatedOpacity(
+                    opacity: state.heart ? 1 : 0,
+                    duration: animDuration(200),
+                    child: const Icon(
+                      Icons.favorite_rounded,
+                      size: 112,
+                      color: Colors.redAccent,
+                    ),
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),
