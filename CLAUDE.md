@@ -682,4 +682,4 @@ whenever you need the real implementation of a screen/flow that's still a stub h
 | HTTP | `rhttp` + `http` | `rhttp` only |
 | Screen base | ad-hoc | `BaseScreen<T>` |
 | `.env` | `SIMKL_SECRET` | `hash` |
-| version | `1.0.0` | `0.0.x`, Flutter `>=3.44.0` |
+| version | `1.0.0` | `1.0.1`+, Flutter `>=3.44.0` (`version:` in `pubspec.yaml` is the only place) |

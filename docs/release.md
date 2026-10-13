@@ -2,21 +2,13 @@
 
 ## Prepare for Release
 
-1. Update versions in `pubspec.yaml`:
+1. Update the version in `pubspec.yaml`. It is the only place a version is written; the Windows installer (`inno_bundle`) and the release workflow read it from there:
 
-   a. Main application version:
    ```yaml
    version: 1.2.3+123  # Increment version number and build number
    ```
    - First part (`1.2.3`) is the semantic version
    - Second part (`123`) is the build number
-
-   b. Inno Bundle version (at the bottom of pubspec.yaml):
-   ```yaml
-   inno_bundle:
-     # ...other settings...
-     version: 1.2.3    # Must match the semantic version above (without build number)
-   ```
 
 2. Commit the version changes:
    ```bash
