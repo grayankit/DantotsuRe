@@ -62,6 +62,8 @@ class WatchState extends ScreenState {
   final scanlators = <String>[].liveList;
   final chunk = 0.live;
   int _generation = 0;
+  final _tried = <String>{};
+  bool _canFallback = false;
   int _metaGeneration = 0;
   Disposer? _progressSub;
   Disposer? _prefsSub;
@@ -143,11 +145,13 @@ class WatchState extends ScreenState {
     }
     final wanted = settings.value.sourceId;
     final next = list.where((s) => s.id == wanted).firstOrNull ?? list.first;
-    await selectSource(next, remember: false);
+    _tried.clear();
+    await selectSource(next, remember: false, fallback: true);
   }
 
-  Future<bool> _startOffline() async {
+  Future<bool> _startOffline([int? generation]) async {
     final snapshot = await DownloadSnapshots.read(service.id, current.id);
+    if (generation != null && generation != _generation) return true;
     if (snapshot == null || snapshot.episodes.isEmpty) return false;
     final id = snapshot.sourceId;
     source.value = id == null ? null : installedSourceById(id);
@@ -164,8 +168,33 @@ class WatchState extends ScreenState {
     return true;
   }
 
-  Future<void> selectSource(Source next, {bool remember = true}) async {
+  String _triedKey(Source s) => s.id ?? s.name ?? '';
+
+  Future<bool> _tryNextSource() async {
+    final failed = source.value;
+    if (!_canFallback || failed == null || fixedSource) return false;
+    if (!watchAutoSourcePref.value) return false;
+    _tried.add(_triedKey(failed));
+    final next = sources
+        .where((s) => !_tried.contains(_triedKey(s)))
+        .firstOrNull;
+    if (next == null) return false;
+    logger(
+      'Watch: ${failed.name} gave nothing, trying ${next.name}',
+      tag: 'WATCH',
+    );
+    await selectSource(next, remember: false, fallback: true);
+    return true;
+  }
+
+  Future<void> selectSource(
+    Source next, {
+    bool remember = true,
+    bool fallback = false,
+  }) async {
     final generation = ++_generation;
+    _canFallback = fallback;
+    if (!fallback) _tried.clear();
     source.value = next;
     if (remember) {
       settings.value
@@ -198,6 +227,7 @@ class WatchState extends ScreenState {
       );
       if (generation != _generation) return;
       if (found == null) {
+        if (await _tryNextSource()) return;
         status.value = getString.watchNothingFound;
         phase.value = WatchPhase.empty;
         return;
@@ -213,6 +243,7 @@ class WatchState extends ScreenState {
         logLevel: LogLevel.error,
         tag: 'WATCH',
       );
+      if (await _tryNextSource()) return;
       failure.value = e.toString();
       status.value = getString.watchSearchFailed;
       phase.value = WatchPhase.failed;
@@ -251,6 +282,7 @@ class WatchState extends ScreenState {
           'Watch episodes: ${src.name} returned none for ${target.url}',
           tag: 'WATCH',
         );
+        if (await _tryNextSource()) return;
         failure.value = null;
         phase.value = WatchPhase.empty;
         return;
@@ -283,7 +315,8 @@ class WatchState extends ScreenState {
       }
     } catch (e, st) {
       if (generation != _generation) return;
-      if (await _startOffline()) return;
+      if (await _startOffline(generation)) return;
+      if (await _tryNextSource()) return;
       logger(
         'Watch episodes failed: $e\n$st',
         logLevel: LogLevel.error,

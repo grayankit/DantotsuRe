@@ -1,6 +1,7 @@
 import '../../../Widgets/Components/ChoiceSheet.dart';
 import '../../../Core/Offline/OfflineMode.dart';
 import '../../../Utils/Functions/SnackBar.dart';
+import 'package:dartotsu_extension_bridge/dartotsu_extension_bridge.dart';
 import 'package:flutter/material.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
@@ -437,38 +438,40 @@ class _WatchSectionState extends State<WatchSection>
   void _wrongTitle() =>
       showCustomBottomDialog<void>(context, WrongTitleSheet(state: state));
 
-  Widget _skeleton(BuildContext context) => Skeletonizer(
-    child: Column(
-      children: [
-        for (var i = 0; i < 4; i++)
-          Padding(
-            padding: EdgeInsets.only(bottom: Dimens.gapSm),
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: context.colorScheme.surfaceContainerLow,
-                borderRadius: Dimens.borderSm,
-              ),
-              child: Padding(
-                padding: EdgeInsets.all(Dimens.gapSm),
-                child: Row(
-                  children: [
-                    const Bone.square(size: 72),
-                    SizedBox(width: Dimens.gap),
-                    const Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Episode 12'),
-                          Text('A loading episode title goes here'),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-      ],
-    ),
-  );
+  Widget _skeleton(BuildContext context) {
+    final view = state.settings.value.view;
+    final anime = state.anime;
+    final count = switch (view) {
+      1 => 6,
+      2 => 16,
+      _ => 5,
+    };
+    final units = [
+      for (var i = 1; i <= count; i++)
+        WatchUnit(
+          raw: DEpisode(episodeNumber: '$i'),
+          number: '$i',
+          value: i.toDouble(),
+          title: 'A loading ${anime ? 'episode' : 'chapter'} title goes here',
+          description: 'A short description of the episode while it loads.',
+        ),
+    ];
+    return Skeletonizer(
+      child: UnitLayout(
+        units: units,
+        view: view,
+        builder: (u) => UnitTile(
+          unit: u,
+          anime: anime,
+          view: view,
+          watched: false,
+          next: false,
+          blur: false,
+          showDescription: watchShowDescriptionPref.rx.value,
+          onTap: () {},
+          onInfo: view == 0 ? () {} : null,
+        ),
+      ),
+    );
+  }
 }

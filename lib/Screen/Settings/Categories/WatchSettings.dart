@@ -156,6 +156,13 @@ List<Setting> watchSettings(BuildContext context) => [
       AppSegment('exact', label: getString.watchMatchExact),
     ],
   ),
+  Setting.switchType(
+    name: getString.watchAutoSource,
+    description: getString.watchAutoSourceDesc,
+    icon: Icons.swap_horiz_rounded,
+    isChecked: watchAutoSourcePref.rx.value,
+    onSwitchChange: (v) => watchAutoSourcePref.rx.value = v,
+  ),
   Setting.header(getString.watchSettingsMetadata),
   Setting.custom(
     name: getString.watchSettingsMetadata,

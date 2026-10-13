@@ -1,9 +1,10 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 
 import '../../../../Utils/Extensions/ContextExtensions.dart';
-import '../../../../Widgets/Components/AlertDialogBuilder.dart';
+import '../../../../Utils/Extensions/Responsive.dart';
+import '../../../../Utils/Functions/NavigateToScreen.dart';
+import '../../../../Widgets/Components/AppSheet.dart';
+import '../../../../Widgets/Components/CustomBottomDialog.dart';
 import '../../../../Core/State/State.dart';
 import '../../../../Core/ThemeManager/LanguageSwitcher.dart';
 import 'WatchPrefs.dart';
@@ -22,54 +23,118 @@ Future<TrackChoice> confirmTracking(
   if (mode == 'off') return TrackChoice.none;
   final host = context ?? appContext;
   if (host == null || !host.mounted) return TrackChoice.service;
-  final done = Completer<TrackChoice>();
   final remember = false.live;
-  void answer(TrackChoice choice) {
-    if (done.isCompleted) return;
-    if (remember.value) {
-      pref.value = switch (choice) {
-        TrackChoice.service => 'always',
-        TrackChoice.local => 'never',
-        TrackChoice.none => 'off',
-      };
-    }
-    done.complete(choice);
+  final picked = await showCustomBottomDialog<TrackChoice>(
+    host,
+    _TrackSheet(anime: anime, name: name, remember: remember),
+  );
+  final choice = picked ?? TrackChoice.none;
+  if (picked != null && remember.value) {
+    pref.value = switch (choice) {
+      TrackChoice.service => 'always',
+      TrackChoice.local => 'never',
+      TrackChoice.none => 'off',
+    };
   }
+  return choice;
+}
 
-  AlertDialogBuilder(host)
-    ..setTitle(getString.trackProgressTitle)
-    ..setMessage(
-      anime
-          ? getString.trackProgressAnime(name)
-          : getString.trackProgressManga(name),
-    )
-    ..setCustomView(
-      Watch(
-        () => CheckboxListTile(
-          contentPadding: EdgeInsets.zero,
-          controlAffinity: ListTileControlAffinity.leading,
-          title: Text(
-            getString.trackProgressRemember,
-            style: host.textTheme.bodyMedium,
-          ),
-          value: remember.value,
-          onChanged: (v) => remember.value = v ?? false,
+class _TrackSheet extends StatelessWidget {
+  final bool anime;
+  final String name;
+  final Live<bool> remember;
+
+  const _TrackSheet({
+    required this.anime,
+    required this.name,
+    required this.remember,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = context.colorScheme;
+    return AppSheet(
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(
+          Dimens.pagePad,
+          Dimens.gap,
+          Dimens.pagePad,
+          Dimens.gapLg,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Center(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: scheme.primaryContainer,
+                  shape: BoxShape.circle,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(14),
+                  child: Icon(
+                    Icons.bookmark_added_rounded,
+                    color: scheme.onPrimaryContainer,
+                    size: 28,
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(height: Dimens.gap),
+            Text(
+              getString.trackProgressTitle,
+              textAlign: TextAlign.center,
+              style: context.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            SizedBox(height: Dimens.gapXs),
+            Text(
+              anime
+                  ? getString.trackProgressAnime(name)
+                  : getString.trackProgressManga(name),
+              textAlign: TextAlign.center,
+              style: context.textTheme.bodyMedium?.copyWith(
+                color: scheme.onSurfaceVariant,
+              ),
+            ),
+            SizedBox(height: Dimens.gapSm),
+            Material(
+              color: Colors.transparent,
+              child: Watch(
+                () => SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  title: Text(
+                    getString.trackProgressRemember,
+                    style: context.textTheme.bodyMedium,
+                  ),
+                  value: remember.value,
+                  onChanged: (v) => remember.value = v,
+                ),
+              ),
+            ),
+            SizedBox(height: Dimens.gapSm),
+            FilledButton(
+              onPressed: () => popPage(context, TrackChoice.service),
+              child: Text(getString.trackProgressYes),
+            ),
+            SizedBox(height: Dimens.gapSm),
+            FilledButton.tonal(
+              onPressed: () => popPage(context, TrackChoice.local),
+              child: Text(getString.trackProgressLocal),
+            ),
+            SizedBox(height: Dimens.gapXs),
+            TextButton(
+              onPressed: () => popPage(context, TrackChoice.none),
+              child: Text(getString.trackProgressNo),
+            ),
+          ],
         ),
       ),
-    )
-    ..setCancelable(false)
-    ..setPositiveButton(
-      getString.trackProgressYes,
-      () => answer(TrackChoice.service),
-    )
-    ..setNeutralButton(
-      getString.trackProgressLocal,
-      () => answer(TrackChoice.local),
-    )
-    ..setNegativeButton(
-      getString.trackProgressNo,
-      () => answer(TrackChoice.none),
-    )
-    ..show<void>().ignore();
-  return done.future;
+    );
+  }
 }

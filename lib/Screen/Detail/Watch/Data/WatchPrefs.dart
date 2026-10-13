@@ -6,6 +6,7 @@ const watchAutoMatchPref = Pref(
   'closest',
   PrefLocation.OTHER,
 );
+const watchAutoSourcePref = Pref('watchAutoSource', true, PrefLocation.OTHER);
 const watchChunkSizePref = Pref('watchChunkSize', 30, PrefLocation.OTHER);
 const watchBlurUnwatchedPref = Pref(
   'watchBlurUnwatched',

@@ -40,6 +40,32 @@ class WatchUnit {
   bool isWatched(int progress) => value <= progress;
 }
 
+int nextUnitIndex(List<WatchUnit> units, int from) {
+  if (from < 0 || from >= units.length) return units.length;
+  final current = units[from];
+  var i = from + 1;
+  while (i < units.length &&
+      units[i].value == current.value &&
+      units[i].scanlator != current.scanlator) {
+    i++;
+  }
+  return i;
+}
+
+List<WatchUnit> withoutDuplicateChapters(List<WatchUnit> units) {
+  final out = <WatchUnit>[];
+  for (final u in units) {
+    final last = out.lastOrNull;
+    if (last != null &&
+        last.value == u.value &&
+        last.scanlator != u.scanlator) {
+      continue;
+    }
+    out.add(u);
+  }
+  return out;
+}
+
 List<DEpisode> normalizeEpisodes(List<DEpisode> input) {
   var first = true;
   var normalize = false;
@@ -132,12 +158,15 @@ List<WatchUnit> buildUnits(
     for (final ep in episodes)
       _unit(ep, meta[episodeKey(ep.episodeNumber)], fallbackThumb, anime),
   ];
-  final counts = <String, int>{};
+  final groups = <String, List<WatchUnit>>{};
   for (final u in units) {
-    counts[u.number] = (counts[u.number] ?? 0) + 1;
+    (groups[u.number] ??= []).add(u);
   }
-  for (final u in units) {
-    if (counts[u.number]! > 1) {
+  for (final group in groups.values) {
+    if (group.length < 2) continue;
+    final scanlators = group.map((u) => u.scanlator).toList();
+    if (scanlators.toSet().length == scanlators.length) continue;
+    for (final u in group) {
       final name = (u.raw.name ?? '').toLowerCase().replaceAll(
         RegExp(r'[^\p{L}\p{N}]+', unicode: true),
         '',
