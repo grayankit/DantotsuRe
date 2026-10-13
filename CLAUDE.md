@@ -156,7 +156,7 @@ renames `build` to `_build` and returns `Watch(() => _build(context))`). `ValueN
 | `ThemeController` | `lazyPut` | reactive theme state (no locale) |
 | `LocaleController` | `lazyPut` | `PrefName.appLocale.rx`, watched by `AppRoot` |
 | `MediaServiceController` | `lazyPut` | current service + list of services |
-| `RefreshController` | `lazyPut` | pub/sub refresh flags (`getOrPut(key)` → `RxBool`, `.all()`); mutations signal it, screens `ever()`-subscribe. `routeObserver` (same file) is on `GetMaterialApp.navigatorObservers`; `RefreshManager<T>` mixin also exists for route-re-entry refresh |
+| `RefreshController` | `lazyPut` | pub/sub refresh flags (`getOrPut(key)` → `RxBool`, `.all()`); mutations signal it, screens `ever()`-subscribe. `routeObserver` (same file) is on `GetMaterialApp.navigatorObservers` |
 | `AppUpdater` | `lazyPut` | AppController; GitHub-release update check + APK install |
 | `BaseDiscordRPC` | `lazyPut` | `MobileRPC` on Android/iOS, else `DesktopRPC` |
 
