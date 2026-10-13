@@ -15,6 +15,7 @@ import '../../../../Logger.dart';
 import '../../../../Core/Services/MediaServiceController.dart';
 import '../../../../Core/State/State.dart';
 import '../../../../Core/ThemeManager/LanguageSwitcher.dart';
+import '../../../../Core/Offline/OfflineMutations.dart';
 import '../../../../Core/Services/Model/Media.dart';
 import 'SyncAdapter.dart';
 import 'SyncAhead.dart';
@@ -184,6 +185,11 @@ class SyncController extends AppController {
   }
 
   void startAuto() {
+    OfflineMutations.onProgressSaved = (service, media) {
+      if (PrefName.syncOnEdit.value && canPush(service, media.isAnime)) {
+        unawaited(pushEdit(service, media));
+      }
+    };
     _auto?.cancel();
     _auto = Timer.periodic(const Duration(minutes: 30), (_) => _autoRun());
     Timer(const Duration(seconds: 45), _autoRun);

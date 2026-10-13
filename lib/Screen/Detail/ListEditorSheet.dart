@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
-import '../../Core/Preferences/PrefManager.dart';
 import '../../Core/Services/MediaService.dart';
 import '../../Core/Services/Model/Media.dart';
 import '../../Utils/Functions/NavigateToScreen.dart';
@@ -12,7 +11,6 @@ import '../../Utils/Functions/SnackBar.dart';
 import '../../Widgets/Components/CustomBottomDialog.dart';
 import '../Widgets/ScreenWidgetView.dart';
 import '../../Core/State/State.dart';
-import '../Settings/Sync/Data/SyncController.dart';
 import '../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../Widgets/Components/ScreenState.dart';
 import 'ListEditorState.dart';
@@ -34,16 +32,6 @@ CustomBottomDialog _editorDialog(
     title: media.mainName,
     viewList: [
       for (final w in view.build(media, session.draft)) ScreenWidgetView(w),
-      if (find<SyncController>().canPush(view.service, media.isAnime))
-        Watch(
-          () => SwitchListTile(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 24),
-            title: Text(getString.syncOnEdit),
-            subtitle: Text(getString.syncOnEditDesc),
-            value: PrefName.syncOnEdit.rx.value,
-            onChanged: (v) => PrefName.syncOnEdit.rx.value = v,
-          ),
-        ),
       const SizedBox(height: 12),
     ],
     positiveText: getString.save,

@@ -12,6 +12,9 @@ class OfflineMutations extends Mutations {
   final MediaService service;
   final Mutations inner;
 
+  static DateTime? _lastNotice;
+  static void Function(MediaService service, Media media)? onProgressSaved;
+
   OfflineMutations(this.service, this.inner);
 
   bool get _offline =>
@@ -54,8 +57,16 @@ class OfflineMutations extends Mutations {
         PendingKind.progress,
         progress: progress,
       );
-      return snackString(getString.offlineSaved);
+      final now = DateTime.now();
+      final last = _lastNotice;
+      if (last == null || now.difference(last).inMinutes >= 5) {
+        _lastNotice = now;
+        snackString(getString.offlineSaved);
+      }
+      return;
     }
     await inner.setProgress(media, progress);
+    applyProgress(media, progress);
+    onProgressSaved?.call(service, media);
   }
 }
