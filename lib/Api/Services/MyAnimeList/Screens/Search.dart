@@ -17,6 +17,9 @@ class MalSearchView extends SearchScreenView {
   List<SearchType> get searchTypes => const [
     SearchType.ANIME,
     SearchType.MANGA,
+    SearchType.NOVEL,
+    SearchType.CHARACTER,
+    SearchType.STAFF,
   ];
 
   @override
@@ -35,8 +38,10 @@ class MalSearchView extends SearchScreenView {
         'CANCELLED',
       ],
       genres: malGenres(anime: anime),
+      season: anime,
       year: true,
       adult: true,
+      onList: malAuth.isLoggedIn,
     );
   }
 }

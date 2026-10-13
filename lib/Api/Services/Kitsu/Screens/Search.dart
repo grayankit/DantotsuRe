@@ -17,6 +17,9 @@ class KitsuSearchView extends SearchScreenView {
   List<SearchType> get searchTypes => const [
     SearchType.ANIME,
     SearchType.MANGA,
+    SearchType.NOVEL,
+    SearchType.CHARACTER,
+    SearchType.USER,
   ];
 
   @override
@@ -37,7 +40,9 @@ class KitsuSearchView extends SearchScreenView {
             ],
       statuses: const ['RELEASING', 'FINISHED', 'NOT YET RELEASED'],
       genres: kitsuGenres(),
+      season: anime,
       year: true,
+      onList: kitsuAuth.isLoggedIn,
     );
   }
 }

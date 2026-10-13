@@ -5,6 +5,7 @@ import 'dart:async';
 
 import '../../../Core/Preferences/PrefManager.dart';
 import '../../../Core/Services/Api/LibraryCache.dart';
+import '../../../Core/Services/Api/LibrarySearch.dart';
 import '../../../Core/Services/Api/Queries.dart';
 import '../../../Core/Services/Api/SectionJobs.dart';
 import '../../../Core/Services/LayoutPref.dart';
@@ -83,6 +84,12 @@ const _fallbackGenres = {
 };
 
 const _genreKey = 'mangabaka_genres';
+const _tagKey = 'mangabaka_tags';
+
+List<String> mangaBakaTags() =>
+    loadCustomData<List<String>>(_tagKey) ?? const [];
+
+String _tagSlug(String name) => name.toLowerCase().trim().replaceAll(' ', '-');
 
 Map<String, String> mangaBakaGenreSlugs() {
   final saved = loadCustomData<Map<String, dynamic>>(_genreKey);
@@ -409,8 +416,24 @@ class MangaBakaQueries extends Queries {
 
   @override
   Future<bool> getGenresAndTags() async {
-    if (loadCustomData<Map<String, dynamic>>(_genreKey) != null) return true;
+    if (loadCustomData<Map<String, dynamic>>(_genreKey) != null &&
+        loadCustomData<List<String>>(_tagKey) != null) {
+      return true;
+    }
     try {
+      final tagBody = await client.get('/tags', cache: const Duration(days: 1));
+      final tags = <String>[
+        for (final t in (tagBody['data'] as List?) ?? const [])
+          if (t is Map &&
+              t['is_spoiler'] != true &&
+              t['is_genre'] != true &&
+              t['merged_with'] == null &&
+              t['content_rating'] == 'safe' &&
+              ((t['series_count'] as num?) ?? 0) >= 500)
+            '${t['name']}',
+      ]..sort();
+      if (tags.isNotEmpty) saveCustomData(_tagKey, tags);
+
       final body = await client.get('/genres', cache: const Duration(days: 1));
       final slugs = {
         for (final g in (body['data'] as List?) ?? const [])
@@ -433,10 +456,20 @@ class MangaBakaQueries extends Queries {
     }
     final text = results.search?.trim() ?? '';
     final slugs = mangaBakaGenreSlugs();
-    final genre = [
+    if (results.onList == true) {
+      return searchLibrary(await library(), results);
+    }
+    final genres = [
       for (final g in results.genres ?? const <String>[])
         if (slugs[g] != null) slugs[g]!,
-    ].firstOrNull;
+    ];
+    final notGenres = [
+      for (final g in results.excludedGenres ?? const <String>[])
+        if (slugs[g] != null) slugs[g]!,
+    ];
+    final tags = [
+      for (final t in results.tags ?? const <String>[]) _tagSlug(t),
+    ];
     final status = results.status == null
         ? null
         : _searchStatus(results.status!);
@@ -451,11 +484,15 @@ class MangaBakaQueries extends Queries {
         'sort_by': ?_sorts[results.sort],
         'type': ?type,
         'status': ?status,
-        'genre': ?genre,
         'limit': '$limit',
         'page': '${results.page ?? 1}',
       },
-      multi: results.isAdult == true ? const {} : _nsfwFilter,
+      multi: {
+        if (results.isAdult != true) ..._nsfwFilter,
+        if (genres.isNotEmpty) 'genre': genres,
+        if (notGenres.isNotEmpty) 'genre_not': notGenres,
+        if (tags.isNotEmpty) 'tag': tags,
+      },
       cache: const Duration(minutes: 5),
     );
     return results

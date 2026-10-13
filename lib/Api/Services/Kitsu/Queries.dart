@@ -4,6 +4,7 @@ import 'dart:async';
 
 import '../../../Core/Preferences/PrefManager.dart';
 import '../../../Core/Services/Api/LibraryCache.dart';
+import '../../../Core/Services/Api/LibrarySearch.dart';
 import '../../../Core/Services/Api/Queries.dart';
 import '../../../Core/Services/Api/SectionJobs.dart';
 import '../../../Core/Services/LayoutPref.dart';
@@ -884,7 +885,14 @@ class KitsuQueries extends Queries {
         results.type == SearchType.SERIES;
     final manga =
         results.type == SearchType.MANGA || results.type == SearchType.NOVEL;
+    if (results.type == SearchType.CHARACTER ||
+        results.type == SearchType.USER) {
+      return _searchEntities(results);
+    }
     if (!anime && !manga) return results..results = const [];
+    if (results.onList == true) {
+      return searchLibrary(await library(anime: anime), results);
+    }
     final slugs = kitsuGenreSlugs();
     final genres = [
       for (final g in results.genres ?? const <String>[])
@@ -908,7 +916,11 @@ class KitsuQueries extends Queries {
           'sort': ?sort,
           if (genres.isNotEmpty) 'filter[categories]': genres.join(','),
           if (results.format != null)
-            'filter[subtype]': _subtype(results.format!, anime),
+            'filter[subtype]': _subtype(results.format!, anime)
+          else if (results.type == SearchType.NOVEL)
+            'filter[subtype]': 'novel',
+          if (anime && results.season != null)
+            'filter[season]': results.season!.toLowerCase(),
           'filter[status]': ?status,
           if (results.seasonYear != null)
             anime ? 'filter[seasonYear]' : 'filter[year]':
@@ -922,6 +934,55 @@ class KitsuQueries extends Queries {
     return results
       ..results = items
       ..hasNextPage = doc.next != null;
+  }
+}
+
+extension on KitsuQueries {
+  Future<SearchResults> _searchEntities(SearchResults results) async {
+    final users = results.type == SearchType.USER;
+    final term = results.search?.trim() ?? '';
+    if (term.isEmpty) {
+      return results
+        ..characters = const []
+        ..users = const []
+        ..hasNextPage = false;
+    }
+    final perPage = (results.perPage ?? 20).clamp(1, 20);
+    final page = results.page ?? 1;
+    final doc = JsonApi(
+      await client.get(
+        users ? '/users' : '/characters',
+        query: {
+          'filter[name]': term,
+          'page[limit]': '$perPage',
+          'page[offset]': '${(page - 1) * perPage}',
+        },
+      ),
+    );
+    if (users) {
+      results.users = [
+        for (final node in doc.data)
+          User(
+            id: int.tryParse('${node['id']}') ?? 0,
+            name: attrs(node)['name'] as String? ?? '',
+            pfp: kitsuImage(attrs(node)['avatar'], const [
+              'medium',
+              'large',
+              'small',
+            ]),
+            banner: kitsuImage(attrs(node)['coverImage'], const [
+              'large',
+              'original',
+              'small',
+            ]),
+          ),
+      ];
+    } else {
+      results.characters = [
+        for (final node in doc.data) mapKitsuCharacter(node),
+      ];
+    }
+    return results..hasNextPage = doc.next != null;
   }
 }
 

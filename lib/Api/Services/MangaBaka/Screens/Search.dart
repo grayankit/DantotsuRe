@@ -31,6 +31,8 @@ class MangaBakaSearchView extends SearchScreenView {
       'CANCELLED',
     ],
     genres: mangaBakaGenres(),
+    tags: mangaBakaTags(),
     adult: true,
+    onList: mangaBakaAuth.isLoggedIn,
   );
 }

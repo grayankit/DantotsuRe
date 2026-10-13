@@ -5,6 +5,8 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 
 import '../../../Core/Services/Api/LibraryCache.dart';
+import '../../../Core/Services/Api/LibrarySearch.dart';
+import 'Data/Browse.dart';
 import '../../../Core/Services/Api/Queries.dart';
 import '../../../Core/Services/Api/SectionJobs.dart';
 import '../../../Core/Services/Model/Calendar.dart';
@@ -483,23 +485,49 @@ class SimklQueries extends Queries {
       SearchType.SERIES => 'tv',
       _ => null,
     };
-    if (type == null || query.isEmpty) {
+    if (type == null) {
       return results
         ..results = const []
         ..hasNextPage = false;
     }
-    final limit = (results.perPage ?? 30).clamp(1, 50);
-    final data = await client.get(
-      '/search/$type',
-      query: {'q': query, 'limit': '$limit', 'page': '${results.page ?? 1}'},
-    );
     final kind = SimklKind.fromName(type)!;
+    if (results.onList == true) {
+      final mine = (await library()).values.where(
+        (m) => m.id.startsWith('${kind.path}/'),
+      );
+      return searchLibrary(mine.toList(), results);
+    }
+    final browse = simklBrowsePath(kind, results);
+    if (query.isEmpty && browse == null) {
+      return results
+        ..results = const []
+        ..hasNextPage = false;
+    }
+    final limit = (results.perPage ?? (query.isEmpty ? 60 : 30)).clamp(
+      1,
+      query.isEmpty ? 60 : 50,
+    );
+    final data = await client.get(
+      query.isEmpty ? browse! : '/search/$type',
+      query: {
+        if (query.isNotEmpty) 'q': query,
+        'limit': '$limit',
+        'page': '${results.page ?? 1}',
+      },
+    );
     final found = (data as List?) ?? const [];
+    var items = [
+      for (final item in found)
+        ?mapSimklItem((item as Map).cast<String, dynamic>(), kind: kind),
+    ];
+    if (query.isNotEmpty && results.seasonYear != null) {
+      items = [
+        for (final m in items)
+          if (m.startDate?.year == results.seasonYear) m,
+      ];
+    }
     return results
-      ..results = [
-        for (final item in found)
-          ?mapSimklItem((item as Map).cast<String, dynamic>(), kind: kind),
-      ]
+      ..results = items
       ..hasNextPage = found.length >= limit;
   }
 }

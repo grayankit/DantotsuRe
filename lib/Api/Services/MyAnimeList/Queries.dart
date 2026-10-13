@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:async';
 
 import '../../../Core/Services/Api/LibraryCache.dart';
+import '../../../Core/Services/Api/LibrarySearch.dart';
 import '../../../Core/Services/Api/Queries.dart';
 import '../../../Core/Services/Api/SectionJobs.dart';
 import '../../../Core/Services/Model/Calendar.dart';
@@ -615,11 +616,23 @@ class MalQueries extends Queries {
         results.type == SearchType.SERIES;
     final manga =
         results.type == SearchType.MANGA || results.type == SearchType.NOVEL;
+    if (results.type == SearchType.CHARACTER ||
+        results.type == SearchType.STAFF) {
+      return _searchEntities(results);
+    }
     if (!anime && !manga) return results..results = const [];
+    if (results.onList == true) {
+      return searchLibrary(await library(anime: anime), results);
+    }
     final sort = _sorts[results.sort];
+    final (from, to) = _searchDates(results);
     final ids = malGenreIds(anime: anime);
     final genres = [
       for (final g in results.genres ?? const <String>[])
+        if (ids[g] != null) '${ids[g]}',
+    ];
+    final excluded = [
+      for (final g in results.excludedGenres ?? const <String>[])
         if (ids[g] != null) '${ids[g]}',
     ];
     final query = <String, String>{
@@ -628,12 +641,15 @@ class MalQueries extends Queries {
       if (results.search?.isNotEmpty ?? false) 'q': results.search!,
       if (sort != null) ...{'order_by': sort.$1, 'sort': sort.$2},
       if (genres.isNotEmpty) 'genres': genres.join(','),
+      if (excluded.isNotEmpty) 'genres_exclude': excluded.join(','),
       if (results.format != null)
-        'type': results.format!.toLowerCase().replaceAll(' ', ''),
+        'type': results.format!.toLowerCase().replaceAll(' ', '')
+      else if (results.type == SearchType.NOVEL)
+        'type': 'novel',
       if (results.status != null)
         'status': _searchStatus(results.status!, anime),
-      if (results.seasonYear != null)
-        'start_date': '${results.seasonYear}-01-01',
+      'start_date': ?from,
+      'end_date': ?to,
       if (results.isAdult != true) 'sfw': 'true',
     };
     final data = await tenrai.get(
@@ -644,6 +660,57 @@ class MalQueries extends Queries {
     return results
       ..results = _tenraiMedia(data, anime)
       ..hasNextPage = (data['pagination'] as Map?)?['has_next_page'] == true;
+  }
+
+  Future<SearchResults> _searchEntities(SearchResults results) async {
+    final people = results.type == SearchType.STAFF;
+    final term = results.search?.trim() ?? '';
+    if (term.isEmpty) {
+      return results
+        ..characters = const []
+        ..staff = const []
+        ..hasNextPage = false;
+    }
+    final data = await tenrai.get(
+      people ? '/people' : '/characters',
+      query: {
+        'q': term,
+        'page': '${results.page ?? 1}',
+        'limit': '${(results.perPage ?? 25).clamp(1, 25)}',
+      },
+      cache: const Duration(minutes: 5),
+    );
+    final rows = [
+      for (final e in (data['data'] as List?) ?? const [])
+        (e as Map).cast<String, dynamic>(),
+    ];
+    if (people) {
+      results.staff = [for (final e in rows) mapTenraiPerson(e)];
+    } else {
+      results.characters = [
+        for (final e in rows) mapTenraiCharacter({'character': e}),
+      ];
+    }
+    return results
+      ..hasNextPage = (data['pagination'] as Map?)?['has_next_page'] == true;
+  }
+
+  static (String?, String?) _searchDates(SearchResults r) {
+    final year = r.seasonYear;
+    if (year == null) return (null, null);
+    final months = switch (r.season?.toUpperCase()) {
+      'WINTER' => (1, 3),
+      'SPRING' => (4, 6),
+      'SUMMER' => (7, 9),
+      'FALL' => (10, 12),
+      _ => (1, 12),
+    };
+    String two(int n) => n.toString().padLeft(2, '0');
+    final lastDay = DateTime(year, months.$2 + 1, 0).day;
+    return (
+      '$year-${two(months.$1)}-01',
+      '$year-${two(months.$2)}-${two(lastDay)}',
+    );
   }
 
   static String _searchStatus(String status, bool anime) =>
