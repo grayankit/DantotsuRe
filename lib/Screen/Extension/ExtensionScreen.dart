@@ -1,5 +1,4 @@
 import '../../Logger.dart';
-import '../../Utils/Animation/WidgetAnimations.dart';
 import 'dart:async';
 
 import 'package:dartotsu_extension_bridge/Extensions/DownloadablePlugin.dart';
@@ -20,10 +19,10 @@ import '../../Widgets/Components/ThemedContainer.dart';
 import 'ExtensionList.dart';
 import 'ExtensionTestScreen.dart';
 import 'Widgets/ExtensionManagerSheet.dart';
+import 'Widgets/ExtensionReposSheet.dart';
 import '../../Widgets/Components/AppTabs.dart';
 import '../../Api/Discord/DiscordPresence.dart';
 import '../../Core/State/State.dart';
-import '../../Utils/Extensions/StringExtensions.dart';
 import '../../Widgets/Components/ScreenState.dart';
 import 'ExtensionBrowserState.dart';
 
@@ -150,208 +149,8 @@ class ExtensionScreenState extends BaseScreen<ExtensionScreen>
         height: 24,
         color: theme.primary,
       ),
-      onPressed: () {
-        final type = state.currentType;
-        showCustomBottomDialog(
-          context,
-          CustomBottomDialog(
-            title: getString.repositoriesTitle(type.name.capitalizeFirst),
-            positiveText: getString.ok,
-            positiveCallback: () => popPage(context),
-            negativeText: getString.addRepository,
-            negativeCallback: () => state.addRepository(type),
-            viewList: [
-              // Some repos (e.g. Kotatsu's shared parsers jar) are large
-              // enough that a bare "Add Repository" tap with no feedback
-              // looks hung - show real progress when the backend reports
-              // it, an indeterminate bar otherwise. Styled to match the
-              // plugin-install card in showInstallDialog below, so this
-              // reads as the same "downloading" affordance everywhere in
-              // the app rather than a one-off widget.
-              Watch(() {
-                final extension = manager[type];
-                final loading = extension.state(type).loadingRepo.value;
-                final progress = extension.state(type).repoLoadProgress.value;
-                final scheme = Theme.of(context).colorScheme;
-                final textStyle = Theme.of(context).textTheme.labelMedium;
-
-                return AnimatedSwitcher(
-                  duration: animDuration(220),
-                  transitionBuilder: (child, animation) => FadeTransition(
-                    opacity: animation,
-                    child: SizeTransition(
-                      sizeFactor: animation,
-                      axisAlignment: -1,
-                      child: child,
-                    ),
-                  ),
-                  child: !loading
-                      ? const SizedBox.shrink(key: ValueKey('idle'))
-                      : Padding(
-                          key: const ValueKey('loading'),
-                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                          child: Container(
-                            padding: const EdgeInsets.all(14),
-                            decoration: BoxDecoration(
-                              color: context.cardColor,
-                              borderRadius: BorderRadius.circular(18),
-                              border: Border.all(
-                                color: scheme.outline.withValues(alpha: 0.2),
-                              ),
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.cloud_download_rounded,
-                                  color: scheme.primary,
-                                  size: 22,
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        getString.downloadingRepository,
-                                        style: textStyle?.copyWith(
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      ClipRRect(
-                                        borderRadius: BorderRadius.circular(10),
-                                        child: LinearProgressIndicator(
-                                          value: progress,
-                                          minHeight: 6,
-                                          backgroundColor: scheme.primary
-                                              .withValues(alpha: 0.12),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                if (progress != null) ...[
-                                  const SizedBox(width: 12),
-                                  Text(
-                                    "${(progress * 100).toStringAsFixed(0)}%",
-                                    style: textStyle?.copyWith(
-                                      fontWeight: FontWeight.w700,
-                                      color: scheme.primary,
-                                    ),
-                                  ),
-                                ],
-                              ],
-                            ),
-                          ),
-                        ),
-                );
-              }),
-              Watch(() {
-                final extension = manager[type];
-                final repos = extension.state(type).repos.value;
-                final active = extension.state(type).activeRepo.value;
-
-                if (repos.isEmpty) {
-                  return Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Center(child: Text(getString.noRepositories)),
-                  );
-                }
-
-                return Column(
-                  children: repos.map((repo) {
-                    final selected = active?.url == repo.url;
-
-                    return ThemedContainer(
-                      blur: false,
-                      borderRadius: const BorderRadius.all(Radius.circular(24)),
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 2,
-                        vertical: 8,
-                      ),
-
-                      color: selected ? theme.surfaceContainerHigh : null,
-                      child: Material(
-                        type: MaterialType.transparency,
-                        child: ListTile(
-                          hoverColor: Colors.transparent,
-
-                          onTap: () async {
-                            if (!selected) await state.selectRepo(type, repo);
-                          },
-                          leading: repo.iconUrl != null
-                              ? ClipRRect(
-                                  borderRadius: BorderRadius.circular(12),
-                                  child: Image.network(
-                                    repo.iconUrl!,
-                                    width: 48,
-                                    height: 48,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (_, _, _) =>
-                                        const Icon(Icons.storage_rounded),
-                                  ),
-                                )
-                              : loadSvg(
-                                  "assets/svg/github.svg",
-                                  color: theme.primary,
-                                ),
-
-                          title: Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  repo.name ??
-                                      Uri.tryParse(repo.url)?.host ??
-                                      repo.url,
-                                  style: context.textTheme.bodyLarge?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                repo.url,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                getString.repoExtensionsCount(
-                                  repo.extensions ?? '?',
-                                ),
-                                style: context.textTheme.bodySmall?.copyWith(
-                                  color: theme.primary,
-                                ),
-                              ),
-                            ],
-                          ),
-
-                          trailing: IconButton(
-                            icon: const Icon(Icons.delete_rounded),
-                            onPressed: () async {
-                              await state.removeRepo(type, repo.url);
-                            },
-                          ),
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                );
-              }),
-            ],
-          ),
-        );
-      },
+      onPressed: () =>
+          showExtensionReposSheet(context, state, state.currentType),
     );
   }
 
@@ -444,12 +243,11 @@ class ExtensionScreenState extends BaseScreen<ExtensionScreen>
 
       views.add(
         manager.loadingAvailable.value
-            ? const Center(
-                child: SizedBox(
-                  width: 36,
-                  height: 36,
-                  child: CircularProgressIndicator(),
-                ),
+            ? ExtensionList(
+                itemType: type,
+                isInstalled: false,
+                searchQuery: '',
+                skeleton: true,
               )
             : available.isEmpty
             ? _emptyMessage(getString.noAvailableExtensions(type.name))

@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 
 import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../../Utils/Extensions/ContextExtensions.dart';
-import '../../../Utils/Functions/NavigateToScreen.dart';
 import '../../../Utils/Functions/SnackBar.dart';
 import '../../../Widgets/Components/AlertDialogBuilder.dart';
 import '../../../Widgets/Components/CustomBottomDialog.dart';
-import '../../../Widgets/Components/ThemedContainer.dart';
+import '../../../Widgets/Components/AppSheet.dart';
+import '../../../Widgets/Components/SheetTile.dart';
 import '../../Settings/ExtensionSourceSettingsScreen.dart';
 import '../ExtensionScreen.dart';
 import '../../../Core/State/State.dart';
@@ -16,29 +16,38 @@ import '../../../Utils/Extensions/StringExtensions.dart';
 
 void showExtensionManagerSheet(BuildContext context, ItemType type) {
   final manager = find<ExtensionManager>();
-  final theme = context.colorScheme;
   showCustomBottomDialog(
     context,
-    CustomBottomDialog(
+    AppSheet(
       title: '${type.name.capitalizeFirst} Manager',
-      positiveText: getString.ok,
-      positiveCallback: () => popPage(context),
-      negativeText: getString.addRepository,
-      negativeCallback: () => showAddPluginRepositoryDialog(context),
-      viewList: [
-        Watch(() {
-          final current = manager[type];
-          final managers = manager.managers
-              .where((e) => e.supports(type))
-              .toList();
-          return Column(
-            children: [
-              for (final m in managers)
-                _serviceTile(context, manager, theme, type, current, m),
-            ],
-          );
-        }),
-      ],
+      child: Watch(() {
+        final current = manager[type];
+        final managers = manager.managers
+            .where((e) => e.supports(type))
+            .toList();
+        return ListView(
+          shrinkWrap: true,
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+          children: [
+            for (var i = 0; i < managers.length; i++)
+              _serviceTile(
+                context,
+                manager,
+                type,
+                current,
+                managers[i],
+                groupedRadius(i, managers.length),
+              ),
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              onPressed: () => showAddPluginRepositoryDialog(context),
+              icon: const Icon(Icons.add_rounded),
+              label: Text(getString.addRepository),
+            ),
+            const SizedBox(height: 16),
+          ],
+        );
+      }),
     ),
   );
 }
@@ -46,53 +55,43 @@ void showExtensionManagerSheet(BuildContext context, ItemType type) {
 Widget _serviceTile(
   BuildContext context,
   ExtensionManager manager,
-  ColorScheme theme,
   ItemType type,
   dynamic current,
   dynamic m,
+  BorderRadius radius,
 ) {
   final selected = current.id == m.id;
   final installed = m.plugin == null || m.plugin!.installed.value;
   final availableInRepo = m.plugin == null || m.plugin!.availableInRepo.value;
-  final enabled = installed;
-  final opacity = installed || availableInRepo ? 1.0 : 0.5;
+  final scheme = context.colorScheme;
 
   return Opacity(
-    opacity: opacity,
-    child: ThemedContainer(
-      borderRadius: const BorderRadius.all(Radius.circular(24)),
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 8),
-      color: selected ? theme.surfaceContainerHigh : null,
-      child: Material(
-        type: MaterialType.transparency,
-        child: ListTile(
-          enabled: enabled,
-          hoverColor: Colors.transparent,
-          onTap: (!enabled || selected)
-              ? null
-              : () => manager.switchManager(type, m.id),
-          leading: ClipOval(
-            child: Image.asset(
-              m.icon,
-              width: 24,
-              height: 24,
-              fit: BoxFit.cover,
-            ),
-          ),
-          title: Text(
-            m.name,
-            style: context.textTheme.bodyLarge?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          trailing: _withSettings(
-            context,
-            m,
-            _serviceTrailing(context, m, installed, availableInRepo),
-            installed,
-          ),
+    opacity: installed || availableInRepo ? 1.0 : 0.5,
+    child: SheetTile(
+      tinted: true,
+      radius: radius,
+      selected: selected,
+      enabled: installed && !selected,
+      onTap: () => manager.switchManager(type, m.id),
+      leading: Container(
+        width: 36,
+        height: 36,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: selected
+              ? scheme.primary.withValues(alpha: 0.18)
+              : scheme.secondaryContainer,
+          shape: BoxShape.circle,
         ),
+        clipBehavior: Clip.antiAlias,
+        child: Image.asset(m.icon, width: 22, height: 22, fit: BoxFit.cover),
+      ),
+      title: Text(m.name),
+      trailing: _withSettings(
+        context,
+        m,
+        _serviceTrailing(context, m, installed, availableInRepo),
+        installed,
       ),
     ),
   );

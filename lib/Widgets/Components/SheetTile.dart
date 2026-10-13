@@ -102,3 +102,8 @@ class SheetTile extends StatelessWidget {
     );
   }
 }
+
+BorderRadius groupedRadius(int index, int count) => BorderRadius.vertical(
+  top: Radius.circular(index == 0 ? 20 : 6),
+  bottom: Radius.circular(index == count - 1 ? 20 : 6),
+);

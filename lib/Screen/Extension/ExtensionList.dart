@@ -1,5 +1,6 @@
 import 'package:dartotsu_extension_bridge/dartotsu_extension_bridge.dart';
 import 'package:flutter/material.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import '../../Core/ThemeManager/ThemeController.dart';
 
 import '../../Core/ThemeManager/LanguageSwitcher.dart';
@@ -20,6 +21,7 @@ class ExtensionList extends StatefulWidget {
   final ItemType itemType;
   final bool isInstalled;
   final String searchQuery;
+  final bool skeleton;
   final VoidCallback? onFirstRowUp;
   final GlobalKey<DpadRegionState>? firstRowKey;
 
@@ -28,6 +30,7 @@ class ExtensionList extends StatefulWidget {
     required this.itemType,
     required this.isInstalled,
     required this.searchQuery,
+    this.skeleton = false,
     this.onFirstRowUp,
     this.firstRowKey,
   });
@@ -51,6 +54,7 @@ class _ExtensionListState extends State<ExtensionList>
   @override
   Widget build(BuildContext context) {
     state.searchQuery = widget.searchQuery;
+    if (widget.skeleton) return _buildSkeleton();
     final theme = Theme.of(context).colorScheme;
     return Watch(
       () => RefreshIndicator(
@@ -63,6 +67,27 @@ class _ExtensionListState extends State<ExtensionList>
       ),
     );
   }
+
+  Widget _buildSkeleton() => Skeletonizer(
+    child: ListView.builder(
+      physics: const NeverScrollableScrollPhysics(),
+      padding: const EdgeInsets.all(8),
+      itemCount: 9,
+      itemBuilder: (context, index) => _buildSourceCard(
+        Source(
+          name: 'Extension name here',
+          lang: 'en',
+          version: '1.0.0',
+          itemType: widget.itemType,
+        ),
+        index,
+        isFirst: index == 0,
+        isLast: index == 8,
+        isVeryFirst: false,
+        isVerySecond: false,
+      ),
+    ),
+  );
 
   Widget _buildInstalledList() {
     final installed = state.filteredInstalled();

@@ -42,10 +42,7 @@ Future<T?> showChoiceSheet<T>(
           for (var i = 0; i < options.length; i++)
             SheetTile(
               tinted: true,
-              radius: BorderRadius.vertical(
-                top: Radius.circular(i == 0 ? 20 : 6),
-                bottom: Radius.circular(i == options.length - 1 ? 20 : 6),
-              ),
+              radius: groupedRadius(i, options.length),
               leading: _Leading(
                 option: options[i],
                 fallback: icon,
