@@ -18,6 +18,7 @@ import '../../Widgets/Components/CustomBottomDialog.dart';
 import '../../Widgets/Components/LoadSvg.dart';
 import '../../Widgets/Components/ThemedContainer.dart';
 import 'ExtensionList.dart';
+import 'ExtensionTestScreen.dart';
 import 'Widgets/ExtensionManagerSheet.dart';
 import '../../Widgets/Components/AppTabs.dart';
 import '../../Api/Discord/DiscordPresence.dart';
@@ -102,6 +103,11 @@ class ExtensionScreenState extends BaseScreen<ExtensionScreen>
     return [
       _buildServiceManager(),
       _buildRepoManager(),
+      IconButton(
+        tooltip: getString.extensionTest,
+        icon: Icon(Icons.fact_check_rounded, color: theme.primary),
+        onPressed: () => navigateToPage(context, const ExtensionTestScreen()),
+      ),
       IconButton(
         icon: Icon(Icons.language_rounded, color: theme.primary),
         onPressed: state.chooseLanguages,

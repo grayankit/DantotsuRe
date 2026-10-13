@@ -110,12 +110,27 @@ class Logger {
     unawaited(NativeLogger.startLogStream());
   }
 
+  static final List<List<String>> _captures = [];
+  static const int _maxCaptured = 30000;
+
+  static List<String> beginCapture() {
+    final lines = <String>[];
+    _captures.add(lines);
+    return lines;
+  }
+
+  static void endCapture(List<String> lines) => _captures.remove(lines);
+
   static void log(
     String message, {
     LogLevel logLevel = LogLevel.info,
     String? tag,
   }) {
     if (_disposed) return;
+
+    for (final c in _captures) {
+      if (c.length < _maxCaptured) c.add(message);
+    }
 
     final formatted = _formatLog(
       time: DateTime.now(),
