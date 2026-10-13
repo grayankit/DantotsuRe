@@ -95,18 +95,76 @@ class AppSliverBar extends StatelessWidget {
 
   const AppSliverBar({super.key, required this.title, this.actions = const []});
 
+  static const double _expanded = 112;
+
   @override
   Widget build(BuildContext context) {
-    return SliverAppBar.medium(
+    final scheme = context.colorScheme;
+    final toolbar = kToolbarHeight + MediaQuery.paddingOf(context).top;
+    return SliverAppBar(
+      pinned: true,
       automaticallyImplyLeading: false,
       backgroundColor: Colors.transparent,
+      surfaceTintColor: Colors.transparent,
+      scrolledUnderElevation: 0,
+      elevation: 0,
+      expandedHeight: _expanded + MediaQuery.paddingOf(context).top,
       titleSpacing: 4,
       leadingWidth: 44,
       leading: const Skeleton.keep(child: AppBackButton()),
-      title: AppScreenTitle(title),
-      iconTheme: IconThemeData(color: context.colorScheme.primary),
-      actionsIconTheme: IconThemeData(color: context.colorScheme.primary),
+      title: const SizedBox.shrink(),
+      iconTheme: IconThemeData(color: scheme.primary),
+      actionsIconTheme: IconThemeData(color: scheme.primary),
       actions: [for (final a in actions) Skeleton.keep(child: a)],
+      flexibleSpace: LayoutBuilder(
+        builder: (context, box) {
+          final open =
+              ((box.maxHeight - toolbar) / (_expanded - kToolbarHeight)).clamp(
+                0.0,
+                1.0,
+              );
+          final collapsed = 1 - open;
+          return Stack(
+            fit: StackFit.expand,
+            children: [
+              Opacity(
+                opacity: collapsed,
+                child: ColoredBox(color: scheme.surface),
+              ),
+              Positioned(
+                left: 44,
+                right: 56,
+                top: MediaQuery.paddingOf(context).top,
+                height: kToolbarHeight,
+                child: Opacity(
+                  opacity: collapsed,
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: AppScreenTitle(title),
+                  ),
+                ),
+              ),
+              Positioned(
+                left: 16,
+                right: 16,
+                bottom: 16,
+                child: Opacity(
+                  opacity: open,
+                  child: Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: context.textTheme.headlineSmall?.copyWith(
+                      color: scheme.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 }
