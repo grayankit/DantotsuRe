@@ -193,15 +193,10 @@ class _PlayerScreenState extends State<PlayerScreen>
               ),
             ),
           );
-          if (!state.commentsOpen.value) {
+          if (!state.commentsOpen.value || widget.request.service == null) {
             return _episodes(context, scheme, stage);
           }
-          return Column(
-            children: [
-              stage,
-              Expanded(child: _commentsLayer(context, scheme)),
-            ],
-          );
+          return _comments(context, scheme, stage);
         }),
       ),
     );
@@ -353,72 +348,57 @@ class _PlayerScreenState extends State<PlayerScreen>
     );
   }
 
-  Widget _commentsLayer(BuildContext context, ColorScheme scheme) {
-    final open = state.commentsOpen.value;
-    final service = widget.request.service;
-    return AnimatedSwitcher(
-      duration: animDuration(280),
-      switchInCurve: Curves.easeOutCubic,
-      switchOutCurve: Curves.easeInCubic,
-      transitionBuilder: (child, animation) => SlideTransition(
-        position: Tween(
-          begin: const Offset(0, 1),
-          end: Offset.zero,
-        ).animate(animation),
-        child: child,
-      ),
-      child: !open || service == null
-          ? const SizedBox.shrink(key: ValueKey('comments-closed'))
-          : Material(
-              key: const ValueKey('comments-open'),
-              color: scheme.surface,
-              child: Column(
+  Widget _comments(BuildContext context, ColorScheme scheme, Widget stage) {
+    final service = widget.request.service!;
+    return Material(
+      color: scheme.surface,
+      child: CustomScrollView(
+        controller: state.commentsScroll,
+        slivers: [
+          SliverToBoxAdapter(child: stage),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(
+                Dimens.pagePad,
+                Dimens.gapSm,
+                Dimens.gapSm,
+                0,
+              ),
+              child: Row(
                 children: [
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(
-                      Dimens.pagePad,
-                      Dimens.gapSm,
-                      Dimens.gapSm,
-                      0,
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            state.item.title,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: context.textTheme.labelLarge?.copyWith(
-                              color: scheme.onSurfaceVariant,
-                            ),
-                          ),
-                        ),
-                        IconButton(
-                          tooltip: getString.playerHideComments,
-                          onPressed: () => state.commentsOpen.value = false,
-                          icon: const Icon(Icons.close_rounded),
-                        ),
-                      ],
-                    ),
-                  ),
                   Expanded(
-                    child: SingleChildScrollView(
-                      controller: state.commentsScroll,
-                      padding: EdgeInsets.only(bottom: Dimens.gapLg),
-                      child: CommentsSection(
-                        key: ValueKey(
-                          'player-comments-${widget.request.media!.id}',
-                        ),
-                        service: service,
-                        media: state.mediaLive,
-                        scroll: state.commentsScroll,
-                        episode: state.episodeTag,
+                    child: Text(
+                      state.item.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: context.textTheme.labelLarge?.copyWith(
+                        color: scheme.onSurfaceVariant,
                       ),
                     ),
+                  ),
+                  IconButton(
+                    tooltip: getString.playerHideComments,
+                    onPressed: () => state.commentsOpen.value = false,
+                    icon: const Icon(Icons.close_rounded),
                   ),
                 ],
               ),
             ),
+          ),
+          SliverPadding(
+            padding: EdgeInsets.only(bottom: Dimens.gapLg),
+            sliver: SliverToBoxAdapter(
+              child: CommentsSection(
+                key: ValueKey('player-comments-${widget.request.media!.id}'),
+                service: service,
+                media: state.mediaLive,
+                scroll: state.commentsScroll,
+                episode: state.episodeTag,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

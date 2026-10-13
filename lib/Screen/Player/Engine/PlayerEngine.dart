@@ -242,7 +242,7 @@ class PlayerEngine {
       settings.pitchCorrection ? 'yes' : 'no',
     );
     await applyAudioOutput(initial: true);
-    await set('network-timeout', 30);
+    await set('network-timeout', 60);
     if (settings.tuning) {
       await set('video-sync', settings.videoSync);
       await set('interpolation', settings.interpolation ? 'yes' : 'no');
