@@ -17,6 +17,7 @@ import '../Detail/Watch/WatchState.dart';
 import '../Player/Engine/PlayRequest.dart';
 import '../Player/Engine/TorrentStream.dart';
 import 'Components/DownloadStreamSheet.dart';
+import 'Components/TorrentFileSheet.dart';
 import 'FfmpegPrompt.dart';
 
 String downloadIdOf(WatchState state, WatchUnit unit) =>
@@ -33,7 +34,15 @@ Future<void> downloadUnits(
   if (source == null) return snackString(getString.watchSourceMissing);
   final engine = find<DownloadEngine>();
   final fresh = engine
-      .notQueued(state.service, state.current, _asDownloadUnits(requested))
+      .notQueued(
+        state.service,
+        state.current,
+        _asDownloadUnits(
+          state.anime || requested.length < 2
+              ? requested
+              : withoutDuplicateChapters(requested),
+        ),
+      )
       .map((u) => u.key)
       .toSet();
   final units = [
@@ -54,8 +63,22 @@ Future<void> downloadUnits(
   );
   int? height;
   var folder = false;
-  if (isTorrentSource(video.url) && !torrentReady) {
-    return snackString(getString.playerTorrentMissing);
+  int? torrentFile;
+  if (isTorrentSource(video.url)) {
+    final addon = engine.torrentAddon();
+    if (addon == null || !addon.installed.value) {
+      return snackString(getString.playerTorrentMissing);
+    }
+    final chosen = await showCustomBottomDialog<int>(
+      live(),
+      TorrentFileSheet(
+        addon: addon,
+        url: video.url,
+        title: state.current.mainName,
+      ),
+    );
+    if (chosen == null) return;
+    if (chosen != torrentFileAuto) torrentFile = chosen;
   }
   if (isHlsUrl(video.url)) {
     final mode = await chooseHlsMode(live());
@@ -117,6 +140,7 @@ Future<void> downloadUnits(
     height: height,
     subtitle: subtitle,
     folder: folder,
+    torrentFile: torrentFile,
   );
   logger('Download queued: ${units.length}', tag: 'DOWNLOAD');
   snackString(getString.downloadQueued(units.length));
@@ -140,7 +164,9 @@ List<DownloadUnit> _asDownloadUnits(List<WatchUnit> units) => [
 
 Future<void> downloadMenu(BuildContext context, WatchState state) async {
   final next = state.next;
-  final all = state.units.toList();
+  final all = state.anime
+      ? state.units.toList()
+      : withoutDuplicateChapters(state.units.toList());
   final unwatched = [
     for (final u in all)
       if (!u.isWatched(state.progress)) u,
@@ -149,7 +175,7 @@ Future<void> downloadMenu(BuildContext context, WatchState state) async {
   final shown = chunks.isEmpty
       ? const <WatchUnit>[]
       : chunks[state.chunk.value.clamp(0, chunks.length - 1)];
-  final from = next == null ? 0 : all.indexOf(next);
+  final from = next == null ? 0 : all.indexWhere((u) => u.value >= next.value);
   final upcoming = from < 0 ? const <WatchUnit>[] : all.sublist(from);
   final options = <String, List<WatchUnit>>{
     if (next != null) 'next': [next],

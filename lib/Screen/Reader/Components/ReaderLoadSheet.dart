@@ -37,7 +37,7 @@ class _ReaderLoadSheetState extends State<ReaderLoadSheet> {
       final unit = request.units[request.index];
       final local = request.online
           ? null
-          : find<DownloadEngine>().localPages(
+          : await find<DownloadEngine>().localPages(
               request.service.id,
               request.media.id,
               unit.key,

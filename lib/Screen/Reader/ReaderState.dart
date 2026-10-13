@@ -206,7 +206,7 @@ class ReaderState extends ScreenState {
     try {
       final local = request.online
           ? null
-          : find<DownloadEngine>().localPages(
+          : await find<DownloadEngine>().localPages(
               request.service.id,
               request.media.id,
               units[index].key,
@@ -227,7 +227,7 @@ class ReaderState extends ScreenState {
   }
 
   void _warm(int around) {
-    for (final n in [around + 1, around - 1]) {
+    for (final n in [_nextOf(around), around - 1]) {
       if (n < 0 || n >= units.length) continue;
       final key = unitKey(units[n]);
       if (!_warmed.add(key)) continue;
@@ -345,13 +345,15 @@ class ReaderState extends ScreenState {
     }
   }
 
-  void openNextChapter() => openChapter(chapter + 1);
+  void openNextChapter() => openChapter(_nextOf(chapter));
 
   void openPreviousChapter() => openChapter(chapter - 1);
 
-  bool get hasNextChapter => chapter + 1 < units.length;
+  bool get hasNextChapter => _nextOf(chapter) < units.length;
 
   bool get hasPreviousChapter => chapter > 0;
+
+  int _nextOf(int chapter) => nextUnitIndex(units, chapter);
 
   void _rebuild() {
     items.value = buildReaderItems(
@@ -359,6 +361,7 @@ class ReaderState extends ScreenState {
       chapterCount: chapterCount,
       spreads: spreads.value && !settings.scrolls,
       startGap: !settings.scrolls,
+      nextOf: _nextOf,
     );
   }
 
@@ -419,7 +422,7 @@ class ReaderState extends ScreenState {
 
   void _ensureNext() {
     if (segments.isEmpty || !settings.autoNext) return;
-    final next = segments.last.chapter + 1;
+    final next = _nextOf(segments.last.chapter);
     if (_failedNext.contains(next)) return;
     if (current.value < items.length - 1 - settings.preload - 1) return;
     _appendNext();
@@ -433,7 +436,7 @@ class ReaderState extends ScreenState {
   void _appendNext() {
     final last = segments.lastOrNull;
     if (last == null || loadingNext.value) return;
-    final next = last.chapter + 1;
+    final next = _nextOf(last.chapter);
     if (next >= units.length) return;
     loadingNext.value = true;
     unawaited(() async {
@@ -455,7 +458,10 @@ class ReaderState extends ScreenState {
     }());
   }
 
-  bool nextLoaded(int chapter) => segments.any((s) => s.chapter == chapter + 1);
+  bool nextLoaded(int chapter) {
+    final next = _nextOf(chapter);
+    return segments.any((s) => s.chapter == next);
+  }
 
   void _precache(int chapterIndex, int from) {
     ReaderSegment? segment;
@@ -659,7 +665,7 @@ class ReaderState extends ScreenState {
 
   void nearEnd() {
     if (segments.isEmpty || !settings.autoNext) return;
-    final next = segments.last.chapter + 1;
+    final next = _nextOf(segments.last.chapter);
     if (_failedNext.contains(next)) return;
     _appendNext();
   }

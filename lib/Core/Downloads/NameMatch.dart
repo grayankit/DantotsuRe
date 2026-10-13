@@ -10,7 +10,7 @@ final _season = RegExp(
   caseSensitive: false,
 );
 final _labelled = RegExp(
-  r'(?:^|[\s._-])(?:episode|ep|e)[\s._-]*(\d{1,4}(?:\.\d)?)(?:v\d)?(?=$|[\s._-])',
+  r'(?:^|[\s._-])(?:episode|ep|e|chapter|chap|ch|c|volume|vol|v)[\s._-]*(\d{1,4}(?:\.\d)?)(?:v\d)?(?=$|[\s._-])',
   caseSensitive: false,
 );
 final _whole = RegExp(r'^\s*(\d{1,4}(?:\.\d)?)(?:v\d)?\s*$');

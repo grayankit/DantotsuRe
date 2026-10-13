@@ -1,6 +1,7 @@
 import 'package:dartotsu_extension_bridge/Models/Video.dart' as v;
 
 import '../State/State.dart';
+import 'Archives.dart';
 import 'DownloadPaths.dart';
 
 enum DownloadState { queued, resolving, downloading, paused, done, failed }
@@ -54,6 +55,8 @@ class DownloadTask {
   bool segmented;
   bool folder;
   int? height;
+  int? torrentFile;
+  final swarm = Live<String?>(null);
 
   int? _size;
 
@@ -101,6 +104,7 @@ class DownloadTask {
     this.segmented = false,
     this.folder = false,
     this.height,
+    this.torrentFile,
   });
 
   static String idOf(String serviceId, String mediaId, String unitKey) =>
@@ -108,9 +112,15 @@ class DownloadTask {
 
   String get mediaSlot => '$serviceId/$mediaId';
 
-  bool get isNovel =>
-      kind == DownloadKind.chapter &&
-      '${media['format']}'.toLowerCase() == 'novel';
+  bool get isNovel {
+    if (kind != DownloadKind.chapter) return false;
+    final file = path;
+    if (file != null) {
+      if (isBookFile(file)) return true;
+      if (isComicArchive(file)) return false;
+    }
+    return '${media['format']}'.toLowerCase() == 'novel';
+  }
 
   bool get isDone => state.value == DownloadState.done;
 
@@ -160,6 +170,7 @@ class DownloadTask {
     'segmented': segmented,
     'folder': folder,
     'height': height,
+    'torrentFile': torrentFile,
     'state': state.value.name,
     'received': received.value,
     'total': total.value,
@@ -206,6 +217,7 @@ class DownloadTask {
       segmented: json['segmented'] == true,
       folder: json['folder'] == true,
       height: (json['height'] as num?)?.toInt(),
+      torrentFile: (json['torrentFile'] as num?)?.toInt(),
     );
     final saved = DownloadState.values.firstWhere(
       (e) => e.name == json['state'],

@@ -38,6 +38,9 @@ String unitBaseName(DownloadTask task) {
   return '$base - $suffix';
 }
 
+String archiveCache(String file) =>
+    p.join(p.dirname(file), '.archives', p.basenameWithoutExtension(file));
+
 String extensionOf(String url, {String fallback = 'mp4'}) {
   final path = Uri.tryParse(url)?.path ?? url;
   final ext = p.extension(path).replaceFirst('.', '').toLowerCase();

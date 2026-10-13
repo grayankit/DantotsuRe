@@ -73,6 +73,12 @@ class _DownloadsScreenState extends BaseScreen<DownloadsScreen>
                       Icons.cloud_off_rounded,
                       getString.offlineModeOn,
                     ),
+                  if (engine.blockedReason.value != null)
+                    _banner(
+                      context,
+                      Icons.pause_circle_outline_rounded,
+                      engine.blockedReason.value!,
+                    ),
                   PendingSyncCard(pending: state.pending),
                   if (state.bytes.value > 0)
                     Align(
@@ -104,7 +110,7 @@ class _DownloadsScreenState extends BaseScreen<DownloadsScreen>
               child: TabBarView(
                 controller: state.tabs,
                 children: [
-                  _list(context, queue, getString.downloadEmptyQueue),
+                  _queueList(context, queue),
                   _grouped(context),
                   _list(context, failed, getString.downloadEmptyFailed),
                 ],
@@ -132,10 +138,35 @@ class _DownloadsScreenState extends BaseScreen<DownloadsScreen>
           Expanded(
             child: Text(
               text,
-              style: TextStyle(color: scheme.onSecondaryContainer),
+              style: context.textTheme.bodyMedium?.copyWith(
+                color: scheme.onSecondaryContainer,
+              ),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _queueList(BuildContext context, List<DownloadTask> queue) {
+    if (queue.isEmpty) {
+      return EmptyState(
+        icon: Icons.download_done_rounded,
+        title: getString.downloadEmptyQueue,
+      );
+    }
+    return ScrollConfig(
+      context,
+      child: ReorderableListView.builder(
+        buildDefaultDragHandles: false,
+        padding: EdgeInsets.all(Dimens.pagePad),
+        itemCount: queue.length,
+        onReorder: (from, to) => state.engine.reorderQueue(queue, from, to),
+        itemBuilder: (_, i) => Padding(
+          key: ValueKey(queue[i].id),
+          padding: EdgeInsets.only(bottom: Dimens.gapSm),
+          child: DownloadRow(task: queue[i], dragIndex: i, canMoveUp: i > 0),
+        ),
       ),
     );
   }

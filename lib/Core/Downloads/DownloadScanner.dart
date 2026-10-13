@@ -5,11 +5,15 @@ import 'dart:io';
 import 'package:path/path.dart' as p;
 
 import '../../Logger.dart';
+import '../Services/Model/Media.dart';
 import '../State/State.dart';
+import 'Archives.dart';
 import 'DownloadEngine.dart';
 import 'DownloadPaths.dart';
 import 'DownloadTask.dart';
 import 'NameMatch.dart';
+
+const localServiceId = 'local';
 
 class LocalGroup {
   final String title;
@@ -97,6 +101,65 @@ class DownloadScanner {
     }
   }
 
+  void _reading(
+    Directory dir,
+    Map<String, Object?>? info,
+    List<File> files,
+    List<DownloadTask> found,
+  ) {
+    final title = info?['title'] as String? ?? p.basename(dir.path);
+    final serviceId = info?['service'] as String? ?? localServiceId;
+    final media = info == null
+        ? engine.slim(
+            Media(
+              id: '$localServiceId/$title',
+              name: title,
+              userPreferredName: title,
+              shareLink: '',
+              format: files.any((f) => isBookFile(f.path)) ? 'NOVEL' : 'MANGA',
+            ),
+          )
+        : Map<String, Object?>.from(info['media'] as Map);
+    final mediaId = info == null
+        ? '$localServiceId/$title'
+        : '${info['id'] ?? media['id']}';
+    files.sort((a, b) => naturalCompare(a.path, b.path));
+    final used = <String>{};
+    var next = 1;
+    final now = DateTime.now().millisecondsSinceEpoch;
+    for (final file in files) {
+      var number = episodeNumberOf(p.basename(file.path));
+      if (number == null) {
+        if (info != null) continue;
+        while (used.contains(unitKeyOf(next.toDouble()))) {
+          next++;
+        }
+        number = next.toDouble();
+      }
+      final key = unitKeyOf(number);
+      if (!used.add(key)) continue;
+      found.add(
+        DownloadTask(
+          id: DownloadTask.idOf(serviceId, mediaId, key),
+          kind: DownloadKind.chapter,
+          serviceId: serviceId,
+          mediaId: mediaId,
+          mediaTitle: title,
+          cover: media['cover'] as String?,
+          sourceId: info?['source'] as String?,
+          unitKey: key,
+          number: number,
+          title: p.basenameWithoutExtension(file.path),
+          media: media,
+          episode: null,
+          profile: null,
+          createdAt: now,
+          path: file.path,
+        )..state.value = DownloadState.done,
+      );
+    }
+  }
+
   Future<void> _folder(
     Directory dir,
     List<DownloadTask> found,
@@ -105,12 +168,16 @@ class DownloadScanner {
   }) async {
     final videos = <File>[];
     final subtitles = <File>[];
+    final reading = <File>[];
     final folders = <Directory>[];
     await for (final entity in dir.list()) {
       if (entity is Directory) folders.add(entity);
       if (entity is! File) continue;
       if (isVideoFile(entity.path)) videos.add(entity);
       if (isSubtitleFile(entity.path)) subtitles.add(entity);
+      if (isComicArchive(entity.path) || isBookFile(entity.path)) {
+        reading.add(entity);
+      }
     }
     final info = await _info(dir);
     if (info == null && depth == 0) {
@@ -118,6 +185,7 @@ class DownloadScanner {
         await _folder(sub, found, loose, depth: 1);
       }
     }
+    if (reading.isNotEmpty) _reading(dir, info, reading, found);
     if (videos.isEmpty) return;
     if (info == null) {
       videos.sort((a, b) => a.path.compareTo(b.path));

@@ -18,6 +18,7 @@ import '../../Core/State/State.dart';
 import '../../Utils/Animation/WidgetAnimations.dart';
 import '../../Widgets/Components/ScreenState.dart';
 import '../Detail/Watch/Data/EpisodeUnits.dart';
+import '../Detail/Watch/Data/Media/MediaRecord.dart';
 import '../Feed/FeedNavigation.dart';
 import '../Player/Engine/PlayRequest.dart';
 import '../Player/Engine/PlayerPlaylist.dart';
@@ -93,10 +94,15 @@ class DownloadsState extends ScreenState {
 
   Future<void> refresh() => engine.scanner.scan();
 
+  MediaService? _serviceOf(DownloadTask task) {
+    final services = find<MediaServiceController>().services;
+    if (task.serviceId == localServiceId) return services.firstOrNull;
+    return services.where((s) => s.id == task.serviceId).firstOrNull;
+  }
+
   void openTitle(DownloadTask task) {
-    final service = find<MediaServiceController>().services
-        .where((s) => s.id == task.serviceId)
-        .firstOrNull;
+    if (task.serviceId == localServiceId) return;
+    final service = _serviceOf(task);
     if (service == null) return;
     openDetail(
       context,
@@ -114,10 +120,16 @@ class DownloadsState extends ScreenState {
   );
 
   Future<void> read(DownloadTask task) async {
-    final service = find<MediaServiceController>().services
-        .where((s) => s.id == task.serviceId)
-        .firstOrNull;
+    final service = _serviceOf(task);
     if (service == null) return;
+    final media = Media.fromJson(Map<String, dynamic>.from(task.media));
+    if (task.serviceId == localServiceId) {
+      final record = MediaRecords.of(service, media);
+      if (record.saveProgress) {
+        record.saveProgress = false;
+        MediaRecords.save(service, media);
+      }
+    }
     final siblings = grouped[task.mediaSlot] ?? [task];
     final units = <WatchUnit>[];
     for (final t in siblings) {
@@ -140,7 +152,7 @@ class DownloadsState extends ScreenState {
     await openReader(
       ReaderRequest(
         service: service,
-        media: Media.fromJson(Map<String, dynamic>.from(task.media)),
+        media: media,
         source: sourceId == null ? null : installedSourceById(sourceId),
         units: units,
         index: index,

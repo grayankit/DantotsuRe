@@ -40,6 +40,7 @@ extension DownloadQueue on DownloadEngine {
     required int? height,
     required v.Track? subtitle,
     bool folder = false,
+    int? torrentFile,
   }) {
     final slim = this.slim(media);
     final now = DateTime.now().millisecondsSinceEpoch;
@@ -63,6 +64,7 @@ extension DownloadQueue on DownloadEngine {
           video: i == 0 ? video.toJson() : null,
           height: height,
           folder: folder,
+          torrentFile: i == 0 ? torrentFile : null,
           subtitle: i == 0 ? subtitle?.toJson() : null,
         ),
     ]);
@@ -96,4 +98,22 @@ extension DownloadQueue on DownloadEngine {
         ),
     ]);
   }
+}
+
+List<T> reorderWithin<T>(List<T> all, List<T> subset, int from, int to) {
+  final target = to > from ? to - 1 : to;
+  if (from == target || from < 0 || from >= subset.length) return all;
+  final item = subset[from];
+  final anchor = subset[target.clamp(0, subset.length - 1)];
+  final out = [...all]..remove(item);
+  final at = out.indexOf(anchor);
+  out.insert(target > from ? at + 1 : at, item);
+  return out;
+}
+
+List<T> moveBefore<T>(List<T> all, T item, T first) {
+  if (item == first) return all;
+  final out = [...all]..remove(item);
+  out.insert(out.indexOf(first), item);
+  return out;
 }

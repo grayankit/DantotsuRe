@@ -2,15 +2,17 @@ import 'package:dartotsu_extension_bridge/dartotsu_extension_bridge.dart';
 import 'package:flutter/widgets.dart';
 
 import '../../Api/Services/Extension/Services.dart';
-import '../Detail/Watch/Data/Media/ResumeStore.dart';
-import '../Player/Engine/PlayRequest.dart';
-import '../Reader/Engine/ReaderRequest.dart';
+import '../../Core/Downloads/DownloadEngine.dart';
 import '../../Core/Services/MediaService.dart';
+import '../../Core/State/State.dart';
 import '../../Core/ThemeManager/LanguageSwitcher.dart';
-import '../Detail/Watch/Data/EpisodeUnits.dart';
-import '../Detail/Watch/Data/UnitLoader.dart';
 import '../../Utils/Functions/SnackBar.dart';
+import '../Detail/Watch/Data/EpisodeUnits.dart';
+import '../Detail/Watch/Data/Media/ResumeStore.dart';
+import '../Detail/Watch/Data/UnitLoader.dart';
+import '../Player/Engine/PlayRequest.dart';
 import '../Player/PlayerLauncher.dart';
+import '../Reader/Engine/ReaderRequest.dart';
 import '../Reader/ReaderLauncher.dart';
 import 'FeedNavigation.dart';
 
@@ -31,18 +33,25 @@ Future<void> openResume(
       : media.format?.toLowerCase() == 'novel'
       ? ItemType.novel
       : ItemType.manga;
+  final saved = find<DownloadEngine>().hasLocalUnit(
+    service.id,
+    media.id,
+    entry.unitKey,
+  );
   var source = installedSourceById(sourceId);
-  if (source == null) {
+  if (source == null && !saved) {
     await ensureSourcesReady(type);
     source = installedSourceById(sourceId);
   }
   if (!context.mounted) return;
-  if (source == null) {
+  if (source == null && !saved) {
     snackString(getString.resumeSourceMissing);
     openDetail(context, service, media);
     return;
   }
-  if (service.id == extensionServiceId) media.sourceData = source;
+  if (source != null && service.id == extensionServiceId) {
+    media.sourceData = source;
+  }
   final episode = DEpisode.fromJson(Map<String, dynamic>.from(raw));
   final src = source;
   openDetail(context, service, media, instant: true);
@@ -61,24 +70,26 @@ Future<void> openResume(
           ),
         ],
         resume: true,
-        loadItems: () async {
-          final units = await loadUnits(
-            service: service,
-            media: media,
-            source: src,
-          );
-          if (units == null) return null;
-          return [
-            for (final u in units)
-              PlayItem(
-                key: u.number,
-                title: playTitleOf(u),
-                number: u.value,
-                episode: u.raw,
-                unit: u,
-              ),
-          ];
-        },
+        loadItems: src == null
+            ? null
+            : () async {
+                final units = await loadUnits(
+                  service: service,
+                  media: media,
+                  source: src,
+                );
+                if (units == null) return null;
+                return [
+                  for (final u in units)
+                    PlayItem(
+                      key: u.number,
+                      title: playTitleOf(u),
+                      number: u.value,
+                      episode: u.raw,
+                      unit: u,
+                    ),
+                ];
+              },
       ),
       context: context,
     );
@@ -98,7 +109,9 @@ Future<void> openResume(
           ),
         ],
         index: 0,
-        loadUnits: () => loadUnits(service: service, media: media, source: src),
+        loadUnits: src == null
+            ? null
+            : () => loadUnits(service: service, media: media, source: src),
       ),
       context: context,
     );

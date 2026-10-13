@@ -1,9 +1,15 @@
+import 'dart:io';
+
 import 'package:dartotsu/Core/Downloads/ChapterFetcher.dart';
 import 'package:dartotsu/Core/Downloads/DownloadPaths.dart';
+import 'package:dartotsu/Core/Downloads/DownloadQueue.dart';
 import 'package:dartotsu/Core/Downloads/DownloadTask.dart';
 import 'package:dartotsu/Core/Downloads/Hls.dart';
+import 'package:dartotsu/Core/Downloads/HlsFetcher.dart';
 import 'package:dartotsu/Core/Downloads/NameMatch.dart';
+import 'package:dartotsu_extension_bridge/dartotsu_extension_bridge.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:rhttp/rhttp.dart';
 
 DownloadTask task({double number = 1, DownloadState? state}) {
   final t = DownloadTask(
@@ -93,6 +99,12 @@ void main() {
       'Show.Name.2019.S02E11.1080p.WEB-DL.x265.mkv': 11.0,
       'Show - 13.5.mkv': 13.5,
       'Some Show 24.avi': 24.0,
+      'Chapter 12.cbz': 12.0,
+      'Ch.5.cbz': 5.0,
+      'c012.cbz': 12.0,
+      'Vol 3.epub': 3.0,
+      'Volume 03.epub': 3.0,
+      'Berserk - Chapter 364.5.cbz': 364.5,
     };
     cases.forEach((name, expected) {
       test(name, () => expect(episodeNumberOf(name), expected));
@@ -244,5 +256,66 @@ c.ts
   test('a task remembers it is kept as a folder', () {
     final original = task(state: DownloadState.done)..folder = true;
     expect(DownloadTask.fromJson(original.toJson())!.folder, isTrue);
+  });
+
+  test('an hls download resumes at the first missing segment', () async {
+    final dir = Directory.systemTemp.createTempSync('hls');
+    addTearDown(() => dir.deleteSync(recursive: true));
+    final playlist = StringBuffer('#EXTM3U\n#EXT-X-TARGETDURATION:4\n');
+    for (var i = 0; i < 5; i++) {
+      playlist.write('#EXTINF:4,\nhttps://h/s$i.ts\n');
+    }
+    playlist.write('#EXT-X-ENDLIST\n');
+    final fetched = <String>[];
+    var broken = true;
+    final progress = <int>[];
+
+    Future<void> run() => downloadHls(
+      url: 'https://h/index.m3u8',
+      output: File('${dir.path}/Episode 001.mp4'),
+      ffmpeg: null,
+      cancel: CancelToken(),
+      ffmpegCancel: FfmpegCancel(),
+      onProgress: (done, total) => progress.add(done),
+      onFinishing: () {},
+      workers: 1,
+      getText: (_) async => playlist.toString(),
+      getFile: (uri, target) async {
+        if (broken && uri.path.endsWith('s3.ts')) throw StateError('boom');
+        fetched.add(uri.path);
+        await target.writeAsString('x');
+      },
+    );
+
+    await expectLater(run(), throwsStateError);
+    expect(fetched, ['/s0.ts', '/s1.ts', '/s2.ts']);
+
+    broken = false;
+    fetched.clear();
+    progress.clear();
+    await run();
+    expect(fetched, ['/s3.ts', '/s4.ts']);
+    expect(progress.first, 3);
+    expect(progress.last, 5);
+    expect(File('${dir.path}/Episode 001/index.m3u8').existsSync(), isTrue);
+  });
+
+  group('queue order', () {
+    test('dragging down puts the item after the target', () {
+      expect(reorderWithin([1, 2, 3, 4], [1, 2, 3, 4], 0, 3), [2, 3, 1, 4]);
+    });
+
+    test('dragging up puts the item before the target', () {
+      expect(reorderWithin([1, 2, 3, 4], [1, 2, 3, 4], 3, 1), [1, 4, 2, 3]);
+    });
+
+    test('finished items keep their place', () {
+      expect(reorderWithin([9, 1, 8, 2, 3], [1, 2, 3], 2, 0), [9, 3, 1, 8, 2]);
+    });
+
+    test('moving to the top', () {
+      expect(moveBefore([9, 1, 2, 3], 3, 1), [9, 3, 1, 2]);
+      expect(moveBefore([1, 2, 3], 1, 1), [1, 2, 3]);
+    });
   });
 }

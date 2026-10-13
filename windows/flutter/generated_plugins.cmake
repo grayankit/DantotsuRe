@@ -4,6 +4,7 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   app_links
+  connectivity_plus
   dartotsu_extension_bridge
   dynamic_color
   firebase_core

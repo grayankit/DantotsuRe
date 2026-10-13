@@ -27,8 +27,18 @@ Widget downloadCover(
       return Image.file(local, width: width, height: height, fit: BoxFit.cover);
     }
   }
+  if (task.cover == null || task.cover!.isEmpty) {
+    return SizedBox(
+      width: width,
+      height: height,
+      child: const ColoredBox(
+        color: Colors.black12,
+        child: Icon(Icons.menu_book_rounded),
+      ),
+    );
+  }
   return cachedNetworkImage(
-    imageUrl: task.cover,
+    imageUrl: task.cover!,
     width: width,
     height: height,
     fit: BoxFit.cover,
@@ -39,12 +49,16 @@ class DownloadRow extends StatelessWidget {
   final DownloadTask task;
   final VoidCallback? onTap;
   final bool showMedia;
+  final int? dragIndex;
+  final bool canMoveUp;
 
   const DownloadRow({
     super.key,
     required this.task,
     this.onTap,
     this.showMedia = true,
+    this.dragIndex,
+    this.canMoveUp = false,
   });
 
   @override
@@ -100,6 +114,7 @@ class DownloadRow extends StatelessWidget {
                                 formatBytes(received),
                               if (task.speed.value > 0)
                                 '${formatBytes(task.speed.value.round())}/s',
+                              if (task.swarm.value != null) task.swarm.value!,
                             ].join(' · '),
                   };
                   return Column(
@@ -170,7 +185,24 @@ class DownloadRow extends StatelessWidget {
                   );
                 }),
               ),
+              if (canMoveUp)
+                _button(
+                  Icons.vertical_align_top_rounded,
+                  getString.downloadMoveToTop,
+                  () => engine.moveToTop(task),
+                ),
               Watch(() => _actions(context, engine)),
+              if (dragIndex != null)
+                ReorderableDragStartListener(
+                  index: dragIndex!,
+                  child: Padding(
+                    padding: EdgeInsets.all(Dimens.gapSm),
+                    child: Icon(
+                      Icons.drag_handle_rounded,
+                      color: scheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
             ],
           ),
         ),

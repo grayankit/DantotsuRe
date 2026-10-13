@@ -53,6 +53,7 @@ List<ReaderItem> buildReaderItems(
   required int chapterCount,
   bool spreads = false,
   bool startGap = true,
+  int Function(int chapter)? nextOf,
 }) {
   if (segments.isEmpty) return const [];
   final items = <ReaderItem>[];
@@ -85,7 +86,7 @@ List<ReaderItem> buildReaderItems(
     } else {
       items.addAll(pages);
     }
-    final next = segment.chapter + 1;
+    final next = nextOf?.call(segment.chapter) ?? segment.chapter + 1;
     items.add(
       ReaderGap(
         chapter: segment.chapter,

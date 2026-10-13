@@ -6,6 +6,7 @@ import 'package:rhttp/rhttp.dart';
 
 import '../NetworkManager/NetworkManager.dart';
 import '../State/State.dart';
+import 'Throttle.dart';
 
 class DownloadHttpError implements Exception {
   final int status;
@@ -190,6 +191,7 @@ Future<bool> _fetchChunked({
         await file.writeFrom(data);
         range[2] += data.length;
         onProgress(received(), total);
+        await DownloadThrottle.take(data.length);
         if (DateTime.now().difference(lastSave).inSeconds >= 1) {
           lastSave = DateTime.now();
           unawaited(save());
@@ -271,6 +273,7 @@ Future<void> fetchFile({
       sink.add(chunk);
       received += chunk.length;
       onProgress(received, total);
+      await DownloadThrottle.take(chunk.length);
     }
     await sink.flush();
   } finally {

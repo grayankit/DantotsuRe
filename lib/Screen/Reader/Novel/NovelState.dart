@@ -57,7 +57,7 @@ class NovelState extends ScreenState {
 
   String get title => unitTitle(unit, false);
 
-  bool get hasNext => index.value + 1 < units.length;
+  bool get hasNext => nextUnitIndex(units, index.value) < units.length;
 
   bool get hasPrevious => index.value > 0;
 
@@ -115,7 +115,7 @@ class NovelState extends ScreenState {
     try {
       final local = request.online
           ? null
-          : find<DownloadEngine>().localNovel(
+          : await find<DownloadEngine>().localNovel(
               request.service.id,
               request.media.id,
               units[target].key,
@@ -231,7 +231,7 @@ class NovelState extends ScreenState {
     unawaited(_open(target));
   }
 
-  void next() => openChapter(index.value + 1);
+  void next() => openChapter(nextUnitIndex(units, index.value));
 
   void previous() => openChapter(index.value - 1);
 

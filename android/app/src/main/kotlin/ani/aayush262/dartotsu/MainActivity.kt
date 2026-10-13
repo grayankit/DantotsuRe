@@ -1,6 +1,8 @@
 package ani.aayush262.dartotsu
 
+import android.content.Context
 import android.content.Intent
+import android.net.ConnectivityManager
 import android.content.pm.verify.domain.DomainVerificationManager
 import android.content.pm.verify.domain.DomainVerificationUserState
 import android.net.Uri
@@ -26,6 +28,12 @@ class MainActivity : FlPiPActivity() {
                 result.success(null)
             }
         }
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "dartotsu/network")
+            .setMethodCallHandler { call, result ->
+                if (call.method != "isMetered") return@setMethodCallHandler result.notImplemented()
+                val manager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+                result.success(manager.isActiveNetworkMetered)
+            }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "dartotsu/links")
             .setMethodCallHandler { call, result ->
                 if (call.method == "isLinkHandlingEnabled") {

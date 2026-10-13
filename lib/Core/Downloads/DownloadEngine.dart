@@ -17,9 +17,11 @@ import '../Preferences/PrefManager.dart';
 import '../Services/Model/Media.dart';
 import '../State/State.dart';
 import '../ThemeManager/LanguageSwitcher.dart';
+import 'Archives.dart';
 import 'ChapterFetcher.dart';
 import 'DownloadPaths.dart';
 import 'DownloadPrefs.dart';
+import 'DownloadQueue.dart';
 import 'DownloadScanner.dart';
 import 'DownloadService.dart';
 import 'DownloadSnapshots.dart';
@@ -54,6 +56,7 @@ class DownloadEngine extends AppController {
   Disposer? _net;
   Disposer? _indexWatch;
   Map<String, DownloadTask>? _byId;
+  final blockedReason = Live<String?>(null);
   late final scanner = DownloadScanner(this);
 
   @override
@@ -64,15 +67,49 @@ class DownloadEngine extends AppController {
       tasks.value = [for (final item in list) ?DownloadTask.fromJson(item)];
     }
     _indexWatch = onAnyChange([tasks], () => _byId = null);
-    _net = onChange(find<NetStatus>().online, (online) {
-      if (!online) return;
-      for (final id in _waiting.toList()) {
-        final task = taskById(id);
-        if (task != null) resume(task);
-      }
-      _waiting.clear();
-    });
+    final net = find<NetStatus>();
+    _net = onAnyChange([
+      net.online,
+      net.kind,
+      net.metered,
+      downloadWifiOnlyPref.rx,
+      downloadMeteredPref.rx,
+    ], _syncNetwork);
+    _syncNetwork();
     unawaited(scanner.start());
+  }
+
+  String? _policyBlock() {
+    final net = find<NetStatus>();
+    if (downloadWifiOnlyPref.value && net.kind.value == NetKind.mobile) {
+      return getString.downloadWaitingWifi;
+    }
+    if (downloadMeteredPref.value && net.metered.value) {
+      return getString.downloadWaitingMetered;
+    }
+    return null;
+  }
+
+  void _syncNetwork() {
+    final net = find<NetStatus>();
+    final reason = net.online.value ? _policyBlock() : null;
+    blockedReason.value = reason;
+    if (reason != null) {
+      for (final task in tasks.toList()) {
+        if (!task.isActive) continue;
+        pause(task);
+        _waiting.add(task.id);
+        task.error.value = reason;
+      }
+      return;
+    }
+    if (!net.online.value) return;
+    for (final id in _waiting.toList()) {
+      final task = taskById(id);
+      if (task != null) resume(task);
+    }
+    _waiting.clear();
+    _pump();
   }
 
   void adoptScanned(List<DownloadTask> found) {
@@ -132,7 +169,10 @@ class DownloadEngine extends AppController {
   }
 
   DownloadTask? taskFor(String serviceId, String mediaId, String unitKey) =>
-      taskById(DownloadTask.idOf(serviceId, mediaId, unitKey));
+      taskById(DownloadTask.idOf(serviceId, mediaId, unitKey)) ??
+      (mediaId.startsWith('$localServiceId/')
+          ? taskById(DownloadTask.idOf(localServiceId, mediaId, unitKey))
+          : null);
 
   bool isDownloaded(String serviceId, String mediaId, String unitKey) =>
       taskFor(serviceId, mediaId, unitKey)?.isDone ?? false;
@@ -163,7 +203,11 @@ class DownloadEngine extends AppController {
     );
   }
 
-  List<PageUrl>? localPages(String serviceId, String mediaId, String unitKey) {
+  Future<List<PageUrl>?> localPages(
+    String serviceId,
+    String mediaId,
+    String unitKey,
+  ) async {
     final task = taskFor(serviceId, mediaId, unitKey);
     final path = task?.path;
     if (task == null ||
@@ -173,18 +217,36 @@ class DownloadEngine extends AppController {
         task.isNovel) {
       return null;
     }
+    if (isComicArchive(path)) {
+      if (!File(path).existsSync()) return null;
+      final pages = await extractComic(path, archiveCache(path));
+      return pages.isEmpty ? null : [for (final f in pages) PageUrl(f)];
+    }
     final files = pageFilesIn(Directory(path));
     return files.isEmpty ? null : [for (final f in files) PageUrl(f.path)];
   }
 
-  String? localNovel(String serviceId, String mediaId, String unitKey) {
+  Future<String?> localNovel(
+    String serviceId,
+    String mediaId,
+    String unitKey,
+  ) async {
     final task = taskFor(serviceId, mediaId, unitKey);
     final path = task?.path;
     if (task == null || !task.isDone || path == null || !task.isNovel) {
       return null;
     }
     final file = File(path);
-    return file.existsSync() ? file.readAsStringSync() : null;
+    if (!file.existsSync()) return null;
+    if (!isBookFile(path)) return file.readAsString();
+    final cache = File(p.join(archiveCache(path), 'book.html'));
+    if (cache.existsSync() &&
+        cache.lastModifiedSync().isAfter(file.lastModifiedSync())) {
+      return cache.readAsString();
+    }
+    final html = await epubToHtml(path, archiveCache(path));
+    await cache.writeAsString(html);
+    return html;
   }
 
   bool hasLocalUnit(String serviceId, String mediaId, String unitKey) =>
@@ -253,6 +315,7 @@ class DownloadEngine extends AppController {
   int get parallel => downloadParallelPref.value.clamp(1, 5);
 
   void _pump() {
+    if (_policyBlock() != null) return;
     var active = tasks.where((t) => t.isActive).length;
     for (final task in tasks.toList()) {
       if (active >= parallel) break;
@@ -296,6 +359,22 @@ class DownloadEngine extends AppController {
     for (final t in tasks.toList()) {
       resume(t);
     }
+  }
+
+  void reorderQueue(List<DownloadTask> queue, int from, int to) {
+    tasks.value = reorderWithin(tasks.toList(), queue, from, to);
+    _persist(now: true);
+  }
+
+  void moveToTop(DownloadTask task) {
+    final first = tasks.firstWhere(
+      (t) => !t.isDone && t.state.value != DownloadState.failed,
+      orElse: () => task,
+    );
+    tasks.value = moveBefore(tasks.toList(), task, first);
+    _persist(now: true);
+    if (task.state.value == DownloadState.paused) resume(task);
+    _pump();
   }
 
   Future<void> remove(DownloadTask task, {bool deleteFiles = true}) async {
@@ -351,6 +430,8 @@ class DownloadEngine extends AppController {
         if (task.isNovel && await files.exists()) {
           await files.delete(recursive: true);
         }
+        final cache = Directory(archiveCache(path));
+        if (await cache.exists()) await cache.delete(recursive: true);
       } catch (e) {
         logger('Delete failed: $e', tag: 'DOWNLOAD');
       }
@@ -404,11 +485,25 @@ class DownloadEngine extends AppController {
       url: video.url,
       title: task.mediaTitle,
     );
+    Timer? poll;
     try {
       logger('Torrent files: ${info.fileStats.length}', tag: 'DOWNLOAD');
-      final file = addon.pickFile(info, episode: task.number);
+      final chosen = task.torrentFile;
+      final file = chosen == null
+          ? addon.pickFile(info, episode: task.number)
+          : info.fileStats.where((f) => f.id == chosen).firstOrNull ??
+                addon.pickFile(info, episode: task.number);
       if (file == null) throw DownloadBlocked(getString.downloadTorrentNoFile);
       task.state.value = DownloadState.downloading;
+      poll = Timer.periodic(const Duration(seconds: 3), (_) async {
+        try {
+          final live = await addon.torrentInfo(info.hash);
+          task.swarm.value = getString.downloadSwarm(
+            live.connectedSeeders,
+            live.activePeers,
+          );
+        } catch (_) {}
+      });
       final url = addon.fileUrl(info.hash, file.id).toString();
       final target = File(p.join(dir.path, '$base.${extensionOf(file.path)}'));
       task.path = target.path;
@@ -441,6 +536,8 @@ class DownloadEngine extends AppController {
         }
       }
     } finally {
+      poll?.cancel();
+      task.swarm.value = null;
       unawaited(addon.release(info.hash));
     }
   }

@@ -17,3 +17,14 @@ const downloadInfoFilePref = Pref(
   false,
   PrefLocation.OTHER,
 );
+const downloadWifiOnlyPref = Pref(
+  'downloadWifiOnly',
+  false,
+  PrefLocation.OTHER,
+);
+const downloadMeteredPref = Pref('downloadMetered', false, PrefLocation.OTHER);
+const downloadSpeedLimitPref = Pref(
+  'downloadSpeedLimit',
+  0,
+  PrefLocation.OTHER,
+);

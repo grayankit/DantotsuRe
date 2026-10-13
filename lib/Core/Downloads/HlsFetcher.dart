@@ -5,10 +5,14 @@ import 'package:dartotsu_extension_bridge/dartotsu_extension_bridge.dart';
 import 'package:path/path.dart' as p;
 import 'package:rhttp/rhttp.dart';
 
+import '../../Logger.dart';
 import '../NetworkManager/NetworkManager.dart';
 import '../State/State.dart';
 import 'FileFetcher.dart';
 import 'Hls.dart';
+
+Future<bool> _complete(File file) async =>
+    await file.exists() && await file.length() > 0;
 
 Future<String> fetchText(
   String url, {
@@ -44,14 +48,18 @@ Future<void> downloadHls({
   Map<String, String>? headers,
   int? height,
   int workers = 4,
+  Future<String> Function(String url)? getText,
+  Future<void> Function(Uri uri, File target)? getFile,
 }) async {
+  Future<String> text0(String u) =>
+      getText?.call(u) ?? fetchText(u, headers: headers, cancel: cancel);
   var playlistUrl = url;
-  var text = await fetchText(url, headers: headers, cancel: cancel);
+  var text = await text0(url);
   if (isMasterPlaylist(text)) {
     final variants = parseMaster(text, Uri.parse(url));
     if (variants.isEmpty) throw const HlsUnsupported('Empty master playlist');
     playlistUrl = pickVariant(variants, height: height).uri.toString();
-    text = await fetchText(playlistUrl, headers: headers, cancel: cancel);
+    text = await text0(playlistUrl);
   }
   final media = parseMedia(text, Uri.parse(playlistUrl));
   final name = p.basenameWithoutExtension(output.path);
@@ -76,7 +84,8 @@ Future<void> downloadHls({
 
   Future<void> grab(Uri uri, String name) async {
     final target = File(p.join(dir.path, name));
-    if (await target.exists()) return;
+    if (await _complete(target)) return;
+    if (getFile != null) return getFile(uri, target);
     await fetchWithRetry(
       () => fetchFile(
         url: uri.toString(),
@@ -96,25 +105,36 @@ Future<void> downloadHls({
     await grab(e.key, e.value);
   }
 
+  final pending = <int>[];
+  for (final (i, s) in media.segments.indexed) {
+    if (!await _complete(File(p.join(dir.path, segmentName(i, s.uri))))) {
+      pending.add(i);
+    }
+  }
   var next = 0;
-  var done = 0;
+  var done = media.segments.length - pending.length;
   Object? failure;
   Future<void> worker() async {
     while (failure == null) {
-      final i = next++;
-      if (i >= media.segments.length) return;
+      final n = next++;
+      if (n >= pending.length) return;
+      final i = pending[n];
       try {
         final uri = media.segments[i].uri;
         await grab(uri, segmentName(i, uri));
         done++;
         onProgress(done, media.segments.length);
       } catch (e) {
+        logger(
+          'HLS segment ${i + 1}/${media.segments.length} failed: $e',
+          tag: 'DOWNLOAD',
+        );
         failure ??= e;
       }
     }
   }
 
-  onProgress(0, media.segments.length);
+  onProgress(done, media.segments.length);
   await Future.wait([for (var k = 0; k < workers; k++) worker()]);
   final error = failure;
   if (error != null) throw error;
