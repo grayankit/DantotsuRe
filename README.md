@@ -46,15 +46,48 @@
 
 # Dartotsu
 
-**Dartotsu** is a complete rewrite of [Dantotsu](https://git.rebelonion.dev/rebelonion/Dantotsu/) in Flutter. It's a hybrid [**AniList**](https://anilist.co/) and [**MyAnimeList**](https://myanimelist.net/) tracking client, along with [**Simkl**](https://simkl.com/) support!  
-> [!WARNING]  
-> **Dartotsu is a tracking and management tool only:** It does not host, provide, distribute, or maintain streaming content or extensions.  
->  
-> **User Responsibility:** Users are solely responsible for how they use the app and any third-party services or extensions they choose to interact with. Users must comply with all applicable laws, copyright, and intellectual property rights.  
->  
-> **No Liability:** The developer of Dartotsu disclaims all liability for misuse, legal issues, or violations arising from user actions. Any legal concerns related to third-party services or extensions must be directed to their creators, not Dartotsu.  
->  
-> **Services:** Dartotsu integrates only with official APIs of supported services. Third-party extensions are the responsibility of their creators, not the Dartotsu developer.  
+**Dartotsu** is a Flutter rewrite of [Dantotsu](https://git.rebelonion.dev/rebelonion/Dantotsu/): one app to track, discover and consume anime, manga and novels, on Android, iOS, Windows, Linux and macOS.
+
+It tracks with [**AniList**](https://anilist.co/), [**MyAnimeList**](https://myanimelist.net/), [**Simkl**](https://simkl.com/), [**Kitsu**](https://kitsu.app/) and [**MangaBaka**](https://mangabaka.org/), and reads and watches through extensions you install yourself.
+
+> [!WARNING]
+> **Dartotsu is a tracking and management tool only:** It does not host, provide, distribute, or maintain streaming content or extensions.
+>
+> **User Responsibility:** Users are solely responsible for how they use the app and any third-party services or extensions they choose to interact with. Users must comply with all applicable laws, copyright, and intellectual property rights.
+>
+> **No Liability:** The developer of Dartotsu disclaims all liability for misuse, legal issues, or violations arising from user actions. Any legal concerns related to third-party services or extensions must be directed to their creators, not Dartotsu.
+>
+> **Services:** Dartotsu integrates only with official APIs of supported services. Third-party extensions are the responsibility of their creators, not the Dartotsu developer.
+
+## Features
+
+**Tracking**
+- Five services side by side, each with its own home, browse tabs, search, calendar, notifications and settings.
+- List editor, progress, scores and dates; offline edits are queued and sent when the connection returns.
+- List sync between services (one-way, or whichever entry is ahead), with rate-limit aware batching.
+- Profiles, activity feeds, stories, groups and Dantotsu comments on every title.
+- Trace.moe image search, episode metadata (filler, recap, thumbnails) and a Resume shelf on Home.
+
+**Watching**
+- Built-in player on mpv: gestures, keyboard shortcuts, picture in picture, Anime4K shaders, `mpv.conf` and scripts, AniSkip, auto skip and auto play.
+- Magnet and `.torrent` streaming through TorrServer.
+- Per-title settings for source, matching, layout, subtitles and audio.
+
+**Reading**
+- Manga reader with paged (RTL, LTR, vertical) and webtoon modes, double pages, zoom, tap zones, crop borders, auto scroll and bookmarks.
+- Novel reader with fonts, themes, margins and saved position.
+
+**Downloads and offline**
+- Download episodes (direct files, HLS, torrents), manga chapters and novels, one by one or in bulk.
+- Queue with drag to reorder and move to top, parallel slots, pause and resume, Wi-Fi only, pause on metered connections and a speed limit.
+- HLS resumes from the exact segment; save as MP4 through an optional ffmpeg add-on, or keep a segment folder that plays directly.
+- Drop your own videos, `.cbz`, `.zip` or `.epub` files into a title folder and Dartotsu reads them.
+- Offline mode shows your downloads and keeps reading and watching history for later.
+
+**App**
+- Material 3 theming with dynamic colour, OLED, glass mode and card styles.
+- D-pad, keyboard and TV navigation.
+- 40+ languages, Discord Rich Presence, backup and restore, import from Dantotsu, self-update.
 
 ## Downloads
 <p align="center">
@@ -104,6 +137,32 @@ Channels: `stable`, `prerelease` (WebKitGTK 4.1 build, recommended) and `alpha`.
 
 `overlays.default` adds `pkgs.dartotsu`, `pkgs.dartotsu-prerelease` and `pkgs.dartotsu-alpha`. `nix develop` gives a shell with Flutter and every Linux build dependency; `nix flake check` builds all channels and evaluates the modules.
 
+## Building
+
+```bash
+flutter pub get
+dart run build_runner build --delete-conflicting-outputs
+flutter run -d linux   # or android, windows, macos, ios
+flutter analyze
+flutter test
+```
+
+Needs Flutter `>=3.44.0` and a `.env` file in the project root (a bundled asset; see `CLAUDE.md`). The extension bridge is expected next to this repository as `../DartotsuExtensionBridge`.
+
+Release builds: `flutter build apk --release --split-per-abi`, `flutter build linux|windows|macos --release`, `flutter build ipa --release`.
+
+## Project layout
+
+| Path | Contents |
+|---|---|
+| `lib/Core/` | state engine, preferences, theme, networking, downloads, offline, services abstraction |
+| `lib/Api/Services/` | AniList, MyAnimeList, Simkl, Kitsu, MangaBaka, Extensions |
+| `lib/Screen/` | one folder per feature, each a `Screen` plus a `State` file |
+| `lib/Widgets/`, `lib/Utils/` | shared components, extensions, helpers |
+| `assets/translations/` | `app_*.arb` locale files |
+
+`CLAUDE.md` is the detailed architecture guide; `CONSISTENCY.md` lists the shared UI components.
+
 ## Support Us
 <a href='https://buymeacoffee.com/aayush262' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi1.png?v=3' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
 > [!TIP]
@@ -139,10 +198,6 @@ You can help us by translating the app into your language here
 <summary>Weblate Translation Graph</summary>
 <a href="https://hosted.weblate.org/projects/dartotsu/dartotsu/#languages"><img src="https://hosted.weblate.org/widget/dartotsu/dartotsu/multi-auto.svg" alt="Translation status" /></a>
 </details>
-
-## Visitors
-
-<img src="https://count.getloli.com/@aayush2622?name=dartotsu&theme=rule34&padding=8&offset=0&align=top&scale=1&pixelated=1&darkmode=auto" />
 
 ## Acknowledgments
 A heartfelt thank you to everyone who has contributed to the development of Dartotsu.
