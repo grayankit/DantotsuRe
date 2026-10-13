@@ -202,6 +202,67 @@
                 <data android:pathPrefix="/activity/" />
             </intent-filter>
 
+            <intent-filter android:label="Open in Dartotsu">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="https" />
+                <data android:scheme="http" />
+                <data android:host="myanimelist.net" />
+                <data android:host="www.myanimelist.net" />
+                <data android:pathPrefix="/anime/" />
+                <data android:pathPrefix="/manga/" />
+            </intent-filter>
+
+            <intent-filter android:label="Open in Dartotsu">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="https" />
+                <data android:scheme="http" />
+                <data android:host="kitsu.io" />
+                <data android:host="kitsu.app" />
+                <data android:pathPrefix="/anime/" />
+                <data android:pathPrefix="/manga/" />
+            </intent-filter>
+
+            <intent-filter android:label="Open in Dartotsu">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="https" />
+                <data android:scheme="http" />
+                <data android:host="simkl.com" />
+                <data android:host="www.simkl.com" />
+                <data android:pathPrefix="/anime/" />
+                <data android:pathPrefix="/movies/" />
+                <data android:pathPrefix="/tv/" />
+            </intent-filter>
+
+            <intent-filter android:label="Open in Dartotsu">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="https" />
+                <data android:scheme="http" />
+                <data android:host="mangabaka.org" />
+                <data android:host="www.mangabaka.org" />
+                <data android:pathPrefix="/manga/" />
+                <data android:pathPrefix="/novel/" />
+                <data android:pathPrefix="/manhwa/" />
+                <data android:pathPrefix="/manhua/" />
+                <data android:pathPrefix="/oel/" />
+                <data android:pathPrefix="/series/" />
+            </intent-filter>
+
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
