@@ -5152,4 +5152,395 @@ class AppLocalizationsNl extends AppLocalizations {
 
   @override
   String get playerAudioDevice => 'Audio device';
+
+  @override
+  String get settingsDownloads => 'Downloads';
+
+  @override
+  String get settingsDownloadsDesc =>
+      'Offline episodes, queue and offline mode';
+
+  @override
+  String get downloadsTitle => 'Downloads';
+
+  @override
+  String get downloadsOpenDesc =>
+      'See the queue and everything saved on this device';
+
+  @override
+  String get downloadTitle => 'Download';
+
+  @override
+  String get downloadAlready => 'Already downloaded or in the queue';
+
+  @override
+  String get downloadPickStream => 'Download which stream?';
+
+  @override
+  String get downloadPickSubtitle => 'Download which subtitle?';
+
+  @override
+  String get downloadNoSubtitle => 'No subtitle';
+
+  @override
+  String get downloadHlsNeedsFfmpeg =>
+      'This stream is an HLS playlist. Downloading it needs the FFmpeg addon.';
+
+  @override
+  String get downloadSourceMissing =>
+      'The source for this episode is not installed';
+
+  @override
+  String get downloadWaitingConnection => 'Waiting for a connection';
+
+  @override
+  String get downloadSubtitles => 'Subtitles';
+
+  @override
+  String get downloadDownloaded => 'Downloaded';
+
+  @override
+  String get downloadOffline => 'Offline';
+
+  @override
+  String get downloadDelete => 'Delete download';
+
+  @override
+  String get downloadCancel => 'Cancel';
+
+  @override
+  String get downloadPause => 'Pause';
+
+  @override
+  String get downloadPaused => 'Paused';
+
+  @override
+  String get downloadResume => 'Resume';
+
+  @override
+  String get downloadPauseAll => 'Pause all';
+
+  @override
+  String get downloadResumeAll => 'Resume all';
+
+  @override
+  String get downloadQueuedState => 'Waiting in the queue';
+
+  @override
+  String get downloadResolving => 'Getting the stream…';
+
+  @override
+  String get downloadUsedFallback => 'No matching stream, used the first one';
+
+  @override
+  String get downloadTabQueue => 'Queue';
+
+  @override
+  String get downloadTabDone => 'Done';
+
+  @override
+  String get downloadTabFailed => 'Failed';
+
+  @override
+  String get downloadEmptyQueue => 'Nothing is downloading';
+
+  @override
+  String get downloadEmptyDone => 'Nothing downloaded yet';
+
+  @override
+  String get downloadEmptyFailed => 'No failed downloads';
+
+  @override
+  String get downloadNext => 'Next episode';
+
+  @override
+  String downloadNextN(int count) {
+    return 'Next $count episodes';
+  }
+
+  @override
+  String downloadUnwatched(int count) {
+    return 'All unwatched ($count)';
+  }
+
+  @override
+  String downloadRange(int count) {
+    return 'This range ($count)';
+  }
+
+  @override
+  String downloadAll(int count) {
+    return 'All episodes ($count)';
+  }
+
+  @override
+  String downloadQueued(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count episodes queued',
+      one: '1 episode queued',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String downloadFinished(String name) {
+    return '$name downloaded';
+  }
+
+  @override
+  String downloadFailedBody(String name) {
+    return '$name failed to download';
+  }
+
+  @override
+  String downloadStorage(String size) {
+    return '$size used by downloads';
+  }
+
+  @override
+  String get downloadQueueHeader => 'Queue';
+
+  @override
+  String get downloadParallel => 'Downloads at once';
+
+  @override
+  String get downloadParallelDesc =>
+      'Run one download at a time or several together';
+
+  @override
+  String get downloadOneByOne => 'One by one';
+
+  @override
+  String get downloadNotifications => 'Download notifications';
+
+  @override
+  String get downloadNotificationsDesc =>
+      'Live progress where the system supports it, otherwise a note when a download finishes';
+
+  @override
+  String get downloadNotifyLive => 'Live';
+
+  @override
+  String get downloadNotifyDone => 'When done';
+
+  @override
+  String get downloadNotifyOff => 'Off';
+
+  @override
+  String get downloadInfoFile => 'Write an info file next to each download';
+
+  @override
+  String get downloadInfoFileDesc =>
+      'Saves the stream, quality, subtitle and skip times as a small .json file';
+
+  @override
+  String get offlineHeader => 'Offline';
+
+  @override
+  String get offlineModeDesc =>
+      'Auto goes offline only when the app starts without a connection. Always stays offline until you change it.';
+
+  @override
+  String get offlineModeOff => 'Off';
+
+  @override
+  String get offlineModeAlways => 'Always';
+
+  @override
+  String get offlineModeOn =>
+      'Offline mode is on. Changes are saved here and sent when you are back online.';
+
+  @override
+  String get offlineLost => 'You\'re offline. Changes are saved on this device';
+
+  @override
+  String get offlineBack => 'Back online. Syncing your changes';
+
+  @override
+  String get offlineSaved =>
+      'Saved on this device, it will sync when you are online';
+
+  @override
+  String offlineSynced(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count changes synced',
+      one: '1 change synced',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String offlinePending(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count changes waiting to sync',
+      one: '1 change waiting to sync',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get offlinePendingTitle => 'Changes waiting to sync';
+
+  @override
+  String get offlinePendingNone => 'Nothing waiting';
+
+  @override
+  String get offlineSyncNow => 'Sync now';
+
+  @override
+  String get offlineDiscard => 'Discard';
+
+  @override
+  String get downloadNotOffline =>
+      'This episode is not downloaded, so it is not available offline';
+
+  @override
+  String get offlineModeChip => 'Offline';
+
+  @override
+  String get downloadNextChapter => 'Next chapter';
+
+  @override
+  String downloadNextChapters(int count) {
+    return 'Next $count chapters';
+  }
+
+  @override
+  String downloadUnread(int count) {
+    return 'All unread ($count)';
+  }
+
+  @override
+  String downloadAllChapters(int count) {
+    return 'All chapters ($count)';
+  }
+
+  @override
+  String downloadPagesProgress(int done, int total) {
+    return '$done / $total pages';
+  }
+
+  @override
+  String downloadPagesCount(int count) {
+    return '$count pages';
+  }
+
+  @override
+  String get downloadFfmpegTitle => 'FFmpeg addon needed';
+
+  @override
+  String get downloadFfmpegBody =>
+      'This stream is an HLS playlist. The FFmpeg addon joins its pieces into one mp4 file. Without it the pieces are kept in an episode folder and play from there.';
+
+  @override
+  String get downloadFfmpegInstall => 'Install';
+
+  @override
+  String get downloadFfmpegInstalling =>
+      'Installing FFmpeg, this can take a while…';
+
+  @override
+  String get downloadFinishing => 'Joining the pieces into one file…';
+
+  @override
+  String downloadSegmentsProgress(int done, int total) {
+    return '$done / $total parts';
+  }
+
+  @override
+  String get downloadTorrentNoFile =>
+      'The torrent has no video file to download';
+
+  @override
+  String downloadServiceText(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Downloading $count items',
+      one: 'Downloading 1 item',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get downloadAutoDelete => 'Delete watched downloads';
+
+  @override
+  String get downloadAutoDeleteDesc =>
+      'Removes a download once your progress reaches that episode or chapter';
+
+  @override
+  String get downloadConnections => 'Connections per download';
+
+  @override
+  String get downloadConnectionsDesc =>
+      'Splits a big file into parts fetched at the same time. Some servers limit this.';
+
+  @override
+  String get downloadPlayChoice => 'Play from';
+
+  @override
+  String get downloadPlayLocalDesc => 'The file saved on this device';
+
+  @override
+  String get downloadPlayStream => 'Stream online';
+
+  @override
+  String get downloadPlayStreamDesc => 'Load the episode from the source';
+
+  @override
+  String get offlineFeedTitle => 'Downloaded on this device';
+
+  @override
+  String get offlineFeedEmpty =>
+      'Download something while you are online and it shows up here';
+
+  @override
+  String get offlineEnabled => 'Offline mode is on';
+
+  @override
+  String get offlineDisabled => 'Offline mode is off';
+
+  @override
+  String get downloadReadChoice => 'Read from';
+
+  @override
+  String get downloadReadLocalDesc => 'The pages saved on this device';
+
+  @override
+  String get downloadReadOnline => 'Read online';
+
+  @override
+  String get downloadReadOnlineDesc => 'Load the chapter from the source';
+
+  @override
+  String downloadDeleteConfirm(String name) {
+    return 'Delete $name from this device?';
+  }
+
+  @override
+  String downloadCancelConfirm(String name) {
+    return 'Cancel the download of $name? What was already downloaded is deleted.';
+  }
+
+  @override
+  String get downloadFfmpegFolder => 'Keep as folder';
+
+  @override
+  String offlineDiscardConfirm(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Throw away $count changes that were never sent? This can\'t be undone.',
+      one: 'Throw away the change that was never sent? This can\'t be undone.',
+    );
+    return '$_temp0';
+  }
 }

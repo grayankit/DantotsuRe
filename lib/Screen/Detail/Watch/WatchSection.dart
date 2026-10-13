@@ -1,3 +1,6 @@
+import '../../../Widgets/Components/ChoiceSheet.dart';
+import '../../../Core/Offline/OfflineMode.dart';
+import '../../../Utils/Functions/SnackBar.dart';
 import 'package:flutter/material.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
@@ -12,7 +15,6 @@ import 'Data/WatchPrefs.dart';
 import '../../../Utils/Animation/WidgetAnimations.dart';
 import '../../../Utils/Extensions/ContextExtensions.dart';
 import '../../../Utils/Extensions/Responsive.dart';
-import '../../../Widgets/Components/ChoiceSheet.dart';
 import '../../../Widgets/Components/CustomBottomDialog.dart';
 import '../../../Widgets/Components/EmptyState.dart';
 import '../../../Widgets/Components/ScreenState.dart';
@@ -22,6 +24,8 @@ import 'Components/ContinueCard.dart';
 import 'Components/RangeBar.dart';
 import 'Components/SourceBar.dart';
 import 'Components/SourceToolsSheet.dart';
+import '../../../Core/Downloads/DownloadEngine.dart';
+import '../../Downloads/DownloadPicker.dart';
 import 'Components/StreamSheet.dart';
 import 'Components/UnitSheet.dart';
 import 'Components/UnitLayout.dart';
@@ -151,6 +155,11 @@ class _WatchSectionState extends State<WatchSection>
               ),
             ),
           ),
+        IconButton(
+          tooltip: getString.downloadTitle,
+          onPressed: () => downloadMenu(context, state),
+          icon: const Icon(Icons.download_rounded),
+        ),
         if (state.anime)
           IconButton(
             tooltip: getString.watchMetaSource,
@@ -233,6 +242,7 @@ class _WatchSectionState extends State<WatchSection>
         next: identical(u, next),
         blur: watchBlurUnwatchedPref.rx.value,
         showDescription: watchShowDescriptionPref.rx.value,
+        downloadId: downloadIdOf(state, u),
         onTap: () => state.anime ? _play(u) : _read(u),
         onInfo: view == 0 ? () => _open(u) : null,
         onLongPress: watchMarkOnLongPressPref.rx.value
@@ -264,13 +274,91 @@ class _WatchSectionState extends State<WatchSection>
   );
 
   Future<void> _read(WatchUnit unit) async {
-    final request = state.readRequest(unit);
-    if (request == null) return;
+    var online = false;
+    final downloaded = find<DownloadEngine>().hasLocalUnit(
+      state.service.id,
+      state.current.id,
+      unit.key,
+    );
+    if (downloaded &&
+        state.source.value != null &&
+        !find<OfflineMode>().isOffline.value) {
+      final picked = await showChoiceSheet<String>(
+        context,
+        title: getString.downloadReadChoice,
+        icon: Icons.menu_book_rounded,
+        selected: 'local',
+        options: [
+          ChoiceOption(
+            'local',
+            getString.downloadDownloaded,
+            subtitle: getString.downloadReadLocalDesc,
+            icon: Icons.download_done_rounded,
+          ),
+          ChoiceOption(
+            'online',
+            getString.downloadReadOnline,
+            subtitle: getString.downloadReadOnlineDesc,
+            icon: Icons.cloud_queue_rounded,
+          ),
+        ],
+      );
+      if (picked == null || !mounted) return;
+      online = picked == 'online';
+    }
+    final request = state.readRequest(unit, online: online);
+    if (request == null) {
+      return snackString(
+        find<OfflineMode>().isOffline.value
+            ? getString.downloadNotOffline
+            : getString.watchSourceMissing,
+      );
+    }
     await openReader(request, context: context);
     state.afterSession();
   }
 
   Future<void> _play(WatchUnit unit) async {
+    final local = find<DownloadEngine>().localVideo(
+      state.service.id,
+      state.current.id,
+      unit.key,
+    );
+    if (local != null) {
+      var useLocal = true;
+      if (state.source.value != null && !find<OfflineMode>().isOffline.value) {
+        final picked = await showChoiceSheet<String>(
+          context,
+          title: getString.downloadPlayChoice,
+          icon: Icons.play_circle_outline_rounded,
+          selected: 'local',
+          options: [
+            ChoiceOption(
+              'local',
+              getString.downloadDownloaded,
+              subtitle: getString.downloadPlayLocalDesc,
+              icon: Icons.download_done_rounded,
+            ),
+            ChoiceOption(
+              'stream',
+              getString.downloadPlayStream,
+              subtitle: getString.downloadPlayStreamDesc,
+              icon: Icons.cloud_queue_rounded,
+            ),
+          ],
+        );
+        if (picked == null || !mounted) return;
+        useLocal = picked == 'local';
+      }
+      if (useLocal) {
+        await openPlayer(state.playRequest(unit, [local], 0), context: context);
+        state.afterSession();
+        return;
+      }
+    }
+    if (find<OfflineMode>().isOffline.value) {
+      return snackString(getString.downloadNotOffline);
+    }
     final auto = await state.autoStream(unit).catchError((_) => null);
     if (!mounted) return;
     final pick =

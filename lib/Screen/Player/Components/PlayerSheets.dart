@@ -67,9 +67,7 @@ Future<void> showQualitySheet(BuildContext context, PlayerState state) async {
       title: getString.playerQuality,
       icon: Icons.hd_rounded,
       selected: variants.any((v) => v.id == active) ? active! : '',
-      options: [
-        for (final v in variants) ChoiceOption(v.id, v.label),
-      ],
+      options: [for (final v in variants) ChoiceOption(v.id, v.label)],
     ),
   );
   if (picked != null && picked.isNotEmpty) await engine.setVariant(picked);

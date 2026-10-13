@@ -25,6 +25,8 @@ class PlayItem {
     this.fixed = const [],
   });
 
+  String get downloadKey => unit?.key ?? key;
+
   bool get hasFixedStreams => fixed.isNotEmpty;
 }
 

@@ -9448,6 +9448,612 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Audio device'**
   String get playerAudioDevice;
+
+  /// No description provided for @settingsDownloads.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloads'**
+  String get settingsDownloads;
+
+  /// No description provided for @settingsDownloadsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline episodes, queue and offline mode'**
+  String get settingsDownloadsDesc;
+
+  /// No description provided for @downloadsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloads'**
+  String get downloadsTitle;
+
+  /// No description provided for @downloadsOpenDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'See the queue and everything saved on this device'**
+  String get downloadsOpenDesc;
+
+  /// No description provided for @downloadTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Download'**
+  String get downloadTitle;
+
+  /// No description provided for @downloadAlready.
+  ///
+  /// In en, this message translates to:
+  /// **'Already downloaded or in the queue'**
+  String get downloadAlready;
+
+  /// No description provided for @downloadPickStream.
+  ///
+  /// In en, this message translates to:
+  /// **'Download which stream?'**
+  String get downloadPickStream;
+
+  /// No description provided for @downloadPickSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Download which subtitle?'**
+  String get downloadPickSubtitle;
+
+  /// No description provided for @downloadNoSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No subtitle'**
+  String get downloadNoSubtitle;
+
+  /// No description provided for @downloadHlsNeedsFfmpeg.
+  ///
+  /// In en, this message translates to:
+  /// **'This stream is an HLS playlist. Downloading it needs the FFmpeg addon.'**
+  String get downloadHlsNeedsFfmpeg;
+
+  /// No description provided for @downloadSourceMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'The source for this episode is not installed'**
+  String get downloadSourceMissing;
+
+  /// No description provided for @downloadWaitingConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for a connection'**
+  String get downloadWaitingConnection;
+
+  /// No description provided for @downloadSubtitles.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtitles'**
+  String get downloadSubtitles;
+
+  /// No description provided for @downloadDownloaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloaded'**
+  String get downloadDownloaded;
+
+  /// No description provided for @downloadOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline'**
+  String get downloadOffline;
+
+  /// No description provided for @downloadDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete download'**
+  String get downloadDelete;
+
+  /// No description provided for @downloadCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get downloadCancel;
+
+  /// No description provided for @downloadPause.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get downloadPause;
+
+  /// No description provided for @downloadPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused'**
+  String get downloadPaused;
+
+  /// No description provided for @downloadResume.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume'**
+  String get downloadResume;
+
+  /// No description provided for @downloadPauseAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause all'**
+  String get downloadPauseAll;
+
+  /// No description provided for @downloadResumeAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume all'**
+  String get downloadResumeAll;
+
+  /// No description provided for @downloadQueuedState.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting in the queue'**
+  String get downloadQueuedState;
+
+  /// No description provided for @downloadResolving.
+  ///
+  /// In en, this message translates to:
+  /// **'Getting the stream…'**
+  String get downloadResolving;
+
+  /// No description provided for @downloadUsedFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'No matching stream, used the first one'**
+  String get downloadUsedFallback;
+
+  /// No description provided for @downloadTabQueue.
+  ///
+  /// In en, this message translates to:
+  /// **'Queue'**
+  String get downloadTabQueue;
+
+  /// No description provided for @downloadTabDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get downloadTabDone;
+
+  /// No description provided for @downloadTabFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed'**
+  String get downloadTabFailed;
+
+  /// No description provided for @downloadEmptyQueue.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing is downloading'**
+  String get downloadEmptyQueue;
+
+  /// No description provided for @downloadEmptyDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing downloaded yet'**
+  String get downloadEmptyDone;
+
+  /// No description provided for @downloadEmptyFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'No failed downloads'**
+  String get downloadEmptyFailed;
+
+  /// No description provided for @downloadNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next episode'**
+  String get downloadNext;
+
+  /// No description provided for @downloadNextN.
+  ///
+  /// In en, this message translates to:
+  /// **'Next {count} episodes'**
+  String downloadNextN(int count);
+
+  /// No description provided for @downloadUnwatched.
+  ///
+  /// In en, this message translates to:
+  /// **'All unwatched ({count})'**
+  String downloadUnwatched(int count);
+
+  /// No description provided for @downloadRange.
+  ///
+  /// In en, this message translates to:
+  /// **'This range ({count})'**
+  String downloadRange(int count);
+
+  /// No description provided for @downloadAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All episodes ({count})'**
+  String downloadAll(int count);
+
+  /// No description provided for @downloadQueued.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 episode queued} other{{count} episodes queued}}'**
+  String downloadQueued(int count);
+
+  /// No description provided for @downloadFinished.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} downloaded'**
+  String downloadFinished(String name);
+
+  /// No description provided for @downloadFailedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} failed to download'**
+  String downloadFailedBody(String name);
+
+  /// No description provided for @downloadStorage.
+  ///
+  /// In en, this message translates to:
+  /// **'{size} used by downloads'**
+  String downloadStorage(String size);
+
+  /// No description provided for @downloadQueueHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Queue'**
+  String get downloadQueueHeader;
+
+  /// No description provided for @downloadParallel.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloads at once'**
+  String get downloadParallel;
+
+  /// No description provided for @downloadParallelDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Run one download at a time or several together'**
+  String get downloadParallelDesc;
+
+  /// No description provided for @downloadOneByOne.
+  ///
+  /// In en, this message translates to:
+  /// **'One by one'**
+  String get downloadOneByOne;
+
+  /// No description provided for @downloadNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Download notifications'**
+  String get downloadNotifications;
+
+  /// No description provided for @downloadNotificationsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Live progress where the system supports it, otherwise a note when a download finishes'**
+  String get downloadNotificationsDesc;
+
+  /// No description provided for @downloadNotifyLive.
+  ///
+  /// In en, this message translates to:
+  /// **'Live'**
+  String get downloadNotifyLive;
+
+  /// No description provided for @downloadNotifyDone.
+  ///
+  /// In en, this message translates to:
+  /// **'When done'**
+  String get downloadNotifyDone;
+
+  /// No description provided for @downloadNotifyOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get downloadNotifyOff;
+
+  /// No description provided for @downloadInfoFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Write an info file next to each download'**
+  String get downloadInfoFile;
+
+  /// No description provided for @downloadInfoFileDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Saves the stream, quality, subtitle and skip times as a small .json file'**
+  String get downloadInfoFileDesc;
+
+  /// No description provided for @offlineHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline'**
+  String get offlineHeader;
+
+  /// No description provided for @offlineModeDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto goes offline only when the app starts without a connection. Always stays offline until you change it.'**
+  String get offlineModeDesc;
+
+  /// No description provided for @offlineModeOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get offlineModeOff;
+
+  /// No description provided for @offlineModeAlways.
+  ///
+  /// In en, this message translates to:
+  /// **'Always'**
+  String get offlineModeAlways;
+
+  /// No description provided for @offlineModeOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline mode is on. Changes are saved here and sent when you are back online.'**
+  String get offlineModeOn;
+
+  /// No description provided for @offlineLost.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re offline. Changes are saved on this device'**
+  String get offlineLost;
+
+  /// No description provided for @offlineBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Back online. Syncing your changes'**
+  String get offlineBack;
+
+  /// No description provided for @offlineSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved on this device, it will sync when you are online'**
+  String get offlineSaved;
+
+  /// No description provided for @offlineSynced.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 change synced} other{{count} changes synced}}'**
+  String offlineSynced(int count);
+
+  /// No description provided for @offlinePending.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 change waiting to sync} other{{count} changes waiting to sync}}'**
+  String offlinePending(int count);
+
+  /// No description provided for @offlinePendingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes waiting to sync'**
+  String get offlinePendingTitle;
+
+  /// No description provided for @offlinePendingNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing waiting'**
+  String get offlinePendingNone;
+
+  /// No description provided for @offlineSyncNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync now'**
+  String get offlineSyncNow;
+
+  /// No description provided for @offlineDiscard.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get offlineDiscard;
+
+  /// No description provided for @downloadNotOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'This episode is not downloaded, so it is not available offline'**
+  String get downloadNotOffline;
+
+  /// No description provided for @offlineModeChip.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline'**
+  String get offlineModeChip;
+
+  /// No description provided for @downloadNextChapter.
+  ///
+  /// In en, this message translates to:
+  /// **'Next chapter'**
+  String get downloadNextChapter;
+
+  /// No description provided for @downloadNextChapters.
+  ///
+  /// In en, this message translates to:
+  /// **'Next {count} chapters'**
+  String downloadNextChapters(int count);
+
+  /// No description provided for @downloadUnread.
+  ///
+  /// In en, this message translates to:
+  /// **'All unread ({count})'**
+  String downloadUnread(int count);
+
+  /// No description provided for @downloadAllChapters.
+  ///
+  /// In en, this message translates to:
+  /// **'All chapters ({count})'**
+  String downloadAllChapters(int count);
+
+  /// No description provided for @downloadPagesProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} / {total} pages'**
+  String downloadPagesProgress(int done, int total);
+
+  /// No description provided for @downloadPagesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} pages'**
+  String downloadPagesCount(int count);
+
+  /// No description provided for @downloadFfmpegTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'FFmpeg addon needed'**
+  String get downloadFfmpegTitle;
+
+  /// No description provided for @downloadFfmpegBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This stream is an HLS playlist. The FFmpeg addon joins its pieces into one mp4 file. Without it the pieces are kept in an episode folder and play from there.'**
+  String get downloadFfmpegBody;
+
+  /// No description provided for @downloadFfmpegInstall.
+  ///
+  /// In en, this message translates to:
+  /// **'Install'**
+  String get downloadFfmpegInstall;
+
+  /// No description provided for @downloadFfmpegInstalling.
+  ///
+  /// In en, this message translates to:
+  /// **'Installing FFmpeg, this can take a while…'**
+  String get downloadFfmpegInstalling;
+
+  /// No description provided for @downloadFinishing.
+  ///
+  /// In en, this message translates to:
+  /// **'Joining the pieces into one file…'**
+  String get downloadFinishing;
+
+  /// No description provided for @downloadSegmentsProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} / {total} parts'**
+  String downloadSegmentsProgress(int done, int total);
+
+  /// No description provided for @downloadTorrentNoFile.
+  ///
+  /// In en, this message translates to:
+  /// **'The torrent has no video file to download'**
+  String get downloadTorrentNoFile;
+
+  /// No description provided for @downloadServiceText.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Downloading 1 item} other{Downloading {count} items}}'**
+  String downloadServiceText(int count);
+
+  /// No description provided for @downloadAutoDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete watched downloads'**
+  String get downloadAutoDelete;
+
+  /// No description provided for @downloadAutoDeleteDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Removes a download once your progress reaches that episode or chapter'**
+  String get downloadAutoDeleteDesc;
+
+  /// No description provided for @downloadConnections.
+  ///
+  /// In en, this message translates to:
+  /// **'Connections per download'**
+  String get downloadConnections;
+
+  /// No description provided for @downloadConnectionsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Splits a big file into parts fetched at the same time. Some servers limit this.'**
+  String get downloadConnectionsDesc;
+
+  /// No description provided for @downloadPlayChoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Play from'**
+  String get downloadPlayChoice;
+
+  /// No description provided for @downloadPlayLocalDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'The file saved on this device'**
+  String get downloadPlayLocalDesc;
+
+  /// No description provided for @downloadPlayStream.
+  ///
+  /// In en, this message translates to:
+  /// **'Stream online'**
+  String get downloadPlayStream;
+
+  /// No description provided for @downloadPlayStreamDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Load the episode from the source'**
+  String get downloadPlayStreamDesc;
+
+  /// No description provided for @offlineFeedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloaded on this device'**
+  String get offlineFeedTitle;
+
+  /// No description provided for @offlineFeedEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Download something while you are online and it shows up here'**
+  String get offlineFeedEmpty;
+
+  /// No description provided for @offlineEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline mode is on'**
+  String get offlineEnabled;
+
+  /// No description provided for @offlineDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline mode is off'**
+  String get offlineDisabled;
+
+  /// No description provided for @downloadReadChoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Read from'**
+  String get downloadReadChoice;
+
+  /// No description provided for @downloadReadLocalDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'The pages saved on this device'**
+  String get downloadReadLocalDesc;
+
+  /// No description provided for @downloadReadOnline.
+  ///
+  /// In en, this message translates to:
+  /// **'Read online'**
+  String get downloadReadOnline;
+
+  /// No description provided for @downloadReadOnlineDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Load the chapter from the source'**
+  String get downloadReadOnlineDesc;
+
+  /// No description provided for @downloadDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete {name} from this device?'**
+  String downloadDeleteConfirm(String name);
+
+  /// No description provided for @downloadCancelConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel the download of {name}? What was already downloaded is deleted.'**
+  String downloadCancelConfirm(String name);
+
+  /// No description provided for @downloadFfmpegFolder.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep as folder'**
+  String get downloadFfmpegFolder;
+
+  /// No description provided for @offlineDiscardConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Throw away the change that was never sent? This can\'t be undone.} other{Throw away {count} changes that were never sent? This can\'t be undone.}}'**
+  String offlineDiscardConfirm(int count);
 }
 
 class _AppLocalizationsDelegate

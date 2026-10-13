@@ -1,3 +1,5 @@
+import '../../Core/Offline/OfflineMode.dart';
+import '../Downloads/Components/OfflineFeed.dart';
 import 'package:flutter/material.dart';
 
 import '../../Core/Services/MediaService.dart';
@@ -17,10 +19,13 @@ class HomeFeed extends StatelessWidget {
   const HomeFeed({super.key, required this.service});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => Watch(() {
+    if (find<OfflineMode>().isOffline.value) {
+      return OfflineFeed(service: service, header: const HomeHeader());
+    }
     if (service.auth == null) return _feed(context, signedIn: false);
-    return Watch(() => _feed(context, signedIn: service.isLoggedIn));
-  }
+    return _feed(context, signedIn: service.isLoggedIn);
+  });
 
   Widget _feed(BuildContext context, {required bool signedIn}) {
     final view = service.homeView;

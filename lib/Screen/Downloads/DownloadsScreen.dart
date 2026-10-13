@@ -1,0 +1,257 @@
+import 'package:flutter/material.dart';
+import 'package:path/path.dart' as p;
+
+import '../../Core/Downloads/DownloadTask.dart';
+import '../../Core/State/State.dart';
+import '../../Core/ThemeManager/LanguageSwitcher.dart';
+import '../../Utils/Extensions/ContextExtensions.dart';
+import '../../Utils/Extensions/Responsive.dart';
+import '../../Utils/Function.dart';
+import '../../Widgets/Components/AppBars.dart';
+import '../../Widgets/Components/AppTabs.dart';
+import '../../Widgets/Components/BaseScreen.dart';
+import '../../Widgets/Components/Clickable.dart';
+import '../../Widgets/Components/EmptyState.dart';
+import '../../Widgets/Components/ScreenState.dart';
+import '../../Widgets/Components/ScrollConfig.dart';
+import 'Components/DownloadRow.dart';
+import 'Components/PendingSyncCard.dart';
+import 'DownloadsState.dart';
+
+class DownloadsScreen extends StatefulWidget {
+  const DownloadsScreen({super.key});
+
+  @override
+  State<DownloadsScreen> createState() => _DownloadsScreenState();
+}
+
+class _DownloadsScreenState extends BaseScreen<DownloadsScreen>
+    with
+        TickerProviderStateMixin,
+        ScreenStateHost<DownloadsScreen, DownloadsState> {
+  @override
+  DownloadsState buildState() => DownloadsState();
+
+  @override
+  Widget buildContent(BuildContext context) {
+    final engine = state.engine;
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      appBar: AppScreenBar(
+        title: getString.downloadsTitle,
+        actions: [
+          IconButton(
+            tooltip: getString.downloadPauseAll,
+            onPressed: engine.pauseAll,
+            icon: const Icon(Icons.pause_circle_outline_rounded),
+          ),
+          IconButton(
+            tooltip: getString.downloadResumeAll,
+            onPressed: engine.resumeAll,
+            icon: const Icon(Icons.play_circle_outline_rounded),
+          ),
+        ],
+      ),
+      body: Watch(() {
+        final queue = state.queue;
+        final done = state.done;
+        final failed = state.failed;
+        return Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.fromLTRB(
+                Dimens.pagePad,
+                0,
+                Dimens.pagePad,
+                Dimens.gapSm,
+              ),
+              child: Column(
+                children: [
+                  if (state.offline.isOffline.value)
+                    _banner(
+                      context,
+                      Icons.cloud_off_rounded,
+                      getString.offlineModeOn,
+                    ),
+                  PendingSyncCard(pending: state.pending),
+                  if (state.bytes.value > 0)
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Padding(
+                        padding: EdgeInsets.only(top: Dimens.gapXs),
+                        child: Text(
+                          getString.downloadStorage(
+                            formatBytes(state.bytes.value),
+                          ),
+                          style: context.textTheme.labelMedium?.copyWith(
+                            color: context.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            AppTabs(
+              controller: state.tabs,
+              items: [
+                AppTabItem(getString.downloadTabQueue, count: queue.length),
+                AppTabItem(getString.downloadTabDone, count: done.length),
+                AppTabItem(getString.downloadTabFailed, count: failed.length),
+              ],
+            ),
+            Expanded(
+              child: TabBarView(
+                controller: state.tabs,
+                children: [
+                  _list(context, queue, getString.downloadEmptyQueue),
+                  _grouped(context),
+                  _list(context, failed, getString.downloadEmptyFailed),
+                ],
+              ),
+            ),
+          ],
+        );
+      }),
+    );
+  }
+
+  Widget _banner(BuildContext context, IconData icon, String text) {
+    final scheme = context.colorScheme;
+    return Container(
+      margin: EdgeInsets.only(bottom: Dimens.gapSm),
+      padding: EdgeInsets.all(Dimens.gap),
+      decoration: BoxDecoration(
+        color: scheme.secondaryContainer,
+        borderRadius: Dimens.borderSm,
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: scheme.onSecondaryContainer),
+          SizedBox(width: Dimens.gap),
+          Expanded(
+            child: Text(
+              text,
+              style: TextStyle(color: scheme.onSecondaryContainer),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _list(BuildContext context, List<DownloadTask> list, String empty) {
+    if (list.isEmpty) {
+      return EmptyState(icon: Icons.download_done_rounded, title: empty);
+    }
+    return ScrollConfig(
+      context,
+      child: ListView.separated(
+        padding: EdgeInsets.all(Dimens.pagePad),
+        itemCount: list.length,
+        separatorBuilder: (_, _) => SizedBox(height: Dimens.gapSm),
+        itemBuilder: (_, i) => DownloadRow(task: list[i]),
+      ),
+    );
+  }
+
+  Widget _grouped(BuildContext context) {
+    final groups = state.grouped.values.toList();
+    final local = state.engine.scanner.groups.toList();
+    if (groups.isEmpty && local.isEmpty) {
+      return EmptyState(
+        icon: Icons.download_done_rounded,
+        title: getString.downloadEmptyDone,
+      );
+    }
+    return RefreshIndicator(
+      onRefresh: state.refresh,
+      child: ScrollConfig(
+        context,
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: EdgeInsets.all(Dimens.pagePad),
+          children: [
+            for (final list in groups)
+              Padding(
+                padding: EdgeInsets.only(bottom: Dimens.gap),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Clickable(
+                      onTap: () => state.openTitle(list.first),
+                      child: Padding(
+                        padding: EdgeInsets.only(bottom: Dimens.gapXs),
+                        child: Text(
+                          '${list.first.mediaTitle} · ${list.length}',
+                          style: context.textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
+                    ),
+                    for (final t in list)
+                      Padding(
+                        padding: EdgeInsets.only(bottom: Dimens.gapXs),
+                        child: DownloadRow(
+                          task: t,
+                          showMedia: false,
+                          onTap: () => state.play(t),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            for (final group in local)
+              Padding(
+                padding: EdgeInsets.only(bottom: Dimens.gap),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(bottom: Dimens.gapXs),
+                      child: Text(
+                        '${group.title} · ${group.files.length}',
+                        style: context.textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                    for (final (i, file) in group.files.indexed)
+                      Padding(
+                        padding: EdgeInsets.only(bottom: Dimens.gapXs),
+                        child: Clickable(
+                          onTap: () => state.playLocal(group, i),
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              color: context.colorScheme.surfaceContainerLow,
+                              borderRadius: Dimens.borderSm,
+                            ),
+                            child: Padding(
+                              padding: EdgeInsets.all(Dimens.gap),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.movie_outlined),
+                                  SizedBox(width: Dimens.gap),
+                                  Expanded(
+                                    child: Text(
+                                      p.basename(file),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}

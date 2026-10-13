@@ -11,6 +11,10 @@ import 'Api/Services/Simkl/Auth.dart';
 import 'Api/Services/Kitsu/Auth.dart';
 import 'Api/Services/MangaBaka/Auth.dart';
 import 'Api/Updater/AppUpdater.dart';
+import 'Core/Offline/NetStatus.dart';
+import 'Core/Offline/OfflineMode.dart';
+import 'Core/Offline/PendingWrites.dart';
+import 'Core/Downloads/DownloadEngine.dart';
 import 'Core/Analytics/AnalyticsManager.dart';
 import 'Screen/Detail/Comments/Data/CommentAlerts.dart';
 import 'Screen/Detail/Comments/Data/CommentsApi.dart';
@@ -52,6 +56,10 @@ class DI {
     lazyPut<RefreshController>(RefreshController.new);
     lazyPut<ActivityAlerts>(ActivityAlerts.new);
     lazyPut<AppUpdater>(AppUpdater.new);
+    lazyPut<NetStatus>(NetStatus.new);
+    lazyPut<PendingWrites>(PendingWrites.new);
+    lazyPut<OfflineMode>(OfflineMode.new);
+    lazyPut<DownloadEngine>(DownloadEngine.new);
     lazyPut<DiscordPresenceController>(DiscordPresenceController.new);
     lazyPut<BaseDiscordRPC>(
       () => Platform.isAndroid || Platform.isIOS ? MobileRPC() : DesktopRPC(),

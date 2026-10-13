@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../../../Core/State/State.dart';
@@ -8,6 +10,10 @@ import '../../../../Utils/Extensions/Responsive.dart';
 import '../../../../Utils/Functions/NavigateToScreen.dart';
 import '../../../../Widgets/Components/AppSheet.dart';
 import '../../../../Widgets/Components/CachedNetworkImage.dart';
+import '../../../../Core/Downloads/DownloadEngine.dart';
+import '../../../../Core/Downloads/DownloadTask.dart';
+import '../../../Downloads/DownloadConfirm.dart';
+import '../../../Downloads/DownloadPicker.dart';
 import '../WatchState.dart';
 import 'UnitTile.dart';
 
@@ -154,10 +160,66 @@ class UnitSheet extends StatelessWidget {
                   ),
                 ],
               ),
+              SizedBox(height: Dimens.gapSm),
+              _download(context),
             ],
           );
         }),
       ),
     );
   }
+
+  Widget _download(BuildContext context) => Watch(() {
+    final engine = find<DownloadEngine>();
+    final task = engine.tasks
+        .where((t) => t.id == downloadIdOf(state, unit))
+        .firstOrNull;
+    final done = task?.isDone ?? false;
+    final busy = task != null && !done;
+    final stalled =
+        busy &&
+        (task.state.value == DownloadState.paused ||
+            task.state.value == DownloadState.failed);
+    final button = FilledButton.tonalIcon(
+      onPressed: () {
+        if (task == null) {
+          popPage(context);
+          downloadUnits(context, state, [unit]);
+        } else {
+          unawaited(confirmRemove(context, engine, task));
+        }
+      },
+      icon: Icon(
+        done
+            ? Icons.delete_outline_rounded
+            : busy
+            ? Icons.close_rounded
+            : Icons.download_rounded,
+      ),
+      label: Text(
+        done
+            ? getString.downloadDelete
+            : busy
+            ? getString.downloadCancel
+            : getString.downloadTitle,
+      ),
+    );
+    if (!stalled) return SizedBox(width: double.infinity, child: button);
+    return Row(
+      children: [
+        Expanded(
+          child: FilledButton.icon(
+            onPressed: () {
+              popPage(context);
+              engine.resume(task);
+            },
+            icon: const Icon(Icons.play_arrow_rounded),
+            label: Text(getString.downloadResume),
+          ),
+        ),
+        SizedBox(width: Dimens.gapSm),
+        Expanded(child: button),
+      ],
+    );
+  });
 }

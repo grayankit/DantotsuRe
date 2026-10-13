@@ -1,3 +1,6 @@
+import '../../Core/Offline/OfflineMode.dart';
+import '../../Core/ThemeManager/LanguageSwitcher.dart';
+import '../Downloads/DownloadsScreen.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -72,6 +75,24 @@ class HomeHeader extends StatelessWidget {
                           style: context.textTheme.headlineSmall?.copyWith(
                             fontWeight: FontWeight.w700,
                           ),
+                        ),
+                        Watch(
+                          () => find<OfflineMode>().isOffline.value
+                              ? Padding(
+                                  padding: const EdgeInsets.only(top: 4),
+                                  child: ActionChip(
+                                    avatar: const Icon(
+                                      Icons.cloud_off_rounded,
+                                      size: 18,
+                                    ),
+                                    label: Text(getString.offlineModeChip),
+                                    onPressed: () => navigateToPage(
+                                      context,
+                                      const DownloadsScreen(),
+                                    ),
+                                  ),
+                                )
+                              : const SizedBox.shrink(),
                         ),
                         Watch(
                           () => PrefName.incognito.rx.value

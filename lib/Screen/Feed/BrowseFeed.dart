@@ -1,3 +1,6 @@
+import '../../Core/Offline/OfflineMode.dart';
+import '../../Core/State/State.dart';
+import '../Downloads/Components/OfflineFeed.dart';
 import 'package:flutter/material.dart';
 
 import '../../Api/Services/Extension/Services.dart' show extensionServiceId;
@@ -14,7 +17,18 @@ class BrowseFeed extends StatelessWidget {
   const BrowseFeed({super.key, required this.service, required this.type});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => Watch(() {
+    if (find<OfflineMode>().isOffline.value) {
+      return OfflineFeed(
+        service: service,
+        type: type,
+        header: FeedHeader(title: service.feedLabel(type)),
+      );
+    }
+    return _feed(context);
+  });
+
+  Widget _feed(BuildContext context) {
     final view = service.feedView;
     if (view == null) {
       return NotImplemented(service: service.name, area: type.label);

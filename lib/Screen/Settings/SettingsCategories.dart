@@ -5,6 +5,7 @@ import '../../Model/Setting.dart';
 import 'Categories/AboutSettings.dart';
 import 'Categories/AccountSettings.dart';
 import 'Categories/AddonSettings.dart';
+import 'Categories/DownloadSettings.dart';
 import 'Categories/ExtensionSettings.dart';
 import 'Categories/AppearanceSettings.dart';
 import 'Categories/GeneralSettings.dart';
@@ -45,6 +46,12 @@ List<SettingsCategory> get settingsCategories => [
     description: getString.settingsWatchDesc,
     icon: Icons.movie_filter_rounded,
     build: watchSettings,
+  ),
+  SettingsCategory(
+    title: getString.settingsDownloads,
+    description: getString.settingsDownloadsDesc,
+    icon: Icons.download_rounded,
+    build: downloadSettings,
   ),
   SettingsCategory(
     title: getString.extension(2),

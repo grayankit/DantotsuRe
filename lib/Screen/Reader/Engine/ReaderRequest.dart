@@ -7,20 +7,22 @@ import '../../Detail/Watch/Data/EpisodeUnits.dart';
 class ReaderRequest {
   final MediaService service;
   final Media media;
-  final Source source;
+  final Source? source;
   List<WatchUnit> units;
   final int index;
   final List<PageUrl>? pages;
   final Future<List<WatchUnit>?> Function()? loadUnits;
+  final bool online;
 
   ReaderRequest({
     required this.service,
     required this.media,
-    required this.source,
+    this.source,
     required this.units,
     required this.index,
     this.pages,
     this.loadUnits,
+    this.online = false,
   });
 
   ReaderRequest withPages(List<PageUrl> loaded) => ReaderRequest(
@@ -31,6 +33,7 @@ class ReaderRequest {
     index: index,
     pages: loaded,
     loadUnits: loadUnits,
+    online: online,
   );
 
   bool get novel => media.format?.toLowerCase() == 'novel';

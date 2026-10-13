@@ -1,3 +1,4 @@
+import '../../../Core/Downloads/DownloadEngine.dart';
 import 'dart:async';
 
 import 'package:dartotsu_extension_bridge/dartotsu_extension_bridge.dart';
@@ -75,6 +76,7 @@ class NovelState extends ScreenState {
   @override
   void onClose() {
     _closed = true;
+    find<DownloadEngine>().sweepFinished();
     _saveTimer?.cancel();
     _autoTimer?.cancel();
     unawaited(VolumeKeys.disable());
@@ -111,9 +113,19 @@ class NovelState extends ScreenState {
     _marked = false;
     fraction.value = 0;
     try {
-      final text = await request.source.methods.getNovelContent(
-        units[target].raw,
-      );
+      final local = request.online
+          ? null
+          : find<DownloadEngine>().localNovel(
+              request.service.id,
+              request.media.id,
+              units[target].key,
+            );
+      final source = request.source;
+      if (local == null && source == null) {
+        throw StateError(getString.downloadSourceMissing);
+      }
+      final text =
+          local ?? await source!.methods.getNovelContent(units[target].raw);
       if (run != _run || _closed) return;
       final parsed = parseNovel(text ?? '');
       if (parsed.isEmpty) throw StateError(getString.readerNoText);
@@ -231,6 +243,11 @@ class NovelState extends ScreenState {
     _saveTimer = Timer(const Duration(seconds: 1), _save);
     if (!_marked && fraction.value >= 0.9) {
       _marked = true;
+      find<DownloadEngine>().markFinished(
+        request.service.id,
+        request.media.id,
+        unit.key,
+      );
       unawaited(_track());
     }
   }

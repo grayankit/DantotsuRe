@@ -92,6 +92,7 @@ Future<void> openResume(
           WatchUnit(
             raw: episode,
             number: entry.unitKey,
+            key: entry.unitKey,
             value: entry.number,
             title: entry.title,
           ),

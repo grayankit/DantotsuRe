@@ -1,3 +1,6 @@
+import '../../../Core/Offline/OfflineMode.dart';
+import '../../../Core/Downloads/DownloadEngine.dart';
+import '../../../Core/Downloads/DownloadSnapshots.dart';
 import 'dart:async';
 
 import 'package:dartotsu_extension_bridge/dartotsu_extension_bridge.dart';
@@ -116,6 +119,7 @@ class WatchState extends ScreenState {
     final generation = ++_generation;
     phase.value = WatchPhase.sources;
     failure.value = null;
+    if (find<OfflineMode>().isOffline.value && await _startOffline()) return;
     if (anime) unawaited(_loadMeta());
     if (fixedSource) {
       final fixed = current.sourceData!;
@@ -140,6 +144,24 @@ class WatchState extends ScreenState {
     final wanted = settings.value.sourceId;
     final next = list.where((s) => s.id == wanted).firstOrNull ?? list.first;
     await selectSource(next, remember: false);
+  }
+
+  Future<bool> _startOffline() async {
+    final snapshot = await DownloadSnapshots.read(service.id, current.id);
+    if (snapshot == null || snapshot.episodes.isEmpty) return false;
+    final id = snapshot.sourceId;
+    source.value = id == null ? null : installedSourceById(id);
+    sources.value = [?source.value];
+    episodes.value = snapshot.episodes;
+    scanlators.value = {
+      for (final e in snapshot.episodes)
+        if (e.scanlator?.isNotEmpty ?? false) e.scanlator!,
+    }.toList();
+    failure.value = null;
+    _chunkPinned = false;
+    _derive();
+    phase.value = WatchPhase.ready;
+    return true;
   }
 
   Future<void> selectSource(Source next, {bool remember = true}) async {
@@ -248,8 +270,20 @@ class WatchState extends ScreenState {
       _chunkPinned = false;
       _derive();
       phase.value = WatchPhase.ready;
+      final downloads = find<DownloadEngine>();
+      if (downloads.hasDownloads(service.id, current.id)) {
+        unawaited(
+          DownloadSnapshots.write(
+            service.id,
+            current.id,
+            episodes: normalized,
+            sourceId: src.id,
+          ),
+        );
+      }
     } catch (e, st) {
       if (generation != _generation) return;
+      if (await _startOffline()) return;
       logger(
         'Watch episodes failed: $e\n$st',
         logLevel: LogLevel.error,
@@ -444,17 +478,25 @@ class WatchState extends ScreenState {
     }
   }
 
-  ReaderRequest? readRequest(WatchUnit unit) {
+  ReaderRequest? readRequest(WatchUnit unit, {bool online = false}) {
     final src = source.value;
-    if (src == null) return null;
     final list = units.toList();
     final at = list.indexOf(unit);
+    if (src == null &&
+        !find<DownloadEngine>().hasLocalUnit(
+          service.id,
+          current.id,
+          unit.key,
+        )) {
+      return null;
+    }
     return ReaderRequest(
       service: service,
       media: current,
       source: src,
       units: list,
       index: at < 0 ? 0 : at,
+      online: online,
     );
   }
 

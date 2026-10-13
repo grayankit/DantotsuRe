@@ -1,3 +1,4 @@
+import '../../Core/Downloads/DownloadEngine.dart';
 import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
@@ -146,6 +147,7 @@ class ReaderState extends ScreenState {
   @override
   void onClose() {
     _closed = true;
+    find<DownloadEngine>().sweepFinished();
     ReaderImageLoader.cancelAll();
     _saveTimer?.cancel();
     _shotTimer?.cancel();
@@ -202,7 +204,19 @@ class ReaderState extends ScreenState {
 
   Future<List<PageUrl>> _loadList(int index, String key) async {
     try {
-      final pages = await request.source.methods.getPageList(units[index].raw);
+      final local = request.online
+          ? null
+          : find<DownloadEngine>().localPages(
+              request.service.id,
+              request.media.id,
+              units[index].key,
+            );
+      final source = request.source;
+      if (local == null && source == null) {
+        throw StateError(getString.downloadSourceMissing);
+      }
+      final pages =
+          local ?? await source!.methods.getPageList(units[index].raw);
       if (pages.isEmpty) throw StateError(getString.readerNoPages);
       return pages;
     } catch (e, st) {
@@ -395,6 +409,11 @@ class ReaderState extends ScreenState {
     final count = _pagesOf(chapterIndex);
     final reached = force || (count > 0 && page >= count - 1);
     if (!reached || !_marked.add(chapterIndex)) return;
+    find<DownloadEngine>().markFinished(
+      request.service.id,
+      request.media.id,
+      units[chapterIndex].key,
+    );
     unawaited(_trackProgress(chapterIndex));
   }
 
@@ -517,7 +536,7 @@ class ReaderState extends ScreenState {
       kind: ResumeKind.read,
       service: request.service,
       media: request.media,
-      sourceId: request.source.id,
+      sourceId: request.source?.id,
       unitKey: unitKey(unit),
       number: unit.value,
       title: chapterTitle,

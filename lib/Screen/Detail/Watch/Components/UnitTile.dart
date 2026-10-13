@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../Core/ThemeManager/LanguageSwitcher.dart';
+import '../../../Downloads/Components/DownloadBadge.dart';
 import '../Data/EpisodeUnits.dart';
 import '../../../../Utils/Extensions/ContextExtensions.dart';
 import '../../../../Utils/Extensions/Responsive.dart';
@@ -39,6 +40,7 @@ class UnitTile extends StatelessWidget {
   final VoidCallback onTap;
   final VoidCallback? onLongPress;
   final VoidCallback? onInfo;
+  final String? downloadId;
 
   const UnitTile({
     super.key,
@@ -53,6 +55,7 @@ class UnitTile extends StatelessWidget {
     required this.onTap,
     this.onLongPress,
     this.onInfo,
+    this.downloadId,
   });
 
   @override
@@ -119,6 +122,7 @@ class UnitTile extends StatelessWidget {
   List<Widget> _flags(BuildContext context) {
     final scheme = context.colorScheme;
     return [
+      if (downloadId != null) DownloadBadge(id: downloadId!),
       if (unit.filler)
         _badge(
           context,
@@ -206,7 +210,10 @@ class UnitTile extends StatelessWidget {
                             ),
                           ),
                         ),
-                      if (meta.isNotEmpty || unit.filler || unit.recap)
+                      if (meta.isNotEmpty ||
+                          unit.filler ||
+                          unit.recap ||
+                          downloadId != null)
                         Padding(
                           padding: const EdgeInsets.only(top: 4),
                           child: Wrap(
@@ -291,7 +298,7 @@ class UnitTile extends StatelessWidget {
                           Colors.white,
                         ),
                       ),
-                      if (unit.filler || unit.recap)
+                      if (unit.filler || unit.recap || downloadId != null)
                         Positioned(
                           right: 6,
                           top: 6,
@@ -382,6 +389,12 @@ class UnitTile extends StatelessWidget {
                       backgroundColor: foreground.withValues(alpha: 0.25),
                     ),
                   ),
+                ),
+              if (downloadId != null)
+                Positioned(
+                  top: 5,
+                  right: 5,
+                  child: DownloadDot(id: downloadId!),
                 ),
               Text(
                 unit.number,

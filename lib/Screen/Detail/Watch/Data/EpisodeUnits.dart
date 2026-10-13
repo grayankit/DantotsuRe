@@ -5,6 +5,7 @@ import 'EpisodeMeta.dart';
 class WatchUnit {
   final DEpisode raw;
   final String number;
+  String key;
   final double value;
   final String? scanlator;
   String title;
@@ -20,6 +21,7 @@ class WatchUnit {
   WatchUnit({
     required this.raw,
     required this.number,
+    String? key,
     required this.value,
     required this.title,
     this.scanlator,
@@ -31,7 +33,7 @@ class WatchUnit {
     this.aired,
     this.runtime,
     this.rating,
-  });
+  }) : key = key ?? number;
 
   DateTime? get date => aired ?? uploaded;
 
@@ -126,10 +128,32 @@ List<WatchUnit> buildUnits(
   required String fallbackThumb,
   required bool anime,
 }) {
-  return [
+  final units = [
     for (final ep in episodes)
       _unit(ep, meta[episodeKey(ep.episodeNumber)], fallbackThumb, anime),
   ];
+  final counts = <String, int>{};
+  for (final u in units) {
+    counts[u.number] = (counts[u.number] ?? 0) + 1;
+  }
+  for (final u in units) {
+    if (counts[u.number]! > 1) {
+      final name = (u.raw.name ?? '').toLowerCase().replaceAll(
+        RegExp(r'[^\p{L}\p{N}]+', unicode: true),
+        '',
+      );
+      u.key = '${u.number}~${_fnv(name.isEmpty ? u.raw.url ?? '' : name)}';
+    }
+  }
+  return units;
+}
+
+String _fnv(String input) {
+  var hash = 0x811c9dc5;
+  for (final c in input.codeUnits) {
+    hash = ((hash ^ c) * 0x01000193) & 0xffffffff;
+  }
+  return hash.toRadixString(36);
 }
 
 void refreshUnit(

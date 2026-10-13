@@ -1,3 +1,5 @@
+import 'dart:async';
+import '../../../Core/Offline/OfflineMode.dart';
 import 'package:flutter/material.dart';
 
 import '../../../Core/Preferences/PrefManager.dart';
@@ -12,6 +14,7 @@ import '../../../Widgets/Components/SheetTile.dart';
 import '../../Extension/ExtensionScreen.dart';
 import '../../Feed/FeedNavigation.dart';
 import '../../Login/LoginScreen.dart';
+import '../../Downloads/DownloadsScreen.dart';
 import '../../Settings/SettingsScreen.dart';
 import '../../Social/ActivityFeedScreen.dart';
 import '../../Social/GroupsScreen.dart';
@@ -59,6 +62,12 @@ void showAccountSheet(BuildContext context, MediaServiceController controller) {
                     open: GroupsScreen(service: service),
                   ),
               ],
+              _Destination(
+                icon: Icons.download_rounded,
+                title: getString.downloadsTitle,
+                sheetContext: context,
+                open: const DownloadsScreen(),
+              ),
               _Destination(
                 icon: Icons.extension_rounded,
                 title: getString.extensions,
@@ -210,10 +219,17 @@ class _Toggles extends StatelessWidget {
                   )
                 : const SizedBox.shrink(),
           ),
-          _SwitchRow(
-            title: getString.offlineMode,
-            rx: PrefName.offlineMode.rx,
-            icon: Icon(Icons.download_rounded, color: scheme.primary),
+          Watch(
+            () => SwitchListTile(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+              secondary: Icon(Icons.download_rounded, color: scheme.primary),
+              title: Text(getString.offlineMode),
+              value: find<OfflineMode>().isOffline.value,
+              onChanged: (v) =>
+                  unawaited(find<OfflineMode>().setMode(v ? 'always' : 'off')),
+            ),
           ),
         ],
       ),

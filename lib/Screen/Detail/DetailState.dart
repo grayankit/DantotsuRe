@@ -1,3 +1,8 @@
+import '../../Core/Offline/OfflineMode.dart';
+import '../../Core/Downloads/DownloadEngine.dart';
+import '../../Core/Downloads/DownloadSnapshots.dart';
+import 'DetailWidgets.dart';
+import '../../Core/Offline/PendingWrites.dart';
 import 'dart:async';
 
 import 'Watch/Data/Media/ResumeStore.dart';
@@ -168,6 +173,20 @@ class DetailState extends ScreenState {
     if (cached == null && widgets.isEmpty) ready.value = false;
     var failed = false;
     error.value = null;
+    if (find<OfflineMode>().isOffline.value) {
+      final snapshot = await DownloadSnapshots.read(
+        view.service.id,
+        host.media.value.id,
+      );
+      if (snapshot != null) {
+        host.update(snapshot.media);
+        find<PendingWrites>().overlay(view.service.id, host.media.value);
+        widgets.value = defaultDetailWidgets(host);
+        host.loading.value = false;
+        ready.value = true;
+        return;
+      }
+    }
     try {
       await for (final list in view.screenStream(host)) {
         widgets.value = list;
@@ -177,6 +196,17 @@ class DetailState extends ScreenState {
       error.value = e.toString();
     } finally {
       if (!failed) {
+        final pending = find<PendingWrites>();
+        if (pending.of(view.service.id, host.media.value.id) != null) {
+          pending.overlay(view.service.id, host.media.value);
+          host.media.refresh();
+        }
+        final downloads = find<DownloadEngine>();
+        if (downloads.hasDownloads(view.service.id, host.media.value.id)) {
+          unawaited(
+            downloads.refreshSnapshot(view.service.id, host.media.value),
+          );
+        }
         DetailCache.put(cacheKey, host.media.value);
         ResumeStore.noteProgress(
           view.service,

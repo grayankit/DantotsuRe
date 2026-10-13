@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -194,11 +195,17 @@ class _NovelScreenState extends State<NovelScreen>
       case NovelPicture p:
         return Padding(
           padding: EdgeInsets.only(bottom: gap),
-          child: cachedNetworkImage(
-            imageUrl: p.url,
-            fit: BoxFit.fitWidth,
-            width: double.infinity,
-          ),
+          child: !p.url.startsWith('http') && File(p.url).isAbsolute
+              ? Image.file(
+                  File(p.url),
+                  fit: BoxFit.fitWidth,
+                  width: double.infinity,
+                )
+              : cachedNetworkImage(
+                  imageUrl: p.url,
+                  fit: BoxFit.fitWidth,
+                  width: double.infinity,
+                ),
         );
       case NovelRule():
         return Padding(

@@ -13,6 +13,7 @@ import '../../../Model/CardStyle.dart';
 import '../../../Utils/Extensions/CardStyleMetrics.dart';
 import '../../../Widgets/Shelf/PosterCard.dart';
 import '../../../Widgets/Components/Clickable.dart';
+import '../../../Widgets/Components/ScrollConfig.dart';
 import '../../../Widgets/Shelf/ShelfFrame.dart';
 import '../../Feed/ResumeLauncher.dart';
 import '../../Player/Components/PlayerSeekBar.dart';
@@ -52,16 +53,19 @@ class _ResumeShelfState extends State<ResumeShelf> {
       child: DpadRow(
         child: SizedBox(
           height: style.itemHeight,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            padding: EdgeInsets.symmetric(horizontal: Dimens.cardPad),
-            itemCount: list.length,
-            separatorBuilder: (_, _) => SizedBox(width: Dimens.gap),
-            itemBuilder: (context, i) => _ResumeCard(
-              key: ValueKey(list[i].slot),
-              entry: list[i],
-              style: style,
-              onTap: () => openResume(context, widget.service, list[i]),
+          child: ScrollConfig(
+            context,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              padding: EdgeInsets.symmetric(horizontal: Dimens.cardPad),
+              itemCount: list.length,
+              separatorBuilder: (_, _) => SizedBox(width: Dimens.gap),
+              itemBuilder: (context, i) => _ResumeCard(
+                key: ValueKey(list[i].slot),
+                entry: list[i],
+                style: style,
+                onTap: () => openResume(context, widget.service, list[i]),
+              ),
             ),
           ),
         ),

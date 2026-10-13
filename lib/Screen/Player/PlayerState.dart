@@ -1,3 +1,4 @@
+import '../../Core/Downloads/DownloadEngine.dart';
 import 'dart:async';
 import 'dart:io';
 
@@ -359,6 +360,7 @@ class PlayerState extends ScreenState {
   @override
   void onClose() {
     _closed = true;
+    find<DownloadEngine>().sweepFinished();
     _generation++;
     _busyTimer?.cancel();
     pageScroll.dispose();
@@ -424,6 +426,16 @@ class PlayerState extends ScreenState {
 
   Future<List<v.Video>> fetchStreams(PlayItem target) async {
     if (target.hasFixedStreams) return target.fixed;
+    final svc = request.service;
+    final med = request.media;
+    if (svc != null && med != null) {
+      final local = find<DownloadEngine>().localVideo(
+        svc.id,
+        med.id,
+        target.downloadKey,
+      );
+      if (local != null) return [local];
+    }
     final source = request.source;
     final episode = target.episode;
     if (source == null || episode == null) return const [];
@@ -669,6 +681,11 @@ class PlayerState extends ScreenState {
       }
       if (fraction > 0.8 && !_watchedMarked) {
         _watchedMarked = true;
+        final svc = request.service;
+        final med = request.media;
+        if (svc != null && med != null) {
+          find<DownloadEngine>().markFinished(svc.id, med.id, item.downloadKey);
+        }
         unawaited(_trackProgress());
       }
     }

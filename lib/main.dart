@@ -18,8 +18,10 @@ import 'package:rhttp/rhttp.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'Api/Updater/AppUpdater.dart';
+import 'Core/Downloads/DownloadEngine.dart';
 import 'Core/NetworkManager/NetworkBridge.dart';
 import 'Core/NetworkManager/NetworkManager.dart';
+import 'Core/Offline/OfflineMode.dart';
 import 'Core/Preferences/PrefManager.dart';
 import 'Core/Preferences/StorageManager.dart';
 import 'Core/ThemeManager/DynamicColorScheme.dart';
@@ -28,6 +30,7 @@ import 'Core/ThemeManager/ThemeController.dart';
 import 'DI.dart';
 import 'Utils/Functions/RefreshController.dart';
 import 'Logger.dart';
+import 'Screen/Downloads/DownloadsLauncher.dart';
 import 'Screen/Error/ErrorScreen.dart';
 import 'Screen/MainScreen.dart';
 import 'Screen/Onboarding/OnboardingScreen.dart';
@@ -125,6 +128,9 @@ Future<void> init(List<String> args) async {
 
 /// Work that can safely run after the first frame.
 Future<void> _postInit(List<String> args) async {
+  installDownloadLinks();
+  find<OfflineMode>();
+  find<DownloadEngine>();
   find<ActivityAlerts>().start();
   find<CommentAlerts>().start();
   installPlayerLinks();

@@ -34,30 +34,32 @@ Future<T?> showChoiceSheet<T>(
   context,
   AppSheet(
     title: title,
-    child: ListView(
-      shrinkWrap: true,
-      padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
-      children: [
-        for (var i = 0; i < options.length; i++)
-          SheetTile(
-            tinted: true,
-            radius: BorderRadius.vertical(
-              top: Radius.circular(i == 0 ? 20 : 6),
-              bottom: Radius.circular(i == options.length - 1 ? 20 : 6),
-            ),
-            leading: _Leading(
-              option: options[i],
-              fallback: icon,
+    child: Builder(
+      builder: (sheet) => ListView(
+        shrinkWrap: true,
+        padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
+        children: [
+          for (var i = 0; i < options.length; i++)
+            SheetTile(
+              tinted: true,
+              radius: BorderRadius.vertical(
+                top: Radius.circular(i == 0 ? 20 : 6),
+                bottom: Radius.circular(i == options.length - 1 ? 20 : 6),
+              ),
+              leading: _Leading(
+                option: options[i],
+                fallback: icon,
+                selected: options[i].value == selected,
+              ),
+              title: Text(options[i].label),
+              subtitle: options[i].subtitle == null
+                  ? null
+                  : Text(options[i].subtitle!),
               selected: options[i].value == selected,
+              onTap: () => popPage(sheet, options[i].value),
             ),
-            title: Text(options[i].label),
-            subtitle: options[i].subtitle == null
-                ? null
-                : Text(options[i].subtitle!),
-            selected: options[i].value == selected,
-            onTap: () => popPage(context, options[i].value),
-          ),
-      ],
+        ],
+      ),
     ),
   ),
 );

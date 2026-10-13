@@ -1,3 +1,4 @@
+import '../../../Core/Downloads/DownloadEngine.dart';
 import 'package:dartotsu_extension_bridge/dartotsu_extension_bridge.dart';
 import 'package:flutter/material.dart';
 
@@ -33,9 +34,19 @@ class _ReaderLoadSheetState extends State<ReaderLoadSheet> {
     _error.value = null;
     final request = widget.request;
     try {
-      final pages = await request.source.methods.getPageList(
-        request.units[request.index].raw,
-      );
+      final unit = request.units[request.index];
+      final local = request.online
+          ? null
+          : find<DownloadEngine>().localPages(
+              request.service.id,
+              request.media.id,
+              unit.key,
+            );
+      final source = request.source;
+      if (local == null && source == null) {
+        throw StateError(getString.downloadSourceMissing);
+      }
+      final pages = local ?? await source!.methods.getPageList(unit.raw);
       if (!mounted) return;
       if (pages.isEmpty) {
         _error.value = getString.readerNoPages;

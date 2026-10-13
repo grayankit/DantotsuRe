@@ -173,6 +173,39 @@ class NotificationManager extends AppController {
     );
   }
 
+  Future<void> showProgress({
+    required int id,
+    required String title,
+    required String body,
+    required int percent,
+    String? payload,
+  }) async {
+    if (!_ready) await initialize();
+    if (!Platform.isAndroid) return;
+    await _plugin.show(
+      id: id,
+      title: title,
+      body: body,
+      notificationDetails: NotificationDetails(
+        android: AndroidNotificationDetails(
+          'downloads',
+          'Downloads',
+          channelDescription: 'Download progress',
+          importance: Importance.low,
+          priority: Priority.low,
+          showProgress: true,
+          maxProgress: 100,
+          progress: percent.clamp(0, 100),
+          indeterminate: percent < 0,
+          ongoing: true,
+          onlyAlertOnce: true,
+          autoCancel: false,
+        ),
+      ),
+      payload: payload,
+    );
+  }
+
   Future<void> cancel(int id) => _plugin.cancel(id: id);
 
   Future<void> cancelAll() => _plugin.cancelAll();

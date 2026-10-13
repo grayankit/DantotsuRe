@@ -1,0 +1,184 @@
+import 'dart:async';
+import 'dart:isolate';
+
+import 'package:dartotsu_extension_bridge/dartotsu_extension_bridge.dart';
+import 'package:flutter/material.dart';
+
+import '../../Api/Services/Extension/Services.dart';
+import '../../Core/Downloads/DownloadEngine.dart';
+import '../../Core/Downloads/DownloadPaths.dart';
+import '../../Core/Downloads/DownloadScanner.dart';
+import '../../Core/Downloads/DownloadTask.dart';
+import '../../Core/Downloads/NameMatch.dart';
+import '../../Core/Offline/OfflineMode.dart';
+import '../../Core/Offline/PendingWrites.dart';
+import '../../Core/Services/MediaServiceController.dart';
+import '../../Core/Services/Model/Media.dart';
+import '../../Core/State/State.dart';
+import '../../Utils/Animation/WidgetAnimations.dart';
+import '../../Widgets/Components/ScreenState.dart';
+import '../Detail/Watch/Data/EpisodeUnits.dart';
+import '../Feed/FeedNavigation.dart';
+import '../Player/Engine/PlayRequest.dart';
+import '../Player/Engine/PlayerPlaylist.dart';
+import '../Player/PlayerLauncher.dart';
+import '../Reader/Engine/ReaderRequest.dart';
+import '../Reader/ReaderLauncher.dart';
+
+class DownloadsState extends ScreenState {
+  final engine = find<DownloadEngine>();
+  final pending = find<PendingWrites>();
+  final offline = find<OfflineMode>();
+  final bytes = 0.live;
+
+  late final tabs = TabController(
+    length: 3,
+    vsync: vsync,
+    animationDuration: animDuration(300),
+  );
+
+  Disposer? _watch;
+
+  @override
+  void onInit() {
+    _measure();
+    _watch = onAnyChange([engine.tasks], _measure);
+  }
+
+  @override
+  void onClose() {
+    _watch?.dispose();
+    tabs.dispose();
+    bytes.close();
+  }
+
+  List<DownloadTask> get queue => [
+    for (final t in engine.tasks)
+      if (t.state.value != DownloadState.done &&
+          t.state.value != DownloadState.failed)
+        t,
+  ];
+
+  List<DownloadTask> get done => [
+    for (final t in engine.tasks)
+      if (t.isDone) t,
+  ];
+
+  List<DownloadTask> get failed => [
+    for (final t in engine.tasks)
+      if (t.state.value == DownloadState.failed) t,
+  ];
+
+  Map<String, List<DownloadTask>> get grouped {
+    final out = <String, List<DownloadTask>>{};
+    for (final t in done) {
+      out.putIfAbsent(t.mediaSlot, () => []).add(t);
+    }
+    for (final list in out.values) {
+      list.sort((a, b) => a.number.compareTo(b.number));
+    }
+    return out;
+  }
+
+  Future<void> _measure() async {
+    final paths = [
+      for (final t in done)
+        if (t.path != null) t.path!,
+    ];
+    final total = await Isolate.run(
+      () => paths.fold<int>(0, (sum, path) => sum + pathSize(path)),
+    );
+    bytes.value = total;
+  }
+
+  Future<void> refresh() => engine.scanner.scan();
+
+  void openTitle(DownloadTask task) {
+    final service = find<MediaServiceController>().services
+        .where((s) => s.id == task.serviceId)
+        .firstOrNull;
+    if (service == null) return;
+    openDetail(
+      context,
+      service,
+      Media.fromJson(Map<String, dynamic>.from(task.media)),
+    );
+  }
+
+  Future<void> playLocal(LocalGroup group, int index) => openPlayer(
+    PlayRequest(
+      items: [for (final (i, f) in group.files.indexed) localItem(f, i)],
+      index: index,
+    ),
+    context: context,
+  );
+
+  Future<void> read(DownloadTask task) async {
+    final service = find<MediaServiceController>().services
+        .where((s) => s.id == task.serviceId)
+        .firstOrNull;
+    if (service == null) return;
+    final siblings = grouped[task.mediaSlot] ?? [task];
+    final units = <WatchUnit>[];
+    for (final t in siblings) {
+      final json = t.episode;
+      units.add(
+        WatchUnit(
+          raw: json == null
+              ? DEpisode(episodeNumber: unitKeyOf(t.number))
+              : DEpisode.fromJson(Map<String, dynamic>.from(json)),
+          number: unitKeyOf(t.number),
+          key: t.unitKey,
+          value: t.number,
+          title: t.title,
+        ),
+      );
+    }
+    final index = units.indexWhere((u) => u.key == task.unitKey);
+    if (index < 0) return;
+    final sourceId = task.sourceId;
+    await openReader(
+      ReaderRequest(
+        service: service,
+        media: Media.fromJson(Map<String, dynamic>.from(task.media)),
+        source: sourceId == null ? null : installedSourceById(sourceId),
+        units: units,
+        index: index,
+      ),
+      context: context,
+    );
+  }
+
+  Future<void> play(DownloadTask task) async {
+    if (task.kind == DownloadKind.chapter) return read(task);
+    final siblings = grouped[task.mediaSlot] ?? [task];
+    final service = find<MediaServiceController>().services
+        .where((s) => s.id == task.serviceId)
+        .firstOrNull;
+    final media = Media.fromJson(Map<String, dynamic>.from(task.media));
+    final items = <PlayItem>[];
+    for (final t in siblings) {
+      final video = engine.localVideo(t.serviceId, t.mediaId, t.unitKey);
+      if (video == null) continue;
+      items.add(
+        PlayItem(
+          key: t.unitKey,
+          title: t.title.isEmpty ? '${t.mediaTitle} ${t.unitKey}' : t.title,
+          number: t.number,
+          fixed: [video],
+        ),
+      );
+    }
+    final index = items.indexWhere((e) => e.key == task.unitKey);
+    if (items.isEmpty || index < 0) return;
+    await openPlayer(
+      PlayRequest(
+        service: service,
+        media: service == null ? null : media,
+        items: items,
+        index: index,
+      ),
+      context: context,
+    );
+  }
+}

@@ -5,6 +5,7 @@ import 'Api/Queries.dart';
 import '../../Screen/Settings/Sync/Data/SyncAdapter.dart';
 import 'Local/LocalListStore.dart';
 import 'Local/LocalMutations.dart';
+import '../Offline/OfflineMutations.dart';
 import 'ServiceAuth.dart';
 import 'Screens/ServiceScreens.dart';
 
@@ -40,8 +41,11 @@ abstract class MediaService {
 
   Mutations? get apiMutations => null;
 
-  Mutations? get getMutations =>
-      isLoggedIn ? apiMutations : LocalMutations(this);
+  Mutations? get getMutations {
+    if (!isLoggedIn) return LocalMutations(this);
+    final api = apiMutations;
+    return api == null ? null : OfflineMutations(this, api);
+  }
 
   LocalListStore localStore({required bool anime}) => LocalListStore(id);
 

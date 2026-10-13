@@ -55,53 +55,57 @@ class NetworkManager extends AppController {
     _initClient();
   }
 
+  RhttpClient? _streamClient;
+
+  RhttpClient get streamClient => _streamClient ??= _build(timeout: null);
+
   RhttpClient _initClient() {
+    _streamClient = null;
     try {
-      var interceptors = [LogInterceptor(), cookieManager];
-
-      var clientSettings = ClientSettings(
-        userAgent: userAgent,
-        throwOnStatusCode: false,
-        tlsSettings: const TlsSettings(
-          rootCertSource: RootCertSource.webpki,
-          verifyCertificates: kVerifyTlsCertificates,
-        ),
-        timeoutSettings: const TimeoutSettings(
-          connectTimeout: Duration(seconds: 15),
-          timeout: Duration(seconds: 30),
-        ),
-        dnsSettings: DnsSettings.dynamic(
-          resolver: (host) async {
-            try {
-              return await DnsManager.resolveWithDoh(
-                host,
-                dnsUrl,
-                bootstrapIps:
-                    DohProvider.forUrl(dnsUrl)?.bootstrapIps ?? const [],
-              );
-            } catch (e) {
-              logger(
-                'DoH failed for $host → fallback: $e',
-                logLevel: LogLevel.error,
-              );
-              final res = await InternetAddress.lookup(host);
-              return res.map((e) => e.address).toList();
-            }
-          },
-        ),
-        proxySettings: proxyUrl == null ? null : _buildProxySettings(proxyUrl!),
-      );
-
-      _client = RhttpClient.createSync(
-        interceptors: interceptors,
-        settings: clientSettings,
-      );
-
-      return _client;
+      return _client = _build(timeout: const Duration(seconds: 30));
     } catch (e, st) {
       logError('NetworkManager', e, st);
       rethrow;
     }
+  }
+
+  RhttpClient _build({required Duration? timeout}) {
+    final settings = ClientSettings(
+      userAgent: userAgent,
+      throwOnStatusCode: false,
+      tlsSettings: const TlsSettings(
+        rootCertSource: RootCertSource.webpki,
+        verifyCertificates: kVerifyTlsCertificates,
+      ),
+      timeoutSettings: TimeoutSettings(
+        connectTimeout: const Duration(seconds: 15),
+        timeout: timeout,
+      ),
+      dnsSettings: DnsSettings.dynamic(
+        resolver: (host) async {
+          try {
+            return await DnsManager.resolveWithDoh(
+              host,
+              dnsUrl,
+              bootstrapIps:
+                  DohProvider.forUrl(dnsUrl)?.bootstrapIps ?? const [],
+            );
+          } catch (e) {
+            logger(
+              'DoH failed for $host → fallback: $e',
+              logLevel: LogLevel.error,
+            );
+            final res = await InternetAddress.lookup(host);
+            return res.map((e) => e.address).toList();
+          }
+        },
+      ),
+      proxySettings: proxyUrl == null ? null : _buildProxySettings(proxyUrl!),
+    );
+    return RhttpClient.createSync(
+      interceptors: [LogInterceptor(), cookieManager],
+      settings: settings,
+    );
   }
 
   static ProxySettings _buildProxySettings(String proxy) {
@@ -217,6 +221,16 @@ class NetworkManager extends AppController {
     );
   }
 
+  Future<HttpStreamResponse> stream(
+    String url, {
+    Map<String, String>? headers,
+    CancelToken? cancelToken,
+  }) => streamClient.getStream(
+    url,
+    headers: _mapHeaders(headers),
+    cancelToken: cancelToken,
+  );
+
   Future<void> download(
     String url,
     String savePath, {
@@ -225,7 +239,7 @@ class NetworkManager extends AppController {
     CancelToken? cancelToken,
     void Function(int received, int total)? onProgress,
   }) async {
-    final res = await client.getStream(
+    final res = await streamClient.getStream(
       url,
       cancelToken: cancelToken,
       headers: _mapHeaders(headers),
