@@ -97,6 +97,34 @@ jobs:
           GIT_HASH=$(git rev-parse --short HEAD)
           echo "hash=$GIT_HASH" > .env
 
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - *checkout
+
+      - name: Fetch extension bridge (path dependency)
+        shell: bash
+        run: git clone --depth 1 https://github.com/aayush2622/DartotsuExtensionBridge.git ../DartotsuExtensionBridge
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - *setup_env
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate localizations
+        run: flutter gen-l10n
+
+      - name: Analyze
+        run: flutter analyze lib test
+
+      - name: Test
+        run: flutter test
+
   build_android:
     runs-on: ubuntu-latest
     if: |
