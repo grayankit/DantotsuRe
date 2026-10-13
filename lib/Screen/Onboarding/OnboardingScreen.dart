@@ -1,22 +1,22 @@
 import 'dart:ui';
 
-import '../../Utils/Nav/DpadNav.dart';
 import 'package:flutter/material.dart';
-import 'package:introduction_screen/introduction_screen.dart';
 
+import '../../Core/State/State.dart';
+import '../../Core/ThemeManager/AppTheme.dart';
+import '../../Core/ThemeManager/GlassBackgroundSource.dart';
 import '../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../Core/ThemeManager/ThemeController.dart';
 import '../../Core/ThemeManager/ThemeMode.dart';
 import '../../Utils/Animation/WidgetAnimations.dart';
 import '../../Utils/Extensions/NumExtensions.dart';
 import '../../Utils/Functions/LinkSettings.dart';
-import '../../Widgets/Components/CachedNetworkImage.dart';
-import '../../Widgets/Components/ScrollConfig.dart';
+import '../../Utils/Nav/DpadNav.dart';
 import '../../Widgets/Components/AppControls.dart';
-import '../Settings/Widgets/ThemeDropdown.dart';
-import '../../Core/ThemeManager/GlassBackgroundSource.dart';
-import '../../Core/State/State.dart';
+import '../../Widgets/Components/CachedNetworkImage.dart';
 import '../../Widgets/Components/ScreenState.dart';
+import '../../Widgets/Components/ScrollConfig.dart';
+import '../../Widgets/Components/SectionCard.dart';
 import 'OnboardingState.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -40,6 +40,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
   Widget _build(BuildContext context) {
     final scheme = theme.colorScheme;
+    final page = state.page.value;
     return Scaffold(
       body: Stack(
         children: [
@@ -59,23 +60,27 @@ class _OnboardingScreenState extends State<OnboardingScreen>
             ),
           ),
           _background,
-          ScrollConfig(
-            context,
-            child: IntroductionScreen(
-              globalBackgroundColor: Colors.transparent,
-              showSkipButton: true,
-              showNextButton: true,
-              showBackButton: true,
-              allowImplicitScrolling: true,
-              overrideBack: (c, cb) => _navButton(cb, getString.onboardingBack),
-              overrideNext: (c, cb) =>
-                  _navButton(cb, getString.onboardingNext, autoFocus: true),
-              overrideSkip: (c, cb) => _navButton(cb, getString.onboardingSkip),
-              overrideDone: (c, cb) => _navButton(cb, getString.getStarted),
-              onDone: state.finish,
-              onSkip: state.finish,
-              onChange: (v) => state.page.value = v,
-              pages: [_page0(), _page1(), _page2()],
+          SafeArea(
+            child: Column(
+              children: [
+                _topBar(page),
+                Expanded(
+                  child: ScrollConfig(
+                    context,
+                    child: PageView(
+                      controller: state.controller,
+                      onPageChanged: (v) => state.page.value = v,
+                      children: [
+                        _welcome(page == 0),
+                        _features(page == 1),
+                        _look(page == 2),
+                        _accounts(page == 3),
+                      ],
+                    ),
+                  ),
+                ),
+                _bottomBar(page),
+              ],
             ),
           ),
         ],
@@ -83,117 +88,294 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     );
   }
 
-  Widget _badge(IconData icon) => Center(
-    child: Container(
-      width: 120,
-      height: 120,
-      decoration: BoxDecoration(
-        color: theme.colorScheme.primaryContainer.withValues(alpha: 0.55),
-        shape: BoxShape.circle,
+  Widget _topBar(int page) => Padding(
+    padding: const EdgeInsets.fromLTRB(24, 8, 12, 0),
+    child: SizedBox(
+      height: 48,
+      child: Row(
+        children: [
+          Text(
+            getString.appName,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: theme.colorScheme.primary,
+            ),
+          ).animateFadeIn(target: page != 0),
+          const Spacer(),
+          if (!state.isLast)
+            TextButton(
+              onPressed: state.finish,
+              child: Text(getString.onboardingSkip),
+            ),
+        ],
       ),
-      child: Icon(icon, size: 54, color: theme.colorScheme.onPrimaryContainer),
     ),
   );
 
-  PageViewModel _pageOf({
-    required int index,
-    required IconData icon,
-    required Widget title,
-    required List<Widget> body,
-  }) {
-    final active = state.page.value == index;
-    return PageViewModel(
-      decoration: const PageDecoration(
-        imageFlex: 0,
-        bodyFlex: 1,
-        contentMargin: EdgeInsets.zero,
-        titlePadding: EdgeInsets.zero,
-        bodyPadding: EdgeInsets.zero,
-        imagePadding: EdgeInsets.zero,
-        bodyAlignment: Alignment.center,
-      ),
-      titleWidget: const SizedBox.shrink(),
-      bodyWidget: LayoutBuilder(
-        builder: (context, box) => SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          child: ConstrainedBox(
-            constraints: BoxConstraints(minHeight: box.maxHeight - 32),
-            child: Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _badge(icon).animatePopIn(),
-                  const SizedBox(height: 24),
-                  DefaultTextStyle.merge(
-                    style: theme.textTheme.headlineMedium,
-                    textAlign: TextAlign.center,
-                    child: title,
-                  ).animateFadeUp(target: active, duration: 700),
-                  const SizedBox(height: 16),
-                  ...body,
-                ],
-              ).animateFadeUp(target: active, begin: 0.2, delay: 150.ms),
+  Widget _bottomBar(int page) {
+    final scheme = theme.colorScheme;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 520),
+        child: Row(
+          children: [
+            SizedBox(
+              width: 96,
+              child: AnimatedOpacity(
+                duration: animDuration(200),
+                opacity: state.isFirst ? 0 : 1,
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: IgnorePointer(
+                    ignoring: state.isFirst,
+                    child: TextButton(
+                      onPressed: state.back,
+                      child: Text(getString.onboardingBack),
+                    ),
+                  ),
+                ),
+              ),
             ),
-          ),
+            Expanded(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  for (var i = 0; i < OnboardingState.pageCount; i++)
+                    DpadTap(
+                      onTap: () => state.go(i),
+                      borderRadius: BorderRadius.circular(8),
+                      child: Padding(
+                        padding: const EdgeInsets.all(5),
+                        child: AnimatedContainer(
+                          duration: animDuration(300),
+                          curve: Curves.easeOutCubic,
+                          width: i == page ? 26 : 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: i == page
+                                ? scheme.primary
+                                : scheme.onSurface.withValues(alpha: 0.25),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            SizedBox(
+              width: 140,
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: DpadFocusable(
+                  autofocus: true,
+                  onSelect: state.next,
+                  child: FilledButton(
+                    onPressed: state.next,
+                    child: AnimatedSwitcher(
+                      duration: animDuration(200),
+                      child: Text(
+                        state.isLast
+                            ? getString.getStarted
+                            : getString.onboardingNext,
+                        key: ValueKey(state.isLast),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  PageViewModel _page0() => _pageOf(
-    index: 0,
-    icon: Icons.auto_awesome_rounded,
-    title: Text(
-      getString.appName.toUpperCase(),
-      style: theme.textTheme.displayMedium?.copyWith(
-        fontWeight: FontWeight.w200,
-        color: theme.colorScheme.primary,
-      ),
-    ),
-    body: [Text(getString.appTagline, textAlign: TextAlign.center)],
-  );
-
-  PageViewModel _page1() => _pageOf(
-    index: 1,
-    icon: Icons.palette_rounded,
-    title: Text(getString.onboardingPaletteTitle),
-    body: [
-      Text(getString.onboardingPaletteBody, textAlign: TextAlign.center),
-      const SizedBox(height: 20),
-      ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 320),
-        child: Watch(
-          () => DpadTap(
-            onTap: () => openThemePicker(context),
-            borderRadius: BorderRadius.circular(12),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.color_lens,
-                    size: 22,
-                    color: theme.colorScheme.primary,
+  Widget _frame({
+    required bool active,
+    required IconData icon,
+    required String title,
+    String? body,
+    List<Widget> children = const [],
+  }) => LayoutBuilder(
+    builder: (context, box) => SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(minHeight: box.maxHeight - 32),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 520),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _badge(icon).animatePopIn(),
+                const SizedBox(height: 28),
+                Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
                   ),
-                  const SizedBox(width: 12),
-                  Text(themeLabel(_theme)),
-                  const SizedBox(width: 6),
-                  Icon(
-                    Icons.chevron_right_rounded,
-                    size: 18,
-                    color: theme.colorScheme.onSurfaceVariant,
+                ),
+                if (body != null) ...[
+                  const SizedBox(height: 12),
+                  Text(
+                    body,
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 ],
-              ),
-            ),
+                if (children.isNotEmpty) ...[
+                  const SizedBox(height: 28),
+                  ...children,
+                ],
+              ],
+            ).animateFadeUp(target: active, begin: 0.15, delay: 100.ms),
           ),
         ),
       ),
-      const SizedBox(height: 8),
-      ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 320),
-        child: Watch(
+    ),
+  );
+
+  Widget _badge(IconData icon) {
+    final scheme = theme.colorScheme;
+    return Container(
+      width: 112,
+      height: 112,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [scheme.primary, scheme.tertiary],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: scheme.primary.withValues(alpha: 0.35),
+            blurRadius: 36,
+            spreadRadius: 2,
+          ),
+        ],
+      ),
+      child: Icon(icon, size: 52, color: scheme.onPrimary),
+    );
+  }
+
+  Widget _welcome(bool active) => _frame(
+    active: active,
+    icon: Icons.auto_awesome_rounded,
+    title: getString.appName.toUpperCase(),
+    body: getString.appTagline,
+  );
+
+  Widget _features(bool active) {
+    final items = [
+      (
+        Icons.checklist_rounded,
+        getString.onboardingFeatureTrack,
+        getString.onboardingFeatureTrackDesc,
+      ),
+      (
+        Icons.play_circle_rounded,
+        getString.onboardingFeatureWatch,
+        getString.onboardingFeatureWatchDesc,
+      ),
+      (
+        Icons.download_for_offline_rounded,
+        getString.onboardingFeatureOffline,
+        getString.onboardingFeatureOfflineDesc,
+      ),
+      (
+        Icons.sync_alt_rounded,
+        getString.onboardingFeatureSync,
+        getString.onboardingFeatureSyncDesc,
+      ),
+    ];
+    return _frame(
+      active: active,
+      icon: Icons.widgets_rounded,
+      title: getString.onboardingFeaturesTitle,
+      body: getString.onboardingFeaturesBody,
+      children: [
+        for (var i = 0; i < items.length; i++)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: _featureRow(items[i].$1, items[i].$2, items[i].$3)
+                .animateFadeUp(
+                  target: active,
+                  begin: 0.3,
+                  delay: (200 + i * 90).ms,
+                ),
+          ),
+      ],
+    );
+  }
+
+  Widget _featureRow(IconData icon, String title, String desc) {
+    final scheme = theme.colorScheme;
+    return SectionCard(
+      child: Row(
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: scheme.primaryContainer,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Icon(icon, color: scheme.onPrimaryContainer),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: theme.textTheme.titleSmall),
+                const SizedBox(height: 2),
+                Text(
+                  desc,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: scheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _look(bool active) {
+    final dark = theme.brightness == Brightness.dark;
+    return _frame(
+      active: active,
+      icon: Icons.palette_rounded,
+      title: getString.onboardingPaletteTitle,
+      body: getString.onboardingPaletteBody,
+      children: [
+        Watch(() {
+          final custom = _theme.useCustomColor.value;
+          final current = _theme.themeName.value;
+          return Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 14,
+            runSpacing: 14,
+            children: [
+              for (final t in AppTheme.values)
+                _swatch(
+                  t,
+                  t.themeFor(dark ? Brightness.dark : Brightness.light),
+                  !custom && t.name == current,
+                ),
+            ],
+          );
+        }),
+        const SizedBox(height: 24),
+        Watch(
           () => AppSegmented<ThemeModePref>(
             value: _theme.mode.value,
             onChanged: _theme.setThemeMode,
@@ -216,70 +398,131 @@ class _OnboardingScreenState extends State<OnboardingScreen>
             ],
           ),
         ),
-      ),
-      const SizedBox(height: 8),
-      ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 320),
-        child: Watch(
+        const SizedBox(height: 8),
+        Watch(
           () => SwitchListTile(
+            contentPadding: EdgeInsets.zero,
             title: Text(getString.glassMode),
             value: _theme.useGlassMode.value,
             onChanged: _theme.setGlassEffect,
           ),
         ),
-      ),
-    ],
-  );
+      ],
+    );
+  }
 
-  PageViewModel _page2() => _pageOf(
-    index: 2,
-    icon: Icons.sync_rounded,
-    title: Text(getString.onboardingSyncTitle),
-    body: [
-      Text(getString.onboardingSyncBody, textAlign: TextAlign.center),
-      Watch(
-        () => Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (canOpenLinkSettings) ...[
-              const SizedBox(height: 20),
-              ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 360),
-                child: DpadTap(
-                  onTap: openLinkSettings,
-                  borderRadius: BorderRadius.circular(12),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.link_rounded,
-                          size: 22,
-                          color: theme.colorScheme.primary,
-                        ),
-                        const SizedBox(width: 12),
-                        Flexible(child: Text(getString.onboardingOpenLinks)),
-                        const SizedBox(width: 6),
-                        Icon(
-                          Icons.chevron_right_rounded,
-                          size: 18,
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
-                      ],
-                    ),
+  Widget _swatch(AppTheme t, ThemeData preview, bool selected) {
+    final colors = preview.colorScheme;
+    final ring = theme.colorScheme.primary;
+    return Tooltip(
+      message: t.label,
+      child: DpadTap(
+        scale: true,
+        ripple: false,
+        borderRadius: BorderRadius.circular(32),
+        onTap: () => _theme.setTheme(t.name),
+        child: AnimatedContainer(
+          duration: animDuration(250),
+          width: 56,
+          height: 56,
+          padding: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: selected ? ring : Colors.transparent,
+              width: 2.5,
+            ),
+          ),
+          child: ClipOval(
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                ColoredBox(color: colors.surface),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: FractionallySizedBox(
+                    widthFactor: 0.5,
+                    child: ColoredBox(color: colors.primary),
                   ),
                 ),
-              ),
-            ],
-          ],
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: FractionallySizedBox(
+                    widthFactor: 0.5,
+                    heightFactor: 0.5,
+                    child: ColoredBox(color: colors.tertiary),
+                  ),
+                ),
+                if (selected)
+                  Center(
+                    child: Icon(
+                      Icons.check_rounded,
+                      size: 20,
+                      color: colors.onPrimary,
+                    ),
+                  ),
+              ],
+            ),
+          ),
         ),
       ),
-    ],
-  );
+    );
+  }
+
+  Widget _accounts(bool active) {
+    const services = ['AniList', 'MyAnimeList', 'Simkl', 'Kitsu', 'MangaBaka'];
+    return _frame(
+      active: active,
+      icon: Icons.sync_rounded,
+      title: getString.onboardingSyncTitle,
+      body: getString.onboardingSyncBody,
+      children: [
+        Text(
+          getString.onboardingServices,
+          style: theme.textTheme.labelLarge?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 10),
+        Wrap(
+          alignment: WrapAlignment.center,
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            for (final s in services)
+              Chip(
+                label: Text(s),
+                avatar: Icon(
+                  Icons.check_circle_rounded,
+                  size: 18,
+                  color: theme.colorScheme.primary,
+                ),
+              ),
+          ],
+        ),
+        if (canOpenLinkSettings) ...[
+          const SizedBox(height: 20),
+          SectionCard(
+            child: DpadTap(
+              onTap: openLinkSettings,
+              borderRadius: BorderRadius.circular(12),
+              child: Row(
+                children: [
+                  Icon(Icons.link_rounded, color: theme.colorScheme.primary),
+                  const SizedBox(width: 12),
+                  Expanded(child: Text(getString.onboardingOpenLinks)),
+                  Icon(
+                    Icons.chevron_right_rounded,
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
 
   Widget get _background => Watch(() {
     final opacity = _theme.useGlassMode.value ? 0.55 : 0.14;
@@ -300,22 +543,4 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       ),
     );
   });
-
-  Widget _navButton(
-    VoidCallback? onPressed,
-    String label, {
-    bool autoFocus = false,
-  }) {
-    return DpadFocusable(
-      autofocus: autoFocus,
-      onSelect: onPressed,
-      child: TextButton(
-        onPressed: onPressed,
-        style: TextButton.styleFrom(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-        ),
-        child: Text(label, textAlign: TextAlign.center),
-      ),
-    );
-  }
 }
