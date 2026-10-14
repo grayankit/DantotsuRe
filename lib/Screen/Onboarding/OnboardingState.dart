@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../../Core/State/State.dart';
 import '../../Core/ThemeManager/ThemeController.dart';
@@ -7,7 +10,34 @@ import '../../Widgets/Components/ScreenState.dart';
 import '../Login/LoginScreen.dart';
 
 class OnboardingState extends ScreenState {
-  static const pageCount = 4;
+  static final pageCount = Platform.isAndroid ? 5 : 4;
+
+  static final permissions = <Permission>[
+    Permission.notification,
+    Permission.manageExternalStorage,
+    Permission.requestInstallPackages,
+    Permission.ignoreBatteryOptimizations,
+  ];
+
+  final granted = <Permission, bool>{}.liveMap;
+
+  @override
+  void onInit() {
+    super.onInit();
+    if (Platform.isAndroid) refreshPermissions();
+  }
+
+  Future<void> refreshPermissions() async {
+    for (final p in permissions) {
+      granted[p] = await p.isGranted;
+    }
+  }
+
+  Future<void> grant(Permission p) async {
+    final status = await p.request();
+    granted[p] = status.isGranted;
+    if (!status.isGranted && status.isPermanentlyDenied) await openAppSettings();
+  }
 
   ThemeController get theme => find();
 

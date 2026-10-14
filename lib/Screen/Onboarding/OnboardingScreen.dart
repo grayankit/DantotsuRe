@@ -1,6 +1,8 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../../Core/State/State.dart';
 import '../../Core/ThemeManager/AppTheme.dart';
@@ -74,7 +76,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                         _welcome(page == 0),
                         _features(page == 1),
                         _look(page == 2),
-                        _accounts(page == 3),
+                        if (Platform.isAndroid) _permissions(page == 3),
+                        _accounts(page == OnboardingState.pageCount - 1),
                       ],
                     ),
                   ),
@@ -479,6 +482,85 @@ class _OnboardingScreenState extends State<OnboardingScreen>
           ),
         ),
       ),
+    );
+  }
+
+  Widget _permissions(bool active) {
+    final items = [
+      (
+        Permission.notification,
+        Icons.notifications_active_rounded,
+        getString.permNotifications,
+        getString.permNotificationsDesc,
+      ),
+      (
+        Permission.manageExternalStorage,
+        Icons.folder_rounded,
+        getString.permStorage,
+        getString.permStorageDesc,
+      ),
+      (
+        Permission.requestInstallPackages,
+        Icons.system_update_rounded,
+        getString.permInstall,
+        getString.permInstallDesc,
+      ),
+      (
+        Permission.ignoreBatteryOptimizations,
+        Icons.battery_charging_full_rounded,
+        getString.permBattery,
+        getString.permBatteryDesc,
+      ),
+    ];
+    return _frame(
+      active: active,
+      icon: Icons.verified_user_rounded,
+      title: getString.onboardingPermsTitle,
+      body: getString.onboardingPermsBody,
+      children: [
+        for (final (permission, icon, name, desc) in items)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: SectionCard(
+              child: Row(
+                children: [
+                  Icon(icon, color: theme.colorScheme.primary),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          name,
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Text(
+                          desc,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  if (state.granted[permission] == true)
+                    Icon(
+                      Icons.check_circle_rounded,
+                      color: theme.colorScheme.primary,
+                    )
+                  else
+                    FilledButton.tonal(
+                      onPressed: () => state.grant(permission),
+                      child: Text(getString.permGrant),
+                    ),
+                ],
+              ),
+            ),
+          ),
+      ],
     );
   }
 
