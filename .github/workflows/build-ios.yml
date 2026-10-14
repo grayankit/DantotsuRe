@@ -57,16 +57,15 @@ jobs:
             sed -i '' 's/let engine = flController.engine$/let engine: FlutterEngine? = flController.engine/' "$f"
           done
 
-      - name: Prepare iOS runtimes
-        run: |
-          bridge=$(jq -r '.packages[] | select(.name=="dartotsu_extension_bridge") | .rootUri' .dart_tool/package_config.json)
-          cd "${bridge#file://}/ios"
-          sh PrepareEmbeddedRuntime.sh
-          sh PrepareTorrServerRuntime.sh
-
       - name: Build iOS
         run: |
           flutter build ios --release --no-codesign
+          for plist in build/ios/iphoneos/Runner.app/Frameworks/*.framework/Info.plist; do
+            min=$(/usr/libexec/PlistBuddy -c "Print :MinimumOSVersion" "$plist" 2>/dev/null || true)
+            if [ -n "$min" ] && [ "${min%%.*}" -gt 15 ]; then
+              /usr/libexec/PlistBuddy -c "Set :MinimumOSVersion 15.0" "$plist"
+            fi
+          done
           cd build/ios/iphoneos
           rm -rf Payload
           mkdir -p Payload
