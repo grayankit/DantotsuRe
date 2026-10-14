@@ -17,12 +17,16 @@ class OfflineMutations extends Mutations {
 
   OfflineMutations(this.service, this.inner);
 
-  bool get _offline =>
-      find<OfflineMode>().isOffline.value || !find<NetStatus>().online.value;
+  Future<bool> _isOffline() async {
+    if (find<OfflineMode>().isOffline.value) return true;
+    final net = find<NetStatus>();
+    if (net.online.value) return false;
+    return !await net.check();
+  }
 
   @override
   Future<void> editList(Media media, {List<String>? customList}) async {
-    if (_offline) {
+    if (await _isOffline()) {
       find<PendingWrites>().record(
         service,
         media,
@@ -40,7 +44,7 @@ class OfflineMutations extends Mutations {
 
   @override
   Future<void> deleteFromList(Media media) async {
-    if (_offline) {
+    if (await _isOffline()) {
       find<PendingWrites>().record(service, media, PendingKind.delete);
       return snackString(getString.offlineSaved);
     }
@@ -49,7 +53,7 @@ class OfflineMutations extends Mutations {
 
   @override
   Future<void> setProgress(Media media, int progress) async {
-    if (_offline) {
+    if (await _isOffline()) {
       applyProgress(media, progress);
       find<PendingWrites>().record(
         service,

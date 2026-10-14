@@ -34,16 +34,12 @@ class OfflineMode extends AppController {
   }
 
   void _netChanged(bool online) {
-    if (!online) {
-      if (!isOffline.value) snackString(getString.offlineLost);
-      return;
-    }
+    if (!online) return;
     if (_autoOffline) {
       _autoOffline = false;
       isOffline.value = false;
     }
     if (!isOffline.value) {
-      snackString(getString.offlineBack);
       unawaited(find<PendingWrites>().replay());
     }
   }
