@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import '../../Logger.dart';
 import '../../Utils/Animation/WidgetAnimations.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +10,8 @@ import '../../Core/Services/Model/Media.dart';
 import '../../Core/State/State.dart';
 import '../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../Widgets/Components/ScreenState.dart';
+
+enum ListSort { listOrder, score, title, updated, progress, released, average }
 
 class MediaListState extends ScreenState {
   final MediaService service;
@@ -33,10 +37,125 @@ class MediaListState extends ScreenState {
   final failed = false.live;
   TabController? _tabs;
 
+  final query = ''.live;
+  final searching = false.live;
+  final sort = ListSort.listOrder.live;
+  final reversed = false.live;
+  final formats = <String>{}.live;
+  final statuses = <String>{}.live;
+  final genres = <String>{}.live;
+
+  late final searchController = TextEditingController();
+
   bool get loading => lists.value == null && !failed.value;
 
-  Map<String, List<Media>> get shown =>
-      failed.value ? <String, List<Media>>{} : (lists.value ?? _skeletonLists);
+  bool get filtered =>
+      formats.value.isNotEmpty ||
+      statuses.value.isNotEmpty ||
+      genres.value.isNotEmpty;
+
+  Iterable<Media> get _all => (lists.value ?? const {}).values.expand((e) => e);
+
+  List<String> get formatOptions => _distinct(_all.map((m) => m.format));
+
+  List<String> get statusOptions => _distinct(_all.map((m) => m.status));
+
+  List<String> get genreOptions =>
+      _distinct(_all.expand((m) => m.genres)).toList();
+
+  static List<String> _distinct(Iterable<String?> values) => ({
+    for (final v in values)
+      if (v != null && v.isNotEmpty) v,
+  }.toList()..sort());
+
+  Map<String, List<Media>> get shown {
+    if (failed.value) return <String, List<Media>>{};
+    final source = lists.value;
+    if (source == null) return _skeletonLists;
+    final text = query.value.trim().toLowerCase();
+    final f = formats.value;
+    final st = statuses.value;
+    final g = genres.value;
+    final order = sort.value;
+    final flip = reversed.value;
+    return {
+      for (final entry in source.entries)
+        entry.key: _arrange(
+          [
+            for (final m in entry.value)
+              if ((text.isEmpty || _matches(m, text)) &&
+                  (f.isEmpty || f.contains(m.format)) &&
+                  (st.isEmpty || st.contains(m.status)) &&
+                  (g.isEmpty || g.every(m.genres.contains)))
+                m,
+          ],
+          order,
+          flip,
+        ),
+    };
+  }
+
+  static bool _matches(Media m, String text) =>
+      m.mainName.toLowerCase().contains(text) ||
+      (m.name ?? '').toLowerCase().contains(text) ||
+      (m.nameRomaji ?? '').toLowerCase().contains(text) ||
+      m.synonyms.any((s) => s.toLowerCase().contains(text));
+
+  static int _date(Media m) {
+    final d = m.startDate;
+    if (d == null || d.year == null) return 0;
+    return d.year! * 10000 + (d.month ?? 0) * 100 + (d.day ?? 0);
+  }
+
+  static List<Media> _arrange(List<Media> items, ListSort order, bool flip) {
+    if (order == ListSort.listOrder) {
+      return flip ? items.reversed.toList() : items;
+    }
+    int by(Media a, Media b) => switch (order) {
+      ListSort.score => (b.userScore ?? 0).compareTo(a.userScore ?? 0),
+      ListSort.title => a.mainName.toLowerCase().compareTo(
+        b.mainName.toLowerCase(),
+      ),
+      ListSort.updated => (b.userUpdatedAt ?? 0).compareTo(
+        a.userUpdatedAt ?? 0,
+      ),
+      ListSort.progress => (b.userProgress ?? 0).compareTo(a.userProgress ?? 0),
+      ListSort.released => _date(b).compareTo(_date(a)),
+      ListSort.average => (b.meanScore ?? 0).compareTo(a.meanScore ?? 0),
+      ListSort.listOrder => 0,
+    };
+    final sorted = [...items]..sort(by);
+    return flip ? sorted.reversed.toList() : sorted;
+  }
+
+  void toggleSearch() {
+    searching.value = !searching.value;
+    if (!searching.value) {
+      searchController.clear();
+      query.value = '';
+    }
+  }
+
+  void toggle(Live<Set<String>> target, String value) {
+    final next = {...target.value};
+    if (!next.remove(value)) next.add(value);
+    target.value = next;
+  }
+
+  void clearFilters() {
+    formats.value = {};
+    statuses.value = {};
+    genres.value = {};
+  }
+
+  Media? randomPick(List<String> keys) {
+    final lists = shown;
+    if (keys.isEmpty) return null;
+    final index = (_tabs?.index ?? 0).clamp(0, keys.length - 1);
+    final pool = lists[keys[index]] ?? const <Media>[];
+    if (pool.isEmpty) return null;
+    return pool[Random().nextInt(pool.length)];
+  }
 
   String get title {
     final owner = userName ?? service.auth?.user.value?.name;
@@ -89,5 +208,8 @@ class MediaListState extends ScreenState {
   }
 
   @override
-  void onClose() => _tabs?.dispose();
+  void onClose() {
+    _tabs?.dispose();
+    searchController.dispose();
+  }
 }
