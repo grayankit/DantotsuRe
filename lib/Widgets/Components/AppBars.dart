@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
+import '../../Core/State/State.dart';
+import '../../Core/ThemeManager/ThemeController.dart';
+import 'ThemedContainer.dart';
+
 import '../../Utils/Extensions/ContextExtensions.dart';
 import '../../Utils/Functions/NavigateToScreen.dart';
 import '../../Utils/Nav/DpadLayers.dart';
@@ -129,7 +133,14 @@ class AppSliverBar extends StatelessWidget {
             children: [
               Opacity(
                 opacity: collapsed,
-                child: ColoredBox(color: scheme.surface),
+                child: find<ThemeController>().useGlassMode.value
+                    ? const ThemedContainer(
+                        borderRadius: BorderRadius.zero,
+                        border: Border(),
+                        padding: EdgeInsets.zero,
+                        child: SizedBox.expand(),
+                      )
+                    : ColoredBox(color: scheme.surface),
               ),
               Positioned(
                 left: 44,
