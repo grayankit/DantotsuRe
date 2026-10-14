@@ -1056,6 +1056,10 @@
   "@extensionBridgeOptions": {
     "placeholders": { "name": {"type": "String"} }
   },
+  "extensionServiceFailed": "{name} could not start: {error}",
+  "@extensionServiceFailed": {
+    "placeholders": { "name": {"type": "String"}, "error": {"type": "String"} }
+  },
   "importLists": "Import lists",
   "importListsDesc": "From Aniyomi, Mihon / Tachiyomi or Kotatsu backups",
   "exportLists": "Export lists",

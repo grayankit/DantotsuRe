@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:dartotsu_extension_bridge/Extensions/DownloadablePlugin.dart';
 import 'package:dartotsu_extension_bridge/dartotsu_extension_bridge.dart';
 import 'package:flutter/material.dart';
 
+import '../../../Api/Services/Extension/Services.dart';
 import '../../../Core/Downloads/DownloadPrefs.dart';
 import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../../Utils/Extensions/ContextExtensions.dart';
@@ -75,7 +78,7 @@ Widget _serviceTile(
       radius: radius,
       selected: selected,
       enabled: installed && !selected,
-      onTap: () => manager.switchManager(type, m.id),
+      onTap: () => unawaited(setExtensionService(type, m.id)),
       leading: Container(
         width: 36,
         height: 36,

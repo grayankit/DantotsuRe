@@ -2050,6 +2050,11 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String extensionServiceFailed(String name, String error) {
+    return '$name could not start: $error';
+  }
+
+  @override
   String get importLists => 'Import lists';
 
   @override

@@ -6,6 +6,8 @@ import 'package:dartotsu_extension_bridge/dartotsu_extension_bridge.dart';
 import '../../../Core/Preferences/PrefManager.dart';
 import '../../../Core/Services/MediaService.dart';
 import '../../../Core/State/State.dart';
+import '../../../Core/ThemeManager/LanguageSwitcher.dart';
+import '../../../Utils/Functions/SnackBar.dart';
 
 const extensionServiceId = 'extension';
 
@@ -54,8 +56,14 @@ Extension? extensionServiceFor(ItemType type) {
   return extensionServicesFor(type).firstOrNull;
 }
 
-void setExtensionService(ItemType type, String id) =>
-    tryFind<ExtensionManager>()?.switchManager(type, id);
+Future<void> setExtensionService(ItemType type, String id) async {
+  final error = await tryFind<ExtensionManager>()?.switchManager(type, id);
+  if (error == null) return;
+  final name =
+      extensionServicesFor(type).firstWhereOrNull((e) => e.id == id)?.name ??
+      id;
+  snackString(getString.extensionServiceFailed(name, error));
+}
 
 List<Source> installedSources(ItemType type) =>
     extensionServiceFor(type)?.state(type).installed.value ?? const [];

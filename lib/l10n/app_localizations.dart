@@ -3995,6 +3995,12 @@ abstract class AppLocalizations {
   /// **'Options from the {name} extension bridge'**
   String extensionBridgeOptions(String name);
 
+  /// No description provided for @extensionServiceFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} could not start: {error}'**
+  String extensionServiceFailed(String name, String error);
+
   /// No description provided for @importLists.
   ///
   /// In en, this message translates to:

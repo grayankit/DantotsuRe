@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dartotsu_extension_bridge/dartotsu_extension_bridge.dart';
 import 'package:flutter/material.dart';
 
@@ -82,7 +84,7 @@ class ExtensionServiceSheet extends StatelessWidget {
                           title: Text(service.name),
                           trailing: extensionSettingsButton(context, service),
                           onTap: () {
-                            setExtensionService(type, service.id);
+                            unawaited(setExtensionService(type, service.id));
                             tryFind<RefreshController>()?.all();
                           },
                         ),
