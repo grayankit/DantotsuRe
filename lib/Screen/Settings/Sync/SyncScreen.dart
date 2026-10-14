@@ -90,7 +90,7 @@ class _SyncScreenState extends BaseScreen<SyncScreen>
           )
         else
           SliverFixedExtentList(
-            itemExtent: 112,
+            itemExtent: 124,
             delegate: SliverChildBuilderDelegate(
               childCount: pairs.length,
               (context, i) => SyncPairRow(
