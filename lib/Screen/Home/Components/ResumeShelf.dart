@@ -6,15 +6,11 @@ import '../../Detail/Watch/Data/Media/ResumeStore.dart';
 import '../../../Core/Services/MediaService.dart';
 import '../../../Core/State/State.dart';
 import '../../../Core/ThemeManager/LanguageSwitcher.dart';
-import '../../../Utils/Extensions/Responsive.dart';
-import '../../../Utils/Nav/DpadLayers.dart';
 import '../../../Core/ThemeManager/CardStyleController.dart';
 import '../../../Model/CardStyle.dart';
-import '../../../Utils/Extensions/CardStyleMetrics.dart';
-import '../../../Widgets/Shelf/PosterCard.dart';
 import '../../../Widgets/Components/Clickable.dart';
-import '../../../Widgets/Components/ScrollConfig.dart';
-import '../../../Widgets/Shelf/ShelfFrame.dart';
+import '../../../Widgets/Shelf/CardShelf.dart';
+import '../../../Widgets/Shelf/CardShelfState.dart';
 import '../../Feed/ResumeLauncher.dart';
 import '../../Player/Components/PlayerSeekBar.dart';
 
@@ -48,96 +44,62 @@ class _ResumeShelfState extends State<ResumeShelf> {
       aspect: 9 / 16,
       titleLines: 1,
     );
-    return ShelfFrame(
+    return CardShelf(
       title: getString.resumeTitle,
-      child: DpadRow(
-        child: SizedBox(
-          height: style.itemHeightFor(context),
-          child: ScrollConfig(
-            context,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              padding: EdgeInsets.symmetric(horizontal: Dimens.cardPad),
-              itemCount: list.length,
-              separatorBuilder: (_, _) => SizedBox(width: Dimens.gap),
-              itemBuilder: (context, i) => _ResumeCard(
-                key: ValueKey(list[i].slot),
-                entry: list[i],
-                style: style,
-                onTap: () => openResume(context, widget.service, list[i]),
-              ),
-            ),
-          ),
-        ),
-      ),
+      dataKey: list,
+      styleOverride: style,
+      items: [for (final entry in list) _item(entry)],
     );
   }
-}
 
-class _ResumeCard extends StatelessWidget {
-  final ResumeEntry entry;
-  final CardStyle style;
-  final VoidCallback onTap;
-
-  const _ResumeCard({
-    super.key,
-    required this.entry,
-    required this.style,
-    required this.onTap,
-  });
-
-  String _number() => entry.number == entry.number.roundToDouble()
-      ? '${entry.number.toInt()}'
-      : '${entry.number}';
-
-  String _unit() => entry.isWatch
-      ? getString.watchEpisodeNumber(_number())
-      : getString.watchChapterNumber(_number());
-
-  String _left() => entry.isWatch
-      ? getString.resumeAt(formatClock(entry.duration - entry.position))
-      : getString.resumePage(entry.position + 1, entry.duration);
-
-  @override
-  Widget build(BuildContext context) => SizedBox(
-    width: style.itemWidth,
-    child: Stack(
-      children: [
-        PosterCard(
-          title: entry.mediaTitle,
-          subtitle: '${_unit()} • ${_left()}',
-          imageUrl: entry.thumbnail,
-          progress: entry.fraction.clamp(0.0, 1.0),
-          progressText: _left(),
-          style: style,
-          onTap: onTap,
-          onLongPress: () => ResumeStore.remove(entry),
-        ),
-        Positioned(
-          top: 6,
-          right: 6,
-          child: Clickable(
-            onTap: () => ResumeStore.remove(entry),
-            child: Tooltip(
-              message: getString.resumeRemove,
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.5),
-                  shape: BoxShape.circle,
-                ),
-                child: const Padding(
-                  padding: EdgeInsets.all(5),
-                  child: Icon(
-                    Icons.close_rounded,
-                    color: Colors.white,
-                    size: 16,
+  ShelfCardItem _item(ResumeEntry entry) {
+    final number = entry.number == entry.number.roundToDouble()
+        ? '${entry.number.toInt()}'
+        : '${entry.number}';
+    final unit = entry.isWatch
+        ? getString.watchEpisodeNumber(number)
+        : getString.watchChapterNumber(number);
+    final left = entry.isWatch
+        ? getString.resumeAt(formatClock(entry.duration - entry.position))
+        : getString.resumePage(entry.position + 1, entry.duration);
+    return ShelfCardItem(
+      id: entry.slot.toString(),
+      title: entry.mediaTitle,
+      subtitle: '$unit • $left',
+      imageUrl: entry.thumbnail,
+      progress: entry.fraction.clamp(0.0, 1.0),
+      progressText: left,
+      onTap: () => openResume(context, widget.service, entry),
+      onLongPress: () => ResumeStore.remove(entry),
+      cardBuilder: (card) => Stack(
+        children: [
+          card,
+          Positioned(
+            top: 6,
+            right: 6,
+            child: Clickable(
+              onTap: () => ResumeStore.remove(entry),
+              child: Tooltip(
+                message: getString.resumeRemove,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.5),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Padding(
+                    padding: EdgeInsets.all(5),
+                    child: Icon(
+                      Icons.close_rounded,
+                      color: Colors.white,
+                      size: 16,
+                    ),
                   ),
                 ),
               ),
             ),
           ),
-        ),
-      ],
-    ),
-  );
+        ],
+      ),
+    );
+  }
 }
