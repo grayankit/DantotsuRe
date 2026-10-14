@@ -42,7 +42,7 @@ class HomeHeader extends StatelessWidget {
             constraints: BoxConstraints(
               minHeight: banner == null
                   ? 0
-                  : 176 + MediaQuery.paddingOf(context).top,
+                  : 160 + MediaQuery.paddingOf(context).top,
             ),
             child: Padding(
               padding: EdgeInsets.fromLTRB(

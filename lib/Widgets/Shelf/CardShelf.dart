@@ -70,7 +70,7 @@ class _CardShelfState extends State<CardShelf> {
 
   double get _gap => Dimens.cardGap;
 
-  static const _pop = 14.0;
+  static const _pop = 4.0;
 
   @override
   void initState() {
