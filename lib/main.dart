@@ -75,7 +75,35 @@ void main(List<String> args) async {
       );
 
       if (!Platform.isAndroid && !Platform.isIOS) runApp(const SplashApp());
-      await init(args);
+      if (Platform.isIOS) {
+        final watchdog = Timer(const Duration(seconds: 20), () {
+          runApp(
+            StartupFailureApp(
+              error: 'Startup is taking too long at: $_stage',
+              stackTrace: '',
+            ),
+          );
+        });
+        try {
+          await init(args);
+        } catch (e, st) {
+          watchdog.cancel();
+          logger(
+            'Startup failed at $_stage: $e\n$st',
+            logLevel: LogLevel.error,
+          );
+          runApp(
+            StartupFailureApp(
+              error: 'Startup failed at $_stage: $e',
+              stackTrace: '$st',
+            ),
+          );
+          return;
+        }
+        watchdog.cancel();
+      } else {
+        await init(args);
+      }
       runApp(const MyApp());
     },
     (error, stackTrace) {
@@ -91,13 +119,64 @@ void main(List<String> args) async {
   );
 }
 
+String _stage = 'launch';
+
+class StartupFailureApp extends StatelessWidget {
+  final String error;
+  final String stackTrace;
+
+  const StartupFailureApp({
+    super.key,
+    required this.error,
+    required this.stackTrace,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final text = stackTrace.isEmpty ? error : '$error\n\n$stackTrace';
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData.dark(useMaterial3: true),
+      home: Scaffold(
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Dartotsu could not start',
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 12),
+                Expanded(
+                  child: SingleChildScrollView(child: SelectableText(text)),
+                ),
+                const SizedBox(height: 12),
+                FilledButton(
+                  onPressed: () => Clipboard.setData(ClipboardData(text: text)),
+                  child: const Text('Copy'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 Future<void> init(List<String> args) async {
+  _stage = 'logger';
   Logger.captureDebugPrint();
+  _stage = 'preferences and http';
   await Future.wait([PrefManager.init(), Rhttp.init()]);
+  _stage = 'dependency injection';
   DI.init();
 
   final client = find<NetworkManager>();
 
+  _stage = 'logger, bridge and window';
   await Future.wait([
     Logger.init(),
     DartotsuExtensionBridge.init(
@@ -116,6 +195,7 @@ Future<void> init(List<String> args) async {
       WindowManager.instance.ensureInitialized(),
   ]);
 
+  _stage = 'media kit';
   unawaited(applyRefreshRate());
   MediaKit.ensureInitialized();
   applySystemBarStyle(isDark: false);
