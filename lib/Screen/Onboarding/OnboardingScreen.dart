@@ -171,6 +171,19 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                 child: DpadFocusable(
                   autofocus: true,
                   onSelect: state.next,
+                  effects: const [
+                    DpadScaleEffect(scale: 1.04),
+                    DpadBorderEffect(
+                      width: 2.5,
+                      borderRadius: BorderRadius.all(Radius.circular(999)),
+                    ),
+                    DpadGlowEffect(
+                      opacity: 0.28,
+                      blurRadius: 14,
+                      spreadRadius: 0,
+                      borderRadius: BorderRadius.all(Radius.circular(999)),
+                    ),
+                  ],
                   child: FilledButton(
                     onPressed: state.next,
                     child: AnimatedSwitcher(
