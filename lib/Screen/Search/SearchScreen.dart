@@ -347,10 +347,7 @@ class _SearchScreenState extends BaseScreen<SearchScreen>
                 borderRadius: BorderRadius.circular(14),
                 clipBehavior: Clip.antiAlias,
                 child: ListTile(
-                  leading: Icon(
-                    Icons.history_rounded,
-                    color: scheme.onSurfaceVariant,
-                  ),
+                  contentPadding: const EdgeInsets.only(left: 18, right: 4),
                   title: Text(
                     term,
                     style: const TextStyle(fontWeight: FontWeight.w700),
