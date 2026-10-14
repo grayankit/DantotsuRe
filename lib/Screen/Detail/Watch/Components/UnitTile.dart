@@ -144,7 +144,11 @@ class UnitTile extends StatelessWidget {
     padding: const EdgeInsets.only(top: 6),
     child: ClipRRect(
       borderRadius: BorderRadius.circular(2),
-      child: LinearProgressIndicator(value: progress, minHeight: 3),
+      child: LinearProgressIndicator(
+        value: progress,
+        minHeight: 3,
+        stopIndicatorRadius: 0,
+      ),
     ),
   );
 
@@ -154,7 +158,7 @@ class UnitTile extends StatelessWidget {
     final meta = [
       if (unit.date != null) formatUnitDate(unit.date!),
       if (unit.runtime != null) '${unit.runtime} min',
-      if (unit.scanlator != null) unit.scanlator!,
+      if (unit.scanlator?.isNotEmpty ?? false) unit.scanlator!,
     ].join(' · ');
     final description = showDescription && anime ? unit.description : null;
     return Clickable(
@@ -317,6 +321,7 @@ class UnitTile extends StatelessWidget {
                               value: progress,
                               minHeight: 4,
                               backgroundColor: Colors.black38,
+                              stopIndicatorRadius: 0,
                             ),
                           ),
                         ),
@@ -386,6 +391,7 @@ class UnitTile extends StatelessWidget {
                       value: progress,
                       minHeight: 3,
                       color: foreground,
+                      stopIndicatorRadius: 0,
                       backgroundColor: foreground.withValues(alpha: 0.25),
                     ),
                   ),
