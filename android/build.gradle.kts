@@ -41,7 +41,7 @@ subprojects {
             }
         }
 
-        tasks.matching { it.name.startsWith("lintVital") }.configureEach {
+        tasks.matching { it.name.startsWith("lint") || (it.name.startsWith("extract") && it.name.endsWith("Annotations")) }.configureEach {
             enabled = false
         }
 
