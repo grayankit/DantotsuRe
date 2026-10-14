@@ -117,16 +117,27 @@ Future<void> init(List<String> args) async {
 
   unawaited(applyRefreshRate());
   MediaKit.ensureInitialized();
-  SystemChrome.setSystemUIOverlayStyle(
-    const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      systemNavigationBarColor: Colors.transparent,
-      systemNavigationBarDividerColor: Colors.transparent,
-    ),
-  );
+  applySystemBarStyle(isDark: false);
 
   WidgetsBinding.instance.addPostFrameCallback(
     (_) => unawaited(_postInit(args)),
+  );
+}
+
+void applySystemBarStyle({required bool isDark}) {
+  if (!Platform.isAndroid && !Platform.isIOS) return;
+  final iconBrightness = isDark ? Brightness.light : Brightness.dark;
+  SystemChrome.setSystemUIOverlayStyle(
+    SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: iconBrightness,
+      statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
+      systemNavigationBarColor: Colors.transparent,
+      systemNavigationBarDividerColor: Colors.transparent,
+      systemNavigationBarIconBrightness: iconBrightness,
+      systemStatusBarContrastEnforced: false,
+      systemNavigationBarContrastEnforced: false,
+    ),
   );
 }
 
@@ -191,6 +202,7 @@ class _MyAppState extends State<MyApp> {
       600,
       1100,
     );
+    applySystemBarStyle(isDark: _theme.isDarkModeActive);
     return _dpadWrap(context, child);
   }
 
