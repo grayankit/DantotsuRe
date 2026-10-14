@@ -26,6 +26,7 @@ class SearchFilterState extends ScreenState {
   late final Set<String> tags = {...?start.tags};
   late final Set<String> noTags = {...?start.excludedTags};
   final allTags = false.live;
+  final tagQuery = ''.live;
 
   final selection = Trigger();
 
@@ -62,6 +63,7 @@ class SearchFilterState extends ScreenState {
     noGenres.clear();
     tags.clear();
     noTags.clear();
+    tagQuery.value = '';
     selection.fire();
   }
 }

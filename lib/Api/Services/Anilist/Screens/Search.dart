@@ -8,6 +8,7 @@ import '../../../../Core/Services/Model/User.dart';
 import '../../../../Model/SearchResults.dart';
 import '../../../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../Auth.dart';
+import '../Prefs.dart';
 
 Map<String, String> get _anilistSorts => {
   'SCORE_DESC': getString.sortTopRated,
@@ -60,11 +61,14 @@ class AnilistSearchView extends SearchScreenView {
   @override
   SearchFilterSpec filters(MediaType type) {
     final anime = type.isVideo;
-    final genres =
-        loadCustomData<List<String>>('anilist_genres') ?? const <String>[];
-    final tags =
-        loadCustomData<List<String>>('anilist_tags_nonadult') ??
+    List<String> cached(String key) =>
+        loadCustomData<List<String>>(key, location: PrefLocation.CACHE) ??
         const <String>[];
+    final genres = cached('anilist_genres');
+    final tags = [
+      ...cached('anilist_tags_nonadult'),
+      if (AnilistPref.displayAdult.value) ...cached('anilist_tags_adult'),
+    ];
     return SearchFilterSpec(
       sorts: _anilistSorts,
       formats: anime

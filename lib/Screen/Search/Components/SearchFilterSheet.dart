@@ -27,7 +27,6 @@ void showSearchFilterSheet(
   showCustomBottomDialog(
     context,
     CustomBottomDialog(
-      title: getString.filters,
       viewList: [_FilterBody(spec: spec, start: current, onApply: onApply)],
     ),
   );
@@ -81,11 +80,11 @@ class _FilterBodyState extends State<_FilterBody>
                 padding: EdgeInsets.symmetric(horizontal: Dimens.gap),
                 children: [
                   SizedBox(height: Dimens.gapSm),
-                  _dropRow([
+                  ..._dropRows([
                     if (s.sources.isNotEmpty)
                       _drop(
                         'Source',
-                        Icons.menu_book_rounded,
+                        Icons.auto_stories_rounded,
                         s.sources,
                         state.source.value,
                         (v) => state.source.value = v,
@@ -93,17 +92,15 @@ class _FilterBodyState extends State<_FilterBody>
                     if (s.formats.isNotEmpty)
                       _drop(
                         'Format',
-                        Icons.movie_filter_rounded,
+                        Icons.category_rounded,
                         s.formats,
                         state.format.value,
                         (v) => state.format.value = v,
                       ),
-                  ]),
-                  _dropRow([
                     if (s.statuses.isNotEmpty)
                       _drop(
                         'Status',
-                        Icons.podcasts_rounded,
+                        Icons.sensors_rounded,
                         s.statuses,
                         state.status.value,
                         (v) => state.status.value = v,
@@ -127,17 +124,25 @@ class _FilterBodyState extends State<_FilterBody>
                       ),
                   ]),
                   if (s.genres.isNotEmpty) ...[
-                    _title('Genres'),
-                    _chipWrap(s.genres, state.genres, exclude: state.noGenres),
+                    _title(
+                      'Genres',
+                      state.genres.length + state.noGenres.length,
+                    ),
+                    _chipWrap(
+                      _selectedFirst(s.genres, state.genres, state.noGenres),
+                      state.genres,
+                      exclude: state.noGenres,
+                    ),
                   ],
                   if (s.tags.isNotEmpty) ...[
-                    _title('Tags'),
+                    _title('Tags', state.tags.length + state.noTags.length),
+                    _tagSearch(),
                     _chipWrap(
-                      state.allTags.value ? s.tags : s.tags.take(30).toList(),
+                      _visibleTags(),
                       state.tags,
                       exclude: state.noTags,
                     ),
-                    if (s.tags.length > 30)
+                    if (state.tagQuery.value.isEmpty && s.tags.length > 30)
                       Align(
                         alignment: Alignment.centerLeft,
                         child: TextButton(
@@ -194,7 +199,7 @@ class _FilterBodyState extends State<_FilterBody>
           IconButton(
             tooltip: getString.reset,
             onPressed: state.clear,
-            icon: const Icon(Icons.close_rounded, size: 28),
+            icon: const Icon(Icons.restart_alt_rounded, size: 28),
           ),
           Expanded(
             child: Text(
@@ -225,7 +230,7 @@ class _FilterBodyState extends State<_FilterBody>
             PopupMenuButton<String>(
               tooltip: getString.sort,
               icon: Icon(
-                Icons.filter_list_rounded,
+                Icons.sort_rounded,
                 size: 28,
                 color: state.sort.value != null
                     ? context.colorScheme.primary
@@ -244,31 +249,72 @@ class _FilterBodyState extends State<_FilterBody>
     );
   }
 
-  Widget _title(String text) => Padding(
+  Widget _title(String text, int selected) => Padding(
     padding: EdgeInsets.only(top: Dimens.gap, bottom: Dimens.gapSm, left: 4),
-    child: Text(
-      text,
-      style: context.textTheme.titleMedium?.copyWith(
-        fontWeight: FontWeight.w700,
+    child: Row(
+      children: [
+        Text(
+          text,
+          style: context.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        if (selected > 0) ...[
+          const SizedBox(width: 8),
+          Badge(label: Text('$selected')),
+        ],
+      ],
+    ),
+  );
+
+  List<String> _selectedFirst(
+    List<String> options,
+    Set<String> selected,
+    Set<String> excluded,
+  ) => [
+    ...options.where((o) => selected.contains(o) || excluded.contains(o)),
+    ...options.where((o) => !selected.contains(o) && !excluded.contains(o)),
+  ];
+
+  List<String> _visibleTags() {
+    final query = state.tagQuery.value.trim().toLowerCase();
+    final ordered = _selectedFirst(s.tags, state.tags, state.noTags);
+    if (query.isNotEmpty) {
+      return ordered.where((t) => t.toLowerCase().contains(query)).toList();
+    }
+    return state.allTags.value ? ordered : ordered.take(30).toList();
+  }
+
+  Widget _tagSearch() => Padding(
+    padding: EdgeInsets.only(bottom: Dimens.gapSm),
+    child: TextField(
+      onChanged: (v) => state.tagQuery.value = v,
+      decoration: InputDecoration(
+        isDense: true,
+        hintText: 'Search tags',
+        prefixIcon: const Icon(Icons.search_rounded, size: 20),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
       ),
     ),
   );
 
-  Widget _dropRow(List<Widget> children) {
-    final visible = children.whereType<Widget>().toList();
-    if (visible.isEmpty) return const SizedBox.shrink();
-    return Padding(
-      padding: EdgeInsets.only(top: Dimens.gapSm),
-      child: Row(
-        children: [
-          for (final (i, c) in visible.indexed) ...[
-            if (i > 0) SizedBox(width: Dimens.gapSm),
-            Expanded(child: c),
+  List<Widget> _dropRows(List<Widget> children) => [
+    for (var i = 0; i < children.length; i += 2)
+      Padding(
+        padding: EdgeInsets.only(top: Dimens.gapSm),
+        child: Row(
+          children: [
+            Expanded(child: children[i]),
+            SizedBox(width: Dimens.gapSm),
+            Expanded(
+              child: i + 1 < children.length
+                  ? children[i + 1]
+                  : const SizedBox.shrink(),
+            ),
           ],
-        ],
+        ),
       ),
-    );
-  }
+  ];
 
   static const _any = '— Any —';
 
