@@ -12,13 +12,15 @@ class StreamProfile {
   final String label;
   final String? subtitle;
   final int? height;
+  final String? audio;
 
-  const StreamProfile(this.label, this.subtitle, {this.height});
+  const StreamProfile(this.label, this.subtitle, {this.height, this.audio});
 
   Map<String, Object?> toJson() => {
     'label': label,
     'subtitle': subtitle,
     'height': height,
+    'audio': audio,
   };
 
   static StreamProfile? fromJson(Object? json) {
@@ -27,6 +29,7 @@ class StreamProfile {
       json['label'] as String,
       json['subtitle'] as String?,
       height: (json['height'] as num?)?.toInt(),
+      audio: json['audio'] as String?,
     );
   }
 }
@@ -49,8 +52,10 @@ class DownloadTask {
 
   Map<String, Object?>? video;
   Map<String, Object?>? subtitle;
+  Map<String, Object?>? audio;
   String? path;
   String? subtitlePath;
+  String? audioPath;
   bool fallback;
   bool segmented;
   bool folder;
@@ -98,8 +103,10 @@ class DownloadTask {
     required this.createdAt,
     this.video,
     this.subtitle,
+    this.audio,
     this.path,
     this.subtitlePath,
+    this.audioPath,
     this.fallback = false,
     this.segmented = false,
     this.folder = false,
@@ -147,6 +154,13 @@ class DownloadTask {
         : v.Track.fromJson(Map<String, dynamic>.from(json));
   }
 
+  v.Track? get chosenAudio {
+    final json = audio;
+    return json == null
+        ? null
+        : v.Track.fromJson(Map<String, dynamic>.from(json));
+  }
+
   Map<String, Object?> toJson() => {
     'id': id,
     'kind': kind.name,
@@ -164,8 +178,10 @@ class DownloadTask {
     'created': createdAt,
     'video': video,
     'subtitle': subtitle,
+    'audio': audio,
     'path': path,
     'subtitlePath': subtitlePath,
+    'audioPath': audioPath,
     'fallback': fallback,
     'segmented': segmented,
     'folder': folder,
@@ -211,8 +227,10 @@ class DownloadTask {
       createdAt: (json['created'] as num?)?.toInt() ?? 0,
       video: map(json['video']),
       subtitle: map(json['subtitle']),
+      audio: map(json['audio']),
       path: json['path'] as String?,
       subtitlePath: json['subtitlePath'] as String?,
+      audioPath: json['audioPath'] as String?,
       fallback: json['fallback'] == true,
       segmented: json['segmented'] == true,
       folder: json['folder'] == true,

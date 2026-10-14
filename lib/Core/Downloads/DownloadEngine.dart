@@ -137,6 +137,7 @@ class DownloadEngine extends AppController {
           (existing.path == null || !pathExists(existing.path!))) {
         existing.path = task.path;
         existing.subtitlePath = task.subtitlePath;
+        existing.audioPath = task.audioPath;
         changed = true;
       } else if (existing.isDone &&
           existing.subtitlePath == null &&
@@ -198,11 +199,21 @@ class DownloadEngine extends AppController {
             ),
           ]
         : <v.Track>[];
+    final audio = task.audioPath;
+    final audios = audio != null && File(audio).existsSync()
+        ? [
+            v.Track(
+              file: Uri.file(audio).toString(),
+              label: task.chosenAudio?.label ?? getString.downloadAudio,
+            ),
+          ]
+        : <v.Track>[];
     return v.Video(
       getString.downloadDownloaded,
       path,
       getString.downloadOffline,
       subtitles: subs,
+      audios: audios,
       timeStamps: task.chosenVideo?.timeStamps,
     );
   }
@@ -415,7 +426,7 @@ class DownloadEngine extends AppController {
   }
 
   Future<void> _deleteFiles(DownloadTask task) async {
-    for (final path in [task.path, task.subtitlePath]) {
+    for (final path in [task.path, task.subtitlePath, task.audioPath]) {
       if (path == null) continue;
       try {
         final dir = Directory(path);
@@ -607,6 +618,7 @@ class DownloadEngine extends AppController {
               streamLabel(video),
               task.chosenSubtitle?.label,
               height: task.height ?? task.profile?.height,
+              audio: task.chosenAudio?.label,
             ),
           );
           continue;
@@ -698,6 +710,14 @@ class DownloadEngine extends AppController {
           .firstOrNull;
       task.subtitle = track?.toJson();
     }
+    task.audio = null;
+    final wantedAudio = profile?.audio?.toLowerCase();
+    if (wantedAudio != null) {
+      final track = video.audios
+          ?.where((t) => (t.label ?? '').toLowerCase() == wantedAudio)
+          .firstOrNull;
+      task.audio = track?.toJson();
+    }
   }
 
   Future<void> _run(DownloadTask task) async {
@@ -774,7 +794,11 @@ class DownloadEngine extends AppController {
               final old = task.chosenSubtitle?.label;
               await _resolve(
                 task,
-                previous: StreamProfile(streamLabel(video), old),
+                previous: StreamProfile(
+                  streamLabel(video),
+                  old,
+                  audio: task.chosenAudio?.label,
+                ),
               );
               video = task.chosenVideo!;
               continue;
@@ -789,6 +813,7 @@ class DownloadEngine extends AppController {
         }
       }
       await _fetchSubtitle(task, dir, base, cancel);
+      await _fetchAudio(task, dir, base, cancel);
       if (downloadInfoFilePref.value) await _writeInfo(task, dir, base);
       task.speed.value = 0;
       task
@@ -844,6 +869,32 @@ class DownloadEngine extends AppController {
       task.subtitlePath = target.path;
     } catch (e) {
       logger('Subtitle download failed: $e', tag: 'DOWNLOAD');
+    }
+  }
+
+  Future<void> _fetchAudio(
+    DownloadTask task,
+    Directory dir,
+    String base,
+    DownloadCancel cancel,
+  ) async {
+    final track = task.chosenAudio;
+    final url = track?.file;
+    if (track == null || url == null || url.isEmpty) return;
+    try {
+      final label = safeName(track.label ?? 'audio');
+      final ext = extensionOf(url, fallback: 'm4a');
+      final target = File(p.join(dir.path, '$base.audio.$label.$ext'));
+      await fetchFile(
+        url: url,
+        target: target,
+        cancel: cancel,
+        headers: task.chosenVideo?.headers,
+        onProgress: (_, _) {},
+      );
+      task.audioPath = target.path;
+    } catch (e) {
+      logger('Audio download failed: $e', tag: 'DOWNLOAD');
     }
   }
 

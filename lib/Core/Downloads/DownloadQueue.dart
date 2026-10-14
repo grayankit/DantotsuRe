@@ -39,6 +39,7 @@ extension DownloadQueue on DownloadEngine {
     required v.Video video,
     required int? height,
     required v.Track? subtitle,
+    v.Track? audio,
     bool folder = false,
     int? torrentFile,
   }) {
@@ -66,6 +67,7 @@ extension DownloadQueue on DownloadEngine {
           folder: folder,
           torrentFile: i == 0 ? torrentFile : null,
           subtitle: i == 0 ? subtitle?.toJson() : null,
+          audio: i == 0 ? audio?.toJson() : null,
         ),
     ]);
   }

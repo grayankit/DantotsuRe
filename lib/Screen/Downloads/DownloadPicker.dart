@@ -125,10 +125,31 @@ Future<void> downloadUnits(
     if (picked == null) return;
     if (picked >= 0) subtitle = subs[picked];
   }
+  final audios = [
+    for (final t in video.audios ?? const <v.Track>[])
+      if ((t.file ?? '').isNotEmpty) t,
+  ];
+  v.Track? audio;
+  if (audios.isNotEmpty) {
+    final picked = await showChoiceSheet<int>(
+      live(),
+      title: getString.downloadPickAudio,
+      icon: Icons.audiotrack_rounded,
+      selected: -1,
+      options: [
+        ChoiceOption(-1, getString.downloadNoAudio),
+        for (final (i, t) in audios.indexed)
+          ChoiceOption(i, t.label ?? t.file ?? ''),
+      ],
+    );
+    if (picked == null) return;
+    if (picked >= 0) audio = audios[picked];
+  }
   final profile = StreamProfile(
     streamLabel(video),
     subtitle?.label,
     height: height,
+    audio: audio?.label,
   );
   engine.queueVideos(
     service: state.service,
@@ -139,6 +160,7 @@ Future<void> downloadUnits(
     video: video,
     height: height,
     subtitle: subtitle,
+    audio: audio,
     folder: folder,
     torrentFile: torrentFile,
   );
