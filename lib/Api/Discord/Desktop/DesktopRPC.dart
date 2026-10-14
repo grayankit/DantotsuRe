@@ -1,6 +1,7 @@
 import 'dart:async';
 
-import 'package:flutter_discord_rpc_fork/flutter_discord_rpc.dart';
+import 'package:dart_discord_presence/dart_discord_presence.dart'
+    as discord_rpc;
 
 import '../BaseDiscordRPC.dart';
 import '../DiscordPresence.dart';
@@ -15,8 +16,9 @@ class DesktopRPC extends AppController implements BaseDiscordRPC {
   Duration _retryAfter = _minRetry;
   bool _failureLogged = false;
 
+  discord_rpc.DiscordRPC? _rpc;
+  StreamSubscription<discord_rpc.DiscordDisconnectedEvent>? _disconnectSub;
   bool _connected = false;
-  bool _initialized = false;
   bool _disposed = false;
   Future<bool>? _connecting;
   DateTime? _failedAt;
@@ -31,16 +33,16 @@ class DesktopRPC extends AppController implements BaseDiscordRPC {
   }
 
   Future<bool> _connect() async {
+    if (!discord_rpc.DiscordRPC.isAvailable) return false;
+    final rpc = discord_rpc.DiscordRPC();
     try {
-      if (!_initialized) {
-        await FlutterDiscordRPC.initialize(_appId);
-        _initialized = true;
-      }
-      await FlutterDiscordRPC.instance.connect();
+      await rpc.initialize(_appId);
+      _rpc = rpc;
       _connected = true;
       _failedAt = null;
       _retryAfter = _minRetry;
       _failureLogged = false;
+      _disconnectSub = rpc.onDisconnected.listen((_) => _connected = false);
     } catch (e) {
       _failedAt = DateTime.now();
       _retryAfter = _retryAfter * 2 > _maxRetry ? _maxRetry : _retryAfter * 2;
@@ -55,33 +57,43 @@ class DesktopRPC extends AppController implements BaseDiscordRPC {
     return _connected;
   }
 
-  RPCActivity _activity(DiscordPresence p) => RPCActivity(
-    activityType: switch (p.type) {
-      PresenceType.playing => ActivityType.playing,
-      PresenceType.listening => ActivityType.listening,
-      PresenceType.watching => ActivityType.watching,
+  discord_rpc.DiscordPresence _activity(
+    DiscordPresence p,
+  ) => discord_rpc.DiscordPresence(
+    type: switch (p.type) {
+      PresenceType.playing => discord_rpc.DiscordActivityType.playing,
+      PresenceType.listening => discord_rpc.DiscordActivityType.listening,
+      PresenceType.watching => discord_rpc.DiscordActivityType.watching,
     },
     details: p.details,
     state: p.state,
-    assets: RPCAssets(
-      largeImage: p.largeImage,
-      largeText: p.largeText,
-      smallImage: p.smallImage,
-      smallText: p.smallText,
-    ),
-    buttons: [for (final b in p.buttons) RPCButton(label: b.label, url: b.url)],
-    timestamps: p.start == null
+    largeAsset: p.largeImage == null
         ? null
-        : RPCTimestamps(start: p.start, end: p.end),
+        : discord_rpc.DiscordAsset.fromUrl(p.largeImage!, text: p.largeText),
+    smallAsset: p.smallImage == null
+        ? null
+        : discord_rpc.DiscordAsset.fromUrl(p.smallImage!, text: p.smallText),
+    buttons: p.buttons.isEmpty
+        ? null
+        : [
+            for (final b in p.buttons.take(2))
+              discord_rpc.DiscordButton(label: b.label, url: b.url),
+          ],
+    timestamps: p.start == null && p.end == null
+        ? null
+        : discord_rpc.DiscordTimestamps(
+            start: p.start == null ? null : p.start! ~/ 1000,
+            end: p.end == null ? null : p.end! ~/ 1000,
+          ),
   );
 
   @override
   Future<bool> show(DiscordPresence presence) async {
     if (_disposed || !await _ensureConnected()) return false;
+    final rpc = _rpc;
+    if (rpc == null) return false;
     try {
-      await FlutterDiscordRPC.instance.setActivity(
-        activity: _activity(presence),
-      );
+      await rpc.setPresence(_activity(presence));
       return true;
     } catch (e) {
       _connected = false;
@@ -95,7 +107,7 @@ class DesktopRPC extends AppController implements BaseDiscordRPC {
   Future<void> clear() async {
     if (_disposed || !_connected) return;
     try {
-      await FlutterDiscordRPC.instance.clearActivity();
+      await _rpc?.clearPresence();
     } catch (e) {
       logger('Discord RPC clear failed: $e', logLevel: LogLevel.error);
     }
@@ -104,12 +116,13 @@ class DesktopRPC extends AppController implements BaseDiscordRPC {
   @override
   void onClose() {
     _disposed = true;
-    if (_connected) {
+    final rpc = _rpc;
+    if (_connected && rpc != null) {
       unawaited(() async {
         try {
-          await FlutterDiscordRPC.instance.clearActivity();
-          await FlutterDiscordRPC.instance.disconnect();
-          await FlutterDiscordRPC.instance.dispose();
+          await _disconnectSub?.cancel();
+          await rpc.clearPresence();
+          await rpc.dispose();
         } catch (e, st) {
           logError('DesktopRPC', e, st);
         }
