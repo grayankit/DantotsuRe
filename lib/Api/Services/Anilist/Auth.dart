@@ -24,8 +24,7 @@ class AnilistAuth extends AppController
       authClientId(mobile: _mobileClientId, desktop: _desktopClientId);
   static String _authUrl(String redirect) =>
       'https://anilist.co/api/v2/oauth/authorize'
-      '?client_id=$_clientId&response_type=token'
-      '&redirect_uri=${Uri.encodeComponent(redirect)}';
+      '?client_id=$_clientId&response_type=token';
   static const _userCacheKey = 'anilistUser';
 
   final token = AnilistPref.token.rx;
@@ -69,7 +68,10 @@ class AnilistAuth extends AppController
   @override
   Future<bool> login() async {
     try {
-      final redirect = authRedirect('anilist');
+      final redirect = authRedirect(
+        'anilist',
+        scheme: _clientId == _mobileClientId ? 'dantotsu' : 'dartotsu',
+      );
       final result = await browserAuthenticate(
         url: _authUrl(redirect),
         redirect: redirect,

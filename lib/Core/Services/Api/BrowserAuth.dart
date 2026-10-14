@@ -13,8 +13,8 @@ bool get _desktop => Platform.isLinux || Platform.isWindows;
 String authClientId({required String mobile, String desktop = ''}) =>
     _desktop && desktop.isNotEmpty ? desktop : mobile;
 
-String authRedirect(String name) =>
-    _desktop ? 'http://localhost:$kAuthPort/$name' : 'dartotsu://$name';
+String authRedirect(String name, {String scheme = 'dartotsu'}) =>
+    _desktop ? 'http://localhost:$kAuthPort/$name' : '$scheme://$name';
 
 const _forwardPage =
     '''<!doctype html><meta charset="utf-8"><title>Dartotsu</title>

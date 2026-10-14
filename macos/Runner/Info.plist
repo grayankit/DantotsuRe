@@ -68,6 +68,7 @@
             <key>CFBundleURLSchemes</key>
             <array>
                 <string>dartotsu</string>
+                <string>dantotsu</string>
             </array>
         </dict>
         <dict>

@@ -147,6 +147,7 @@
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data android:scheme="dartotsu" />
+                <data android:pathPattern="/..*" />
 
             </intent-filter>
 
@@ -292,6 +293,18 @@
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data android:scheme="dantotsu" />
+            </intent-filter>
+
+            <intent-filter android:label="Login for Dartotsu">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="dartotsu" />
+                <data android:host="mal" />
+                <data android:host="simkl" />
+                <data android:host="mangabaka" />
             </intent-filter>
 
         </activity>
