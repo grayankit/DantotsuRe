@@ -1,3 +1,4 @@
+import 'DownloadCancel.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -5,7 +6,6 @@ import 'dart:io';
 import 'package:dartotsu_extension_bridge/Models/Video.dart' as v;
 import 'package:dartotsu_extension_bridge/dartotsu_extension_bridge.dart';
 import 'package:path/path.dart' as p;
-import 'package:rhttp/rhttp.dart';
 
 import '../../Api/Services/Extension/Services.dart';
 import '../../Logger.dart';
@@ -48,7 +48,7 @@ class DownloadEngine extends AppController {
 
   final tasks = <DownloadTask>[].liveList;
 
-  final _cancels = <String, CancelToken>{};
+  final _cancels = <String, DownloadCancel>{};
   final _stopped = <String, DownloadState>{};
   final _waiting = <String>{};
   final _ffmpegCancels = <String, FfmpegCancel>{};
@@ -477,7 +477,7 @@ class DownloadEngine extends AppController {
     v.Video video,
     Directory dir,
     String base,
-    CancelToken cancel,
+    DownloadCancel cancel,
   ) async {
     final addon = torrentAddon();
     if (addon == null || !addon.installed.value) {
@@ -560,7 +560,7 @@ class DownloadEngine extends AppController {
     DownloadTask task,
     Directory dir,
     String base,
-    CancelToken cancel,
+    DownloadCancel cancel,
   ) async {
     final addon = ffmpegAddon();
     final ffmpeg = !task.folder && addon != null && addon.installed.value
@@ -623,7 +623,7 @@ class DownloadEngine extends AppController {
     }
   }
 
-  Future<void> _fetchChapter(DownloadTask task, CancelToken cancel) async {
+  Future<void> _fetchChapter(DownloadTask task, DownloadCancel cancel) async {
     final novel = task.isNovel;
     final source = await _sourceFor(
       task,
@@ -702,7 +702,7 @@ class DownloadEngine extends AppController {
 
   Future<void> _run(DownloadTask task) async {
     logger('Download start: ${task.id}', tag: 'DOWNLOAD');
-    final cancel = CancelToken();
+    final cancel = DownloadCancel();
     _cancels[task.id] = cancel;
     task.error.value = null;
     var reResolved = false;
@@ -825,7 +825,7 @@ class DownloadEngine extends AppController {
     DownloadTask task,
     Directory dir,
     String base,
-    CancelToken cancel,
+    DownloadCancel cancel,
   ) async {
     final track = task.chosenSubtitle;
     final url = track?.file;

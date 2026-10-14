@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:dartotsu/Core/Downloads/ChapterFetcher.dart';
+import 'package:dartotsu/Core/Downloads/DownloadCancel.dart';
 import 'package:dartotsu/Core/Downloads/DownloadPaths.dart';
 import 'package:dartotsu/Core/Downloads/DownloadQueue.dart';
 import 'package:dartotsu/Core/Downloads/DownloadTask.dart';
@@ -9,7 +10,6 @@ import 'package:dartotsu/Core/Downloads/HlsFetcher.dart';
 import 'package:dartotsu/Core/Downloads/NameMatch.dart';
 import 'package:dartotsu_extension_bridge/dartotsu_extension_bridge.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:rhttp/rhttp.dart';
 
 DownloadTask task({double number = 1, DownloadState? state}) {
   final t = DownloadTask(
@@ -274,7 +274,7 @@ c.ts
       url: 'https://h/index.m3u8',
       output: File('${dir.path}/Episode 001.mp4'),
       ffmpeg: null,
-      cancel: CancelToken(),
+      cancel: DownloadCancel(),
       ffmpegCancel: FfmpegCancel(),
       onProgress: (done, total) => progress.add(done),
       onFinishing: () {},

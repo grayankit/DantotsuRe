@@ -1,9 +1,9 @@
+import 'DownloadCancel.dart';
 import 'dart:async';
 import 'dart:io';
 
 import 'package:dartotsu_extension_bridge/dartotsu_extension_bridge.dart';
 import 'package:path/path.dart' as p;
-import 'package:rhttp/rhttp.dart';
 
 import 'DownloadPaths.dart';
 import 'FileFetcher.dart';
@@ -73,7 +73,7 @@ Future<File?> _existing(Directory dir, String base) async {
 Future<void> downloadPages(
   List<PageUrl> pages,
   Directory dir, {
-  required CancelToken cancel,
+  required DownloadCancel cancel,
   required void Function(int done, int total) onProgress,
   int workers = 2,
 }) async {
@@ -147,7 +147,7 @@ final _imgTag = RegExp(
 Future<String> localizeNovelImages(
   String html,
   Directory files, {
-  required CancelToken cancel,
+  required DownloadCancel cancel,
 }) async {
   final matches = _imgTag.allMatches(html).toList();
   if (matches.isEmpty) return html;

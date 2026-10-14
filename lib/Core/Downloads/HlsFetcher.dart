@@ -1,9 +1,9 @@
+import 'DownloadCancel.dart';
 import 'dart:async';
 import 'dart:io';
 
 import 'package:dartotsu_extension_bridge/dartotsu_extension_bridge.dart';
 import 'package:path/path.dart' as p;
-import 'package:rhttp/rhttp.dart';
 
 import '../../Logger.dart';
 import '../NetworkManager/NetworkManager.dart';
@@ -17,12 +17,12 @@ Future<bool> _complete(File file) async =>
 Future<String> fetchText(
   String url, {
   Map<String, String>? headers,
-  CancelToken? cancel,
+  DownloadCancel? cancel,
 }) async {
   final res = await find<NetworkManager>().get(
     url,
     headers: headers,
-    cancelToken: cancel,
+    cancelToken: cancel?.fresh(),
     decodeJson: false,
   );
   if (res.statusCode >= 400) throw DownloadHttpError(res.statusCode);
@@ -41,7 +41,7 @@ Future<void> downloadHls({
   required String url,
   required File output,
   required FfmpegAddon? ffmpeg,
-  required CancelToken cancel,
+  required DownloadCancel cancel,
   required FfmpegCancel ffmpegCancel,
   required void Function(int done, int total) onProgress,
   required void Function() onFinishing,

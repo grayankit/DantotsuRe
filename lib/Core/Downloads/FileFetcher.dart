@@ -1,3 +1,4 @@
+import 'DownloadCancel.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -81,7 +82,7 @@ bool _retryable(Object e) {
 
 Future<void> fetchWithRetry(
   Future<void> Function() run, {
-  required CancelToken cancel,
+  required DownloadCancel cancel,
   int attempts = 10,
 }) async {
   for (var attempt = 1; ; attempt++) {
@@ -109,7 +110,7 @@ Future<void> _drop(HttpStreamResponse res) async {
 Future<bool> _fetchChunked({
   required String url,
   required File target,
-  required CancelToken cancel,
+  required DownloadCancel cancel,
   required void Function(int received, int total) onProgress,
   required int connections,
   Map<String, String>? headers,
@@ -138,7 +139,7 @@ Future<bool> _fetchChunked({
     final probe = await find<NetworkManager>().stream(
       url,
       headers: {...?headers, 'Range': 'bytes=0-0'},
-      cancelToken: cancel,
+      cancelToken: cancel.fresh(),
     );
     final size = probe.statusCode == 206
         ? int.tryParse((probe.headerMap['content-range'] ?? '').split('/').last)
@@ -177,7 +178,7 @@ Future<bool> _fetchChunked({
           ...?headers,
           'Range': 'bytes=${range[0] + range[2]}-${range[1]}',
         },
-        cancelToken: cancel,
+        cancelToken: cancel.fresh(),
       );
       if (res.statusCode != 206) {
         await _drop(res);
@@ -223,7 +224,7 @@ Future<bool> _fetchChunked({
 Future<void> fetchFile({
   required String url,
   required File target,
-  required CancelToken cancel,
+  required DownloadCancel cancel,
   required void Function(int received, int total) onProgress,
   Map<String, String>? headers,
   int connections = 1,
@@ -247,7 +248,7 @@ Future<void> fetchFile({
   final res = await find<NetworkManager>().stream(
     url,
     headers: sent,
-    cancelToken: cancel,
+    cancelToken: cancel.fresh(),
   );
   if (res.statusCode == 416 && have > 0) {
     await part.rename(target.path);
