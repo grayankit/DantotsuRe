@@ -46,11 +46,15 @@ class AnalyticsManager extends AppController {
     }
   }
 
+  bool get _crashlytics => !Platform.isWindows;
+
   bool get _enabled => !kDebugMode && PrefName.shareAnalytics.value;
 
   Future<void> _apply() async {
     final on = _enabled;
-    await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(on);
+    if (_crashlytics) {
+      await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(on);
+    }
     await _analytics((a) async {
       await a.setAnalyticsCollectionEnabled(on);
       if (!on) await a.resetAnalyticsData();
@@ -73,7 +77,7 @@ class AnalyticsManager extends AppController {
     bool fatal = false,
   }) async {
     await _ready.future;
-    if (_disabled || !_enabled) return;
+    if (_disabled || !_enabled || !_crashlytics) return;
     try {
       await FirebaseCrashlytics.instance.recordError(
         error,

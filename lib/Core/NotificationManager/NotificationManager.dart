@@ -42,6 +42,11 @@ class NotificationManager extends AppController {
           defaultActionName: 'Open',
           defaultIcon: AssetsLinuxIcon('assets/images/logo.png'),
         ),
+        windows: const WindowsInitializationSettings(
+          appName: 'Dartotsu',
+          appUserModelId: 'ani.aayush262.dartotsu',
+          guid: '6f1d6c2e-3b7a-4c58-9e0d-5a2b8c4f7e91',
+        ),
       ),
       onDidReceiveNotificationResponse: (r) {
         logger(
