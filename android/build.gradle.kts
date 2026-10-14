@@ -45,6 +45,10 @@ subprojects {
             enabled = false
         }
 
+        tasks.matching { it.name.startsWith("uploadCrashlyticsMappingFile") }.configureEach {
+            enabled = false
+        }
+
         tasks.matching { it.name.startsWith("extract") && it.name.endsWith("Annotations") }.configureEach {
             actions.clear()
             doLast {
