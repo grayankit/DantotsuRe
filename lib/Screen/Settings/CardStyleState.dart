@@ -16,5 +16,5 @@ class CardStyleState extends ScreenState {
   void edit(CardStyle Function(CardStyle) change) =>
       set(change(draft.value).asCustom);
 
-  void reset() => set(const CardStyle());
+  void reset() => set(CardStyle.cozy);
 }

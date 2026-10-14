@@ -47,7 +47,7 @@ class PrefName {
 
   static final cardStyle = jsonPref<CardStyle>(
     'cardStyle',
-    const CardStyle(),
+    CardStyle.cozy,
     PrefLocation.THEME,
     toJson: (v) => v.toJson(),
     fromJson: CardStyle.fromJson,

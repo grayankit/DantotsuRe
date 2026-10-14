@@ -60,13 +60,13 @@ class _CardShelfState extends State<CardShelf> {
   CardStyle get _style =>
       widget.styleOverride ??
       tryFind<CardStyleController>()?.current ??
-      const CardStyle();
+      CardStyle.cozy;
 
   double get _cardW => _style.itemWidth;
 
   double get _cardH => _style.imageHeight;
 
-  double get _railH => _style.itemHeight;
+  double get _railH => _style.itemHeightFor(context);
 
   double get _gap => Dimens.cardGap;
 

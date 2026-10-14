@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import '../../Model/CardStyle.dart';
 import 'Responsive.dart';
 
@@ -31,6 +33,34 @@ extension CardStyleMetrics on CardStyle {
         // poster + progress bar + a padded text block on the same card surface
         // (top padding leaves room for the score badge straddling the seam)
         return imageHeight + 4 + 13 + _titleHeight + _captionHeight + 9 + 6;
+    }
+  }
+
+  double itemHeightFor(BuildContext context) {
+    final text = Theme.of(context).textTheme;
+    final scaler = MediaQuery.textScalerOf(context);
+    double line(TextStyle? style, int lines) {
+      final painter = TextPainter(
+        text: TextSpan(text: 'Ag', style: style),
+        textDirection: TextDirection.ltr,
+        textScaler: scaler,
+      )..layout();
+      return painter.height * lines;
+    }
+
+    final title = line(text.bodyLarge, lines);
+    final caption = preset == 'people'
+        ? line(text.labelMedium, 2) + 2
+        : mayShowInfo
+        ? line(text.labelMedium, 1) + 2
+        : 0.0;
+    switch (mode) {
+      case CardMode.onCard:
+        return imageHeight + 6;
+      case CardMode.normal:
+        return imageHeight + 7 + title + caption + 6;
+      case CardMode.inCard:
+        return imageHeight + 4 + 13 + title + caption + 9 + 6;
     }
   }
 }

@@ -38,7 +38,7 @@ class PeopleShelf extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = (tryFind<CardStyleController>()?.current ?? const CardStyle())
+    final style = (tryFind<CardStyleController>()?.current ?? CardStyle.cozy)
         .copyWith(preset: 'people');
     return CardShelf(
       title: title,

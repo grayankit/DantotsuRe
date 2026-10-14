@@ -41,7 +41,7 @@ class _ResumeShelfState extends State<ResumeShelf> {
     ResumeStore.entries.length;
     final list = ResumeStore.visible(widget.service);
     if (list.isEmpty) return const SizedBox.shrink();
-    final base = tryFind<CardStyleController>()?.current ?? const CardStyle();
+    final base = tryFind<CardStyleController>()?.current ?? CardStyle.cozy;
     final style = base.copyWith(
       size: CardSize.custom,
       customScale: base.scale * 1.7,
@@ -52,7 +52,7 @@ class _ResumeShelfState extends State<ResumeShelf> {
       title: getString.resumeTitle,
       child: DpadRow(
         child: SizedBox(
-          height: style.itemHeight,
+          height: style.itemHeightFor(context),
           child: ScrollConfig(
             context,
             child: ListView.separated(

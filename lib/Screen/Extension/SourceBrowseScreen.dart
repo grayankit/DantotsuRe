@@ -197,7 +197,7 @@ class _SourceBrowseScreenState extends BaseScreen<SourceBrowseScreen>
   }
 
   Widget _grid(List<Widget> children, {bool skeleton = false}) {
-    final style = tryFind<CardStyleController>()?.current ?? const CardStyle();
+    final style = tryFind<CardStyleController>()?.current ?? CardStyle.cozy;
     final grid = DpadColumn(
       child: GridView.builder(
         padding: EdgeInsets.fromLTRB(
@@ -208,7 +208,7 @@ class _SourceBrowseScreenState extends BaseScreen<SourceBrowseScreen>
         ),
         gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
           maxCrossAxisExtent: style.itemWidth + Dimens.cardGap + 6,
-          childAspectRatio: style.itemWidth / style.itemHeight,
+          mainAxisExtent: style.itemHeightFor(context),
           crossAxisSpacing: Dimens.cardGap,
           mainAxisSpacing: Dimens.gap,
         ),

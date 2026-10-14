@@ -61,7 +61,7 @@ class _ShelfScreenState extends BaseScreen<ShelfScreen>
       EmptyState(icon: Icons.inbox_rounded, title: getString.nothingHereYet);
 
   Widget _grid(BuildContext context) {
-    final style = tryFind<CardStyleController>()?.current ?? const CardStyle();
+    final style = tryFind<CardStyleController>()?.current ?? CardStyle.cozy;
     final tail = state.more.value ? 8 : 0;
     return NotificationListener<ScrollNotification>(
       onNotification: state.onScroll,
@@ -77,7 +77,7 @@ class _ShelfScreenState extends BaseScreen<ShelfScreen>
             ),
             gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
               maxCrossAxisExtent: style.itemWidth + Dimens.cardGap + 6,
-              childAspectRatio: style.itemWidth / style.itemHeight,
+              mainAxisExtent: style.itemHeightFor(context),
               crossAxisSpacing: Dimens.cardGap,
               mainAxisSpacing: Dimens.gap,
             ),

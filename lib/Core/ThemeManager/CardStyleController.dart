@@ -15,5 +15,5 @@ class CardStyleController extends AppController {
     epoch.value++;
   }
 
-  void reset() => apply(const CardStyle());
+  void reset() => apply(CardStyle.cozy);
 }

@@ -579,7 +579,7 @@ class _SearchScreenState extends BaseScreen<SearchScreen>
       state.type.value == SearchType.USER;
 
   Widget _grid(List<Widget> children, {bool skeleton = false}) {
-    final style = tryFind<CardStyleController>()?.current ?? const CardStyle();
+    final style = tryFind<CardStyleController>()?.current ?? CardStyle.cozy;
     final padding = EdgeInsets.fromLTRB(
       Dimens.pagePad,
       Dimens.gapSm,
@@ -607,7 +607,7 @@ class _SearchScreenState extends BaseScreen<SearchScreen>
               padding: padding,
               gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
                 maxCrossAxisExtent: style.itemWidth + Dimens.cardGap + 6,
-                childAspectRatio: style.itemWidth / style.itemHeight,
+                mainAxisExtent: style.itemHeightFor(context),
                 crossAxisSpacing: Dimens.cardGap,
                 mainAxisSpacing: Dimens.gap,
               ),

@@ -103,7 +103,7 @@ class _CardStyleScreenState extends BaseScreen<CardStyleScreen>
     return SectionCard(
       title: getString.preview,
       child: SizedBox(
-        height: s.itemHeight + 8,
+        height: s.itemHeightFor(context) + 8,
         child: ScrollConfig(
           context,
           child: ListView(

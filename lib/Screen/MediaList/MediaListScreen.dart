@@ -133,7 +133,7 @@ class _MediaListScreenState extends BaseScreen<MediaListScreen>
     List<Media> media, {
     required bool skeleton,
   }) {
-    final style = tryFind<CardStyleController>()?.current ?? const CardStyle();
+    final style = tryFind<CardStyleController>()?.current ?? CardStyle.cozy;
     final grid = DpadColumn(
       child: GridView.builder(
         padding: EdgeInsets.fromLTRB(
@@ -144,7 +144,7 @@ class _MediaListScreenState extends BaseScreen<MediaListScreen>
         ),
         gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
           maxCrossAxisExtent: style.itemWidth + Dimens.cardGap + 6,
-          childAspectRatio: style.itemWidth / style.itemHeight,
+          mainAxisExtent: style.itemHeightFor(context),
           crossAxisSpacing: Dimens.cardGap,
           mainAxisSpacing: Dimens.gap,
         ),

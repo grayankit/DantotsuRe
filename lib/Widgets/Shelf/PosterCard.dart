@@ -77,7 +77,7 @@ class _PosterCardState extends State<PosterCard> {
     final s =
         widget.style ??
         tryFind<CardStyleController>()?.current ??
-        const CardStyle();
+        CardStyle.cozy;
     _style = s;
     final card = switch (s.mode) {
       CardMode.onCard => _onCard(s),
