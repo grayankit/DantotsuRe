@@ -209,32 +209,49 @@ class AppChoiceChips<T> extends StatelessWidget {
   final List<AppSegment<T>> options;
   final T value;
   final ValueChanged<T> onChanged;
+  final bool scrollable;
 
   const AppChoiceChips({
     super.key,
     required this.options,
     required this.value,
     required this.onChanged,
+    this.scrollable = false,
   });
+
+  Widget _chip(AppSegment<T> o) => ChoiceChip(
+    mouseCursor: kClickCursor,
+    label: Text(o.label ?? '$o'),
+    avatar: o.icon == null ? null : Icon(o.icon, size: 16),
+    selected: value == o.value,
+    showCheckmark: false,
+    onSelected: (_) => onChanged(o.value),
+  );
 
   @override
   Widget build(BuildContext context) {
+    if (scrollable) {
+      return DpadRegion(
+        horizontalEdge: DpadEdgeBehavior.stop,
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              for (var i = 0; i < options.length; i++) ...[
+                if (i > 0) const SizedBox(width: 8),
+                _chip(options[i]),
+              ],
+            ],
+          ),
+        ),
+      );
+    }
     return DpadRegion(
       horizontalEdge: DpadEdgeBehavior.stop,
       child: Wrap(
         spacing: 8,
         runSpacing: 8,
-        children: [
-          for (final o in options)
-            ChoiceChip(
-              mouseCursor: kClickCursor,
-              label: Text(o.label ?? '$o'),
-              avatar: o.icon == null ? null : Icon(o.icon, size: 16),
-              selected: value == o.value,
-              showCheckmark: false,
-              onSelected: (_) => onChanged(o.value),
-            ),
-        ],
+        children: [for (final o in options) _chip(o)],
       ),
     );
   }

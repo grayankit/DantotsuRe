@@ -5,6 +5,7 @@ import '../../../Utils/Extensions/ContextExtensions.dart';
 import '../../../Utils/Extensions/Responsive.dart';
 import '../../../Utils/Nav/DpadNav.dart';
 import '../../../Widgets/Components/CachedNetworkImage.dart';
+import '../../../Widgets/Components/Clickable.dart';
 import '../../../Widgets/Components/SectionCard.dart';
 import '../NotificationsState.dart';
 
@@ -12,6 +13,7 @@ class NotificationTile extends StatelessWidget {
   final ServiceNotification item;
   final IconData icon;
   final VoidCallback? onTap;
+  final VoidCallback? onImageTap;
   final bool showTime;
 
   const NotificationTile({
@@ -19,8 +21,12 @@ class NotificationTile extends StatelessWidget {
     required this.item,
     required this.icon,
     this.onTap,
+    this.onImageTap,
     this.showTime = true,
   });
+
+  Widget _image(Widget child) =>
+      onImageTap == null ? child : Clickable(onTap: onImageTap, child: child);
 
   @override
   Widget build(BuildContext context) {
@@ -40,24 +46,26 @@ class NotificationTile extends StatelessWidget {
               padding: EdgeInsets.all(Dimens.gapSm + 2),
               child: Row(
                 children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: SizedBox(
-                      width: 44,
-                      height: 58,
-                      child: item.imageUrl == null
-                          ? ColoredBox(
-                              color: scheme.surfaceContainerHighest,
-                              child: Icon(
-                                icon,
-                                color: scheme.onSurfaceVariant,
-                                size: 20,
+                  _image(
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: SizedBox(
+                        width: 44,
+                        height: 58,
+                        child: item.imageUrl == null
+                            ? ColoredBox(
+                                color: scheme.surfaceContainerHighest,
+                                child: Icon(
+                                  icon,
+                                  color: scheme.onSurfaceVariant,
+                                  size: 20,
+                                ),
+                              )
+                            : cachedNetworkImage(
+                                imageUrl: item.imageUrl,
+                                fit: BoxFit.cover,
                               ),
-                            )
-                          : cachedNetworkImage(
-                              imageUrl: item.imageUrl,
-                              fit: BoxFit.cover,
-                            ),
+                      ),
                     ),
                   ),
                   SizedBox(width: Dimens.gap),

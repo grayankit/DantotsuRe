@@ -1,3 +1,4 @@
+import '../Social/SocialNavigation.dart';
 import '../../Widgets/Components/AppControls.dart';
 import 'dart:async';
 
@@ -157,6 +158,7 @@ class _NotificationsScreenState extends BaseScreen<NotificationsScreen>
               Dimens.gapSm,
             ),
             child: AppChoiceChips<NotificationKind?>(
+              scrollable: true,
               value: kind,
               onChanged: feed.pick,
               options: [
@@ -264,6 +266,9 @@ class _NotificationsScreenState extends BaseScreen<NotificationsScreen>
       item: n,
       icon: n.kind.icon,
       onTap: state.canOpen(n) ? () => state.open(feed, n) : null,
+      onImageTap: n.userId == null
+          ? null
+          : () => openProfile(context, feed.service, id: n.userId),
     );
     return index < 12 ? tile.animateStagger(index) : tile;
   }

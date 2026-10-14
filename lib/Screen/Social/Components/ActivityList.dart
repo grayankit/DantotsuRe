@@ -208,6 +208,7 @@ class _ActivityListState extends State<ActivityList>
   Widget _filters() => Padding(
     padding: EdgeInsets.fromLTRB(Dimens.pagePad, 4, Dimens.pagePad, 8),
     child: AppChoiceChips<ActivityFilter>(
+      scrollable: true,
       value: state.filter.value,
       onChanged: (f) {
         state.filter.value = f;
