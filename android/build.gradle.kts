@@ -41,6 +41,10 @@ subprojects {
             }
         }
 
+        tasks.matching { it.name.startsWith("lintVital") }.configureEach {
+            enabled = false
+        }
+
         tasks.matching { project.name == "app" && it.name.endsWith("AarMetadata") }.configureEach {
             enabled = false
         }

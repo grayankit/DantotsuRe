@@ -241,6 +241,8 @@ jobs:
 
   build_windows:
     runs-on: windows-latest
+    env:
+      CL: /D_SILENCE_EXPERIMENTAL_COROUTINE_DEPRECATION_WARNINGS
     if: |
       (github.event_name == 'push' && (contains(github.event.head_commit.message, '[build.windows]') || contains(github.event.head_commit.message, '[build.all]'))) ||
       (github.event_name == 'workflow_dispatch' && (inputs.build_targets == 'windows' || inputs.build_targets == 'all'))
