@@ -12,7 +12,7 @@ plugins {
 android {
     namespace = "ani.aayush262.dartotsu"
 
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 37
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
