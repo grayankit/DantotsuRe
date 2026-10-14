@@ -41,8 +41,22 @@ subprojects {
             }
         }
 
-        tasks.matching { it.name.startsWith("lint") || (it.name.startsWith("extract") && it.name.endsWith("Annotations")) }.configureEach {
+        tasks.matching { it.name.startsWith("lint") }.configureEach {
             enabled = false
+        }
+
+        tasks.matching { it.name.startsWith("extract") && it.name.endsWith("Annotations") }.configureEach {
+            actions.clear()
+            doLast {
+                outputs.files.forEach { f ->
+                    if (f.extension.isNotEmpty()) {
+                        f.parentFile.mkdirs()
+                        if (!f.exists()) f.createNewFile()
+                    } else {
+                        f.mkdirs()
+                    }
+                }
+            }
         }
 
         tasks.matching { project.name == "app" && it.name.endsWith("AarMetadata") }.configureEach {
