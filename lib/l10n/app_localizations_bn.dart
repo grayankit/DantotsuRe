@@ -910,6 +910,60 @@ class AppLocalizationsBn extends AppLocalizations {
   String get discordConnectionHeader => 'Connection';
 
   @override
+  String get listSearchHint => 'Search this list';
+
+  @override
+  String get listSort => 'Sort';
+
+  @override
+  String get listFilter => 'Filter';
+
+  @override
+  String get listRandom => 'Random title';
+
+  @override
+  String get listReverse => 'Reverse order';
+
+  @override
+  String get listSortDefault => 'List order';
+
+  @override
+  String get listSortScore => 'Your score';
+
+  @override
+  String get listSortTitle => 'Title';
+
+  @override
+  String get listSortUpdated => 'Last updated';
+
+  @override
+  String get listSortProgress => 'Progress';
+
+  @override
+  String get listSortReleased => 'Release date';
+
+  @override
+  String get listSortAverage => 'Average score';
+
+  @override
+  String get listFilterFormat => 'Format';
+
+  @override
+  String get listFilterStatus => 'Status';
+
+  @override
+  String get listFilterGenres => 'Genres';
+
+  @override
+  String get listFilterClear => 'Clear filters';
+
+  @override
+  String get listNoMatches => 'Nothing in this list matches';
+
+  @override
+  String get discordLogin => 'Log in to Discord';
+
+  @override
   String get discordToken => 'Discord token';
 
   @override

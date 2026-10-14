@@ -1841,6 +1841,114 @@ abstract class AppLocalizations {
   /// **'Connection'**
   String get discordConnectionHeader;
 
+  /// No description provided for @listSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search this list'**
+  String get listSearchHint;
+
+  /// No description provided for @listSort.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort'**
+  String get listSort;
+
+  /// No description provided for @listFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter'**
+  String get listFilter;
+
+  /// No description provided for @listRandom.
+  ///
+  /// In en, this message translates to:
+  /// **'Random title'**
+  String get listRandom;
+
+  /// No description provided for @listReverse.
+  ///
+  /// In en, this message translates to:
+  /// **'Reverse order'**
+  String get listReverse;
+
+  /// No description provided for @listSortDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'List order'**
+  String get listSortDefault;
+
+  /// No description provided for @listSortScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Your score'**
+  String get listSortScore;
+
+  /// No description provided for @listSortTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get listSortTitle;
+
+  /// No description provided for @listSortUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Last updated'**
+  String get listSortUpdated;
+
+  /// No description provided for @listSortProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress'**
+  String get listSortProgress;
+
+  /// No description provided for @listSortReleased.
+  ///
+  /// In en, this message translates to:
+  /// **'Release date'**
+  String get listSortReleased;
+
+  /// No description provided for @listSortAverage.
+  ///
+  /// In en, this message translates to:
+  /// **'Average score'**
+  String get listSortAverage;
+
+  /// No description provided for @listFilterFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Format'**
+  String get listFilterFormat;
+
+  /// No description provided for @listFilterStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get listFilterStatus;
+
+  /// No description provided for @listFilterGenres.
+  ///
+  /// In en, this message translates to:
+  /// **'Genres'**
+  String get listFilterGenres;
+
+  /// No description provided for @listFilterClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear filters'**
+  String get listFilterClear;
+
+  /// No description provided for @listNoMatches.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing in this list matches'**
+  String get listNoMatches;
+
+  /// No description provided for @discordLogin.
+  ///
+  /// In en, this message translates to:
+  /// **'Log in to Discord'**
+  String get discordLogin;
+
   /// No description provided for @discordToken.
   ///
   /// In en, this message translates to:
