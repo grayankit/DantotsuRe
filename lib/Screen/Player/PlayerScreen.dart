@@ -189,7 +189,12 @@ class _PlayerScreenState extends State<PlayerScreen>
               child: SizedBox(
                 height: height,
                 width: double.infinity,
-                child: _stage(context, compact: true),
+                child: MediaQuery.removePadding(
+                  context: context,
+                  removeTop: true,
+                  removeBottom: true,
+                  child: _stage(context, compact: true),
+                ),
               ),
             ),
           );
@@ -505,36 +510,45 @@ class _PlayerScreenState extends State<PlayerScreen>
     return Positioned.fill(
       child: ColoredBox(
         color: Colors.black87,
-        child: EmptyState(
-          icon: missing
-              ? Icons.cloud_download_rounded
-              : Icons.error_outline_rounded,
-          failed: !missing,
-          title: missing
-              ? getString.playerTorrentNeeded
-              : getString.playerFailed,
-          message: missing ? getString.playerTorrentNeededDesc : message,
-          actionLabel: missing
-              ? getString.playerOpenAddons
-              : several
-              ? getString.playerTryAnotherStream
-              : getString.retry,
-          onAction: () async {
-            if (missing) {
-              await navigateToPage(
-                context,
-                SubSettingsScreen(
-                  title: getString.settingsAddons,
-                  settings: addonSettings,
-                ),
-              );
-            } else if (several) {
-              final next = (state.videoIndex.value + 1) % state.videos.length;
-              await state.selectStream(next);
-            } else {
-              await state.loadItem(state.index.value);
-            }
-          },
+        child: LayoutBuilder(
+          builder: (context, box) => FittedBox(
+            fit: BoxFit.scaleDown,
+            child: SizedBox(
+              width: box.maxWidth,
+              child: EmptyState(
+                icon: missing
+                    ? Icons.cloud_download_rounded
+                    : Icons.error_outline_rounded,
+                failed: !missing,
+                title: missing
+                    ? getString.playerTorrentNeeded
+                    : getString.playerFailed,
+                message: missing ? getString.playerTorrentNeededDesc : message,
+                actionLabel: missing
+                    ? getString.playerOpenAddons
+                    : several
+                    ? getString.playerTryAnotherStream
+                    : getString.retry,
+                onAction: () async {
+                  if (missing) {
+                    await navigateToPage(
+                      context,
+                      SubSettingsScreen(
+                        title: getString.settingsAddons,
+                        settings: addonSettings,
+                      ),
+                    );
+                  } else if (several) {
+                    final next =
+                        (state.videoIndex.value + 1) % state.videos.length;
+                    await state.selectStream(next);
+                  } else {
+                    await state.loadItem(state.index.value);
+                  }
+                },
+              ),
+            ),
+          ),
         ),
       ),
     );
