@@ -10,7 +10,8 @@ import '../../../Model/Setting.dart';
 import '../../../Widgets/Components/AppControls.dart';
 import '../Widgets/SegmentedSetting.dart';
 import '../../../Utils/Functions/SnackBar.dart';
-import '../../../Widgets/Components/AlertDialogBuilder.dart';
+import '../../../Utils/Functions/NavigateToScreen.dart';
+import '../Discord/DiscordLoginScreen.dart';
 import '../../../Core/State/State.dart';
 import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 
@@ -91,36 +92,13 @@ List<Setting> _discordSettings(BuildContext context) => [
     icon: Icons.key_rounded,
     isVisible: _needsToken && PrefName.discordRpc.rx.value,
     isActivity: true,
-    onClick: () => _askToken(context),
+    onClick: () => _login(context),
     onLongClick: _removeToken,
   ),
 ];
 
-void _askToken(BuildContext context) {
-  final controller = TextEditingController();
-  AlertDialogBuilder(context)
-    ..setTitle(getString.discordToken)
-    ..setOnDismissListener(controller.dispose)
-    ..setMessage(getString.discordTokenPrompt)
-    ..setCustomView(
-      TextField(
-        controller: controller,
-        obscureText: true,
-        autocorrect: false,
-        enableSuggestions: false,
-        decoration: InputDecoration(hintText: getString.discordTokenHint),
-      ),
-    )
-    ..setPositiveButton(getString.save, () {
-      final value = controller.text.trim();
-      if (value.isEmpty) return;
-      MobileTokenManager.saveAuthToken(value);
-      _resetSession();
-      snackString(getString.discordTokenSavedSnack);
-    })
-    ..setNegativeButton(getString.cancel, null)
-    ..show();
-}
+void _login(BuildContext context) =>
+    navigateToPage(context, const DiscordLoginScreen());
 
 Future<void> _removeToken() async {
   final rpc = tryFind<BaseDiscordRPC>();
@@ -130,9 +108,4 @@ Future<void> _removeToken() async {
     MobileTokenManager().removeAuthToken();
   }
   snackString(getString.discordTokenRemovedSnack);
-}
-
-void _resetSession() {
-  final rpc = tryFind<BaseDiscordRPC>();
-  if (rpc is MobileRPC) rpc.tokenManager.clear();
 }
