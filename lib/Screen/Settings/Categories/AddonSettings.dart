@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../../Model/Setting.dart';
 import '../../../Core/State/State.dart';
+import '../../../Logger.dart';
+import '../../../Utils/Functions/SnackBar.dart';
 
 List<Setting> addonSettings(BuildContext context) {
   final manager = tryFind<AddonManager>();
@@ -26,12 +28,17 @@ List<Setting> addonSettings(BuildContext context) {
             : Icons.download_rounded,
         onClick: () async {
           if (addon.downloading.value) return;
-          if (addon.hasUpdate.value) {
-            await addon.update();
-          } else if (addon.installed.value) {
-            await addon.uninstall();
-          } else {
-            await addon.install();
+          try {
+            if (addon.hasUpdate.value) {
+              await addon.update();
+            } else if (addon.installed.value) {
+              await addon.uninstall();
+            } else {
+              await addon.install();
+            }
+          } catch (e, st) {
+            logError('Addons', e, st);
+            snackString('${addon.name}: $e');
           }
         },
       ),

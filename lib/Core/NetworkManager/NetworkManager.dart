@@ -20,6 +20,9 @@ class NetworkManager extends AppController {
   RhttpCompatibleClient get compatibleClient =>
       RhttpCompatibleClient.of(_client);
 
+  RhttpCompatibleClient get downloadClient =>
+      RhttpCompatibleClient.of(streamClient);
+
   String get userAgent {
     final custom = PrefName.customUserAgent.value;
     return custom.isNotEmpty ? custom : defaultUserAgent;

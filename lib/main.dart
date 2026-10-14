@@ -104,6 +104,7 @@ Future<void> init(List<String> args) async {
       getDirectory: StorageManager.getDirectory,
       isarInstance: PrefManager.dartotsuPreferences,
       http: client.compatibleClient,
+      downloadHttp: client.downloadClient,
       network: AppBridgeNetwork(client.cookieManager, client),
       onLog: (message, show) {
         logger('[Bridge LOGS] $message');
