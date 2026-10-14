@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../Core/Offline/OfflineMode.dart';
+import '../../Core/State/State.dart';
+
 import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../Core/Services/MediaServiceController.dart';
@@ -19,7 +22,6 @@ import 'Comments/CommentsSection.dart';
 import 'Watch/WatchSection.dart';
 import 'Components/DetailHeader.dart';
 import '../../Api/Discord/DiscordPresence.dart';
-import '../../Core/State/State.dart';
 import '../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../Widgets/Components/ScreenState.dart';
 import 'DetailState.dart';
@@ -123,11 +125,12 @@ class _DetailScreenState extends BaseScreen<DetailScreen>
             label: (state.isAnime ? getString.watch : getString.read)
                 .toUpperCase(),
           ),
-          NavItem(
-            index: 2,
-            icon: Icons.chat_bubble_rounded,
-            label: getString.navComments,
-          ),
+          if (!find<OfflineMode>().isOffline.value)
+            NavItem(
+              index: 2,
+              icon: Icons.chat_bubble_rounded,
+              label: getString.navComments,
+            ),
         ],
       ),
     );

@@ -71,18 +71,21 @@ class _WatchSectionState extends State<WatchSection>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SourceBar(
-            source: state.source.value,
-            status: state.status.value,
-            busy: phase == WatchPhase.searching || phase == WatchPhase.loading,
-            canFix: state.source.value != null,
-            selectable: !state.fixedSource,
-            onPick: _pickSource,
-            onWrongTitle: _wrongTitle,
-            onReset: state.resetMatch,
-            onTools: _tools,
-          ),
-          SizedBox(height: Dimens.gap),
+          if (!state.offlineList) ...[
+            SourceBar(
+              source: state.source.value,
+              status: state.status.value,
+              busy:
+                  phase == WatchPhase.searching || phase == WatchPhase.loading,
+              canFix: state.source.value != null,
+              selectable: !state.fixedSource,
+              onPick: _pickSource,
+              onWrongTitle: _wrongTitle,
+              onReset: state.resetMatch,
+              onTools: _tools,
+            ),
+            SizedBox(height: Dimens.gap),
+          ],
           _titleRow(context),
           SizedBox(height: Dimens.gapSm),
           AppSwitcher(

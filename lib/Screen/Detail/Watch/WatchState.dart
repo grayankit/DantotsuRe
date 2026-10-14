@@ -119,6 +119,7 @@ class WatchState extends ScreenState {
 
   Future<void> start() async {
     final generation = ++_generation;
+    _offlineList = false;
     phase.value = WatchPhase.sources;
     failure.value = null;
     if (find<OfflineMode>().isOffline.value && await _startOffline()) return;
@@ -156,6 +157,7 @@ class WatchState extends ScreenState {
     final id = snapshot.sourceId;
     source.value = id == null ? null : installedSourceById(id);
     sources.value = [?source.value];
+    _offlineList = true;
     episodes.value = snapshot.episodes;
     scanlators.value = {
       for (final e in snapshot.episodes)
@@ -406,6 +408,10 @@ class WatchState extends ScreenState {
     await _loadMeta();
   }
 
+  bool _offlineList = false;
+
+  bool get offlineList => _offlineList;
+
   void _derive() {
     if (episodes.isEmpty) return;
     final hidden = settings.value.hiddenScanlators.toSet();
@@ -419,10 +425,21 @@ class WatchState extends ScreenState {
       fallbackThumb: current.banner ?? current.cover ?? '',
       anime: anime,
     );
-    units.value = watchShowFillerPref.rx.value
+    final shown = !_offlineList
         ? built
         : [
             for (final u in built)
+              if (find<DownloadEngine>().hasLocalUnit(
+                service.id,
+                current.id,
+                u.key,
+              ))
+                u,
+          ];
+    units.value = watchShowFillerPref.rx.value
+        ? shown
+        : [
+            for (final u in shown)
               if (!u.filler) u,
           ];
     if (!_chunkPinned) _pickChunk();
