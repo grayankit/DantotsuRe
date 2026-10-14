@@ -785,9 +785,23 @@ jobs:
        needs.build_macos.result == 'success')
     steps:
       - name: Trigger Dartotsu-Downloader workflow
+        env:
+          TOKEN: ${{ secrets.DOWNLOADER_TRIGGER_TOKEN_SHEBY }}
+          COMMIT_SHA: ${{ github.sha }}
+          COMMIT_LOGS: ${{ needs.sendMessage.outputs.commit_logs }}
+          ANDROID: ${{ needs.build_android.result }}
+          WINDOWS: ${{ needs.build_windows.result }}
+          LINUX: ${{ needs.build_linux.result }}
+          IOS: ${{ needs.build_ios.result }}
+          MACOS: ${{ needs.build_macos.result }}
         run: |
+          body=$(jq -n \
+            --arg sha "$COMMIT_SHA" --arg logs "$COMMIT_LOGS" \
+            --arg android "$ANDROID" --arg windows "$WINDOWS" --arg linux "$LINUX" \
+            --arg ios "$IOS" --arg macos "$MACOS" \
+            '{ref:"main", inputs:{commit_sha:$sha, commit_logs:$logs, build_android:$android, build_windows:$windows, build_linux:$linux, build_ios:$ios, build_macos:$macos}}')
           curl -X POST \
-            -H "Authorization: token ${{ secrets.DOWNLOADER_TRIGGER_TOKEN_SHEBY }}" \
+            -H "Authorization: token $TOKEN" \
             -H "Accept: application/vnd.github.v3+json" \
             https://api.github.com/repos/grayankit/Dartotsu-Downloader/actions/workflows/main.yml/dispatches \
-            -d '{"ref":"main", "inputs": {"commit_sha": "${{ github.sha }}", "commit_logs": "${{ needs.sendMessage.outputs.commit_logs }}", "build_android": "${{ needs.build_android.result }}", "build_windows": "${{ needs.build_windows.result }}", "build_linux": "${{ needs.build_linux.result }}", "build_ios": "${{ needs.build_ios.result }}", "build_macos": "${{ needs.build_macos.result }}"}}'
+            -d "$body"
