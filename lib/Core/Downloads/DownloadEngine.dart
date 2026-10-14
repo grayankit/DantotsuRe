@@ -888,7 +888,13 @@ class DownloadEngine extends AppController {
         ? '${unitBaseName(first)} · ${percent < 0 ? '…' : '$percent%'}'
         : getString.downloadServiceText(active.length);
     unawaited(
-      DownloadService.sync(active: true, title: title, text: text).then((
+      DownloadService.sync(
+        active: true,
+        title: title,
+        text: text,
+        percent: percent,
+        sub: getString.downloadServiceText(active.length),
+      ).then((
         ok,
       ) async {
         if (ok || !live) return;

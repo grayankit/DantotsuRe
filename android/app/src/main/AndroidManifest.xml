@@ -49,7 +49,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         tools:ignore="UnusedAttribute">
         <service
-            android:name="com.pravera.flutter_foreground_task.service.ForegroundService"
+            android:name=".DownloadForegroundService"
             android:foregroundServiceType="dataSync"
             android:exported="false" />
         <activity

@@ -34,6 +34,28 @@ class MainActivity : FlPiPActivity() {
                 val manager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
                 result.success(manager.isActiveNetworkMetered)
             }
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "dartotsu/downloads")
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "start" -> try {
+                        DownloadForegroundService.start(
+                            this,
+                            call.argument<String>("title") ?: "Downloads",
+                            call.argument<String>("text") ?: "",
+                            call.argument<Int>("percent") ?: -1,
+                            call.argument<String>("sub"),
+                        )
+                        result.success(true)
+                    } catch (e: Exception) {
+                        result.success(false)
+                    }
+                    "stop" -> {
+                        DownloadForegroundService.stop(this)
+                        result.success(true)
+                    }
+                    else -> result.notImplemented()
+                }
+            }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "dartotsu/links")
             .setMethodCallHandler { call, result ->
                 if (call.method == "isLinkHandlingEnabled") {
