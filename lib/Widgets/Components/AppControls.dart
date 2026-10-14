@@ -106,6 +106,7 @@ class _SegmentButton<T> extends StatelessWidget {
       duration: animDuration(220),
       curve: Curves.easeOutCubic,
       height: 36,
+      clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: selected
             ? scheme.primary
