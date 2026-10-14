@@ -30,9 +30,6 @@ jobs:
           else
             echo "FLUTTER_VERSION=${FLUTTER_VERSION}" >> $GITHUB_ENV
           fi
-          if [ ! -d ../DartotsuExtensionBridge ]; then
-            git clone --depth 1 https://github.com/aayush2622/DartotsuExtensionBridge.git ../DartotsuExtensionBridge
-          fi
 
       - &setup_flutter
         name: Setup Flutter

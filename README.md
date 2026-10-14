@@ -147,7 +147,7 @@ flutter analyze
 flutter test
 ```
 
-Needs Flutter `>=3.44.0` and a `.env` file in the project root (a bundled asset; see `CLAUDE.md`). The extension bridge is expected next to this repository as `../DartotsuExtensionBridge`.
+Needs Flutter `>=3.44.0` and a `.env` file in the project root (a bundled asset; see `CLAUDE.md`). The extension bridge is a git dependency; for local work comment out the `git` entry in `pubspec.yaml` and enable the `path` one pointing at `../DartotsuExtensionBridge`.
 
 Release builds: `flutter build apk --release --split-per-abi`, `flutter build linux|windows|macos --release`, `flutter build ipa --release`.
 
