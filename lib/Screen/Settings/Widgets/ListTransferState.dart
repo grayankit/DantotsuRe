@@ -31,8 +31,7 @@ class ImportListsState extends ScreenState {
   Future<void> pick() async {
     final picked = await FilePicker.pickFile(
       dialogTitle: getString.chooseBackupDialog,
-      type: FileType.custom,
-      allowedExtensions: const ['tachibk', 'gz', 'zip', 'proto'],
+      type: FileType.any,
     );
     if (picked == null) return;
     busy.value = true;

@@ -34,6 +34,10 @@ ExternalLists parseExternalBytes(Uint8List bytes) {
       'This zip is not a Kotatsu backup (no favourites found)',
     );
   }
+  try {
+    final lists = TachiyomiCodec.parse(bytes);
+    if (lists.items.isNotEmpty) return lists;
+  } catch (_) {}
   throw const FormatException('Unsupported backup file');
 }
 

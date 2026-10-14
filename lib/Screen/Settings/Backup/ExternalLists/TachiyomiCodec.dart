@@ -7,8 +7,9 @@ import 'Proto.dart';
 class TachiyomiCodec {
   TachiyomiCodec._();
 
-  static ExternalLists parse(List<int> gzipped) {
-    final root = ProtoMessage.parse(GZipCodec().decode(gzipped));
+  static ExternalLists parse(List<int> data) {
+    final gzipped = data.length >= 2 && data[0] == 0x1f && data[1] == 0x8b;
+    final root = ProtoMessage.parse(gzipped ? GZipCodec().decode(data) : data);
     final aniyomi =
         root.has(3) || root.has(4) || root.has(501) || root.has(502);
 
