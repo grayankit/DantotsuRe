@@ -50,6 +50,7 @@ class DetailState extends ScreenState {
     heroTag: heroTag,
     open: open,
     search: search,
+    filter: filter,
     refresh: () => load(force: true),
   );
   Disposer? _coverSub;
@@ -232,6 +233,14 @@ class DetailState extends ScreenState {
     view.service,
     type: isAnime ? MediaType.anime : MediaType.manga,
     query: query,
+  );
+
+  void filter({String? genre, String? tag}) => openSearch(
+    context,
+    view.service,
+    type: isAnime ? MediaType.anime : MediaType.manga,
+    genre: genre,
+    tag: tag,
   );
 
   void open(Media next, String? tag) => navigateToPage(

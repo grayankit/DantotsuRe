@@ -41,12 +41,16 @@ class SearchScreen extends StatefulWidget {
   final MediaType type;
   final SearchScreenView view;
   final String? query;
+  final String? genre;
+  final String? tag;
 
   const SearchScreen({
     super.key,
     required this.view,
     required this.type,
     this.query,
+    this.genre,
+    this.tag,
   });
 
   @override
@@ -60,6 +64,8 @@ class _SearchScreenState extends BaseScreen<SearchScreen>
     initialType: widget.type,
     view: widget.view,
     initialQuery: widget.query,
+    initialGenre: widget.genre,
+    initialTag: widget.tag,
   );
 
   // --- header -------------------------------------------------------------

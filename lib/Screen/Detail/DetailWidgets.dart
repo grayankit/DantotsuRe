@@ -11,7 +11,7 @@ List<ScreenWidget> defaultDetailWidgets(DetailHost host) {
     if (m.genres.isNotEmpty)
       ScreenWidget.data(
         'Genres',
-        ScreenData(chips: m.genres, onChipTap: host.search),
+        ScreenData(chips: m.genres, onChipTap: (genre) => host.filter(genre: genre)),
       ),
   ];
 }

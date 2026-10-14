@@ -8,6 +8,7 @@ class DetailHost {
   final Future<void> Function() refresh;
   final Live<bool> loading;
   final void Function(String query) search;
+  final void Function({String? genre, String? tag}) filter;
   bool cached;
 
   DetailHost({
@@ -16,6 +17,7 @@ class DetailHost {
     required this.heroTag,
     required this.open,
     required this.search,
+    required this.filter,
     this.cached = false,
     required this.refresh,
   }) : media = media.live;

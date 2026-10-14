@@ -34,11 +34,15 @@ class SearchState extends ScreenState {
   final MediaType initialType;
   final SearchScreenView view;
   final String? initialQuery;
+  final String? initialGenre;
+  final String? initialTag;
 
   SearchState({
     required this.initialType,
     required this.view,
     this.initialQuery,
+    this.initialGenre,
+    this.initialTag,
   });
 
   final controller = TextEditingController();
@@ -120,12 +124,21 @@ class SearchState extends ScreenState {
       (query.value.search?.isNotEmpty ?? false) ||
       (isMedia && query.value.toChipList().isNotEmpty);
 
+  late final Future<void> prepared = view.prepare();
+
   @override
   void onInit() {
-    unawaited(view.prepare());
+    unawaited(prepared);
     if (initialQuery != null && initialQuery!.isNotEmpty) {
       controller.text = initialQuery!;
       query.value.search = initialQuery;
+      restart();
+    } else if (initialGenre != null || initialTag != null) {
+      if (initialGenre != null) query.value.genres = [initialGenre!];
+      if (initialTag != null) query.value.tags = [initialTag!];
+      if (spec.sorts.containsKey('TRENDING_DESC')) {
+        query.value.sort = 'TRENDING_DESC';
+      }
       restart();
     }
   }
@@ -192,12 +205,16 @@ class SearchState extends ScreenState {
     restart();
   }
 
-  void openFilters() => showSearchFilterSheet(
-    context,
-    spec: spec,
-    current: query.value,
-    onApply: (_) => restart(),
-  );
+  Future<void> openFilters() async {
+    await prepared;
+    if (!context.mounted) return;
+    showSearchFilterSheet(
+      context,
+      spec: spec,
+      current: query.value,
+      onApply: (_) => restart(),
+    );
+  }
 
   void removeChip(SearchChip chip) {
     query.value.removeChip(chip);

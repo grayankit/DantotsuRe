@@ -37,6 +37,8 @@ void openSearch(
   MediaService service, {
   MediaType? type,
   String? query,
+  String? genre,
+  String? tag,
 }) {
   final view = service.searchView;
   navigateToPage(
@@ -47,6 +49,8 @@ void openSearch(
             view: view,
             type: type ?? view.types.first,
             query: query,
+            genre: genre,
+            tag: tag,
           ),
   );
 }

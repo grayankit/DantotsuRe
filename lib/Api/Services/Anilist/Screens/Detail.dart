@@ -76,7 +76,10 @@ class AnilistDetailView extends DetailScreenView {
       if (m.genres.isNotEmpty)
         ScreenWidget.data(
           getString.genres,
-          ScreenData(chips: m.genres, onChipTap: host.search),
+          ScreenData(
+            chips: m.genres,
+            onChipTap: (genre) => host.filter(genre: genre),
+          ),
         ),
       ..._tags(m, host),
       ScreenWidget.extra(
@@ -153,7 +156,7 @@ class AnilistDetailView extends DetailScreenView {
         getString.tags,
         ScreenData(
           chips: [for (final t in sorted) t.replaceFirst(' : ', '  ')],
-          onChipTap: (chip) => host.search(chip.split('  ').first),
+          onChipTap: (chip) => host.filter(tag: chip.split('  ').first),
         ),
       ),
     ];
