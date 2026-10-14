@@ -4,12 +4,13 @@ import '../../../../Core/Services/MediaService.dart';
 import '../../../../Screen/Social/SocialNavigation.dart';
 import '../../../../Core/Services/Model/Media.dart';
 import '../../../../Core/Services/Model/User.dart';
-import '../../../../Core/State/State.dart';
-import '../../../../Core/ThemeManager/CardStyleController.dart';
-import '../../../../Model/CardStyle.dart';
+import '../../../../Utils/Extensions/ContextExtensions.dart';
+import '../../../../Utils/Extensions/Responsive.dart';
 import '../../../../Utils/Extensions/StringExtensions.dart';
-import '../../../../Widgets/Shelf/CardShelf.dart';
-import '../../../../Widgets/Shelf/CardShelfState.dart';
+import '../../../../Utils/Nav/DpadNav.dart';
+import '../../../../Widgets/Components/CachedNetworkImage.dart';
+import '../../../../Widgets/Components/ScrollConfig.dart';
+import '../../../../Widgets/Shelf/ShelfFrame.dart';
 import '../../../../Core/ThemeManager/LanguageSwitcher.dart';
 
 class FollowersShelf extends StatelessWidget {
@@ -26,49 +27,162 @@ class FollowersShelf extends StatelessWidget {
     this.service,
   });
 
-  String _status(User user) => user.status == 'CURRENT'
-      ? (media.isAnime ? 'WATCHING' : 'READING')
-      : (user.status ?? '').titleCase;
-
-  ShelfCardItem _item(BuildContext context, User user) {
-    final isMe = user.name == me;
-    final score = user.score ?? 0;
-    return ShelfCardItem(
-      id: '${user.id}',
-      imageUrl: user.pfp,
-      title: isMe ? 'YOU' : user.name,
-      subtitle:
-          '${_status(user)} · ${user.progress ?? 0} | ${media.totalUnits ?? "~"}',
-      score: score == 0 ? null : score / 10,
-      focusable: true,
-      onTap: service == null
-          ? null
-          : () => openProfile(
-              context,
-              service!,
-              id: '${user.id}',
-              user: UserBrief(
-                id: '${user.id}',
-                name: user.name,
-                avatar: user.pfp,
-              ),
-            ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final ordered = [
       ...users.where((u) => u.name == me),
       ...users.where((u) => u.name != me),
     ];
-    final style = (tryFind<CardStyleController>()?.current ?? CardStyle.cozy)
-        .copyWith(preset: 'people', aspect: 1);
-    return CardShelf(
+    return ShelfFrame(
       title: getString.following,
-      dataKey: ordered,
-      styleOverride: style,
-      items: [for (final user in ordered) _item(context, user)],
+      child: SizedBox(
+        height: 190,
+        child: ScrollConfig(
+          context,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            padding: EdgeInsets.symmetric(horizontal: Dimens.pagePad),
+            itemCount: ordered.length,
+            separatorBuilder: (_, _) => SizedBox(width: Dimens.gapSm),
+            itemBuilder: (_, i) => _Follower(
+              user: ordered[i],
+              media: media,
+              isMe: ordered[i].name == me,
+              onTap: service == null
+                  ? null
+                  : () => openProfile(
+                      context,
+                      service!,
+                      id: '${ordered[i].id}',
+                      user: UserBrief(
+                        id: '${ordered[i].id}',
+                        name: ordered[i].name,
+                        avatar: ordered[i].pfp,
+                      ),
+                    ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _Follower extends StatelessWidget {
+  final User user;
+  final Media media;
+  final bool isMe;
+  final VoidCallback? onTap;
+
+  const _Follower({
+    required this.user,
+    required this.media,
+    required this.isMe,
+    this.onTap,
+  });
+
+  String get _status => user.status == 'CURRENT'
+      ? (media.isAnime ? 'WATCHING' : 'READING')
+      : (user.status ?? '').titleCase;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = context.colorScheme;
+    final score = user.score ?? 0;
+    return DpadFocusable(
+      onSelect: onTap ?? () {},
+      builder: dpadScaleFocus,
+      child: SizedBox(
+        width: 92,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Material(
+              elevation: 2,
+              shape: const CircleBorder(),
+              clipBehavior: Clip.antiAlias,
+              child: SizedBox(
+                width: 84,
+                height: 84,
+                child: Stack(
+                  children: [
+                    cachedNetworkImage(
+                      imageUrl: user.pfp,
+                      fit: BoxFit.cover,
+                      width: 84,
+                      height: 84,
+                    ),
+                    Positioned(
+                      bottom: 0,
+                      child: Container(
+                        width: 84,
+                        height: 26,
+                        decoration: BoxDecoration(
+                          color: score == 0 ? scheme.primary : scheme.tertiary,
+                          borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(256),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              (score / 10).toString(),
+                              style: context.textTheme.labelMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: scheme.onPrimary,
+                              ),
+                            ),
+                            Icon(
+                              Icons.star_rounded,
+                              size: 12,
+                              color: scheme.onPrimary,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              _status,
+              textAlign: TextAlign.center,
+              style: context.textTheme.labelSmall?.copyWith(
+                fontStyle: FontStyle.italic,
+                fontWeight: FontWeight.w600,
+                color: scheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              isMe ? 'YOU' : user.name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: context.textTheme.bodyMedium,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  '${user.progress ?? 0}',
+                  style: context.textTheme.bodySmall?.copyWith(
+                    color: scheme.secondary,
+                  ),
+                ),
+                Text(
+                  ' | ${media.totalUnits ?? "~"}',
+                  style: context.textTheme.bodySmall?.copyWith(
+                    color: scheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
