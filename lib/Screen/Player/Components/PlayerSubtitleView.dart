@@ -36,7 +36,7 @@ class PlayerSubtitleView extends StatelessWidget {
       top: 0,
       bottom: controlsVisible
           ? 110 + settings.subtitleBottomPadding.toDouble()
-          : 28 + settings.subtitleBottomPadding.toDouble(),
+          : settings.subtitleBottomPadding.toDouble(),
       child: IgnorePointer(
         child: Align(
           alignment: Alignment.bottomCenter,

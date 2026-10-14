@@ -313,7 +313,7 @@ class PlayerEngine {
       'sub-color': argb(settings.subtitleColor),
       'sub-border-color': argb(settings.subtitleOutlineColor),
       'sub-bold': settings.subtitleWeight >= 6 ? 'yes' : 'no',
-      'sub-margin-y': '${22 + settings.subtitleBottomPadding}',
+      'sub-margin-y': '${settings.subtitleBottomPadding}',
       'sub-back-color': argb(background),
       'sub-border-style': background >>> 24 > 0
           ? 'background-box'
