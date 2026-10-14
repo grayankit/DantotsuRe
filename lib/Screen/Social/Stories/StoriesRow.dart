@@ -280,7 +280,7 @@ class _StoriesRowState extends State<StoriesRow> {
                       url: g.user.avatar,
                       name: g.user.name,
                       size: 56,
-                      heroTag: 'story-${g.user.id}',
+                      heroTag: loading ? null : 'story-${g.user.id}',
                     ),
                     if (isOwn && g.activities.isEmpty)
                       Positioned(
