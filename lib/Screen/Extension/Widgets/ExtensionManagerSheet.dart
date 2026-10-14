@@ -2,6 +2,7 @@ import 'package:dartotsu_extension_bridge/Extensions/DownloadablePlugin.dart';
 import 'package:dartotsu_extension_bridge/dartotsu_extension_bridge.dart';
 import 'package:flutter/material.dart';
 
+import '../../../Core/Downloads/DownloadPrefs.dart';
 import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../../Utils/Extensions/ContextExtensions.dart';
 import '../../../Utils/Functions/SnackBar.dart';
@@ -38,12 +39,14 @@ void showExtensionManagerSheet(BuildContext context, ItemType type) {
                 managers[i],
                 groupedRadius(i, managers.length),
               ),
-            const SizedBox(height: 12),
-            OutlinedButton.icon(
-              onPressed: () => showAddPluginRepositoryDialog(context),
-              icon: const Icon(Icons.add_rounded),
-              label: Text(getString.addRepository),
-            ),
+            if (repoToolsUnlockedPref.rx.value) ...[
+              const SizedBox(height: 12),
+              OutlinedButton.icon(
+                onPressed: () => showAddPluginRepositoryDialog(context),
+                icon: const Icon(Icons.add_rounded),
+                label: Text(getString.addRepository),
+              ),
+            ],
             const SizedBox(height: 16),
           ],
         );

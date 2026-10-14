@@ -18,6 +18,7 @@ import '../../Widgets/Components/LoadSvg.dart';
 import '../../Widgets/Components/ThemedContainer.dart';
 import 'ExtensionList.dart';
 import 'ExtensionTestScreen.dart';
+import '../../Core/Downloads/DownloadPrefs.dart';
 import 'Widgets/ExtensionManagerSheet.dart';
 import 'Widgets/ExtensionReposSheet.dart';
 import '../../Widgets/Components/AppTabs.dart';
@@ -134,6 +135,10 @@ class ExtensionScreenState extends BaseScreen<ExtensionScreen>
               ),
             ),
             onPressed: () => showExtensionManagerSheet(context, type),
+            onLongPress: () {
+              repoToolsUnlockedPref.rx.value = true;
+              showExtensionManagerSheet(context, type);
+            },
           );
         });
       },
