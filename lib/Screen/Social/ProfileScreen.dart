@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import '../../Core/Services/MediaService.dart';
 import '../../Core/ThemeManager/ThemeController.dart';
 import '../../Utils/Extensions/ContextExtensions.dart';
-import '../../Utils/Extensions/IntExtensions.dart';
 import '../Navbar.dart';
 import '../../Widgets/Components/AppBars.dart';
 import '../../Widgets/Components/BaseScreen.dart';
@@ -46,6 +45,9 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends BaseScreen<ProfileScreen>
     with ScreenStateHost<ProfileScreen, ProfileState> {
+  @override
+  bool get safeArea => false;
+
   @override
   ProfileState buildState() => ProfileState(
     service: widget.service,
@@ -109,15 +111,10 @@ class _ProfileScreenState extends BaseScreen<ProfileScreen>
             ],
             body: userId.isEmpty
                 ? const ProfileSkeleton()
-                : Padding(
-                    padding: EdgeInsets.only(
-                      bottom: context.isPhone ? 96.bottomBar() : 0,
-                    ),
-                    child: AppSwitcher(
-                      child: KeyedSubtree(
-                        key: ValueKey(state.tab.value),
-                        child: _page(userId),
-                      ),
+                : AppSwitcher(
+                    child: KeyedSubtree(
+                      key: ValueKey(state.tab.value),
+                      child: _page(userId),
                     ),
                   ),
           ),

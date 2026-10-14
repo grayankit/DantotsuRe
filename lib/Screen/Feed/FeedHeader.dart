@@ -25,7 +25,12 @@ class FeedHeader extends StatelessWidget {
     final services = find<MediaServiceController>();
     final phone = context.isPhone;
     return Padding(
-      padding: EdgeInsets.fromLTRB(phone ? 12 : 24, 18, 12, 2),
+      padding: EdgeInsets.fromLTRB(
+        phone ? 12 : 24,
+        18 + MediaQuery.paddingOf(context).top,
+        12,
+        2,
+      ),
       child: DpadRow(
         child: Row(
           children: [

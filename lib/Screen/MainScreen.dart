@@ -23,6 +23,9 @@ class MainScreen extends StatefulWidget {
 class MainScreenState extends BaseScreen<MainScreen>
     with ScreenStateHost<MainScreen, MainState> {
   @override
+  bool get safeArea => false;
+
+  @override
   MainState buildState() => MainState(onPresenceChanged: refreshPresence);
 
   MediaServiceController get _services => state.services;

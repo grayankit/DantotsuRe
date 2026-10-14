@@ -43,6 +43,9 @@ class EntityScreen extends StatefulWidget {
 class _EntityScreenState extends BaseScreen<EntityScreen>
     with ScreenStateHost<EntityScreen, EntityState> {
   @override
+  bool get safeArea => false;
+
+  @override
   EntityState buildState() => EntityState(
     view: widget.view,
     kind: widget.kind,

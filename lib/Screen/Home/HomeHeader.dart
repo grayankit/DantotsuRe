@@ -39,9 +39,18 @@ class HomeHeader extends StatelessWidget {
           if (banner != null && banner.isNotEmpty)
             Positioned.fill(child: HeaderBanner(url: banner)),
           ConstrainedBox(
-            constraints: BoxConstraints(minHeight: banner == null ? 0 : 176),
+            constraints: BoxConstraints(
+              minHeight: banner == null
+                  ? 0
+                  : 176 + MediaQuery.paddingOf(context).top,
+            ),
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 22, 16, 6),
+              padding: EdgeInsets.fromLTRB(
+                24,
+                22 + MediaQuery.paddingOf(context).top,
+                16,
+                6,
+              ),
               child: _content(context, service, user),
             ),
           ),

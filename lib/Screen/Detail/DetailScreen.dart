@@ -48,6 +48,9 @@ class DetailScreen extends StatefulWidget {
 class _DetailScreenState extends BaseScreen<DetailScreen>
     with ScreenStateHost<DetailScreen, DetailState> {
   @override
+  bool get safeArea => false;
+
+  @override
   DetailState buildState() => DetailState(
     media: widget.media,
     view: widget.view,

@@ -139,7 +139,7 @@ class _FloatingBottomNavBarState extends State<FloatingBottomNavBar> {
     return Positioned(
       left: 0,
       right: 0,
-      bottom: 32,
+      bottom: 32 + MediaQuery.paddingOf(context).bottom,
       child: Align(
         alignment: Alignment.bottomCenter,
         child: SizedBox(

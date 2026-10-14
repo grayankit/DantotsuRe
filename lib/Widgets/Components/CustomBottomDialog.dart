@@ -65,7 +65,10 @@ class _CustomBottomDialogState extends State<CustomBottomDialog> {
         color: colorScheme.onSurface.withValues(alpha: 0.2),
       ),
       borderRadius: const BorderRadius.vertical(top: Radius.circular(16.0)),
-      padding: const EdgeInsets.only(bottom: 24.0, top: 12.0),
+      padding: EdgeInsets.only(
+        bottom: 24.0 + MediaQuery.viewPaddingOf(context).bottom,
+        top: 12.0,
+      ),
       child: Material(
         type: MaterialType.transparency,
         child: CustomScrollConfig(

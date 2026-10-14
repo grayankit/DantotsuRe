@@ -20,6 +20,8 @@ abstract class BaseScreen<T extends StatefulWidget> extends State<T> {
 
   String? get glassBackgroundUrl => resolveGlassBackground();
 
+  bool get safeArea => true;
+
   @override
   Widget build(BuildContext context) {
     final theme = find<ThemeController>();
@@ -31,20 +33,18 @@ abstract class BaseScreen<T extends StatefulWidget> extends State<T> {
             return PresenceScope(presence: presence!, child: built);
           });
 
-    return SafeArea(
-      child: Watch(() {
-        final glass = theme.useGlassMode.value;
-        return Stack(
-          children: [
-            if (glass) GlassBackground(imageUrl: glassBackgroundUrl),
-            Scaffold(
-              backgroundColor: glass ? Colors.transparent : null,
-              body: content,
-            ),
-          ],
-        );
-      }),
-    );
+    return Watch(() {
+      final glass = theme.useGlassMode.value;
+      return Stack(
+        children: [
+          if (glass) GlassBackground(imageUrl: glassBackgroundUrl),
+          Scaffold(
+            backgroundColor: glass ? Colors.transparent : null,
+            body: safeArea ? SafeArea(child: content) : content,
+          ),
+        ],
+      );
+    });
   }
 }
 

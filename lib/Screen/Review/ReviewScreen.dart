@@ -40,6 +40,9 @@ class ReviewScreen extends StatefulWidget {
 class _ReviewScreenState extends BaseScreen<ReviewScreen>
     with ScreenStateHost<ReviewScreen, ReviewState> {
   @override
+  bool get safeArea => false;
+
+  @override
   ReviewState buildState() => ReviewState(
     initial: widget.review,
     service: widget.service,
