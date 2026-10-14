@@ -56,7 +56,7 @@ class Logger {
   static bool _disposed = false;
   static bool _writerActive = false;
 
-  static const int _maxLogSizeBytes = 5 * 1024 * 1024;
+  static const int _maxLogSizeBytes = 1 * 1024 * 1024;
   static const int _maxPreInitLogs = 200;
 
   static final Queue<String> _queue = Queue();
