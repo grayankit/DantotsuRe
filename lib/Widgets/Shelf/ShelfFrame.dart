@@ -6,16 +6,6 @@ import '../../Utils/Nav/DpadNav.dart';
 import '../Components/SectionCard.dart';
 import '../Components/ThemedContainer.dart';
 
-class ShelfFlat extends InheritedWidget {
-  const ShelfFlat({super.key, required super.child});
-
-  static bool of(BuildContext context) =>
-      context.dependOnInheritedWidgetOfExactType<ShelfFlat>() != null;
-
-  @override
-  bool updateShouldNotify(ShelfFlat oldWidget) => false;
-}
-
 class ShelfFrame extends StatelessWidget {
   final String? title;
   final Widget? trailing;
@@ -38,7 +28,6 @@ class ShelfFrame extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (ShelfFlat.of(context)) return _flat(context);
     final scheme = Theme.of(context).colorScheme;
     return RepaintBoundary(
       child: ThemedContainer(
@@ -102,19 +91,4 @@ class ShelfFrame extends StatelessWidget {
       ),
     );
   }
-
-  Widget _flat(BuildContext context) => RepaintBoundary(
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (_hasTitle)
-          Padding(
-            padding: EdgeInsets.fromLTRB(Dimens.pagePad, 0, Dimens.gapSm, 0),
-            child: _header(context),
-          ),
-        if (_hasTitle) SizedBox(height: Dimens.gapSm),
-        child,
-      ],
-    ),
-  );
 }

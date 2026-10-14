@@ -110,8 +110,7 @@ class _CardShelfState extends State<CardShelf> {
     );
   }
 
-  double get _inset =>
-      ShelfFlat.of(context) ? Dimens.pagePad : Dimens.cardPad + 8;
+  double get _inset => Dimens.cardPad + 8;
 
   EdgeInsetsDirectional _horizontalPadding(int index, int length) =>
       EdgeInsetsDirectional.only(start: index == 0 ? _inset : _gap, end: _gap);

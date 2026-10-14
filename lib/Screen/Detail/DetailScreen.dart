@@ -14,7 +14,6 @@ import '../Navbar.dart';
 import '../../Widgets/Components/ScrollConfig.dart';
 import '../Widgets/ScreenWidgetView.dart';
 import '../../Core/ThemeManager/ThemeController.dart';
-import '../../Widgets/Shelf/ShelfFrame.dart';
 import '../Widgets/Components/DataSection.dart';
 import 'Comments/CommentsSection.dart';
 import 'Watch/WatchSection.dart';
@@ -160,15 +159,13 @@ class _DetailScreenState extends BaseScreen<DetailScreen>
           top: Radius.circular(Dimens.radius),
         ),
       ),
-      child: ShelfFlat(
-        child: Watch(
-          () => Padding(
-            padding: EdgeInsets.only(
-              top: Dimens.gapLg,
-              bottom: context.isPhone ? 120.bottomBar() : Dimens.gapXl * 2,
-            ),
-            child: _body(),
+      child: Watch(
+        () => Padding(
+          padding: EdgeInsets.only(
+            top: Dimens.gapLg,
+            bottom: context.isPhone ? 120.bottomBar() : Dimens.gapXl * 2,
           ),
+          child: _body(),
         ),
       ),
     );

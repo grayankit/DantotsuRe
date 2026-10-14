@@ -76,8 +76,7 @@ class MediaRowFacts {
   ];
 }
 
-CardStyle _style() =>
-    tryFind<CardStyleController>()?.current ?? CardStyle.cozy;
+CardStyle _style() => tryFind<CardStyleController>()?.current ?? CardStyle.cozy;
 
 Color _fill(BuildContext context) {
   final scheme = context.colorScheme;
