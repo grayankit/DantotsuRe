@@ -1547,6 +1547,78 @@ abstract class AppLocalizations {
   /// **'Open AniList and repo links in Dartotsu'**
   String get onboardingOpenLinks;
 
+  /// No description provided for @onboardingPermsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Permissions'**
+  String get onboardingPermsTitle;
+
+  /// No description provided for @onboardingPermsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow these now so downloads, updates and alerts work without interruptions. You can change them later in system settings.'**
+  String get onboardingPermsBody;
+
+  /// No description provided for @permNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get permNotifications;
+
+  /// No description provided for @permNotificationsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Download progress, new episodes and replies'**
+  String get permNotificationsDesc;
+
+  /// No description provided for @permStorage.
+  ///
+  /// In en, this message translates to:
+  /// **'All files access'**
+  String get permStorage;
+
+  /// No description provided for @permStorageDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Save downloads to the public Dartotsu folder'**
+  String get permStorageDesc;
+
+  /// No description provided for @permInstall.
+  ///
+  /// In en, this message translates to:
+  /// **'Install updates'**
+  String get permInstall;
+
+  /// No description provided for @permInstallDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Let Dartotsu install its own app updates'**
+  String get permInstallDesc;
+
+  /// No description provided for @permBattery.
+  ///
+  /// In en, this message translates to:
+  /// **'Unrestricted battery'**
+  String get permBattery;
+
+  /// No description provided for @permBatteryDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep long downloads running in the background'**
+  String get permBatteryDesc;
+
+  /// No description provided for @permGrant.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow'**
+  String get permGrant;
+
+  /// No description provided for @permGranted.
+  ///
+  /// In en, this message translates to:
+  /// **'Allowed'**
+  String get permGranted;
+
   /// No description provided for @linkOpenInApp.
   ///
   /// In en, this message translates to:
@@ -9580,6 +9652,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Download which subtitle?'**
   String get downloadPickSubtitle;
+
+  /// No description provided for @downloadPickAudio.
+  ///
+  /// In en, this message translates to:
+  /// **'Download which audio track?'**
+  String get downloadPickAudio;
+
+  /// No description provided for @downloadNoAudio.
+  ///
+  /// In en, this message translates to:
+  /// **'No extra audio'**
+  String get downloadNoAudio;
+
+  /// No description provided for @downloadAudio.
+  ///
+  /// In en, this message translates to:
+  /// **'Audio'**
+  String get downloadAudio;
 
   /// No description provided for @downloadNoSubtitle.
   ///

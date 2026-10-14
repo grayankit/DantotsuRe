@@ -748,6 +748,44 @@ class AppLocalizationsFil extends AppLocalizations {
   String get onboardingOpenLinks => 'Open AniList and repo links in Dartotsu';
 
   @override
+  String get onboardingPermsTitle => 'Permissions';
+
+  @override
+  String get onboardingPermsBody =>
+      'Allow these now so downloads, updates and alerts work without interruptions. You can change them later in system settings.';
+
+  @override
+  String get permNotifications => 'Notifications';
+
+  @override
+  String get permNotificationsDesc =>
+      'Download progress, new episodes and replies';
+
+  @override
+  String get permStorage => 'All files access';
+
+  @override
+  String get permStorageDesc => 'Save downloads to the public Dartotsu folder';
+
+  @override
+  String get permInstall => 'Install updates';
+
+  @override
+  String get permInstallDesc => 'Let Dartotsu install its own app updates';
+
+  @override
+  String get permBattery => 'Unrestricted battery';
+
+  @override
+  String get permBatteryDesc => 'Keep long downloads running in the background';
+
+  @override
+  String get permGrant => 'Allow';
+
+  @override
+  String get permGranted => 'Allowed';
+
+  @override
   String get linkOpenInApp => 'Open links in Dartotsu';
 
   @override
@@ -5228,6 +5266,15 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get downloadPickSubtitle => 'Download which subtitle?';
+
+  @override
+  String get downloadPickAudio => 'Download which audio track?';
+
+  @override
+  String get downloadNoAudio => 'No extra audio';
+
+  @override
+  String get downloadAudio => 'Audio';
 
   @override
   String get downloadNoSubtitle => 'No subtitle';
