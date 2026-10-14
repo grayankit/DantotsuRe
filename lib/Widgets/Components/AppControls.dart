@@ -19,6 +19,7 @@ class AppSegmented<T> extends StatelessWidget {
   final ValueChanged<T> onChanged;
 
   final bool expand;
+  final bool wrap;
 
   const AppSegmented({
     super.key,
@@ -26,11 +27,28 @@ class AppSegmented<T> extends StatelessWidget {
     required this.value,
     required this.onChanged,
     this.expand = true,
+    this.wrap = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final last = segments.length - 1;
+    if (wrap) {
+      return Wrap(
+        spacing: 2,
+        runSpacing: 2,
+        children: [
+          for (var i = 0; i <= last; i++)
+            _SegmentButton(
+              segment: segments[i],
+              selected: segments[i].value == value,
+              first: i == 0,
+              last: i == last,
+              onTap: () => onChanged(segments[i].value),
+            ),
+        ],
+      );
+    }
     final row = Row(
       mainAxisSize: expand ? MainAxisSize.max : MainAxisSize.min,
       children: [

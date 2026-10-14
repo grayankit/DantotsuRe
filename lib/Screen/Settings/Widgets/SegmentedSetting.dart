@@ -35,25 +35,35 @@ Setting segmentedSetting<T>({
     builder: (context) => Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Icon(icon, size: 22, color: context.colorScheme.primary),
-            const SizedBox(width: 20),
-            Expanded(
-              child: Text(
-                label,
-                style: context.textTheme.bodyLarge?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+        SizedBox(
+          width: double.infinity,
+          child: Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            runSpacing: 10,
+            children: [
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(icon, size: 22, color: context.colorScheme.primary),
+                  const SizedBox(width: 20),
+                  Text(
+                    label,
+                    style: context.textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                ],
               ),
-            ),
-            AppSegmented<T>(
-              expand: false,
-              value: value,
-              onChanged: onChanged,
-              segments: segments,
-            ),
-          ],
+              AppSegmented<T>(
+                wrap: true,
+                value: value,
+                onChanged: onChanged,
+                segments: segments,
+              ),
+            ],
+          ),
         ),
         if (description != null) ...[
           const SizedBox(height: 8),
