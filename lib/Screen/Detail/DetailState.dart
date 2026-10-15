@@ -5,6 +5,7 @@ import 'DetailWidgets.dart';
 import '../../Core/Offline/PendingWrites.dart';
 import 'dart:async';
 
+import 'Watch/Data/Media/MediaRecord.dart';
 import 'Watch/Data/Media/ResumeStore.dart';
 import '../../Utils/Animation/WidgetAnimations.dart';
 
@@ -57,12 +58,21 @@ class DetailState extends ScreenState {
   Disposer? _sessionSub;
   final widgets = <ScreenWidget>[].liveList;
   final ready = false.live;
-  late final tab = (commentId == null ? 0 : 2).live;
+  late final tab = _initialTab().live;
   late final visited = <int>[0, tab.value].liveList;
+
+  int _initialTab() {
+    if (commentId != null) return 2;
+    final saved = MediaRecords.of(view.service, media).tab;
+    if (saved == 2 && find<OfflineMode>().isOffline.value) return 0;
+    return saved.clamp(0, 2);
+  }
 
   void selectTab(int index) {
     if (!visited.contains(index)) visited.add(index);
     tab.value = index;
+    MediaRecords.of(view.service, media).tab = index;
+    MediaRecords.save(view.service, media);
   }
 
   final error = Live<String?>(null);
