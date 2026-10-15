@@ -359,7 +359,7 @@ packages:
     description:
       path: "."
       ref: master
-      resolved-ref: "6adf1a5f8d65274873677f3cd83e43894eec15ec"
+      resolved-ref: f7e93027b160f59664956f936bf0c5633484f43a
       url: "https://github.com/aayush2622/DartotsuExtensionBridge.git"
     source: git
     version: "0.0.5"
@@ -2092,6 +2092,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.7.0"
+  wasd:
+    dependency: transitive
+    description:
+      name: wasd
+      sha256: ffafc8a6efe5de9a967ef156d440c8aad6b9c3d2f0aadafb5ac9fe1b24117aba
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.5.2"
   watcher:
     dependency: transitive
     description:
