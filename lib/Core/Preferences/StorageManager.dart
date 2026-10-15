@@ -50,7 +50,7 @@ class StorageManager {
         }
 
         final emulatedRoot = await getEmulatedRoot();
-        logger('[Storage] emulated root = $emulatedRoot');
+
 
         final basePath = customPath.isNotEmpty
             ? withAppRoot(customPath)
