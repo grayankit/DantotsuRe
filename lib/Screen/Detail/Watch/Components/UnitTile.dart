@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import '../../../../Widgets/Components/ThemedContainer.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../Core/ThemeManager/LanguageSwitcher.dart';
@@ -166,13 +167,13 @@ class UnitTile extends StatelessWidget {
       onLongPress: onLongPress,
       child: Opacity(
         opacity: watched ? 0.55 : 1,
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: next
-                ? scheme.primaryContainer.withValues(alpha: 0.5)
-                : scheme.surfaceContainerLow,
-            borderRadius: Dimens.borderSm,
-          ),
+        child: ThemedContainer(
+          blur: false,
+          color: next
+              ? scheme.primaryContainer.withValues(alpha: 0.5)
+              : scheme.surfaceContainerLow,
+          borderRadius: Dimens.borderSm,
+          padding: EdgeInsets.zero,
           child: Padding(
             padding: EdgeInsets.all(Dimens.gapSm),
             child: Row(
@@ -274,13 +275,13 @@ class UnitTile extends StatelessWidget {
       onLongPress: onLongPress,
       child: Opacity(
         opacity: watched ? 0.55 : 1,
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: next
-                ? scheme.primaryContainer.withValues(alpha: 0.5)
-                : scheme.surfaceContainerLow,
-            borderRadius: Dimens.borderSm,
-          ),
+        child: ThemedContainer(
+          blur: false,
+          color: next
+              ? scheme.primaryContainer.withValues(alpha: 0.5)
+              : scheme.surfaceContainerLow,
+          borderRadius: Dimens.borderSm,
+          padding: EdgeInsets.zero,
           child: Padding(
             padding: EdgeInsets.all(Dimens.gapSm - 2),
             child: Column(
@@ -372,11 +373,11 @@ class UnitTile extends StatelessWidget {
       onLongPress: onLongPress,
       child: Opacity(
         opacity: watched ? 0.45 : 1,
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: background,
-            borderRadius: BorderRadius.circular(14),
-          ),
+        child: ThemedContainer(
+          blur: false,
+          color: background,
+          borderRadius: BorderRadius.circular(14),
+          padding: EdgeInsets.zero,
           child: Stack(
             alignment: Alignment.center,
             children: [

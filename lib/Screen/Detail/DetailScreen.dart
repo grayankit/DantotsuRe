@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../Widgets/Components/ThemedContainer.dart';
 
 import '../../Core/Offline/OfflineMode.dart';
 import '../../Core/State/State.dart';
@@ -280,31 +281,28 @@ class _DetailScreenState extends BaseScreen<DetailScreen>
       children: [
         Padding(
           padding: EdgeInsets.symmetric(horizontal: Dimens.pagePad),
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: context.colorScheme.surfaceContainerLow,
-              borderRadius: Dimens.borderSm,
-            ),
-            child: Padding(
-              padding: EdgeInsets.symmetric(vertical: Dimens.gapLg - 2),
-              child: Row(
-                children: [
-                  for (final label in const [
-                    'Score',
-                    'Popularity',
-                    'Favorites',
-                    'Duration',
-                  ])
-                    Expanded(
-                      child: Column(
-                        children: [
-                          Text('8.8', style: context.textTheme.titleLarge),
-                          Text(label, style: context.textTheme.labelMedium),
-                        ],
-                      ),
+          child: ThemedContainer(
+            blur: false,
+            color: context.colorScheme.surfaceContainerLow,
+            borderRadius: Dimens.borderSm,
+            padding: EdgeInsets.symmetric(vertical: Dimens.gapLg - 2),
+            child: Row(
+              children: [
+                for (final label in const [
+                  'Score',
+                  'Popularity',
+                  'Favorites',
+                  'Duration',
+                ])
+                  Expanded(
+                    child: Column(
+                      children: [
+                        Text('8.8', style: context.textTheme.titleLarge),
+                        Text(label, style: context.textTheme.labelMedium),
+                      ],
                     ),
-                ],
-              ),
+                  ),
+              ],
             ),
           ),
         ),

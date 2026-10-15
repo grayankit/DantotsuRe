@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../Widgets/Components/ThemedContainer.dart';
 
 import '../../../Core/Services/Model/Media.dart';
 import '../../../Core/Services/Screens/DetailHost.dart';
@@ -53,32 +54,29 @@ class DetailStats extends StatelessWidget {
     final scheme = context.colorScheme;
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: Dimens.pagePad),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: scheme.surfaceContainerLow,
-          borderRadius: Dimens.borderSm,
+      child: ThemedContainer(
+        blur: false,
+        color: scheme.surfaceContainerLow,
+        borderRadius: Dimens.borderSm,
+        padding: EdgeInsets.symmetric(
+          horizontal: Dimens.gap,
+          vertical: Dimens.gapLg - 2,
         ),
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: Dimens.gap,
-            vertical: Dimens.gapLg - 2,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (items.isNotEmpty)
-                Row(
-                  children: [
-                    for (final (label, value) in items)
-                      Expanded(child: _stat(context, label, value)),
-                  ],
-                ),
-              if (airing != null) ...[
-                if (items.isNotEmpty) SizedBox(height: Dimens.gapLg - 2),
-                _airing(context, m, airing),
-              ],
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (items.isNotEmpty)
+              Row(
+                children: [
+                  for (final (label, value) in items)
+                    Expanded(child: _stat(context, label, value)),
+                ],
+              ),
+            if (airing != null) ...[
+              if (items.isNotEmpty) SizedBox(height: Dimens.gapLg - 2),
+              _airing(context, m, airing),
             ],
-          ),
+          ],
         ),
       ),
     );
@@ -115,14 +113,16 @@ class DetailStats extends StatelessWidget {
     final ep = m.anime?.nextAiringEpisode;
     final scheme = context.colorScheme;
     return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Icon(Icons.sensors_rounded, size: 18, color: scheme.primary),
         SizedBox(width: Dimens.gapSm),
-        Expanded(
+        Flexible(
           child: Text(
             ep != null
                 ? getString.episodeAirsIn(ep, _countdown(until))
                 : getString.nextEpisodeIn(_countdown(until)),
+            textAlign: TextAlign.center,
             style: context.textTheme.bodyMedium?.copyWith(
               color: scheme.onSurface,
             ),

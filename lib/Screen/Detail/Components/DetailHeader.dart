@@ -1,3 +1,4 @@
+import 'dart:ui' show ImageFilter;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -108,11 +109,9 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
             clipBehavior: Clip.none,
             children: [
               Positioned.fill(
-                child: ColoredBox(
-                  color: scheme.surface.withValues(
-                    alpha: glass ? 0.85 * ((t - 0.9) * 10).clamp(0.0, 1.0) : t,
-                  ),
-                ),
+                child: glass
+                    ? _glassBar(scheme, ((t - 0.85) * 6.7).clamp(0.0, 1.0))
+                    : ColoredBox(color: scheme.surface.withValues(alpha: t)),
               ),
               if (!glass)
                 Positioned(
@@ -285,6 +284,28 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _glassBar(ColorScheme scheme, double p) {
+    if (p <= 0) return const SizedBox.shrink();
+    return Opacity(
+      opacity: p,
+      child: ClipRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: scheme.surface.withValues(alpha: 0.4),
+              border: Border(
+                bottom: BorderSide(
+                  color: scheme.onSurface.withValues(alpha: 0.08),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 

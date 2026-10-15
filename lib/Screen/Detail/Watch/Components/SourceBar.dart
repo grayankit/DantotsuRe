@@ -1,5 +1,6 @@
 import 'package:dartotsu_extension_bridge/dartotsu_extension_bridge.dart';
 import 'package:flutter/material.dart';
+import '../../../../Widgets/Components/ThemedContainer.dart';
 
 import '../../../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../../../Utils/Extensions/ContextExtensions.dart';
@@ -42,11 +43,11 @@ class SourceBar extends StatelessWidget {
             Expanded(
               child: Clickable(
                 onTap: selectable ? onPick : null,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: scheme.surfaceContainerHigh,
-                    borderRadius: Dimens.borderSm,
-                  ),
+                child: ThemedContainer(
+                  blur: false,
+                  color: scheme.surfaceContainerHigh,
+                  borderRadius: Dimens.borderSm,
+                  padding: EdgeInsets.zero,
                   child: Padding(
                     padding: EdgeInsets.symmetric(
                       horizontal: Dimens.gap,
