@@ -181,7 +181,7 @@ jobs:
           PING_INPUT: ${{ inputs.ping_discord }}
         run: |
           if [[ "${HEAD_MSG,,}" == *"[ping]"* ]] || [[ "$PING_INPUT" == "true" ]]; then
-            echo "PING_VARIABLE=<@&1324799528255225997>" >> $GITHUB_ENV
+            echo "PING_VARIABLE=<@&1434448534450606090>" >> $GITHUB_ENV
           else
             echo "PING_VARIABLE=noPing" >> $GITHUB_ENV
           fi
