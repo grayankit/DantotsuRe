@@ -4,6 +4,7 @@ import 'package:skeletonizer/skeletonizer.dart';
 import '../../Core/State/State.dart';
 import '../../Core/ThemeManager/ThemeController.dart';
 import 'ThemedContainer.dart';
+import '../../Utils/Functions/AppShortcuts.dart';
 
 import '../../Utils/Extensions/ContextExtensions.dart';
 import '../../Utils/Functions/NavigateToScreen.dart';
@@ -16,6 +17,13 @@ class AppBackButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return Watch(() {
+      usingKeyboard;
+      return _button(context);
+    });
+  }
+
+  Widget _button(BuildContext context) {
     return IconButton(
       style: IconButton.styleFrom(
         padding: EdgeInsets.zero,

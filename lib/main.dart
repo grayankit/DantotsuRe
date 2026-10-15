@@ -303,9 +303,12 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return Listener(
-      onPointerDown: (event) =>
-          event.buttons == kBackMouseButton ? _handleBack() : null,
+      onPointerDown: (event) {
+        usingKeyboard = false;
+        if (event.buttons == kBackMouseButton) _handleBack();
+      },
       onPointerHover: (_) => usingKeyboard = false,
+      onPointerMove: (_) => usingKeyboard = false,
       child: Focus(
         focusNode: _focusNode,
         canRequestFocus: false,

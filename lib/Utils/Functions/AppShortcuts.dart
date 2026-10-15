@@ -7,7 +7,14 @@ import 'SnackBar.dart';
 import '../../Core/State/State.dart';
 import '../../Core/ThemeManager/LanguageSwitcher.dart';
 
-var usingKeyboard = false;
+final _keyboardMode = false.live;
+
+bool get usingKeyboard => _keyboardMode.value;
+
+set usingKeyboard(bool value) {
+  if (_keyboardMode.value != value) _keyboardMode.value = value;
+}
+
 bool appShortcuts(KeyEvent event) {
   usingKeyboard = true;
   if (event is! KeyDownEvent) return false;
