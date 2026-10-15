@@ -150,9 +150,13 @@ class CustomJsonTheme {
       events:
           FileSystemEvent.modify |
           FileSystemEvent.create |
-          FileSystemEvent.delete,
+          FileSystemEvent.delete |
+          FileSystemEvent.move,
     )) {
-      if (event.path == f.path) yield null;
+      final destination = event is FileSystemMoveEvent
+          ? event.destination
+          : null;
+      if (event.path == f.path || destination == f.path) yield null;
     }
   }
 }
