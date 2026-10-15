@@ -11,6 +11,7 @@ import '../Preferences/PrefManager.dart';
 class CookieManager extends Interceptor {
   static const _storageKey = "cookies";
   static const _flushDelay = Duration(seconds: 2);
+  static const _webViewLifetime = Duration(days: 30);
 
   String Function()? clearanceAgent;
 
@@ -449,6 +450,7 @@ class CookieManager extends Interceptor {
       domain: uri,
     );
 
+    final now = DateTime.now();
     final converted = <StoredCookie>[];
     for (final c in cookies) {
       final domain = normalizeDomain(c.domain.isEmpty ? uri.host : c.domain);
@@ -461,13 +463,13 @@ class CookieManager extends Interceptor {
           domain: domain,
           hostOnly: c.domain.isEmpty,
           path: c.path.isNotEmpty ? c.path : defaultCookiePath(uri),
-          expires: known?.expires,
+          expires: known?.expires ?? now.add(_webViewLifetime),
           secure: known?.secure ?? false,
           httpOnly: known?.httpOnly ?? false,
           sameSite: known?.sameSite,
           priority: CookiePriority.medium,
           partitioned: false,
-          session: known?.session ?? true,
+          session: known?.session ?? false,
           created: DateTime.now(),
           lastAccessed: DateTime.now(),
         ),
