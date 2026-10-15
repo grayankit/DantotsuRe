@@ -11,6 +11,7 @@ class PrefName {
     PrefLocation.THEME,
   );
   static const useGlassMode = Pref('useGlassMode', false, PrefLocation.THEME);
+  static const shelfFrame = Pref('shelfFrame', true, PrefLocation.THEME);
   static const isOled = Pref('isOled', false, PrefLocation.THEME);
   static const useMaterialYou = Pref(
     'useMaterialYou',

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../Core/Preferences/PrefManager.dart';
+import '../../Core/State/State.dart';
 import '../../Utils/Extensions/Responsive.dart';
 import '../../Utils/Nav/DpadLayers.dart';
 import '../../Utils/Nav/DpadNav.dart';
@@ -27,7 +29,10 @@ class ShelfFrame extends StatelessWidget {
   bool get _hasTitle => title != null && title!.isNotEmpty;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => Watch(() => _build(context));
+
+  Widget _build(BuildContext context) {
+    if (!PrefName.shelfFrame.rx.value) return _bare(context);
     final scheme = Theme.of(context).colorScheme;
     return RepaintBoundary(
       child: ThemedContainer(
@@ -60,6 +65,32 @@ class ShelfFrame extends StatelessWidget {
               SizedBox(height: Dimens.cardPad),
             child,
             SizedBox(height: Dimens.cardPad),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _bare(BuildContext context) {
+    return RepaintBoundary(
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: Dimens.gapSm / 2),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (_hasTitle) ...[
+              Padding(
+                padding: EdgeInsets.fromLTRB(
+                  Dimens.gap + 8,
+                  Dimens.gapSm,
+                  Dimens.gap,
+                  0,
+                ),
+                child: _header(context),
+              ),
+              SizedBox(height: Dimens.gapSm),
+            ],
+            child,
           ],
         ),
       ),

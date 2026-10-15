@@ -581,6 +581,18 @@ abstract class AppLocalizations {
   /// **'Frosted surfaces over your library art'**
   String get glassModeDesc;
 
+  /// No description provided for @shelfFrame.
+  ///
+  /// In en, this message translates to:
+  /// **'Frame around sections'**
+  String get shelfFrame;
+
+  /// No description provided for @shelfFrameDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Show a card behind each shelf, or let the rows sit directly on the page'**
+  String get shelfFrameDesc;
+
   /// No description provided for @settingsExtensionsDesc.
   ///
   /// In en, this message translates to:

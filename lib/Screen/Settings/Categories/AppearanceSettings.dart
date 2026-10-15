@@ -95,6 +95,13 @@ List<Setting> appearanceSettings(BuildContext context) {
       isChecked: t.useGlassMode.value,
       onSwitchChange: t.setGlassEffect,
     ),
+    Setting.switchType(
+      name: getString.shelfFrame,
+      description: getString.shelfFrameDesc,
+      icon: Icons.crop_square_rounded,
+      isChecked: PrefName.shelfFrame.rx.value,
+      onSwitchChange: (v) => PrefName.shelfFrame.rx.value = v,
+    ),
     Setting.normal(
       name: getString.glassBackground,
       description: PrefName.glassBackgroundUrl.rx.value.isEmpty

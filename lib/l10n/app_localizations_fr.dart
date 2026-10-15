@@ -226,6 +226,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get glassModeDesc => 'Frosted surfaces over your library art';
 
   @override
+  String get shelfFrame => 'Frame around sections';
+
+  @override
+  String get shelfFrameDesc =>
+      'Show a card behind each shelf, or let the rows sit directly on the page';
+
+  @override
   String get settingsExtensionsDesc =>
       'Source managers, repositories and extension options';
 
