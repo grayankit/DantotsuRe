@@ -46,6 +46,16 @@ void logError(String tag, Object error, [StackTrace? stack, String? message]) {
   logger(b.toString(), logLevel: LogLevel.warning, tag: tag);
 }
 
+String _field(String label, Object? Function() read) {
+  String value;
+  try {
+    value = '${read()}';
+  } catch (_) {
+    value = 'unavailable';
+  }
+  return '${label.padRight(13)} : $value';
+}
+
 class Logger {
   static late File _logFile;
 
@@ -230,12 +240,12 @@ class Logger {
 
     buffer
       ..writeln('==== DEVICE INFO ====')
-      ..writeln('OS            : ${Platform.operatingSystem}')
-      ..writeln('OS Version    : ${Platform.operatingSystemVersion}')
-      ..writeln('Locale        : ${Platform.localeName}')
-      ..writeln('Dart Version  : ${Platform.version}')
-      ..writeln('Processors    : ${Platform.numberOfProcessors}')
-      ..writeln('Executable    : ${Platform.resolvedExecutable}')
+      ..writeln(_field('OS', () => Platform.operatingSystem))
+      ..writeln(_field('OS Version', () => Platform.operatingSystemVersion))
+      ..writeln(_field('Locale', () => Platform.localeName))
+      ..writeln(_field('Dart Version', () => Platform.version))
+      ..writeln(_field('Processors', () => Platform.numberOfProcessors))
+      ..writeln(_field('Executable', () => Platform.resolvedExecutable))
       ..writeln('');
 
     try {
@@ -243,47 +253,47 @@ class Logger {
         final info = await _deviceInfo.androidInfo;
         buffer
           ..writeln('---- ANDROID ----')
-          ..writeln('Brand         : ${info.brand}')
-          ..writeln('Manufacturer  : ${info.manufacturer}')
-          ..writeln('Model         : ${info.model}')
-          ..writeln('Device        : ${info.device}')
-          ..writeln('Product       : ${info.product}')
-          ..writeln('SDK           : ${info.version.sdkInt}')
-          ..writeln('Release       : ${info.version.release}')
-          ..writeln('Fingerprint   : ${info.fingerprint}');
+          ..writeln(_field('Brand', () => info.brand))
+          ..writeln(_field('Manufacturer', () => info.manufacturer))
+          ..writeln(_field('Model', () => info.model))
+          ..writeln(_field('Device', () => info.device))
+          ..writeln(_field('Product', () => info.product))
+          ..writeln(_field('SDK', () => info.version.sdkInt))
+          ..writeln(_field('Release', () => info.version.release))
+          ..writeln(_field('Fingerprint', () => info.fingerprint));
       } else if (Platform.isLinux) {
         final info = await _deviceInfo.linuxInfo;
         buffer
           ..writeln('---- LINUX ----')
-          ..writeln('Name          : ${info.name}')
-          ..writeln('Version       : ${info.version ?? info.buildId}')
-          ..writeln('ID            : ${info.id}')
-          ..writeln('Machine ID    : ${info.machineId}');
+          ..writeln(_field('Name', () => info.name))
+          ..writeln(_field('Version', () => info.version ?? info.buildId))
+          ..writeln(_field('ID', () => info.id))
+          ..writeln(_field('Machine ID', () => info.machineId));
       } else if (Platform.isWindows) {
         final info = await _deviceInfo.windowsInfo;
         buffer
           ..writeln('---- WINDOWS ----')
-          ..writeln('Product Name  : ${info.productName}')
-          ..writeln('Build         : ${info.buildNumber}')
-          ..writeln('Release ID    : ${info.releaseId}')
-          ..writeln('Device ID     : ${info.deviceId}');
+          ..writeln(_field('Product Name', () => info.productName))
+          ..writeln(_field('Build', () => info.buildNumber))
+          ..writeln(_field('Release ID', () => info.releaseId))
+          ..writeln(_field('Device ID', () => info.deviceId));
       } else if (Platform.isMacOS) {
         final info = await _deviceInfo.macOsInfo;
         buffer
           ..writeln('---- MACOS ----')
-          ..writeln('Model         : ${info.model}')
-          ..writeln('OS Version    : ${info.osRelease}')
-          ..writeln('Kernel        : ${info.kernelVersion}')
-          ..writeln('Arch          : ${info.arch}');
+          ..writeln(_field('Model', () => info.model))
+          ..writeln(_field('OS Version', () => info.osRelease))
+          ..writeln(_field('Kernel', () => info.kernelVersion))
+          ..writeln(_field('Arch', () => info.arch));
       } else if (Platform.isIOS) {
         final info = await _deviceInfo.iosInfo;
         buffer
           ..writeln('---- IOS ----')
-          ..writeln('Name          : ${info.name}')
-          ..writeln('System        : ${info.systemName}')
-          ..writeln('Version       : ${info.systemVersion}')
-          ..writeln('Model         : ${info.model}')
-          ..writeln('Machine       : ${info.utsname.machine}');
+          ..writeln(_field('Name', () => info.name))
+          ..writeln(_field('System', () => info.systemName))
+          ..writeln(_field('Version', () => info.systemVersion))
+          ..writeln(_field('Model', () => info.model))
+          ..writeln(_field('Machine', () => info.utsname.machine));
       } else {
         buffer.writeln('Unsupported platform for detailed device info.');
       }

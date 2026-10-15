@@ -73,14 +73,14 @@ class DeepLink {
       _schemes.forEach(registerProtocolHandler);
       for (var e in videoExtensions) {
         registerFileAssociation(
-          e,
+          '.$e',
           'Dartotsu.Video',
           description: 'Dartotsu Video File',
         );
       }
       for (var e in audioExtensions) {
         registerFileAssociation(
-          e,
+          '.$e',
           'Dartotsu.Audio',
           description: 'Dartotsu Audio File',
         );
