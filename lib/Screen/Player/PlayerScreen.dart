@@ -591,9 +591,10 @@ class _PlayerScreenState extends State<PlayerScreen>
       onVerticalDragUpdate: (d) {
         if (state.locked.value) return;
         final delta = -d.delta.dy / 300;
-        if (supportsBrightness && d.localPosition.dx < width / 2) {
+        final x = d.localPosition.dx;
+        if (supportsBrightness && x < width * 0.25) {
           state.changeBrightness(delta);
-        } else {
+        } else if (x > width * 0.75) {
           state.changeVolume(delta);
         }
       },
@@ -601,7 +602,9 @@ class _PlayerScreenState extends State<PlayerScreen>
     );
     return Listener(
       onPointerSignal: (e) {
-        if (e is PointerScrollEvent && !state.locked.value) {
+        if (e is PointerScrollEvent &&
+            !state.locked.value &&
+            state.fullscreen.value) {
           state.changeVolume(-e.scrollDelta.dy / 1500);
         }
       },
