@@ -8,10 +8,9 @@ import '../Data/SourceMatcher.dart';
 import '../../../../Utils/Extensions/Responsive.dart';
 import '../../../../Utils/Functions/NavigateToScreen.dart';
 import '../../../../Widgets/Components/AppSheet.dart';
-import '../../../../Widgets/Shelf/MediaSection.dart';
-import '../../../../Core/Services/Model/Anime.dart';
-import '../../../../Core/Services/Model/Manga.dart';
-import '../../../../Core/Services/Model/Media.dart';
+import '../../../../Widgets/Components/CachedNetworkImage.dart';
+import '../../../../Widgets/Components/ScrollConfig.dart';
+import '../../../../Widgets/Components/SheetTile.dart';
 import '../WatchState.dart';
 
 class WrongTitleSheet extends StatefulWidget {
@@ -114,33 +113,46 @@ class _WrongTitleSheetState extends State<WrongTitleSheet> {
                 return Center(child: Text(getString.watchNothingFound));
               }
               final items = _results.toList();
-              final anime = widget.state.anime;
-              return SingleChildScrollView(
-                child: MediaSection(
-                  data: MediaSectionData(
-                    type: 0,
-                    title: getString.watchResults,
-                    fullPage: false,
-                    mediaList: [
-                      for (final m in items)
-                        Media(
-                          id: '${m.media.url}',
-                          name: m.media.title,
-                          nameRomaji: m.media.title,
-                          userPreferredName: m.media.title,
-                          cover: m.media.cover,
-                          shareLink: m.media.url ?? '',
-                          relation: '${m.score}%',
-                          minimal: true,
-                          anime: anime ? Anime() : null,
-                          manga: anime ? null : Manga(),
-                        ),
-                    ],
-                    onMediaTap: (ctx, index, media, tag) {
-                      popPage(context);
-                      unawaited(widget.state.chooseMatch(items[index].media));
-                    },
+              return ScrollConfig(
+                context,
+                child: ListView.builder(
+                  padding: EdgeInsets.fromLTRB(
+                    Dimens.pagePad,
+                    0,
+                    Dimens.pagePad,
+                    Dimens.pagePad,
                   ),
+                  itemCount: items.length,
+                  itemBuilder: (context, index) {
+                    final match = items[index];
+                    return SheetTile(
+                      tinted: true,
+                      leading: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: cachedNetworkImage(
+                          imageUrl: match.media.cover,
+                          width: 44,
+                          height: 62,
+                          fit: BoxFit.cover,
+                          errorWidget: (_, _, _) =>
+                              const SizedBox(width: 44, height: 62),
+                        ),
+                      ),
+                      title: Text(
+                        match.media.title ?? '',
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      trailing: Text(
+                        '${match.score}%',
+                        style: Theme.of(context).textTheme.labelLarge,
+                      ),
+                      onTap: () {
+                        popPage(context);
+                        unawaited(widget.state.chooseMatch(match.media));
+                      },
+                    );
+                  },
                 ),
               );
             }),
