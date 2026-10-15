@@ -514,16 +514,13 @@ class CookieManager extends Interceptor {
   StoredCookie? getCookie(String domain, String name) {
     domain = normalizeDomain(domain);
 
-    try {
-      return _allCookies.firstWhere(
-        (cookie) =>
-            cookie.name == name &&
-            domainMatches(domain, cookie.domain, cookie.hostOnly),
-      );
-    } catch (e, st) {
-      logError('CookieManager', e, st);
-      return null;
+    for (final cookie in _allCookies) {
+      if (cookie.name == name &&
+          domainMatches(domain, cookie.domain, cookie.hostOnly)) {
+        return cookie;
+      }
     }
+    return null;
   }
 
   Future<void> deleteAll() async {
