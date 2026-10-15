@@ -390,10 +390,10 @@ class AlertDialogBuilder {
   Widget _buildButton(String title, VoidCallback? onClick, ColorScheme theme) =>
       TextButton(
         onPressed: () {
-          onClick?.call();
           if (_popOnFinish) {
             popPage(context);
           }
+          onClick?.call();
         },
         child: Text(
           title,
