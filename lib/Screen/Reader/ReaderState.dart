@@ -226,9 +226,18 @@ class ReaderState extends ScreenState {
     }
   }
 
+  bool _isLocal(int index) =>
+      !request.online &&
+      find<DownloadEngine>().isDownloaded(
+        request.service.id,
+        request.media.id,
+        units[index].key,
+      );
+
   void _warm(int around) {
     for (final n in [_nextOf(around), around - 1]) {
       if (n < 0 || n >= units.length) continue;
+      if (_isLocal(n) != _isLocal(around)) continue;
       final key = unitKey(units[n]);
       if (!_warmed.add(key)) continue;
       final forward = n > around;
@@ -430,14 +439,15 @@ class ReaderState extends ScreenState {
 
   void loadNextNow() {
     _failedNext.clear();
-    _appendNext();
+    _appendNext(force: true);
   }
 
-  void _appendNext() {
+  void _appendNext({bool force = false}) {
     final last = segments.lastOrNull;
     if (last == null || loadingNext.value) return;
     final next = _nextOf(last.chapter);
     if (next >= units.length) return;
+    if (!force && _isLocal(next) != _isLocal(last.chapter)) return;
     loadingNext.value = true;
     unawaited(() async {
       try {
@@ -678,6 +688,7 @@ class ReaderState extends ScreenState {
     if (loadingPrevious.value) return;
     final first = segments.first.chapter;
     if (first <= 0 || _failedPrevious.contains(first - 1)) return;
+    if (_isLocal(first - 1) != _isLocal(first)) return;
     loadingPrevious.value = true;
     unawaited(() async {
       try {
