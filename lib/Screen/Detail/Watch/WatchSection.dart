@@ -71,7 +71,7 @@ class _WatchSectionState extends State<WatchSection>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (!state.offlineList) ...[
+          if (!find<OfflineMode>().isOffline.value) ...[
             SourceBar(
               source: state.source.value,
               status: state.status.value,

@@ -155,8 +155,9 @@ class WatchState extends ScreenState {
     if (generation != null && generation != _generation) return true;
     if (snapshot == null || snapshot.episodes.isEmpty) return false;
     final id = snapshot.sourceId;
-    source.value = id == null ? null : installedSourceById(id);
-    sources.value = [?source.value];
+    final offline = find<OfflineMode>().isOffline.value;
+    if (offline) source.value = id == null ? null : installedSourceById(id);
+    if (offline) sources.value = [?source.value];
     _offlineList = true;
     episodes.value = snapshot.episodes;
     scanlators.value = {
@@ -317,13 +318,13 @@ class WatchState extends ScreenState {
       }
     } catch (e, st) {
       if (generation != _generation) return;
-      if (await _startOffline(generation)) return;
-      if (await _tryNextSource()) return;
       logger(
         'Watch episodes failed: $e\n$st',
         logLevel: LogLevel.error,
         tag: 'WATCH',
       );
+      if (await _tryNextSource()) return;
+      if (await _startOffline(generation)) return;
       failure.value = e.toString();
       phase.value = WatchPhase.failed;
     }
