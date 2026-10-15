@@ -66,7 +66,7 @@ class ActivityAlerts extends AppController {
     body: n.detail ?? n.text,
     imageUrl: n.imageUrl,
     payload: canOpenNotification(n)
-        ? '$_payload${jsonEncode({'s': service.id, 'm': n.mediaId, 'u': n.userId, 'a': n.activityId, 'i': n.imageUrl})}'
+        ? '$_payload${jsonEncode({'s': service.id, 'm': n.mediaId, 'u': n.userId, 'a': n.activityId, 'i': n.imageUrl, 't': n.title, 'k': n.mediaIsAnime})}'
         : null,
   );
 
@@ -114,6 +114,8 @@ class ActivityAlerts extends AppController {
           userId: data['u'] as String?,
           activityId: data['a'] as String?,
           imageUrl: data['i'] as String?,
+          title: data['t'] as String?,
+          mediaIsAnime: data['k'] as bool?,
         ),
       );
     } catch (e, st) {

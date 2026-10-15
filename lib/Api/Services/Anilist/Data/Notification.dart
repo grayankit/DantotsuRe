@@ -14,6 +14,11 @@ ServiceNotification? parseAnilistNotification(Map<String, dynamic> json) {
   String? avatar(Map<String, dynamic>? user) =>
       (user?['avatar'] as Map?)?['large'] as String?;
 
+  bool? isAnime(Map<String, dynamic>? media) {
+    final kind = media?['type'] as String?;
+    return kind == null ? null : kind == 'ANIME';
+  }
+
   final media = json['media'] as Map<String, dynamic>?;
   final user = json['user'] as Map<String, dynamic>?;
 
@@ -29,6 +34,7 @@ ServiceNotification? parseAnilistNotification(Map<String, dynamic> json) {
         kind: NotificationKind.airing,
         title: title(media),
         detail: 'Episode $episode aired',
+        mediaIsAnime: true,
       );
     case 'RelatedMediaAdditionNotification':
       return ServiceNotification(
@@ -40,6 +46,7 @@ ServiceNotification? parseAnilistNotification(Map<String, dynamic> json) {
         kind: NotificationKind.media,
         title: title(media),
         detail: 'Was added to AniList',
+        mediaIsAnime: isAnime(media),
       );
     case 'FollowingNotification':
     case 'ActivityMessageNotification':

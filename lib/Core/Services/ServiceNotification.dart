@@ -21,6 +21,7 @@ class ServiceNotification {
   final bool unread;
   final String? title;
   final String? detail;
+  final bool? mediaIsAnime;
 
   const ServiceNotification({
     required this.id,
@@ -34,5 +35,6 @@ class ServiceNotification {
     this.unread = false,
     this.title,
     this.detail,
+    this.mediaIsAnime,
   });
 }

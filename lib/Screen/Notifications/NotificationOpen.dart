@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../Core/Services/MediaService.dart';
+import '../../Core/Services/Model/Anime.dart';
+import '../../Core/Services/Model/Manga.dart';
 import '../../Core/Services/Model/Media.dart';
 import '../../Utils/Functions/NavigateToScreen.dart';
 import '../Detail/DetailScreen.dart';
@@ -23,13 +25,18 @@ void openNotification(
     }
     return;
   }
+  final anime = n.mediaIsAnime ?? true;
   navigateToPage(
     context,
     DetailScreen(
       media: Media(
         id: n.mediaId!,
+        userPreferredName: n.title,
         cover: n.imageUrl,
-        shareLink: 'https://anilist.co/anime/${n.mediaId}',
+        anime: anime ? Anime() : null,
+        manga: anime ? null : Manga(),
+        shareLink:
+            'https://anilist.co/${anime ? 'anime' : 'manga'}/${n.mediaId}',
       ),
       view: service.detailView,
       mutations: service.getMutations,

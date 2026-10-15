@@ -24,8 +24,8 @@ query ($page: Int, $reset: Boolean) {
   Page(page: $page, perPage: 30) {
     notifications(resetNotificationCount: $reset) {
       __typename
-      ... on AiringNotification { id type episode createdAt media { id title { userPreferred } coverImage { large } } }
-      ... on RelatedMediaAdditionNotification { id type createdAt media { id title { userPreferred } coverImage { large } } }
+      ... on AiringNotification { id type episode createdAt media { id type title { userPreferred } coverImage { large } } }
+      ... on RelatedMediaAdditionNotification { id type createdAt media { id type title { userPreferred } coverImage { large } } }
       ... on FollowingNotification { id type userId context createdAt user { id name avatar { large } } }
       ... on ActivityMessageNotification { id type userId activityId context createdAt user { id name avatar { large } } }
       ... on ActivityMentionNotification { id type userId activityId context createdAt user { id name avatar { large } } }
