@@ -58,6 +58,18 @@ ICON_SHIELD="🛡️"
 ICON_CROWN="👑"
 ICON_COMET="☄️"
 ICON_GALAXY="🌌"
+ICON_SUCCESS="✅"
+ICON_ERROR="❌"
+ICON_INFO="ℹ️"
+ICON_WARNING="⚠️"
+ICON_DOWNLOAD="📥"
+ICON_UPDATE="🔄"
+ICON_UNINSTALL="🗑️"
+ICON_SPARKLES="✨"
+ICON_INSTALL="📦"
+ICON_ROCKET="🚀"
+
+CHANNEL_FILE="$INSTALL_DIR/.channel"
 
 # =============================================================================
 # 🎭 ANIMATION & UI FUNCTIONS
@@ -68,7 +80,7 @@ spinner() {
     local pid=$1
     local delay=0.1
     local spinstr='⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'
-    while [ "$(ps a | awk '{print $1}' | grep $pid)" ]; do
+    while kill -0 "$pid" 2>/dev/null; do
         local temp=${spinstr#?}
         printf " [${CYAN}%c${RESET}]  " "$spinstr"
         local spinstr=$temp${spinstr%"$temp"}
@@ -105,6 +117,14 @@ progress_bar() {
     printf "] ${BOLD}${color}%d%%${RESET} ${ICON_FIRE}" $percentage
 }
 
+# GNU date only; a bad stamp must not abort the install under set -e.
+format_utc() {
+    local raw="$1"
+    local formatted=""
+    formatted=$(date -d "$raw" '+%Y-%m-%d %H:%M:%S UTC' 2>/dev/null) || formatted="${raw:-unknown}"
+    printf '%s' "$formatted"
+}
+
 # Compare commit SHAs between repos
 compare_commits() {
     local main_repo="aayush2622/Dartotsu"
@@ -126,14 +146,16 @@ compare_commits() {
     echo -e "${GREEN}${DIM}> Cross-referencing SHA hashes...${RESET}"
     sleep 0.5
 
-    local response=$(curl -s "https://api.github.com/repos/${main_repo}/commits?per_page=1")
-    local main_commit=$(echo "$response" | grep '"sha"' | head -1 | cut -d'"' -f4 | cut -c1-7)
-    local main_date=$(echo "$response" | grep -A 2 '"date"' | tail -1 | cut -d'"' -f4)
-    local main_author=$(echo "$response" |grep '"name"' | head -1 | cut -d '"' -f 4) 
+    local response="" main_commit="" main_date="" main_author=""
+    local alpha_release="" alpha_tag="" alpha_date=""
+    response=$(curl -fsSL "https://api.github.com/repos/${main_repo}/commits?per_page=1" 2>/dev/null) || response=""
+    main_commit=$(echo "$response" | grep -m1 '"sha"' | cut -d'"' -f4 | cut -c1-7)
+    main_date=$(echo "$response" | grep -m1 '"date"' | sed -E 's/.*"([^"]*)".*/\1/')
+    main_author=$(echo "$response" | grep -m1 '"name"' | cut -d'"' -f4)
 
-    local alpha_release=$(curl -s "https://api.github.com/repos/${alpha_repo}/releases/latest")
-    local alpha_tag=$(echo "$alpha_release" | grep '"tag_name"' | cut -d '"' -f 4)
-    local alpha_date=$(echo "$alpha_release" | grep '"published_at"' | cut -d '"' -f 4)
+    alpha_release=$(curl -fsSL "https://api.github.com/repos/${alpha_repo}/releases/latest" 2>/dev/null) || alpha_release=""
+    alpha_tag=$(echo "$alpha_release" | grep -m1 '"tag_name"' | cut -d'"' -f4)
+    alpha_date=$(echo "$alpha_release" | grep -m1 '"published_at"' | sed -E 's/.*"([^"]*)".*/\1/')
 
     echo
     echo -e "${BOLD}${PURPLE}╔═══════════════════════════════════════════════════════════════╗${RESET}"
@@ -143,11 +165,11 @@ compare_commits() {
     echo -e "${BOLD}${PURPLE}║${RESET} ${ICON_GALAXY} ${BOLD}MAIN REPOSITORY${RESET} ${GRAY}(${main_repo})${RESET}          ${PURPLE}${BOLD}║${RESET}"
     echo -e "${BOLD}${PURPLE}║${RESET}   ${ICON_DIAMOND} Commit SHA: ${YELLOW}${BOLD}${main_commit}${RESET}                           ${PURPLE}${BOLD}║${RESET}"
     echo -e "${BOLD}${PURPLE}║${RESET}   ${ICON_STAR} Author: ${CYAN}${main_author}${RESET}                              ${PURPLE}${BOLD}║${RESET}"
-    echo -e "${BOLD}${PURPLE}║${RESET}   ${ICON_COMET} Timestamp: ${GRAY}$(date -d "$main_date" '+%Y-%m-%d %H:%M:%S UTC')${RESET}  ${PURPLE}${BOLD}║${RESET}"
+    echo -e "${BOLD}${PURPLE}║${RESET}   ${ICON_COMET} Timestamp: ${GRAY}$(format_utc "$main_date")${RESET}  ${PURPLE}${BOLD}║${RESET}"
     echo -e "${BOLD}${PURPLE}║${RESET}                                                         ${PURPLE}${BOLD}║${RESET}"
     echo -e "${BOLD}${PURPLE}║${RESET} ${ICON_ALIEN} ${BOLD}ALPHA REPOSITORY${RESET} ${GRAY}(${alpha_repo})${RESET} ${PURPLE}${BOLD}║${RESET}"
     echo -e "${BOLD}${PURPLE}║${RESET}   ${ICON_BOMB} Release Tag: ${PURPLE}${BOLD}${alpha_tag}${RESET}                            ${PURPLE}${BOLD}║${RESET}"
-    echo -e "${BOLD}${PURPLE}║${RESET}   ${ICON_GHOST} Published: ${GRAY}$(date -d "$alpha_date" '+%Y-%m-%d %H:%M:%S UTC')${RESET}    ${PURPLE}${BOLD}║${RESET}"
+    echo -e "${BOLD}${PURPLE}║${RESET}   ${ICON_GHOST} Published: ${GRAY}$(format_utc "$alpha_date")${RESET}    ${PURPLE}${BOLD}║${RESET}"
     echo -e "${BOLD}${PURPLE}║${RESET}                                                         ${PURPLE}${BOLD}║${RESET}"
 
     # Sync status with epic effects
@@ -319,9 +341,18 @@ detect_shell_rc() {
 }
 
 add_updater_alias() {
-  local shell_rc
+  if [ ! -t 0 ]; then
+    return 0
+  fi
+
+  local shell_rc shell_name alias_line
+  shell_name=$(basename "$SHELL")
   shell_rc=$(detect_shell_rc)
-  local alias_line="alias dartotsu-updater='bash <(curl -s https://raw.githubusercontent.com/aayush2622/Dartotsu/main/scripts/install.sh) update'"
+  if [ "$shell_name" = "fish" ]; then
+    alias_line="function dartotsu-updater; bash -c 'tmp=\$(mktemp); curl -fsSL https://raw.githubusercontent.com/aayush2622/Dartotsu/main/scripts/install.sh -o \$tmp && bash \$tmp update; status=\$?; rm -f \$tmp; exit \$status'; end"
+  else
+    alias_line="alias dartotsu-updater='bash <(curl -fsSL https://raw.githubusercontent.com/aayush2622/Dartotsu/main/scripts/install.sh) update'"
+  fi
 
   if grep -Fxq "$alias_line" "$shell_rc" 2>/dev/null; then
     echo -ne "${YELLOW}${ICON_WARNING}${RESET} The 'dartotsu-updater' alias already exists in your shell config file ($(basename "$shell_rc")). Would you like to remove it? [y/N]: "
@@ -340,6 +371,7 @@ add_updater_alias() {
     read -r add_response
     case "$add_response" in
       [yY][eE][sS]|[yY])
+        mkdir -p "$(dirname "$shell_rc")"
         echo "$alias_line" >> "$shell_rc"
         echo -e " ${GREEN}${ICON_SUCCESS} Alias added to $(basename "$shell_rc")${RESET}"
         info_msg "You can now run '${BOLD}dartotsu-updater${RESET}' to update anytime!"
@@ -481,33 +513,14 @@ check_dependencies() {
     local missing_deps=()
     local optional_deps=()
 
-    # Check command-line tools
+    # Tools only. Shared libraries depend on which channel was unpacked, so
+    # those are checked after extract in ensure_runtime_libs.
     command -v curl >/dev/null 2>&1 || missing_deps+=("curl")
     command -v unzip >/dev/null 2>&1 || missing_deps+=("unzip")
-    command -v wget >/dev/null 2>&1 || missing_deps+=("wget")
-    command -v mpv >/dev/null 2>&1 || missing_deps+=("mpv")
+    command -v python3 >/dev/null 2>&1 || missing_deps+=("python3")
 
-    # Check optional tools
     command -v git >/dev/null 2>&1 || optional_deps+=("git")
 
-    # Check libraries using pkg-config
-    if command -v pkg-config >/dev/null 2>&1; then
-        # webview_all renders with WebKitGTK 4.1 on Linux
-        pkg-config --exists webkit2gtk-4.1 2>/dev/null || missing_deps+=("webkit2gtk")
-
-        # WebKitGTK needs glib-networking for HTTPS ("TLS support not available" without it)
-        if ! find /usr/lib /usr/lib64 /usr/lib/x86_64-linux-gnu /usr/lib/aarch64-linux-gnu \
-            -name 'libgiognutls.so' -o -name 'libgioopenssl.so' 2>/dev/null | grep -q .; then
-            missing_deps+=("glib-networking")
-        fi
-
-        # Additional library checks for GUI applications
-        pkg-config --exists gtk+-3.0 2>/dev/null || missing_deps+=("gtk3")
-    else
-        missing_deps+=("pkg-config" "webkit2gtk" "gtk3")
-    fi
-
-    # Report missing dependencies
     if [ ${#missing_deps[@]} -ne 0 ]; then
         warn_msg "Missing required dependencies: ${missing_deps[*]}"
 
@@ -535,12 +548,68 @@ check_dependencies() {
         info_msg "Optional dependencies not found: ${optional_deps[*]}"
         echo -e "${GRAY}These are not required but may provide additional functionality.${RESET}"
     else
-        info_msg "All dependencies are satisfied!"
+        info_msg "Required tools are available."
     fi
 }
 
-# Enhanced package installation with better error recovery
+# Logical names (webkit2gtk, gtk3, ...) to distro packages. Runtime packages,
+# not -dev, and exact matches so "webkit2gtk" cannot rewrite "libwebkit2gtk-...".
+map_package() {
+    local distro="$1"
+    local dep="$2"
+    case "$distro:$dep" in
+        debian:webkit2gtk) echo libwebkit2gtk-4.1-0 ;;
+        debian:gtk3) echo libgtk-3-0 ;;
+        debian:pkg-config) echo pkg-config ;;
+        debian:libsecret) echo libsecret-1-0 ;;
+        debian:libwpe) echo libwpe-1.0-1 ;;
+        debian:wpewebkit) echo libwpewebkit-2.0-1 ;;
+        debian:libsoup3) echo libsoup-3.0-0 ;;
+        debian:mpv) echo libmpv2 ;;
+        debian:glib-networking) echo glib-networking ;;
+        fedora:webkit2gtk) echo webkit2gtk4.1 ;;
+        fedora:gtk3) echo gtk3 ;;
+        fedora:pkg-config) echo pkgconf-devel ;;
+        fedora:libsecret) echo libsecret ;;
+        fedora:libwpe) echo libwpe ;;
+        fedora:wpewebkit) echo wpewebkit ;;
+        fedora:libsoup3) echo libsoup3 ;;
+        fedora:mpv) echo mpv-libs ;;
+        fedora:glib-networking) echo glib-networking ;;
+        arch:webkit2gtk) echo webkit2gtk-4.1 ;;
+        arch:gtk3) echo gtk3 ;;
+        arch:pkg-config) echo pkgconf ;;
+        arch:libsecret) echo libsecret ;;
+        arch:libwpe) echo libwpe ;;
+        arch:wpewebkit) echo wpewebkit ;;
+        arch:libsoup3) echo libsoup3 ;;
+        arch:mpv) echo mpv ;;
+        arch:glib-networking) echo glib-networking ;;
+        opensuse:webkit2gtk) echo libwebkit2gtk-4_1-0 ;;
+        opensuse:gtk3) echo gtk3 ;;
+        opensuse:pkg-config) echo pkg-config ;;
+        opensuse:libsecret) echo libsecret-1-0 ;;
+        opensuse:libwpe) echo libwpe1 ;;
+        opensuse:wpewebkit) echo libwpewebkit-2_0-1 ;;
+        opensuse:libsoup3) echo libsoup-3_0-0 ;;
+        opensuse:mpv) echo libmpv2 ;;
+        opensuse:glib-networking) echo glib-networking ;;
+        macos:webkit2gtk) echo "" ;;
+        macos:gtk3) echo gtk+3 ;;
+        macos:pkg-config) echo pkg-config ;;
+        macos:mpv) echo mpv ;;
+        *) echo "$dep" ;;
+    esac
+}
+
+# Enhanced package installation with better error recovery.
+# --soft returns 1 instead of exiting, so a caller can fall back.
 install_packages() {
+    local soft=0
+    if [ "${1:-}" = "--soft" ]; then
+        soft=1
+        shift
+    fi
     local deps=("$@")
     local install_cmd=""
     local update_cmd=""
@@ -551,57 +620,47 @@ install_packages() {
         distro="debian"
         update_cmd="sudo apt update -y"
         install_cmd="sudo apt install -y"
-
-        # Map library names to Ubuntu/Debian package names
-        deps=("${deps[@]/webkit2gtk/libwebkit2gtk-4.1-0}")
-        deps=("${deps[@]/gtk3/libgtk-3-dev}")
-        deps=("${deps[@]/pkg-config/pkg-config}")
-
     elif command -v dnf >/dev/null 2>&1; then
         distro="fedora"
         install_cmd="sudo dnf install -y"
-
-        # Map library names to Fedora package names
-        deps=("${deps[@]/webkit2gtk/webkit2gtk4.1}")
-        deps=("${deps[@]/gtk3/gtk3-devel}")
-        deps=("${deps[@]/pkg-config/pkgconf-devel}")
-
     elif command -v pacman >/dev/null 2>&1; then
         distro="arch"
         update_cmd="sudo pacman -Sy"
         install_cmd="sudo pacman -S --noconfirm"
-
-        # Map library names to Arch package names
-        deps=("${deps[@]/webkit2gtk/webkit2gtk-4.1}")
-        deps=("${deps[@]/gtk3/gtk3}")
-        deps=("${deps[@]/pkg-config/pkgconf}")
-
     elif command -v zypper >/dev/null 2>&1; then
         distro="opensuse"
         install_cmd="sudo zypper install -y"
-
-        # Map library names to openSUSE package names
-        deps=("${deps[@]/webkit2gtk/libwebkit2gtk-4_1-0}")
-        deps=("${deps[@]/gtk3/gtk3-devel}")
-        deps=("${deps[@]/pkg-config/pkg-config}")
-
     elif command -v brew >/dev/null 2>&1; then
         distro="macos"
         install_cmd="brew install"
-
-        # Map library names to Homebrew package names
-        deps=("${deps[@]/webkit2gtk/}")  # Remove webkit2gtk for macOS
-        deps=("${deps[@]/gtk3/gtk+3}")
-        deps=("${deps[@]/pkg-config/pkg-config}")
-
     else
+        if [ "$soft" -eq 1 ]; then
+            warn_msg "No supported package manager found. Install manually: ${deps[*]}"
+            return 1
+        fi
         error_exit "No supported package manager found! Please install manually: ${deps[*]}"
     fi
 
-    # Filter out empty elements
-    local filtered_deps=()
+    local mapped=()
+    local dep mapped_dep
     for dep in "${deps[@]}"; do
-        [[ -n "$dep" ]] && filtered_deps+=("$dep")
+        mapped_dep=$(map_package "$distro" "$dep")
+        mapped+=("$mapped_dep")
+    done
+    deps=("${mapped[@]}")
+
+    # Filter out empty elements and duplicates (webkit + javascriptcore share a package).
+    local filtered_deps=()
+    local seen=" "
+    for dep in "${deps[@]}"; do
+        [[ -z "$dep" ]] && continue
+        case "$seen" in
+            *" $dep "*) ;;
+            *)
+                filtered_deps+=("$dep")
+                seen+="$dep "
+                ;;
+        esac
     done
     deps=("${filtered_deps[@]}")
 
@@ -647,6 +706,10 @@ install_packages() {
         done
 
         if [ ${#failed_packages[@]} -ne 0 ]; then
+            if [ "$soft" -eq 1 ]; then
+                warn_msg "Failed to install: ${failed_packages[*]}. Please install manually."
+                return 1
+            fi
             error_exit "Failed to install: ${failed_packages[*]}. Please install manually."
         fi
     fi
@@ -654,7 +717,7 @@ install_packages() {
 
 # Verify installation of critical dependencies
 verify_installation() {
-    local critical_deps=("curl" "unzip" "wget")
+    local critical_deps=("curl" "unzip" "python3")
     local failed_deps=()
 
     for dep in "${critical_deps[@]}"; do
@@ -667,14 +730,7 @@ verify_installation() {
         error_exit "Critical dependencies still missing after installation: ${failed_deps[*]}"
     fi
 
-    # Verify library installations
-    if command -v pkg-config >/dev/null 2>&1; then
-        if ! pkg-config --exists webkit2gtk-4.1 2>/dev/null; then
-            warn_msg "WebKitGTK 4.1 may not be properly installed - the in-app browser will not work"
-        fi
-    fi
-
-    info_msg "Installation verification completed!"
+    info_msg "Tool check completed."
 }
 
 # =============================================================================
@@ -683,9 +739,225 @@ verify_installation() {
 
 error_exit() {
     error_msg "$1"
-    echo -e "${GRAY}${DIM}Press any key to exit...${RESET}"
-    read -rn 1
+    if [ -t 0 ]; then
+        echo -e "${GRAY}${DIM}Press any key to exit...${RESET}"
+        read -rn 1 || true
+    fi
     exit 1
+}
+
+pause() {
+    if [ -t 0 ]; then
+        echo -e "${GRAY}${DIM}Press any key to continue...${RESET}"
+        read -rn 1 || true
+    fi
+}
+
+# stdin: GitHub release JSON (one release, or a list). Prints one Linux zip URL.
+pick_linux_zip() {
+    local mode="$1"
+    python3 -c '
+import json, sys
+mode = sys.argv[1]
+try:
+    data = json.load(sys.stdin)
+except json.JSONDecodeError as exc:
+    print("Could not parse GitHub response: %s" % exc, file=sys.stderr)
+    raise SystemExit(1)
+if isinstance(data, dict) and "message" in data and "assets" not in data and "tag_name" not in data:
+    print(data.get("message") or "GitHub API error", file=sys.stderr)
+    raise SystemExit(1)
+releases = data if isinstance(data, list) else [data]
+if mode == "prerelease":
+    releases = [r for r in releases if r.get("prerelease") and not r.get("draft")]
+elif mode == "stable":
+    releases = [r for r in releases if not r.get("prerelease") and not r.get("draft")]
+else:
+    releases = [r for r in releases if not r.get("draft")]
+for rel in releases:
+    for asset in rel.get("assets") or []:
+        name = asset.get("name") or ""
+        url = asset.get("browser_download_url") or ""
+        if name.lower().endswith(".zip") and "linux" in name.lower():
+            print(url)
+            raise SystemExit(0)
+print("no Linux zip in the selected release", file=sys.stderr)
+raise SystemExit(1)
+' "$mode"
+}
+
+pick_app_executable() {
+    local root="$1"
+    local found=""
+    found=$(find "$root" -type f -name 'dartotsu' -perm -111 -print -quit)
+    if [ -n "$found" ]; then
+        printf '%s\n' "$found"
+        return 0
+    fi
+    found=$(find "$root" -type f -name 'dartotsu.bin' -perm -111 -print -quit)
+    if [ -n "$found" ]; then
+        printf '%s\n' "$found"
+        return 0
+    fi
+    found=$(find "$root" -type f -perm -111 ! -name '*.so' ! -name '*.so.*' -print -quit)
+    if [ -n "$found" ]; then
+        printf '%s\n' "$found"
+        return 0
+    fi
+    return 1
+}
+
+# Exec the real path so a wrapper using dirname "$0" does not follow the symlink.
+install_launcher() {
+    local target="$1"
+    mkdir -p "$(dirname "$LINK")"
+    rm -f "$LINK"
+    cat > "$LINK" <<EOF
+#!/bin/sh
+exec $(printf '%q' "$target") "\$@"
+EOF
+    chmod +x "$LINK"
+}
+
+system_has_lib() {
+    local soname="$1"
+    if ldconfig -p 2>/dev/null | grep -F "$soname" | grep -qE "(^|[[:space:]])${soname}([[:space:]]|$)"; then
+        return 0
+    fi
+    local found=""
+    found=$(find /usr/lib /usr/lib64 /lib /lib64 /usr/lib/x86_64-linux-gnu /usr/lib/aarch64-linux-gnu \
+        -name "$soname" -print -quit 2>/dev/null || true)
+    [ -n "$found" ]
+}
+
+logical_package_for_soname() {
+    case "$1" in
+        libwebkit2gtk-4.1.so.0|libjavascriptcoregtk-4.1.so.0) echo webkit2gtk ;;
+        libgtk-3.so.0) echo gtk3 ;;
+        libsecret-1.so.0) echo libsecret ;;
+        libwpe-1.0.so.1) echo libwpe ;;
+        libWPEWebKit-2.0.so.1) echo wpewebkit ;;
+        libsoup-3.0.so.0) echo libsoup3 ;;
+        libmpv.so.2) echo mpv ;;
+        *) return 1 ;;
+    esac
+}
+
+# Bundled libs are sometimes shipped as libfoo.so.1.2.3 without the SONAME symlink.
+# Skip WPE: its helper processes live with the system package, not in the zip.
+link_bundled_sonames() {
+    local libdir="$1"
+    local f soname
+    [ -d "$libdir" ] || return 0
+    for f in "$libdir"/*; do
+        [ -f "$f" ] || continue
+        soname=$(readelf -d "$f" 2>/dev/null | awk -F'[][]' '/SONAME/ {print $2; exit}')
+        [ -n "$soname" ] || continue
+        case "$soname" in
+            libWPEWebKit-*|libwpe-*) continue ;;
+        esac
+        if [ ! -e "$libdir/$soname" ]; then
+            ln -sf "$(basename "$f")" "$libdir/$soname"
+        fi
+    done
+}
+
+link_wpe_fallback() {
+    local libdir="$1"
+    local f soname linked=0
+    [ -d "$libdir" ] || return 0
+    for f in "$libdir"/*; do
+        [ -f "$f" ] || continue
+        soname=$(readelf -d "$f" 2>/dev/null | awk -F'[][]' '/SONAME/ {print $2; exit}')
+        case "$soname" in
+            libWPEWebKit-*|libwpe-*)
+                if [ ! -e "$libdir/$soname" ]; then
+                    ln -sf "$(basename "$f")" "$libdir/$soname"
+                    linked=1
+                fi
+                ;;
+        esac
+    done
+    if [ "$linked" -eq 1 ]; then
+        warn_msg "Using bundled WPE libraries. Web views may crash without WPENetworkProcess from the system wpewebkit package."
+    fi
+}
+
+ensure_runtime_libs() {
+    local root="$1"
+    local libdir=""
+    libdir=$(find "$root" -type d -name lib -print -quit)
+
+    if ! command -v readelf >/dev/null 2>&1; then
+        warn_msg "readelf not found; skipping the runtime library scan. Install binutils if the app fails to start."
+        return 0
+    fi
+
+    [ -n "$libdir" ] && link_bundled_sonames "$libdir"
+
+    local missing_pkgs=()
+    local missing_sonames=()
+    local f soname pkg
+    local -A seen_pkg=()
+    local -A seen_soname=()
+
+    while IFS= read -r f; do
+        [ -n "$f" ] || continue
+        readelf -d "$f" >/dev/null 2>&1 || continue
+        while IFS= read -r soname; do
+            [ -n "$soname" ] || continue
+            if [ -n "$libdir" ] && [ -e "$libdir/$soname" ]; then
+                continue
+            fi
+            if system_has_lib "$soname"; then
+                continue
+            fi
+            pkg=$(logical_package_for_soname "$soname" 2>/dev/null || true)
+            if [ -n "$pkg" ]; then
+                if [ -z "${seen_pkg[$pkg]:-}" ]; then
+                    seen_pkg[$pkg]=1
+                    missing_pkgs+=("$pkg")
+                fi
+            elif [ -z "${seen_soname[$soname]:-}" ]; then
+                seen_soname[$soname]=1
+                missing_sonames+=("$soname")
+            fi
+        done < <(readelf -d "$f" 2>/dev/null | awk -F'[][]' '/NEEDED/ {print $2}')
+    done < <(find "$root" -type f \( -name 'dartotsu' -o -name 'dartotsu.bin' -o -name '*.so' -o -name '*.so.*' \))
+
+    if ! find /usr/lib /usr/lib64 /usr/lib/x86_64-linux-gnu /usr/lib/aarch64-linux-gnu \
+        \( -name 'libgiognutls.so' -o -name 'libgioopenssl.so' \) -print -quit 2>/dev/null | grep -q .; then
+        if [ -z "${seen_pkg[glib-networking]:-}" ]; then
+            missing_pkgs+=("glib-networking")
+        fi
+    fi
+
+    if [ ${#missing_pkgs[@]} -ne 0 ]; then
+        warn_msg "This build needs: ${missing_pkgs[*]}"
+        local install_now=0
+        if is_containerized || [ ! -t 0 ]; then
+            install_now=1
+        else
+            echo -e "${YELLOW}${BOLD}Install them now?${RESET} ${GRAY}(y/N)${RESET}: "
+            read -rn 1 INSTALL_LIBS || true
+            echo
+            if [[ "${INSTALL_LIBS,,}" == "y" ]]; then
+                install_now=1
+            fi
+        fi
+        if [ "$install_now" -eq 1 ]; then
+            if ! install_packages --soft "${missing_pkgs[@]}"; then
+                link_wpe_fallback "$libdir"
+            fi
+        else
+            warn_msg "Skipped library install. The app may not start."
+            link_wpe_fallback "$libdir"
+        fi
+    fi
+
+    if [ ${#missing_sonames[@]} -ne 0 ]; then
+        warn_msg "Still missing libraries this script does not know how to install: ${missing_sonames[*]}"
+    fi
 }
 
 download_with_progress() {
@@ -696,7 +968,7 @@ download_with_progress() {
     echo -ne "${CYAN}${ICON_DOWNLOAD}${RESET} Downloading ${BOLD}${filename}${RESET}..."
 
     # Download in background and show spinner
-    curl -sL "$url" -o "$output" &
+    curl -fsL "$url" -o "$output" &
     local curl_pid=$!
     spinner $curl_pid
     wait $curl_pid
@@ -711,12 +983,17 @@ download_with_progress() {
 }
 
 install_app() {
+    local requested="${1:-}"
     section_header "INSTALLATION PROCESS" "${ICON_INSTALL}"
+
+    case "$(uname -s)" in
+        Linux) ;;
+        *) error_exit "This installer only supports Linux. Detected $(uname -s)." ;;
+    esac
 
     if is_nix_environment; then
         nix_environment_notice
-        echo -e "${GRAY}${DIM}Press any key to continue...${RESET}"
-        read -rn 1
+        pause
         return
     fi
 
@@ -727,41 +1004,58 @@ install_app() {
     echo -e "  ${GREEN}${ICON_SUCCESS} All dependencies verified!${RESET}"
     echo
 
-    # Version selection
-    version_menu
-    read -rn 1 ANSWER
-    echo
-
-# Replace the case statement with:
-case "${ANSWER,,}" in
-    p)
-        API_URL="https://api.github.com/repos/$OWNER/$REPO/releases"
-        info_msg "Fetching pre-release versions..."
-        ;;
-    a)
-        OWNER="grayankit"
-        REPO="Dartotsu-Downloader"
-        API_URL="https://api.github.com/repos/$OWNER/$REPO/releases/latest"
-        info_msg "Fetching alpha build..."
+    local ANSWER="$requested"
+    if [ -z "$ANSWER" ]; then
+        version_menu
+        read -rn 1 ANSWER || true
         echo
-        compare_commits
-        ;;
-    s|"")
-        API_URL="https://api.github.com/repos/$OWNER/$REPO/releases/latest"
-        info_msg "Fetching stable release..."
-        ;;
-    *)
-        warn_msg "Invalid selection, defaulting to stable release..."
-        API_URL="https://api.github.com/repos/$OWNER/$REPO/releases/latest"
-        ;;
-esac
-
-    # Fetch release info
-    ASSET_URL=$(curl -s "$API_URL" | grep browser_download_url | cut -d '"' -f 4 | grep .zip | head -n 1)
-
-    if [ -z "$ASSET_URL" ]; then
-        error_exit "No downloadable assets found in the release!"
     fi
+
+    # Keep OWNER/REPO global. Alpha must not leak into a later stable install.
+    local rel_owner="$OWNER"
+    local rel_repo="$REPO"
+    local channel="stable"
+    local asset_mode="stable"
+    local API_URL=""
+
+    case "${ANSWER,,}" in
+        p|pre|prerelease)
+            channel="prerelease"
+            asset_mode="prerelease"
+            API_URL="https://api.github.com/repos/${rel_owner}/${rel_repo}/releases?per_page=20"
+            info_msg "Fetching pre-release versions..."
+            ;;
+        a|alpha)
+            channel="alpha"
+            asset_mode="latest"
+            rel_owner="grayankit"
+            rel_repo="Dartotsu-Downloader"
+            API_URL="https://api.github.com/repos/${rel_owner}/${rel_repo}/releases/latest"
+            info_msg "Fetching alpha build..."
+            echo
+            compare_commits
+            ;;
+        s|stable|"")
+            channel="stable"
+            asset_mode="stable"
+            API_URL="https://api.github.com/repos/${rel_owner}/${rel_repo}/releases/latest"
+            info_msg "Fetching stable release..."
+            ;;
+        *)
+            warn_msg "Invalid selection, defaulting to stable release..."
+            channel="stable"
+            asset_mode="stable"
+            API_URL="https://api.github.com/repos/${rel_owner}/${rel_repo}/releases/latest"
+            ;;
+    esac
+
+    local release_json="" asset_url=""
+    release_json=$(curl -fsSL "$API_URL") || error_exit "Failed to fetch release info from GitHub."
+    asset_url=$(printf '%s' "$release_json" | pick_linux_zip "$asset_mode") || error_exit "No Linux .zip found for the $channel channel."
+    if [ -z "$asset_url" ]; then
+        error_exit "No Linux .zip found for the $channel channel."
+    fi
+    ASSET_URL="$asset_url"
 
     # Download
     echo
@@ -788,23 +1082,26 @@ esac
         error_exit "Failed to extract application files!"
     fi
 
-    # Find executable
-    APP_EXECUTABLE="$(find "$INSTALL_DIR" -type f -executable -print -quit)"
-    if [ -z "$APP_EXECUTABLE" ]; then
+    # Prefer the dartotsu wrapper over dartotsu.bin. find order is not stable.
+    local app_executable=""
+    app_executable=$(pick_app_executable "$INSTALL_DIR") || error_exit "No executable found in the extracted files!"
+    if [ -z "$app_executable" ]; then
         error_exit "No executable found in the extracted files!"
     fi
-
+    APP_EXECUTABLE="$app_executable"
     chmod +x "$APP_EXECUTABLE"
 
-    # Create symlink
-    mkdir -p "$HOME/.local/bin"
-    ln -sf "$APP_EXECUTABLE" "$LINK"
+    ensure_runtime_libs "$INSTALL_DIR"
+
+    # A symlink breaks the alpha wrapper, which does dirname "$0".
+    install_launcher "$APP_EXECUTABLE"
+    printf '%s\n' "$channel" > "$CHANNEL_FILE"
 
     # Install icon
     echo -ne "${CYAN}${ICON_DOWNLOAD}${RESET} Installing icon..."
     mkdir -p "$(dirname "$ICON_FILE")"
     fallback_icon_url='https://raw.githubusercontent.com/aayush2622/Dartotsu/main/assets/images/logo.png'
-    if wget -q "$fallback_icon_url" -O "$ICON_FILE" 2>/dev/null; then
+    if curl -fsSL "$fallback_icon_url" -o "$ICON_FILE"; then
         echo -e " ${GREEN}${ICON_SUCCESS} Done!${RESET}"
     else
         echo -e " ${YELLOW}${ICON_WARNING} Icon download failed (non-critical)${RESET}"
@@ -842,18 +1139,16 @@ EOL
     info_msg "You can now launch it from your applications menu or run: ${BOLD}$APP_NAME${RESET}"
 
     echo
-    echo -e "${GRAY}${DIM}Press any key to continue...${RESET}"
-    read -rn 1
+    pause
 }
 
 uninstall_app() {
     section_header "UNINSTALLATION PROCESS" "${ICON_UNINSTALL}"
 
-    if [ ! -d "$INSTALL_DIR" ] && [ ! -L "$LINK" ]; then
+    if [ ! -d "$INSTALL_DIR" ] && [ ! -e "$LINK" ] && [ ! -L "$LINK" ]; then
         warn_msg "$APP_NAME doesn't appear to be installed!"
         echo
-        echo -e "${GRAY}${DIM}Press any key to continue...${RESET}"
-        read -rn 1
+        pause
         return
     fi
 
@@ -873,7 +1168,10 @@ uninstall_app() {
     info_msg "Removing $APP_NAME components..."
 
     # Remove components
-    [ -L "$LINK" ] && rm -f "$LINK" && echo -e "  ${GREEN}✓${RESET} Executable symlink removed"
+    if [ -e "$LINK" ] || [ -L "$LINK" ]; then
+        rm -f "$LINK"
+        echo -e "  ${GREEN}✓${RESET} Launcher removed"
+    fi
     [ -d "$INSTALL_DIR" ] && rm -rf "$INSTALL_DIR" && echo -e "  ${GREEN}✓${RESET} Installation directory removed"
     [ -f "$DESKTOP_FILE" ] && rm -f "$DESKTOP_FILE" && echo -e "  ${GREEN}✓${RESET} Desktop entry removed"
     [ -f "$ICON_FILE" ] && rm -f "$ICON_FILE" && echo -e "  ${GREEN}✓${RESET} Icon removed"
@@ -900,7 +1198,7 @@ update_app() {
         return
     fi
 
-    if [ ! -d "$INSTALL_DIR" ] && [ ! -L "$LINK" ]; then
+    if [ ! -d "$INSTALL_DIR" ] && [ ! -e "$LINK" ] && [ ! -L "$LINK" ]; then
         warn_msg "$APP_NAME doesn't appear to be installed!"
         info_msg "Would you like to install it instead? ${GRAY}(y/N)${RESET}: "
         read -rn 1 INSTALL_INSTEAD
@@ -909,18 +1207,25 @@ update_app() {
         if [[ "${INSTALL_INSTEAD,,}" == "y" ]]; then
             install_app
         else
-            echo -e "${GRAY}${DIM}Press any key to continue...${RESET}"
-            read -rn 1
+            pause
         fi
         return
     fi
 
-    info_msg "Updating $APP_NAME to the latest version..."
-    echo
-    install_app
+    local channel=""
+    if [ -f "$CHANNEL_FILE" ]; then
+        channel=$(tr -d '[:space:]' < "$CHANNEL_FILE")
+    fi
 
-    # Ensure alias is still present after update
-    add_updater_alias
+    if [ -n "$channel" ]; then
+        info_msg "Updating the ${BOLD}$channel${RESET} build..."
+        echo
+        install_app "$channel"
+    else
+        warn_msg "Couldn't tell which channel this install came from. Pick one."
+        echo
+        install_app
+    fi
 }
 
 # =============================================================================
@@ -960,6 +1265,11 @@ main_loop() {
     done
 }
 
+# Allow `source scripts/install.sh` to load helpers without installing.
+if [ "${BASH_SOURCE[0]}" != "$0" ]; then
+    return 0 2>/dev/null || exit 0
+fi
+
 # Check if running in interactive mode
 if [ $# -gt 0 ]; then
     # Non-interactive mode - handle command line arguments
@@ -967,7 +1277,7 @@ if [ $# -gt 0 ]; then
     case "${ACTION,,}" in
         install)
             show_banner
-            install_app
+            install_app "${2:-}"
             ;;
         update)
             show_banner
@@ -979,7 +1289,7 @@ if [ $# -gt 0 ]; then
             ;;
         *)
             show_banner
-            echo -e "${RED}Usage: $0 [install|update|uninstall]${RESET}"
+            echo -e "${RED}Usage: $0 [install [stable|prerelease|alpha]|update|uninstall]${RESET}"
             echo -e "${GRAY}Or run without arguments for interactive mode.${RESET}"
             exit 1
             ;;
