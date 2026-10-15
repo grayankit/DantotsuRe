@@ -104,6 +104,11 @@ Future<void> downloadPages(
             ),
             cancel: cancel,
           );
+          final process = page.process;
+          if (process != null) {
+            final processed = await process(await provisional.readAsBytes());
+            await provisional.writeAsBytes(processed, flush: true);
+          }
           final sniffed = await _sniff(provisional);
           final ext =
               sniffed ?? (imageExtensions.contains(urlExt) ? urlExt : null);

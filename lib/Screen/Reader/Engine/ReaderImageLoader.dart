@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dartotsu_extension_bridge/dartotsu_extension_bridge.dart';
@@ -24,6 +25,12 @@ class ReaderImageLoader {
   );
 
   static final _errors = <String, String>{};
+  static final _processors = <String, Future<Uint8List> Function(Uint8List)>{};
+
+  static void _remember(PageUrl page) {
+    final process = page.process;
+    if (process != null) _processors[page.url] = process;
+  }
   static var _epoch = 0;
 
   static void cancelAll() => _epoch++;
@@ -33,16 +40,19 @@ class ReaderImageLoader {
   static bool _local(String url) =>
       !url.startsWith('http') && File(url).isAbsolute;
 
-  static ImageProvider providerFor(PageUrl page) => _local(page.url)
-      ? FileImage(File(page.url))
-      : CachedNetworkImageProvider(
-          page.url,
-          headers: page.headers,
-          cacheManager: manager,
-        );
+  static ImageProvider providerFor(PageUrl page) {
+    if (_local(page.url)) return FileImage(File(page.url));
+    _remember(page);
+    return CachedNetworkImageProvider(
+      page.url,
+      headers: page.headers,
+      cacheManager: manager,
+    );
+  }
 
   static Future<void> prefetch(PageUrl page) async {
     if (_local(page.url)) return;
+    _remember(page);
     try {
       final cached = await manager.getFileFromCache(page.url);
       if (cached != null && cached.validTill.isAfter(DateTime.now())) return;
@@ -107,7 +117,13 @@ class _PagedFileService extends FileService {
       final code = res.statusCode;
       if (code >= 200 && code < 300 && res.body.isNotEmpty) {
         ReaderImageLoader._errors.remove(url);
-        return _BytesResponse(res.body, res.headerMap['content-type'], url);
+        final process = ReaderImageLoader._processors[url];
+        if (process == null) {
+          return _BytesResponse(res.body, res.headerMap['content-type'], url);
+        }
+        final processed = await process(Uint8List.fromList(res.body));
+        ensureOpen();
+        return _BytesResponse(processed, 'image/png', url);
       }
       if (code == 429) {
         final after = int.tryParse(res.headerMap['retry-after'] ?? '');
