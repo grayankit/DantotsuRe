@@ -19,7 +19,9 @@ import '../../../Utils/Functions/SnackBar.dart';
 import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 
 const _toolbarHeight = 56.0;
-const _actionsHeight = 60.0;
+const _actionsHeight = 68.0;
+const _actionsGap = 8.0;
+const _sideExtra = 6.0;
 
 class DetailHeaderScope extends InheritedWidget {
   const DetailHeaderScope({super.key, required super.child});
@@ -148,7 +150,7 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
                       heightFactor: 1,
                       child: Padding(
                         padding: EdgeInsets.symmetric(
-                          horizontal: Dimens.pagePad,
+                          horizontal: Dimens.pagePad + _sideExtra,
                         ),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
@@ -169,14 +171,19 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
                             ),
                             SizedBox(
                               height: _actionsHeight,
-                              child: Align(
-                                alignment: Alignment.centerLeft,
-                                child: DpadLane(
-                                  laneKey: actionsLane,
-                                  verticalEdge: DpadEdgeBehavior.stop,
-                                  horizontalEdge: horizontalEdge,
-                                  onEdge: (d) => onLaneEdge?.call(1, d),
-                                  child: _actions(context, m),
+                              child: Padding(
+                                padding: const EdgeInsets.only(
+                                  top: _actionsGap,
+                                ),
+                                child: Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: DpadLane(
+                                    laneKey: actionsLane,
+                                    verticalEdge: DpadEdgeBehavior.stop,
+                                    horizontalEdge: horizontalEdge,
+                                    onEdge: (d) => onLaneEdge?.call(1, d),
+                                    child: _actions(context, m),
+                                  ),
                                 ),
                               ),
                             ),
@@ -290,9 +297,10 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
         children: [
           Text(
             m.mainName,
-            maxLines: 3,
+            maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: context.textTheme.headlineSmall?.copyWith(
+            style: context.textTheme.titleLarge?.copyWith(
+              fontSize: 19,
               fontWeight: FontWeight.w800,
               height: 1.15,
               color: scheme.onSurface,
