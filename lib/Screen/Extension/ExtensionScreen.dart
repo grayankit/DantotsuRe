@@ -127,12 +127,7 @@ class ExtensionScreenState extends BaseScreen<ExtensionScreen>
           return IconButton(
             icon: ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: Image.asset(
-                currentManager.icon,
-                width: 24,
-                height: 24,
-                fit: BoxFit.cover,
-              ),
+              child: assetIcon(currentManager.icon, size: 24),
             ),
             onPressed: () => showExtensionManagerSheet(context, type),
             onLongPress: () {

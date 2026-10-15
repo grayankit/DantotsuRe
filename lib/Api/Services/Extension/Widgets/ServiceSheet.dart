@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import '../../../../Widgets/Components/LoadSvg.dart';
 import 'package:dartotsu_extension_bridge/dartotsu_extension_bridge.dart';
 import 'package:flutter/material.dart';
 
@@ -74,12 +75,7 @@ class ExtensionServiceSheet extends StatelessWidget {
                           selected: extensionServiceFor(type)?.id == service.id,
                           leading: ClipRRect(
                             borderRadius: BorderRadius.circular(10),
-                            child: Image.asset(
-                              service.icon,
-                              width: 28,
-                              height: 28,
-                              fit: BoxFit.cover,
-                            ),
+                            child: assetIcon(service.icon, size: 28),
                           ),
                           title: Text(service.name),
                           trailing: extensionSettingsButton(context, service),

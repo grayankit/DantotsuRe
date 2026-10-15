@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import '../../../Widgets/Components/LoadSvg.dart';
 import 'package:dartotsu_extension_bridge/Extensions/DownloadablePlugin.dart';
 import 'package:dartotsu_extension_bridge/dartotsu_extension_bridge.dart';
 import 'package:flutter/material.dart';
@@ -90,7 +91,7 @@ Widget _serviceTile(
           shape: BoxShape.circle,
         ),
         clipBehavior: Clip.antiAlias,
-        child: Image.asset(m.icon, width: 22, height: 22, fit: BoxFit.cover),
+        child: assetIcon(m.icon, size: 22),
       ),
       title: Text(m.name),
       trailing: _withSettings(
