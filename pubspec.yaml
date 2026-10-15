@@ -31,8 +31,8 @@ dependencies:
   json_annotation: ^4.9.0
 
   # Local Storage
-  isar_community: ^3.3.2
-  isar_community_flutter_libs: ^3.3.2
+  isar_community: ^3.4.1
+  isar_community_flutter_libs: ^3.4.1
   path_provider: ^2.1.6
   path: ^1.9.1
   google_fonts: ^9.0.0
@@ -129,7 +129,7 @@ dev_dependencies:
   flutter_lints: ^6.0.0
 
   # Code Generation dart run build_runner build
-  isar_community_generator: ^3.3.2
+  isar_community_generator: ^3.4.1
   json_serializable: ^6.11.2
   build_runner: ^2.15.1
   inno_bundle: ^0.12.0
