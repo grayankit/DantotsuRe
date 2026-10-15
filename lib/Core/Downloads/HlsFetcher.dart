@@ -29,13 +29,24 @@ Future<String> fetchText(
   return '${res.data}';
 }
 
+class HlsMaster {
+  final List<HlsVariant> variants;
+  final List<HlsAudio> audios;
+
+  const HlsMaster(this.variants, this.audios);
+}
+
+Future<HlsMaster> loadMaster(String url, {Map<String, String>? headers}) async {
+  final text = await fetchText(url, headers: headers);
+  if (!isMasterPlaylist(text)) return const HlsMaster([], []);
+  final base = Uri.parse(url);
+  return HlsMaster(parseMaster(text, base), parseAudios(text, base));
+}
+
 Future<List<HlsVariant>> loadVariants(
   String url, {
   Map<String, String>? headers,
-}) async {
-  final text = await fetchText(url, headers: headers);
-  return isMasterPlaylist(text) ? parseMaster(text, Uri.parse(url)) : const [];
-}
+}) async => (await loadMaster(url, headers: headers)).variants;
 
 Future<void> downloadHls({
   required String url,
@@ -47,6 +58,7 @@ Future<void> downloadHls({
   required void Function() onFinishing,
   Map<String, String>? headers,
   int? height,
+  String? audioLabel,
   int workers = 4,
   Future<String> Function(String url)? getText,
   Future<void> Function(Uri uri, File target)? getFile,
@@ -55,35 +67,30 @@ Future<void> downloadHls({
       getText?.call(u) ?? fetchText(u, headers: headers, cancel: cancel);
   var playlistUrl = url;
   var text = await text0(url);
+  HlsAudio? audio;
   if (isMasterPlaylist(text)) {
-    final variants = parseMaster(text, Uri.parse(url));
+    final base = Uri.parse(url);
+    final variants = parseMaster(text, base);
     if (variants.isEmpty) throw const HlsUnsupported('Empty master playlist');
-    playlistUrl = pickVariant(variants, height: height).uri.toString();
+    final variant = pickVariant(variants, height: height);
+    playlistUrl = variant.uri.toString();
+    audio = pickAudio(parseAudios(text, base), variant, audioLabel);
     text = await text0(playlistUrl);
   }
   final media = parseMedia(text, Uri.parse(playlistUrl));
+  final audioMedia = audio == null
+      ? null
+      : parseMedia(await text0(audio.uri.toString()), audio.uri!);
   final name = p.basenameWithoutExtension(output.path);
   final dir = Directory(
     p.join(output.parent.path, ffmpeg == null ? name : '.$name'),
   );
   await dir.create(recursive: true);
+  final audioDir = Directory(p.join(dir.path, 'audio'));
+  if (audioMedia != null) await audioDir.create(recursive: true);
 
-  final keys = <Uri, String>{};
-  final maps = <Uri, String>{};
-  for (final s in media.segments) {
-    final key = s.key?.uri;
-    if (key != null) keys.putIfAbsent(key, () => 'key${keys.length}.ts');
-    final map = s.map;
-    if (map != null) {
-      maps.putIfAbsent(
-        map,
-        () => 'init${maps.length}.${hlsExtension(map, fallback: 'mp4')}',
-      );
-    }
-  }
-
-  Future<void> grab(Uri uri, String name) async {
-    final target = File(p.join(dir.path, name));
+  Future<void> grab(Directory into, Uri uri, String name) async {
+    final target = File(p.join(into.path, name));
     if (await _complete(target)) return;
     if (getFile != null) return getFile(uri, target);
     await fetchWithRetry(
@@ -98,66 +105,149 @@ Future<void> downloadHls({
     );
   }
 
-  for (final e in keys.entries) {
-    await grab(e.key, e.value);
-  }
-  for (final e in maps.entries) {
-    await grab(e.key, e.value);
-  }
-
-  final pending = <int>[];
-  for (final (i, s) in media.segments.indexed) {
-    if (!await _complete(File(p.join(dir.path, segmentName(i, s.uri))))) {
-      pending.add(i);
-    }
-  }
-  var next = 0;
-  var done = media.segments.length - pending.length;
+  final total = media.segments.length + (audioMedia?.segments.length ?? 0);
+  var done = 0;
   Object? failure;
-  Future<void> worker() async {
-    while (failure == null) {
-      final n = next++;
-      if (n >= pending.length) return;
-      final i = pending[n];
-      try {
-        final uri = media.segments[i].uri;
-        await grab(uri, segmentName(i, uri));
-        done++;
-        onProgress(done, media.segments.length);
-      } catch (e) {
-        logger(
-          'HLS segment ${i + 1}/${media.segments.length} failed: $e',
-          tag: 'DOWNLOAD',
+
+  Future<({Map<Uri, String> keys, Map<Uri, String> maps})> pull(
+    HlsMedia item,
+    Directory into,
+  ) async {
+    final keys = <Uri, String>{};
+    final maps = <Uri, String>{};
+    for (final s in item.segments) {
+      final key = s.key?.uri;
+      if (key != null) keys.putIfAbsent(key, () => 'key${keys.length}.ts');
+      final map = s.map;
+      if (map != null) {
+        maps.putIfAbsent(
+          map,
+          () => 'init${maps.length}.${hlsExtension(map, fallback: 'mp4')}',
         );
-        failure ??= e;
       }
     }
+    for (final e in keys.entries) {
+      await grab(into, e.key, e.value);
+    }
+    for (final e in maps.entries) {
+      await grab(into, e.key, e.value);
+    }
+    final pending = <int>[];
+    for (final (i, s) in item.segments.indexed) {
+      if (await _complete(File(p.join(into.path, segmentName(i, s.uri))))) {
+        done++;
+      } else {
+        pending.add(i);
+      }
+    }
+    onProgress(done, total);
+    var next = 0;
+    Future<void> worker() async {
+      while (failure == null) {
+        final n = next++;
+        if (n >= pending.length) return;
+        final i = pending[n];
+        try {
+          final uri = item.segments[i].uri;
+          await grab(into, uri, segmentName(i, uri));
+          done++;
+          onProgress(done, total);
+        } catch (e) {
+          logger(
+            'HLS segment ${i + 1}/${item.segments.length} failed: $e',
+            tag: 'DOWNLOAD',
+          );
+          failure ??= e;
+        }
+      }
+    }
+
+    await Future.wait([for (var k = 0; k < workers; k++) worker()]);
+    final error = failure;
+    if (error != null) throw error;
+    return (keys: keys, maps: maps);
   }
 
-  onProgress(done, media.segments.length);
-  await Future.wait([for (var k = 0; k < workers; k++) worker()]);
-  final error = failure;
-  if (error != null) throw error;
-
-  final local = File(
-    p.join(dir.path, ffmpeg == null ? 'index.m3u8' : 'local.m3u8'),
-  );
-  await local.writeAsString(
+  Future<void> writePlaylist(
+    HlsMedia item,
+    File target,
+    ({Map<Uri, String> keys, Map<Uri, String> maps}) names,
+  ) => target.writeAsString(
     buildLocalPlaylist(
-      media,
-      keyName: (uri) => keys[uri]!,
-      mapName: (uri) => maps[uri]!,
+      item,
+      keyName: (uri) => names.keys[uri]!,
+      mapName: (uri) => names.maps[uri]!,
     ),
   );
-  if (ffmpeg == null) return;
+
+  final videoNames = await pull(media, dir);
+  final audioNames = audioMedia == null
+      ? null
+      : await pull(audioMedia, audioDir);
+
+  final videoPlaylist = File(
+    p.join(
+      dir.path,
+      ffmpeg != null
+          ? 'local.m3u8'
+          : (audioMedia == null ? 'index.m3u8' : 'video.m3u8'),
+    ),
+  );
+  await writePlaylist(media, videoPlaylist, videoNames);
+  File? audioPlaylist;
+  if (audioMedia != null) {
+    audioPlaylist = File(
+      p.join(audioDir.path, ffmpeg != null ? 'local.m3u8' : 'audio.m3u8'),
+    );
+    await writePlaylist(audioMedia, audioPlaylist, audioNames!);
+  }
+  if (ffmpeg == null) {
+    if (audio != null) {
+      await File(p.join(dir.path, 'index.m3u8')).writeAsString(
+        buildLocalMaster(
+          audio: audio,
+          audioPath: 'audio/audio.m3u8',
+          videoPath: 'video.m3u8',
+        ),
+      );
+    }
+    return;
+  }
   onFinishing();
   final temp = File('${output.path}.part.mp4');
   if (await temp.exists()) await temp.delete();
-  await ffmpeg.remuxPlaylist(
-    playlist: local.path,
-    output: temp.path,
-    cancel: ffmpegCancel,
-  );
+  if (audioPlaylist == null) {
+    await ffmpeg.remuxPlaylist(
+      playlist: videoPlaylist.path,
+      output: temp.path,
+      cancel: ffmpegCancel,
+    );
+  } else {
+    const input = [
+      '-allowed_extensions',
+      'ALL',
+      '-protocol_whitelist',
+      'file,crypto,data',
+      '-i',
+    ];
+    await ffmpeg.run([
+      ...input,
+      videoPlaylist.path,
+      ...input,
+      audioPlaylist.path,
+      '-map',
+      '0:v:0',
+      '-map',
+      '1:a:0',
+      '-c',
+      'copy',
+      '-bsf:a',
+      'aac_adtstoasc',
+      '-movflags',
+      '+faststart',
+      temp.path,
+    ], cancel: ffmpegCancel);
+  }
   if (await output.exists()) await output.delete();
   await temp.rename(output.path);
   await dir.delete(recursive: true);

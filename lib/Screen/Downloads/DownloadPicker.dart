@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:dartotsu_extension_bridge/Models/Video.dart' as v;
 import 'package:dartotsu_extension_bridge/dartotsu_extension_bridge.dart';
 import 'package:flutter/material.dart';
@@ -5,6 +7,7 @@ import 'package:flutter/material.dart';
 import '../../Core/Downloads/DownloadEngine.dart';
 import '../../Core/Downloads/DownloadQueue.dart';
 import '../../Core/Downloads/DownloadTask.dart';
+import '../../Core/Downloads/Hls.dart';
 import '../../Core/Downloads/HlsFetcher.dart';
 import '../../Core/State/State.dart';
 import '../../Core/ThemeManager/LanguageSwitcher.dart';
@@ -62,6 +65,7 @@ Future<void> downloadUnits(
     tag: 'DOWNLOAD',
   );
   int? height;
+  var hlsAudios = const <HlsAudio>[];
   var folder = false;
   int? torrentFile;
   if (isTorrentSource(video.url)) {
@@ -85,7 +89,9 @@ Future<void> downloadUnits(
     if (mode == HlsMode.cancel) return;
     folder = mode == HlsMode.folder;
     try {
-      final variants = await loadVariants(video.url, headers: video.headers);
+      final master = await loadMaster(video.url, headers: video.headers);
+      final variants = master.variants;
+      HlsVariant? chosen = variants.length == 1 ? variants.first : null;
       if (variants.length > 1) {
         final sorted = [...variants]
           ..sort((a, b) => b.bandwidth.compareTo(a.bandwidth));
@@ -99,8 +105,10 @@ Future<void> downloadUnits(
           ],
         );
         if (picked == null) return;
-        height = sorted[picked].height;
+        chosen = sorted[picked];
+        height = chosen.height;
       }
+      hlsAudios = audiosFor(master.audios, chosen);
     } catch (e) {
       return snackString('$e');
     }
@@ -126,18 +134,23 @@ Future<void> downloadUnits(
     if (picked >= 0) subtitle = subs[picked];
   }
   final audios = [
+    for (final a in hlsAudios) v.Track(label: a.label),
     for (final t in video.audios ?? const <v.Track>[])
       if ((t.file ?? '').isNotEmpty) t,
   ];
   v.Track? audio;
   if (audios.isNotEmpty) {
+    final required = hlsAudios.isNotEmpty;
+    final defaultIndex = required
+        ? max(0, hlsAudios.indexWhere((a) => a.isDefault))
+        : -1;
     final picked = await showChoiceSheet<int>(
       live(),
       title: getString.downloadPickAudio,
       icon: Icons.audiotrack_rounded,
-      selected: -1,
+      selected: defaultIndex,
       options: [
-        ChoiceOption(-1, getString.downloadNoAudio),
+        if (!required) ChoiceOption(-1, getString.downloadNoAudio),
         for (final (i, t) in audios.indexed)
           ChoiceOption(i, t.label ?? t.file ?? ''),
       ],

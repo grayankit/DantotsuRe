@@ -169,6 +169,32 @@ https://other.example/1080.m3u8
       expect(variants[1].label, '720p • 2800 kbps');
     });
 
+    test('audio renditions', () {
+      const withAudio = '''#EXTM3U
+#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="aud",NAME="Japanese",LANGUAGE="ja",DEFAULT=YES,URI="ja/index.m3u8"
+#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="aud",NAME="English",LANGUAGE="en",URI="en/index.m3u8"
+#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="other",NAME="Spanish",URI="es/index.m3u8"
+#EXT-X-MEDIA:TYPE=SUBTITLES,GROUP-ID="s",NAME="Eng",URI="s.m3u8"
+#EXT-X-STREAM-INF:BANDWIDTH=800000,RESOLUTION=640x360,AUDIO="aud"
+360/index.m3u8
+''';
+      final variant = parseMaster(withAudio, base).single;
+      final audios = parseAudios(withAudio, base);
+      expect(audios.length, 3);
+      expect(variant.audioGroup, 'aud');
+      expect(audiosFor(audios, variant).map((a) => a.label), [
+        'Japanese',
+        'English',
+      ]);
+      expect(pickAudio(audios, variant, null)!.label, 'Japanese');
+      expect(pickAudio(audios, variant, 'english')!.label, 'English');
+      expect(pickAudio(audios, variant, 'Spanish')!.label, 'Japanese');
+      expect(
+        pickAudio(audios, variant, 'English')!.uri.toString(),
+        'https://cdn.example/video/en/index.m3u8',
+      );
+    });
+
     test('variant choice', () {
       final variants = parseMaster(master, base);
       expect(pickVariant(variants).height, 1080);

@@ -11,8 +11,15 @@ class HlsVariant {
   final int bandwidth;
   final int? width;
   final int? height;
+  final String? audioGroup;
 
-  const HlsVariant(this.uri, this.bandwidth, this.width, this.height);
+  const HlsVariant(
+    this.uri,
+    this.bandwidth,
+    this.width,
+    this.height, {
+    this.audioGroup,
+  });
 
   String get label {
     final kbps = bandwidth > 0 ? '${(bandwidth / 1000).round()} kbps' : null;
@@ -21,6 +28,24 @@ class HlsVariant {
     }
     return kbps ?? uri.pathSegments.lastOrNull ?? uri.toString();
   }
+}
+
+class HlsAudio {
+  final Uri? uri;
+  final String name;
+  final String? language;
+  final String group;
+  final bool isDefault;
+
+  const HlsAudio(
+    this.uri,
+    this.name,
+    this.language,
+    this.group,
+    this.isDefault,
+  );
+
+  String get label => name.isNotEmpty ? name : (language ?? group);
 }
 
 class HlsKey {
@@ -97,10 +122,56 @@ List<HlsVariant> parseMaster(String text, Uri base) {
             0,
         size.length == 2 ? int.tryParse(size[0]) : null,
         size.length == 2 ? int.tryParse(size[1]) : null,
+        audioGroup: attrs['AUDIO'],
       ),
     );
   }
   return out;
+}
+
+List<HlsAudio> parseAudios(String text, Uri base) {
+  final out = <HlsAudio>[];
+  for (final line in _lines(text)) {
+    if (!line.startsWith('#EXT-X-MEDIA')) continue;
+    final attrs = _attributes(line);
+    if ((attrs['TYPE'] ?? '').toUpperCase() != 'AUDIO') continue;
+    final uri = attrs['URI'];
+    out.add(
+      HlsAudio(
+        uri == null || uri.isEmpty ? null : base.resolve(uri),
+        attrs['NAME'] ?? '',
+        attrs['LANGUAGE'],
+        attrs['GROUP-ID'] ?? '',
+        (attrs['DEFAULT'] ?? '').toUpperCase() == 'YES',
+      ),
+    );
+  }
+  return out;
+}
+
+List<HlsAudio> audiosFor(List<HlsAudio> audios, HlsVariant? variant) {
+  final group = variant?.audioGroup;
+  final own = [
+    for (final a in audios)
+      if (a.uri != null && (group == null || a.group == group)) a,
+  ];
+  final seen = <String>{};
+  return [
+    for (final a in own)
+      if (seen.add('${a.label.toLowerCase()}|${a.uri}')) a,
+  ];
+}
+
+HlsAudio? pickAudio(List<HlsAudio> audios, HlsVariant? variant, String? label) {
+  final options = audiosFor(audios, variant);
+  if (options.isEmpty) return null;
+  final wanted = label?.toLowerCase();
+  if (wanted != null) {
+    for (final a in options) {
+      if (a.label.toLowerCase() == wanted) return a;
+    }
+  }
+  return options.firstWhere((a) => a.isDefault, orElse: () => options.first);
 }
 
 HlsVariant pickVariant(List<HlsVariant> variants, {int? height}) {
@@ -244,4 +315,18 @@ String buildLocalPlaylist(
   }
   out.writeln('#EXT-X-ENDLIST');
   return out.toString();
+}
+
+String buildLocalMaster({
+  required HlsAudio audio,
+  required String audioPath,
+  required String videoPath,
+}) {
+  final language = audio.language == null
+      ? ''
+      : ',LANGUAGE="${audio.language}"';
+  return '#EXTM3U\n'
+      '#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="audio",NAME="${audio.label.replaceAll('"', "'")}"$language,DEFAULT=YES,AUTOSELECT=YES,URI="$audioPath"\n'
+      '#EXT-X-STREAM-INF:BANDWIDTH=1,AUDIO="audio"\n'
+      '$videoPath\n';
 }

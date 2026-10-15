@@ -598,6 +598,7 @@ class DownloadEngine extends AppController {
           ffmpegCancel: job,
           headers: video.headers,
           height: task.height ?? task.profile?.height,
+          audioLabel: task.chosenAudio?.label ?? task.profile?.audio,
           onProgress: (done, total) {
             task.received.value = done;
             task.total.value = total;
@@ -945,9 +946,7 @@ class DownloadEngine extends AppController {
         text: text,
         percent: percent,
         sub: getString.downloadServiceText(active.length),
-      ).then((
-        ok,
-      ) async {
+      ).then((ok) async {
         if (ok || !live) return;
         await notifications.showProgress(
           id: _progressId,
