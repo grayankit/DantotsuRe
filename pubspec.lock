@@ -1553,17 +1553,18 @@ packages:
     description:
       path: screen_brightness
       ref: linux-support
-      resolved-ref: "7ba6931cf408d8637d6f69a55ac4067466f3e644"
+      resolved-ref: "2588a5569d1041bea87b9c7f0b80290fbc872bca"
       url: "https://github.com/aayush2622/screen_brightness.git"
     source: git
     version: "2.1.11"
   screen_brightness_android:
     dependency: transitive
     description:
-      name: screen_brightness_android
-      sha256: "2008ad8e9527cc968f7a4de1ec58b476d495b3c612a149dbd6550c4f046da147"
-      url: "https://pub.dev"
-    source: hosted
+      path: screen_brightness_android
+      ref: "2588a5569d1041bea87b9c7f0b80290fbc872bca"
+      resolved-ref: "2588a5569d1041bea87b9c7f0b80290fbc872bca"
+      url: "https://github.com/aayush2622/screen_brightness.git"
+    source: git
     version: "2.1.6"
   screen_brightness_ios:
     dependency: transitive
@@ -1577,8 +1578,8 @@ packages:
     dependency: transitive
     description:
       path: screen_brightness_linux
-      ref: "7ba6931cf408d8637d6f69a55ac4067466f3e644"
-      resolved-ref: "7ba6931cf408d8637d6f69a55ac4067466f3e644"
+      ref: "2588a5569d1041bea87b9c7f0b80290fbc872bca"
+      resolved-ref: "2588a5569d1041bea87b9c7f0b80290fbc872bca"
       url: "https://github.com/aayush2622/screen_brightness.git"
     source: git
     version: "2.1.2"
