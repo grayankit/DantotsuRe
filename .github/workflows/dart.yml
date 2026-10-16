@@ -49,7 +49,6 @@ jobs:
       flutter-version: "3.47.4"
       clean-build: ${{ github.event_name == 'workflow_dispatch' && inputs.clean_build || false }}
       publish-mode: gdrive
-      universal-name: universal
     secrets:
       FLUTTER_VERSION: ${{ secrets.FLUTTER_VERSION }}
       APK_SIGN: ${{ secrets.APK_SIGN }}

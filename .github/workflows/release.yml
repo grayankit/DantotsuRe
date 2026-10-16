@@ -24,7 +24,6 @@ jobs:
       flutter-version: "3.47.4"
       clean-build: false
       publish-mode: artifact
-      universal-name: Universal
     secrets:
       FLUTTER_VERSION: ${{ secrets.FLUTTER_VERSION }}
       APK_SIGN: ${{ secrets.APK_SIGN }}
@@ -230,9 +229,6 @@ jobs:
           while IFS= read -r LINK; do
             [[ -z "$LINK" ]] && continue
             if [[ $LINK == *"arm64"* ]]; then MESSAGE+="• [Android_arm64]($LINK)\n"
-            elif [[ $LINK == *"armeabi"* ]]; then MESSAGE+="• [Android_armeabi-v7a]($LINK)\n"
-            elif [[ $LINK == *"Android_x86"* ]]; then MESSAGE+="• [Android_x86_64]($LINK)\n"
-            elif [[ $LINK == *"Android_Universal"* ]]; then MESSAGE+="• [Android_Universal]($LINK)\n"
             elif [[ $LINK == *"iOS"* ]]; then MESSAGE+="• [iOS]($LINK)\n"
             elif [[ $LINK == *"LinuxZip"* ]]; then MESSAGE+="• [Linux]($LINK)\n"
             elif [[ $LINK == *"Linux"* ]]; then MESSAGE+="• [Linux_AppImage]($LINK)\n"
