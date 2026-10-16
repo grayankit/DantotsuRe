@@ -46,9 +46,9 @@
 
 # Dartotsu
 
-**Dartotsu** is a Flutter rewrite of [Dantotsu](https://git.rebelonion.dev/rebelonion/Dantotsu/): one app to track, discover and consume anime, manga and novels, on Android, iOS, Windows, Linux and macOS.
+**Dartotsu** is a Flutter rewrite of [Dantotsu](https://git.rebelonion.dev/rebelonion/Dantotsu/): one app to track and manage your anime, manga and novel lists, on Android, iOS, Windows, Linux and macOS.
 
-It tracks with [**AniList**](https://anilist.co/), [**MyAnimeList**](https://myanimelist.net/), [**Simkl**](https://simkl.com/), [**Kitsu**](https://kitsu.app/) and [**MangaBaka**](https://mangabaka.org/), and reads and watches through extensions you install yourself.
+It tracks with [**AniList**](https://anilist.co/), [**MyAnimeList**](https://myanimelist.net/), [**Simkl**](https://simkl.com/), [**Kitsu**](https://kitsu.app/) and [**MangaBaka**](https://mangabaka.org/).
 
 > [!WARNING]
 > **Dartotsu is a tracking and management tool only:** It does not host, provide, distribute, or maintain streaming content or extensions.
@@ -67,22 +67,6 @@ It tracks with [**AniList**](https://anilist.co/), [**MyAnimeList**](https://mya
 - List sync between services (one-way, or whichever entry is ahead), with rate-limit aware batching.
 - Profiles, activity feeds, stories, groups and Dantotsu comments on every title.
 - Trace.moe image search, episode metadata (filler, recap, thumbnails) and a Resume shelf on Home.
-
-**Watching**
-- Built-in player on mpv: gestures, keyboard shortcuts, picture in picture, Anime4K shaders, `mpv.conf` and scripts, AniSkip, auto skip and auto play.
-- Magnet and `.torrent` streaming through TorrServer.
-- Per-title settings for source, matching, layout, subtitles and audio.
-
-**Reading**
-- Manga reader with paged (RTL, LTR, vertical) and webtoon modes, double pages, zoom, tap zones, crop borders, auto scroll and bookmarks.
-- Novel reader with fonts, themes, margins and saved position.
-
-**Downloads and offline**
-- Download episodes (direct files, HLS, torrents), manga chapters and novels, one by one or in bulk.
-- Queue with drag to reorder and move to top, parallel slots, pause and resume, Wi-Fi only, pause on metered connections and a speed limit.
-- HLS resumes from the exact segment; save as MP4 through an optional ffmpeg add-on, or keep a segment folder that plays directly.
-- Drop your own videos, `.cbz`, `.zip` or `.epub` files into a title folder and Dartotsu reads them.
-- Offline mode shows your downloads and keeps reading and watching history for later.
 
 **App**
 - Material 3 theming with dynamic colour, OLED, glass mode and card styles.
