@@ -10,10 +10,8 @@ import '../../../Core/ThemeManager/language.dart';
 import '../../../Model/Setting.dart';
 import '../../../Utils/Extensions/ContextExtensions.dart';
 import '../../../Utils/Functions/LinkSettings.dart';
-import '../../../Widgets/Components/AppControls.dart';
 import '../../../Widgets/Components/CustomBottomDialog.dart';
 import '../Widgets/Backup/BackupSheet.dart';
-import '../Widgets/SegmentedSetting.dart';
 import 'NetworkSettings.dart';
 import '../../../Core/State/State.dart';
 
@@ -38,18 +36,19 @@ List<Setting> generalSettings(BuildContext context) => [
     ),
     onClick: () => showCustomBottomDialog<void>(context, const LanguageSheet()),
   ),
-  segmentedSetting<double>(
+  Setting.slider(
     name: getString.animationSpeed,
-    description: getString.animationSpeedDesc,
+    description: PrefName.animationSpeed.rx.value <= 0
+        ? getString.animationSpeedOff
+        : getString.animationSpeedDesc,
     icon: Icons.animation_rounded,
-    label: getString.animationSpeed,
-    value: PrefName.animationSpeed.rx.value,
-    onChanged: (v) => PrefName.animationSpeed.rx.value = v,
-    segments: [
-      AppSegment(0.0, label: getString.animationSpeedOff),
-      const AppSegment(1.0, label: '1x'),
-      const AppSegment(1.75, label: '1.75x'),
-    ],
+    minValue: 0,
+    maxValue: 300,
+    initialValue: (PrefName.animationSpeed.rx.value * 100).round().clamp(
+      0,
+      300,
+    ),
+    onSliderChange: (v) => PrefName.animationSpeed.rx.value = v / 100,
   ),
   Setting.switchType(
     name: getString.shareAnalytics,

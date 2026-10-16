@@ -388,7 +388,10 @@ class _PosterCardState extends State<PosterCard> {
       tag: widget.heroTag!,
       flightShuttleBuilder: (_, _, _, _, toContext) =>
           (toContext.widget as Hero).child,
-      child: image,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(s.radius),
+        child: image,
+      ),
     );
   }
 

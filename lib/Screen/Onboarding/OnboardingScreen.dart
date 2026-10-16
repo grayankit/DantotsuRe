@@ -385,7 +385,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                 _swatch(
                   t,
                   t.themeFor(dark ? Brightness.dark : Brightness.light),
-                  !custom && t.name == current,
+                  !custom && !_theme.useMaterialYou.value && t.name == current,
                 ),
             ],
           );
@@ -415,6 +415,15 @@ class _OnboardingScreenState extends State<OnboardingScreen>
           ),
         ),
         const SizedBox(height: 8),
+        Watch(
+          () => SwitchListTile(
+            contentPadding: EdgeInsets.zero,
+            title: Text(getString.materialYou),
+            subtitle: Text(getString.materialYouDesc),
+            value: _theme.useMaterialYou.value,
+            onChanged: _theme.setMaterialYou,
+          ),
+        ),
         Watch(
           () => SwitchListTile(
             contentPadding: EdgeInsets.zero,

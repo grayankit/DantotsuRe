@@ -13,6 +13,7 @@ const _dragDevices = {
 };
 
 const bouncingPhysics = BouncingScrollPhysics(
+  decelerationRate: ScrollDecelerationRate.fast,
   parent: AlwaysScrollableScrollPhysics(),
 );
 
@@ -21,7 +22,9 @@ class AppScrollBehavior extends ScrollBehavior {
 
   @override
   ScrollPhysics getScrollPhysics(BuildContext context) =>
-      const BouncingScrollPhysics();
+      const BouncingScrollPhysics(
+        decelerationRate: ScrollDecelerationRate.fast,
+      );
 
   @override
   Widget buildOverscrollIndicator(

@@ -110,7 +110,8 @@ class SourceBar extends StatelessWidget {
             IconButton.filledTonal(
               tooltip: getString.watchSourceTools,
               onPressed: onTools,
-              icon: const Icon(Icons.settings_rounded),
+              visualDensity: VisualDensity.compact,
+              icon: const Icon(Icons.settings_rounded, size: 20),
             ),
           ],
         ),

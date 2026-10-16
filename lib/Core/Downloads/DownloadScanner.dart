@@ -42,6 +42,7 @@ class DownloadScanner {
 
   Future<void> start() async {
     await scan();
+    if (Platform.isIOS) return;
     try {
       final root = await DownloadPaths.root();
       _watch = root.watch(recursive: true).listen((event) {

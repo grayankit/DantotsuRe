@@ -134,7 +134,7 @@ class _FloatingBottomNavBarState extends State<FloatingBottomNavBar> {
   }
 
   Widget _buildMobile(BuildContext context, MediaService service) {
-    const itemWidth = 72.0;
+    final itemWidth = _items.length <= 3 ? 96.0 : 72.0;
     const navHeight = 64.0;
     return Positioned(
       left: 0,
@@ -252,11 +252,11 @@ class _FloatingBottomNavBarState extends State<FloatingBottomNavBar> {
                 duration: animDuration(200),
                 curve: Curves.easeOutCubic,
                 width: selected
-                    ? 56
+                    ? 68
                     : hovered
-                    ? 48
+                    ? 56
                     : 0,
-                height: 32,
+                height: 36,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(999),
                   color: selected
@@ -268,7 +268,7 @@ class _FloatingBottomNavBarState extends State<FloatingBottomNavBar> {
               ),
               Icon(
                 item.icon,
-                size: 24,
+                size: 28,
                 color: selected
                     ? theme.onSecondaryContainer
                     : hovered

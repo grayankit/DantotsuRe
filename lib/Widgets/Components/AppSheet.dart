@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../Utils/Extensions/ContextExtensions.dart';
+import 'SheetDragScope.dart';
 import 'ThemedContainer.dart';
 
 class AppSheet extends StatelessWidget {
@@ -67,8 +68,9 @@ class AppSheet extends StatelessWidget {
         ),
       ),
     );
+    final scoped = SheetDragScope(child: sheet);
     return heightFactor == null
-        ? sheet
-        : FractionallySizedBox(heightFactor: heightFactor, child: sheet);
+        ? scoped
+        : FractionallySizedBox(heightFactor: heightFactor, child: scoped);
   }
 }

@@ -201,13 +201,18 @@ class _SettingSliderItemState extends State<SettingSliderItem> {
             iconContainerColor: widget.iconContainerColor,
             iconOnColor: widget.iconOnColor,
           ),
-          Slider(
-            min: min,
-            max: max,
-            divisions: (max - min).round().clamp(1, 1000),
-            value: _value.value.clamp(min, max),
-            onChanged: (v) => _value.value = v,
-            onChangeEnd: (v) => s.onSliderChange?.call(v.round()),
+          SliderTheme(
+            data: SliderTheme.of(
+              context,
+            ).copyWith(tickMarkShape: SliderTickMarkShape.noTickMark),
+            child: Slider(
+              min: min,
+              max: max,
+              divisions: (max - min).round().clamp(1, 1000),
+              value: _value.value.clamp(min, max),
+              onChanged: (v) => _value.value = v.roundToDouble(),
+              onChangeEnd: (v) => s.onSliderChange?.call(v.round()),
+            ),
           ),
         ],
       ),

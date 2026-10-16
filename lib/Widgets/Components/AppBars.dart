@@ -136,6 +136,8 @@ class AppSliverBar extends StatelessWidget {
                 1.0,
               );
           final collapsed = 1 - open;
+          final smallTitle = ((0.4 - open) / 0.4).clamp(0.0, 1.0);
+          final largeTitle = ((open - 0.4) / 0.6).clamp(0.0, 1.0);
           return Stack(
             fit: StackFit.expand,
             children: [
@@ -156,7 +158,7 @@ class AppSliverBar extends StatelessWidget {
                 top: MediaQuery.paddingOf(context).top,
                 height: kToolbarHeight,
                 child: Opacity(
-                  opacity: collapsed,
+                  opacity: smallTitle,
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: AppScreenTitle(title),
@@ -168,7 +170,7 @@ class AppSliverBar extends StatelessWidget {
                 right: 16,
                 bottom: 16,
                 child: Opacity(
-                  opacity: open,
+                  opacity: largeTitle,
                   child: Text(
                     title,
                     maxLines: 1,

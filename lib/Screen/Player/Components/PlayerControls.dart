@@ -130,13 +130,21 @@ class PlayerControls extends StatelessWidget {
     icon: Icon(icon),
   );
 
+  EdgeInsets _side(BuildContext context) {
+    if (compact) return EdgeInsets.zero;
+    final p = MediaQuery.paddingOf(context);
+    return EdgeInsets.only(left: p.left / 2, right: p.right / 2);
+  }
+
   Widget _top(BuildContext context, bool locked) {
     final item = state.item;
     final media = state.request.media;
     return SafeArea(
       bottom: false,
+      left: false,
+      right: false,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+        padding: const EdgeInsets.fromLTRB(8, 8, 8, 0) + _side(context),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -293,8 +301,10 @@ class PlayerControls extends StatelessWidget {
     final label = stamp?.name ?? chapterText;
     return SafeArea(
       top: false,
+      left: false,
+      right: false,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 8) + _side(context),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

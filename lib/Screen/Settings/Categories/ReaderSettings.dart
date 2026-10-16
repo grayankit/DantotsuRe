@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 
+import '../../Reader/Engine/NovelSpeech.dart';
 import '../../Reader/Engine/ReaderSettings.dart';
 import '../../Reader/Engine/VolumeKeys.dart';
 import '../../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../../Model/Setting.dart';
+import '../../../Core/ThemeManager/language.dart';
+import '../../../Widgets/Components/ChoiceSheet.dart';
 import '../Widgets/SettingRows.dart';
 
 typedef ReaderUpdate = void Function(void Function(ReaderSettings s) change);
@@ -341,6 +344,71 @@ List<Setting> novelReaderRows(
       Icons.touch_app_rounded,
       s.novelTapPaging,
       (v) => update((x) => x.novelTapPaging = v),
+    ),
+    Setting.header(getString.novelSectionTranslate),
+    Setting.normal(
+      name: getString.novelTranslateTo,
+      description: s.translateTo.isEmpty
+          ? getString.novelTranslateOff
+          : completeLanguageName(s.translateTo),
+      icon: Icons.translate_rounded,
+      isActivity: true,
+      onClick: () async {
+        final picked = await showChoiceSheet<String>(
+          context,
+          title: getString.novelTranslateTo,
+          icon: Icons.translate_rounded,
+          selected: s.translateTo,
+          options: [
+            ChoiceOption('', getString.novelTranslateOff),
+            for (final e in sortedLanguagesMap.entries)
+              if (e.value != 'all') ChoiceOption(e.value, e.key),
+          ],
+        );
+        if (picked != null) update((x) => x.translateTo = picked);
+      },
+    ),
+    Setting.header(getString.novelSectionSpeech),
+    Setting.normal(
+      name: getString.novelSpeechVoice,
+      description: s.speechVoice.isEmpty
+          ? getString.novelSpeechVoiceDefault
+          : s.speechVoice.split('|').first,
+      icon: Icons.record_voice_over_rounded,
+      isActivity: true,
+      onClick: () async {
+        final voices = await NovelSpeech.voices();
+        if (!context.mounted) return;
+        final picked = await showChoiceSheet<String>(
+          context,
+          title: getString.novelSpeechVoice,
+          icon: Icons.record_voice_over_rounded,
+          selected: s.speechVoice,
+          options: [
+            ChoiceOption('', getString.novelSpeechVoiceDefault),
+            for (final v in voices) ChoiceOption(v.id, v.label),
+          ],
+        );
+        if (picked != null) update((x) => x.speechVoice = picked);
+      },
+    ),
+    sliderSetting(
+      getString.novelSpeechRate,
+      '${s.speechRate}%',
+      Icons.speed_rounded,
+      s.speechRate,
+      50,
+      200,
+      (v) => update((x) => x.speechRate = v),
+    ),
+    sliderSetting(
+      getString.novelSpeechPitch,
+      '${s.speechPitch}%',
+      Icons.graphic_eq_rounded,
+      s.speechPitch,
+      50,
+      200,
+      (v) => update((x) => x.speechPitch = v),
     ),
     sliderSetting(
       getString.readerAutoScrollSpeed,

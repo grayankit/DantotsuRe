@@ -9,6 +9,7 @@ import '../../Utils/Extensions/ContextExtensions.dart';
 import '../../Utils/Functions/AppShortcuts.dart';
 import '../../Utils/Functions/NavigateToScreen.dart';
 import 'ScrollConfig.dart';
+import 'SheetDragScope.dart';
 import '../../Core/State/State.dart';
 
 class CustomBottomDialog extends StatefulWidget {
@@ -58,166 +59,171 @@ class _CustomBottomDialogState extends State<CustomBottomDialog> {
       side: BorderSide(color: colorScheme.primary),
     );
 
-    return ThemedContainer(
-      color: colorScheme.surface,
-      border: Border.all(
-        width: 0,
-        color: colorScheme.onSurface.withValues(alpha: 0.2),
-      ),
-      borderRadius: const BorderRadius.vertical(top: Radius.circular(16.0)),
-      padding: EdgeInsets.only(
-        bottom: 24.0 + MediaQuery.viewPaddingOf(context).bottom,
-        top: 12.0,
-      ),
-      child: Material(
-        type: MaterialType.transparency,
-        child: CustomScrollConfig(
-          context,
-          shrinkWrap: true,
-          children: [
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 12.0),
-                child: IgnorePointer(
-                  ignoring: true,
-                  child: DpadFocusable(
-                    autofocus: true,
-                    entry: true,
-                    onSelect: () => popPage(context),
-                    child: Container(
-                      width: 40,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: colorScheme.onSurface.withValues(alpha: 0.3),
-                        borderRadius: BorderRadius.circular(2),
+    return SheetDragScope(
+      child: ThemedContainer(
+        color: colorScheme.surface,
+        border: Border.all(
+          width: 0,
+          color: colorScheme.onSurface.withValues(alpha: 0.2),
+        ),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(16.0)),
+        padding: EdgeInsets.only(
+          bottom: 24.0 + MediaQuery.viewPaddingOf(context).bottom,
+          top: 12.0,
+        ),
+        child: Material(
+          type: MaterialType.transparency,
+          child: CustomScrollConfig(
+            context,
+            shrinkWrap: true,
+            physics: const ClampingScrollPhysics(),
+            children: [
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 12.0),
+                  child: IgnorePointer(
+                    ignoring: true,
+                    child: DpadFocusable(
+                      autofocus: true,
+                      entry: true,
+                      onSelect: () => popPage(context),
+                      child: Container(
+                        width: 40,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: colorScheme.onSurface.withValues(alpha: 0.3),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                      builder: (context, state, child) {
+                        final focus = state.focused && usingKeyboard;
+
+                        return Center(
+                          child: AnimatedContainer(
+                            duration: animDuration(120),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: focus
+                                  ? colorScheme.onSurface.withValues(
+                                      alpha: 0.08,
+                                    )
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(12),
+                              border: focus
+                                  ? Border.all(
+                                      color: colorScheme.onSurface.withValues(
+                                        alpha: 0.25,
+                                      ),
+                                      width: 1,
+                                    )
+                                  : null,
+                            ),
+                            child: child,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ),
+              if (widget.title != null)
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 0, right: 0),
+                    child: Center(
+                      child: Text(
+                        widget.title!,
+                        textAlign: TextAlign.center,
+                        style: textTheme.titleMedium,
                       ),
                     ),
-                    builder: (context, state, child) {
-                      final focus = state.focused && usingKeyboard;
-
-                      return Center(
-                        child: AnimatedContainer(
-                          duration: animDuration(120),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: focus
-                                ? colorScheme.onSurface.withValues(alpha: 0.08)
-                                : Colors.transparent,
-                            borderRadius: BorderRadius.circular(12),
-                            border: focus
-                                ? Border.all(
-                                    color: colorScheme.onSurface.withValues(
-                                      alpha: 0.25,
-                                    ),
-                                    width: 1,
-                                  )
-                                : null,
-                          ),
-                          child: child,
-                        ),
-                      );
-                    },
                   ),
                 ),
-              ),
-            ),
-            if (widget.title != null)
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 0, right: 0),
-                  child: Center(
-                    child: Text(
-                      widget.title!,
-                      textAlign: TextAlign.center,
-                      style: textTheme.titleMedium,
+
+              if (widget.viewList.isNotEmpty)
+                SliverList(
+                  delegate: SliverChildListDelegate(
+                    widget.viewList,
+                    addAutomaticKeepAlives: false,
+                    addRepaintBoundaries: false,
+                  ),
+                ),
+              if (widget.checkText != null)
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Watch(() {
+                      return Row(
+                        children: [
+                          Checkbox(
+                            value: isChecked.value,
+                            activeColor: colorScheme.primary,
+                            onChanged: (value) {
+                              final v = value ?? false;
+                              isChecked.value = v;
+                              widget.checkCallback?.call(v);
+                            },
+                          ),
+                          Expanded(
+                            child: Text(
+                              widget.checkText!,
+                              style: textTheme.bodyMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    }),
+                  ),
+                ),
+
+              if (widget.negativeText != null || widget.positiveText != null)
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                    child: Row(
+                      children: [
+                        if (widget.negativeText != null) ...[
+                          Expanded(
+                            child: DpadFocusable(
+                              onSelect: widget.negativeCallback,
+                              child: OutlinedButton(
+                                onPressed: widget.negativeCallback,
+                                style: buttonStyle,
+                                child: Text(
+                                  widget.negativeText!,
+                                  style: textTheme.labelLarge,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 18.0),
+                        ],
+                        if (widget.positiveText != null) ...[
+                          Expanded(
+                            child: DpadFocusable(
+                              onSelect: widget.positiveCallback,
+                              child: OutlinedButton(
+                                onPressed: widget.positiveCallback,
+                                style: buttonStyle,
+                                child: Text(
+                                  widget.positiveText!,
+                                  style: textTheme.labelLarge,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                   ),
                 ),
-              ),
-
-            if (widget.viewList.isNotEmpty)
-              SliverList(
-                delegate: SliverChildListDelegate(
-                  widget.viewList,
-                  addAutomaticKeepAlives: false,
-                  addRepaintBoundaries: false,
-                ),
-              ),
-            if (widget.checkText != null)
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: Watch(() {
-                    return Row(
-                      children: [
-                        Checkbox(
-                          value: isChecked.value,
-                          activeColor: colorScheme.primary,
-                          onChanged: (value) {
-                            final v = value ?? false;
-                            isChecked.value = v;
-                            widget.checkCallback?.call(v);
-                          },
-                        ),
-                        Expanded(
-                          child: Text(
-                            widget.checkText!,
-                            style: textTheme.bodyMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    );
-                  }),
-                ),
-              ),
-
-            if (widget.negativeText != null || widget.positiveText != null)
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 18.0),
-                  child: Row(
-                    children: [
-                      if (widget.negativeText != null) ...[
-                        Expanded(
-                          child: DpadFocusable(
-                            onSelect: widget.negativeCallback,
-                            child: OutlinedButton(
-                              onPressed: widget.negativeCallback,
-                              style: buttonStyle,
-                              child: Text(
-                                widget.negativeText!,
-                                style: textTheme.labelLarge,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 18.0),
-                      ],
-                      if (widget.positiveText != null) ...[
-                        Expanded(
-                          child: DpadFocusable(
-                            onSelect: widget.positiveCallback,
-                            child: OutlinedButton(
-                              onPressed: widget.positiveCallback,
-                              style: buttonStyle,
-                              child: Text(
-                                widget.positiveText!,
-                                style: textTheme.labelLarge,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
     ).animateSheetIn();

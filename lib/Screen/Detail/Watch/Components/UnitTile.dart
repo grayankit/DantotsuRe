@@ -187,28 +187,77 @@ class UnitTile extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (subtitle != null)
-                        Text(
-                          subtitle,
-                          style: context.textTheme.labelMedium?.copyWith(
-                            color: scheme.primary,
-                            fontWeight: FontWeight.w700,
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                if (subtitle != null)
+                                  Text(
+                                    subtitle,
+                                    style: context.textTheme.labelMedium
+                                        ?.copyWith(
+                                          color: scheme.primary,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                  ),
+                                Text(
+                                  unitTitle(unit, anime),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: context.textTheme.titleSmall?.copyWith(
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      Text(
-                        unitTitle(unit, anime),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: context.textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
+                          if (watched || onInfo != null)
+                            SizedBox(
+                              width: onInfo != null && watched ? 64 : 32,
+                              height: 32,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  if (watched)
+                                    SizedBox(
+                                      width: 32,
+                                      child: Icon(
+                                        Icons.check_circle_rounded,
+                                        size: 20,
+                                        color: scheme.primary,
+                                      ),
+                                    ),
+                                  if (onInfo != null)
+                                    SizedBox(
+                                      width: 32,
+                                      child: IconButton(
+                                        padding: EdgeInsets.zero,
+                                        constraints: const BoxConstraints(
+                                          minWidth: 32,
+                                          minHeight: 32,
+                                        ),
+                                        onPressed: onInfo,
+                                        icon: Icon(
+                                          Icons.info_outline_rounded,
+                                          size: 20,
+                                          color: scheme.onSurfaceVariant,
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                        ],
                       ),
                       if (description != null)
                         Padding(
                           padding: const EdgeInsets.only(top: 2),
                           child: Text(
                             description,
-                            maxLines: 2,
+                            maxLines: 3,
                             overflow: TextOverflow.ellipsis,
                             style: context.textTheme.bodySmall?.copyWith(
                               color: scheme.onSurfaceVariant,
@@ -241,25 +290,6 @@ class UnitTile extends StatelessWidget {
                     ],
                   ),
                 ),
-                if (watched)
-                  Padding(
-                    padding: const EdgeInsets.only(left: 6),
-                    child: Icon(
-                      Icons.check_circle_rounded,
-                      size: 20,
-                      color: scheme.primary,
-                    ),
-                  ),
-                if (onInfo != null)
-                  IconButton(
-                    visualDensity: VisualDensity.compact,
-                    onPressed: onInfo,
-                    icon: Icon(
-                      Icons.info_outline_rounded,
-                      size: 20,
-                      color: scheme.onSurfaceVariant,
-                    ),
-                  ),
               ],
             ),
           ),

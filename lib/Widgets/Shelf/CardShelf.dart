@@ -165,6 +165,7 @@ class _CardShelfState extends State<CardShelf> {
             scrollDirection: Axis.horizontal,
             controller: widget.scrollController,
             physics: const BouncingScrollPhysics(
+              decelerationRate: ScrollDecelerationRate.fast,
               parent: AlwaysScrollableScrollPhysics(),
             ),
             children: [

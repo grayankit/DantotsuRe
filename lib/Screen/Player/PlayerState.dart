@@ -900,9 +900,19 @@ class PlayerState extends ScreenState {
   }
 
   void updateSettings(void Function(PlayerSettings s) change) {
+    final before = settings.toJson();
     change(settings);
-    unawaited(engine.applySubtitleStyle());
-    unawaited(engine.applyAudioOutput());
+    final after = settings.toJson();
+    final changed = {
+      for (final k in {...before.keys, ...after.keys})
+        if (before[k] != after[k]) k,
+    };
+    if (changed.any((k) => k.startsWith('subtitle') || k == 'useLibass')) {
+      unawaited(engine.applySubtitleStyle());
+    }
+    if (changed.any((k) => k.startsWith('audio'))) {
+      unawaited(engine.applyAudioOutput());
+    }
     final rec = record;
     if (rec != null && perTitle.value) {
       rec.player = settings.diff(PlayerPrefs.global.value);
