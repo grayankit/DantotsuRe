@@ -1,3 +1,5 @@
+import 'Components/BarcodeSheet.dart';
+import 'Components/SauceSheet.dart';
 import '../../Logger.dart';
 import 'dart:async';
 
@@ -68,12 +70,29 @@ class SearchState extends ScreenState {
   Timer? debounce;
   bool hasMore = true;
 
-  bool get canSearchImage => switch (type.value) {
-    SearchType.ANIME || SearchType.MOVIES || SearchType.SERIES => true,
+  bool get canSearchImage => true;
+
+  bool get _imageIsManga =>
+      type.value == SearchType.MANGA || type.value == SearchType.NOVEL;
+
+  bool get canSearchBarcode => switch (type.value) {
+    SearchType.MANGA || SearchType.NOVEL => true,
     _ => false,
   };
 
+  Future<void> searchByBarcode() async {
+    final title = await showBarcodeSearch(context);
+    if (title == null || !context.mounted) return;
+    useTerm(title);
+  }
+
   Future<void> searchByImage() async {
+    if (_imageIsManga) {
+      final sauce = await showSauceSearch(context);
+      if (sauce == null || !context.mounted) return;
+      useTerm(sauce.title);
+      return;
+    }
     final hit = await showImageSearch(context);
     if (hit == null || !context.mounted) return;
     final current = find<MediaServiceController>().currentService.value;

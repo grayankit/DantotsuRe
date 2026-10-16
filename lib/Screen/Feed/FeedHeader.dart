@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../Core/Services/MediaServiceController.dart';
 import '../../Core/Services/ServiceSwitcher.dart';
+import '../../Core/ThemeManager/LanguageSwitcher.dart';
 import '../../Utils/Extensions/ContextExtensions.dart';
 import '../../Widgets/Components/LoadSvg.dart';
 import '../Home/Components/AccountSheet.dart';
@@ -12,12 +13,14 @@ class FeedHeader extends StatelessWidget {
   final String title;
   final VoidCallback? onSearch;
   final VoidCallback? onCalendar;
+  final VoidCallback? onCharts;
 
   const FeedHeader({
     super.key,
     required this.title,
     this.onSearch,
     this.onCalendar,
+    this.onCharts,
   });
 
   @override
@@ -56,6 +59,12 @@ class FeedHeader extends StatelessWidget {
                 ),
               ),
             ),
+            if (onCharts != null)
+              IconButton(
+                tooltip: getString.trendzTitle,
+                icon: const Icon(Icons.leaderboard_rounded),
+                onPressed: onCharts,
+              ),
             if (onCalendar != null)
               IconButton(
                 icon: const Icon(Icons.calendar_month_rounded),

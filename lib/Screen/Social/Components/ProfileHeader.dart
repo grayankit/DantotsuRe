@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import '../../Share/ShareCardSheet.dart';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -392,12 +395,25 @@ class ProfileHeaderDelegate extends SliverPersistentHeaderDelegate {
         if (v == 'share') shareLink(url);
         if (v == 'browser') openLinkInBrowser(url);
         if (v == 'copy') copyToClipboard(url, message: getString.linkCopied);
+        if (v == 'card' && u != null) {
+          unawaited(
+            showShareList(
+              context,
+              service,
+              userId: int.tryParse(u.id),
+              name: u.name,
+              avatar: u.avatar,
+            ),
+          );
+        }
         if (v == 'id' && u != null) {
           copyToClipboard(u.id, message: getString.userIdCopied);
         }
       },
       itemBuilder: (_) => [
         PopupMenuItem(value: 'share', child: Text(getString.shareProfile)),
+        if (u != null && service.getQueries != null)
+          PopupMenuItem(value: 'card', child: Text(getString.shareCardList)),
         PopupMenuItem(value: 'browser', child: Text(getString.openInBrowser)),
         PopupMenuItem(value: 'copy', child: Text(getString.copyLink)),
         PopupMenuItem(value: 'id', child: Text(getString.copyUserId)),

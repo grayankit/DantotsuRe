@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../Widgets/Components/ThemedContainer.dart';
 
@@ -19,7 +20,10 @@ import '../../Widgets/Components/ScrollConfig.dart';
 import '../Widgets/ScreenWidgetView.dart';
 import '../../Core/ThemeManager/ThemeController.dart';
 import '../Widgets/Components/DataSection.dart';
+import '../Share/ShareCardSheet.dart';
 import 'Comments/CommentsSection.dart';
+import 'Components/MangaUpdatesSection.dart';
+import 'Components/ThemesSection.dart';
 import 'Watch/WatchSection.dart';
 import 'Components/DetailHeader.dart';
 import '../../Api/Discord/DiscordPresence.dart';
@@ -87,6 +91,13 @@ class _DetailScreenState extends BaseScreen<DetailScreen>
                 listLabel: (m) => state.statusLabel(m.userStatus),
                 sourceName: state.view.sourceName,
                 onEditList: state.mutations == null ? null : state.editList,
+                onShareCard: () => unawaited(
+                  showShareCard(
+                    context,
+                    state.view.service,
+                    state.host.media.value,
+                  ),
+                ),
                 actionFocus: state.actionFocus,
                 toolbarLane: state.lane(0),
                 actionsLane: state.lane(1),
@@ -214,6 +225,8 @@ class _DetailScreenState extends BaseScreen<DetailScreen>
 
   Widget _info() {
     if (!state.ready.value) return _skeleton();
+    final tagsAt = state.widgets.lastIndexWhere(_isTags);
+    final hasTags = tagsAt >= 0;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -245,9 +258,35 @@ class _DetailScreenState extends BaseScreen<DetailScreen>
                   ),
             ),
           ),
+          if (i == tagsAt) _extra(),
         ],
+        if (!hasTags) _extra(),
       ],
     );
+  }
+
+  bool _isTags(ScreenWidget item) {
+    if (item.type != ScreenWidgetType.data) return false;
+    final title = (item.title ?? '').toLowerCase();
+    return const {'genres', 'tags'}.contains(title) ||
+        title == getString.genres.toLowerCase() ||
+        title == getString.tags.toLowerCase();
+  }
+
+  Widget _extra() {
+    if (find<OfflineMode>().isOffline.value) return const SizedBox.shrink();
+    final media = state.host.media.value;
+    return state.isAnime
+        ? ThemesSection(
+            key: ValueKey('themes-${media.id}'),
+            service: state.view.service,
+            media: media,
+          )
+        : MangaUpdatesSection(
+            key: ValueKey('mu-${media.id}'),
+            service: state.view.service,
+            media: media,
+          );
   }
 
   Widget _errorCard() => Padding(

@@ -121,6 +121,7 @@ class MediaRecord {
   Map<String, Object?> player;
   Map<String, Object?> reader;
   int? commentsId;
+  int? mangaUpdatesId;
   int tab;
   bool saveProgress;
   Map<String, bool> skips;
@@ -135,6 +136,7 @@ class MediaRecord {
     Map<String, Object?>? player,
     Map<String, Object?>? reader,
     this.commentsId,
+    this.mangaUpdatesId,
     this.tab = 0,
     this.saveProgress = true,
     Map<String, bool>? skips,
@@ -158,6 +160,7 @@ class MediaRecord {
     'player': player,
     'reader': reader,
     'commentsId': commentsId,
+    'mangaUpdatesId': mangaUpdatesId,
     'tab': tab,
     'saveProgress': saveProgress,
     'skips': skips,
@@ -192,6 +195,7 @@ class MediaRecord {
           ? Map<String, Object?>.from(json['reader'] as Map)
           : null,
       commentsId: (json['commentsId'] as num?)?.toInt(),
+      mangaUpdatesId: (json['mangaUpdatesId'] as num?)?.toInt(),
       tab: (json['tab'] as num?)?.toInt() ?? 0,
       saveProgress: json['saveProgress'] != false,
       skips: {

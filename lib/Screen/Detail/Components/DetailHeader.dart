@@ -45,6 +45,7 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
   final String Function(Media media)? listLabel;
   final String? sourceName;
   final VoidCallback? onEditList;
+  final VoidCallback? onShareCard;
   final FocusNode? actionFocus;
   final GlobalKey<DpadRegionState>? toolbarLane;
   final GlobalKey<DpadRegionState>? actionsLane;
@@ -58,6 +59,7 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
     this.listLabel,
     this.sourceName,
     this.onEditList,
+    this.onShareCard,
     this.actionFocus,
     this.toolbarLane,
     this.actionsLane,
@@ -85,6 +87,7 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
       old.glass != glass ||
       old.host != host ||
       old.onEditList != onEditList ||
+      old.onShareCard != onShareCard ||
       old.actionFocus != actionFocus ||
       old.horizontalEdge != horizontalEdge;
 
@@ -384,6 +387,13 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
         children: [
           if (onEditList != null)
             FilledButton.icon(
+              style: const ButtonStyle(
+                minimumSize: WidgetStatePropertyAll(Size(0, 38)),
+                padding: WidgetStatePropertyAll(
+                  EdgeInsets.symmetric(horizontal: 16),
+                ),
+                visualDensity: VisualDensity.compact,
+              ),
               focusNode: actionFocus,
               onPressed: host.loading.value ? null : onEditList,
               onLongPress: () {
@@ -401,6 +411,13 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
             SizedBox(width: Dimens.gapSm),
           if (m.trailer != null)
             OutlinedButton.icon(
+              style: const ButtonStyle(
+                minimumSize: WidgetStatePropertyAll(Size(0, 38)),
+                padding: WidgetStatePropertyAll(
+                  EdgeInsets.symmetric(horizontal: 16),
+                ),
+                visualDensity: VisualDensity.compact,
+              ),
               onPressed: () => openLinkInBrowser(m.trailer!),
               icon: const Icon(Icons.play_arrow_rounded, size: 18),
               label: Text(getString.trailer),
@@ -452,6 +469,7 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
         copyToClipboard(m.shareLink, message: getString.linkCopied);
       }
       if (v == 'trailer' && m.trailer != null) openLinkInBrowser(m.trailer!);
+      if (v == 'shareCard') onShareCard?.call();
     },
     itemBuilder: (_) => [
       if (m.trailer != null)
@@ -462,6 +480,16 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
             contentPadding: EdgeInsets.zero,
             leading: const Icon(Icons.play_circle_outline_rounded),
             title: Text(getString.watchTrailer),
+          ),
+        ),
+      if (onShareCard != null)
+        PopupMenuItem(
+          value: 'shareCard',
+          child: ListTile(
+            dense: true,
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.ios_share_rounded),
+            title: Text(getString.shareCard),
           ),
         ),
       PopupMenuItem(

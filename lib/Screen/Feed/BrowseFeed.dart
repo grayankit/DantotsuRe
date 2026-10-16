@@ -1,3 +1,5 @@
+import '../../Utils/Functions/NavigateToScreen.dart';
+import '../Charts/ChartsScreen.dart';
 import '../../Core/Offline/OfflineMode.dart';
 import '../../Core/State/State.dart';
 import '../Downloads/Components/OfflineFeed.dart';
@@ -38,6 +40,9 @@ class BrowseFeed extends StatelessWidget {
         title: service.feedLabel(type),
         onCalendar: type.isVideo && service.calendarView != null
             ? () => openCalendar(context, service)
+            : null,
+        onCharts: type == MediaType.anime
+            ? () => navigateToPage(context, ChartsScreen(service: service))
             : null,
         onSearch: service.searchView == null
             ? null

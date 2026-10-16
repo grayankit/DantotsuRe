@@ -105,9 +105,22 @@ class _SearchScreenState extends BaseScreen<SearchScreen>
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        if (state.canSearchBarcode)
+                          IconButton(
+                            tooltip: getString.barcodeTooltip,
+                            icon: Icon(
+                              Icons.qr_code_scanner_rounded,
+                              color: scheme.onSurface,
+                            ),
+                            onPressed: () => unawaited(state.searchByBarcode()),
+                          ),
                         if (state.canSearchImage)
                           IconButton(
-                            tooltip: getString.imageSearchTooltip,
+                            tooltip:
+                                state.type.value == SearchType.MANGA ||
+                                    state.type.value == SearchType.NOVEL
+                                ? getString.sauceTooltip
+                                : getString.imageSearchTooltip,
                             icon: Icon(
                               Icons.image_search_rounded,
                               color: scheme.onSurface,
