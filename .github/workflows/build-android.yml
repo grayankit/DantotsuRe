@@ -61,6 +61,35 @@ jobs:
         run: flutter clean
 
       - run: flutter pub get
+
+      # cargokit passes --target-dir and ignores CARGO_TARGET_DIR. The app
+      # redirects plugin builds to build/<plugin>, so the Rust output is
+      # build/rhttp/build. Keep the toolchain in the same cache so a restored
+      # target dir is compiled with the same rustc.
+      - name: Hash rhttp Cargo.lock
+        id: rhttp-cargo
+        if: ${{ inputs.clean-build != true && !contains(github.event.head_commit.message || '', '[clean]') }}
+        run: |
+          lock=$(find "${PUB_CACHE:-$HOME/.pub-cache}/hosted" -path '*/rhttp-*/rust/Cargo.lock' -print -quit)
+          if [ -z "$lock" ]; then
+            echo "hash=missing" >> "$GITHUB_OUTPUT"
+            echo "rhttp Cargo.lock not found"
+            exit 0
+          fi
+          echo "hash=$(sha256sum "$lock" | awk '{print $1}')" >> "$GITHUB_OUTPUT"
+          echo "Using $lock"
+
+      - name: Cache rhttp cargo build
+        if: ${{ inputs.clean-build != true && !contains(github.event.head_commit.message || '', '[clean]') && steps.rhttp-cargo.outputs.hash != 'missing' }}
+        uses: actions/cache@v4
+        with:
+          path: |
+            build/rhttp/build
+            ~/.rustup
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: v1-${{ runner.os }}-rhttp-cargo-${{ steps.rhttp-cargo.outputs.hash }}
+
       - run: flutter build apk --release --target-platform android-arm64 --split-per-abi
 
       - name: Rename APKs
