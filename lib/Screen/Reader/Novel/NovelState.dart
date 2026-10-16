@@ -7,7 +7,10 @@ import 'package:flutter/services.dart';
 
 import '../../Detail/Watch/Data/Media/MediaRecord.dart';
 import '../../../Core/Preferences/Incognito.dart';
+import '../Engine/NovelSpeech.dart';
 import '../Engine/NovelText.dart';
+import '../Engine/NovelTranslate.dart';
+import '../../../Utils/Functions/SnackBar.dart';
 import '../Engine/ReaderRequest.dart';
 import '../Engine/ReaderSettings.dart';
 import '../Engine/VolumeKeys.dart';
@@ -31,7 +34,18 @@ class NovelState extends ScreenState {
   late ReaderSettings settings;
 
   final index = 0.live;
-  final blocks = <NovelBlock>[].liveList;
+  final original = <NovelBlock>[].liveList;
+  final translated = Live<List<NovelBlock>?>(null);
+  final translating = false.live;
+  final translateProgress = 0.0.live;
+  final speaking = false.live;
+  final speakingAt = (-1).live;
+  final _translator = NovelTranslator();
+  final _speech = NovelSpeech();
+  int _speakRun = 0;
+  final blockKeys = <int, GlobalKey>{};
+
+  List<NovelBlock> get blocks => translated.value ?? original;
   final loading = true.live;
   final error = Live<String?>(null);
   final controlsVisible = false.live;
@@ -79,6 +93,8 @@ class NovelState extends ScreenState {
     find<DownloadEngine>().sweepFinished();
     _saveTimer?.cancel();
     _autoTimer?.cancel();
+    _speakRun++;
+    unawaited(_speech.dispose());
     unawaited(VolumeKeys.disable());
     _save();
     scroll.dispose();
@@ -129,7 +145,10 @@ class NovelState extends ScreenState {
       if (run != _run || _closed) return;
       final parsed = parseNovel(text ?? '');
       if (parsed.isEmpty) throw StateError(getString.readerNoText);
-      blocks.value = parsed;
+      stopSpeaking();
+      blockKeys.clear();
+      translated.value = null;
+      original.value = parsed;
       final saved = record.playback[unit.number];
       _restore =
           jump ??
@@ -138,6 +157,14 @@ class NovelState extends ScreenState {
               : null);
       loading.value = false;
       _scheduleRestore();
+      if (_resumeSpeakingAfterOpen) {
+        _resumeSpeakingAfterOpen = false;
+        Future<void>.delayed(
+          const Duration(milliseconds: 400),
+          () => unawaited(startSpeaking(from: 0)),
+        );
+      }
+      if (settings.translateTo.isNotEmpty) unawaited(translate());
     } catch (e, st) {
       if (run != _run || _closed) return;
       logger(
@@ -281,7 +308,7 @@ class NovelState extends ScreenState {
 
   void _save() {
     if (_unsaved.contains(unit.number)) return;
-    if (blocks.isEmpty || !settings.saveProgress || isIncognito) return;
+    if (original.isEmpty || !settings.saveProgress || isIncognito) return;
     record.playback[unit.number] = Playback(
       position: (fraction.value * _scale).round(),
       duration: _scale,
@@ -318,7 +345,12 @@ class NovelState extends ScreenState {
   }
 
   void updateSettings(void Function(ReaderSettings s) change) {
+    final before = settings.translateTo;
     change(settings);
+    if (before != settings.translateTo) {
+      translated.value = null;
+      if (settings.translateTo.isNotEmpty) unawaited(translate());
+    }
     if (perTitle.value) {
       record.reader = settings.diff(ReaderPrefs.global.value);
       MediaRecords.save(request.service, request.media);
@@ -377,6 +409,176 @@ class NovelState extends ScreenState {
     MediaRecords.save(request.service, request.media);
     _applySystem();
     settingsVersion.value++;
+  }
+
+  Future<void> translate() async {
+    final to = settings.translateTo;
+    if (to.isEmpty || original.isEmpty || translating.value) return;
+    final run = _run;
+    final source = original.toList();
+    translating.value = true;
+    translateProgress.value = 0;
+    try {
+      final result = await _translator.translate(
+        source,
+        to,
+        cancelled: () => _closed || run != _run,
+        onProgress: (p) => translateProgress.value = p,
+      );
+      if (_closed || run != _run) return;
+      translated.value = result;
+    } catch (e, st) {
+      logger(
+        'Novel translate failed: $e\n$st',
+        logLevel: LogLevel.error,
+        tag: 'READER',
+      );
+      if (!_closed) snackString(getString.novelTranslateFailed(e.toString()));
+    } finally {
+      translating.value = false;
+    }
+  }
+
+  void showOriginal() {
+    translated.value = null;
+    stopSpeaking();
+  }
+
+  void toggleTranslation() {
+    if (translated.value != null) {
+      showOriginal();
+    } else {
+      if (settings.translateTo.isEmpty) {
+        snackString(getString.novelTranslateOff);
+        return;
+      }
+      unawaited(translate());
+    }
+  }
+
+  bool get canSpeak => NovelSpeech.supported;
+
+  void toggleSpeaking() {
+    if (speaking.value) {
+      stopSpeaking();
+    } else {
+      unawaited(startSpeaking());
+    }
+  }
+
+  void stopSpeaking() {
+    _speakRun++;
+    speaking.value = false;
+    speakingAt.value = -1;
+    unawaited(_speech.stop());
+  }
+
+  Future<void> startSpeaking({int? from}) async {
+    if (!canSpeak || blocks.isEmpty) {
+      snackString(getString.novelSpeechUnavailable);
+      return;
+    }
+    final run = ++_speakRun;
+    await _speech.stop();
+    if (run != _speakRun) return;
+    speaking.value = true;
+    controlsVisible.value = false;
+    var i = from ?? _firstVisible();
+    final language = translated.value != null ? settings.translateTo : null;
+    while (run == _speakRun && !_closed) {
+      final list = blocks;
+      while (i < list.length && !_speakable(list[i])) {
+        i++;
+      }
+      if (i >= list.length) {
+        if (settings.autoNext && hasNext) {
+          speaking.value = false;
+          speakingAt.value = -1;
+          _resumeSpeakingAfterOpen = true;
+          next();
+        } else {
+          stopSpeaking();
+        }
+        return;
+      }
+      speakingAt.value = i;
+      _follow(i);
+      final ok = await _speech.speak(
+        (list[i] as NovelParagraph).text,
+        rate: settings.speechRate,
+        pitch: settings.speechPitch,
+        language: language,
+        voice: settings.speechVoice,
+      );
+      if (run != _speakRun) return;
+      if (!ok) {
+        stopSpeaking();
+        snackString(getString.novelSpeechUnavailable);
+        return;
+      }
+      i++;
+    }
+  }
+
+  bool _resumeSpeakingAfterOpen = false;
+
+  void speakStep(int direction) {
+    final list = blocks;
+    var i = speakingAt.value + direction;
+    while (i >= 0 && i < list.length && !_speakable(list[i])) {
+      i += direction;
+    }
+    if (i < 0 || i >= list.length) return;
+    unawaited(startSpeaking(from: i));
+  }
+
+  int? blockAt(Offset global) {
+    for (final e in blockKeys.entries) {
+      final box = e.value.currentContext?.findRenderObject();
+      if (box is! RenderBox || !box.attached) continue;
+      final rect = box.localToGlobal(Offset.zero) & box.size;
+      if (rect.contains(global)) return e.key;
+    }
+    return null;
+  }
+
+  bool _speakable(NovelBlock b) =>
+      b is NovelParagraph && b.text.trim().isNotEmpty;
+
+  int _firstVisible() {
+    final list = blocks;
+    if (list.isEmpty) return 0;
+    return (fraction.value * list.length).floor().clamp(0, list.length - 1);
+  }
+
+  void _follow(int i) {
+    final context = blockKeys[i]?.currentContext;
+    if (context != null) {
+      unawaited(
+        Scrollable.ensureVisible(
+          context,
+          alignment: 0.3,
+          duration: animDuration(250),
+          curve: Curves.easeOutCubic,
+        ),
+      );
+      return;
+    }
+    if (!scroll.hasClients) return;
+    final max = scroll.position.maxScrollExtent;
+    scroll.jumpTo(max * (i / blocks.length).clamp(0.0, 1.0));
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final c = blockKeys[i]?.currentContext;
+      if (c != null && !_closed) {
+        unawaited(
+          Scrollable.ensureVisible(
+            c,
+            alignment: 0.3,
+            duration: animDuration(200),
+          ),
+        );
+      }
+    });
   }
 
   void toggleControls() => controlsVisible.value = !controlsVisible.value;

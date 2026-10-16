@@ -4,6 +4,8 @@
 
     <!-- duh -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
 
     <!-- to shared external storage for managing app logs and files outside the app sandbox -->
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
@@ -320,6 +322,9 @@
         <meta-data android:name="google_analytics_default_allow_ad_personalization_signals" android:value="false" />
     </application>
     <queries>
+        <intent>
+            <action android:name="android.intent.action.TTS_SERVICE" />
+        </intent>
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT" />
             <data android:mimeType="text/plain" />

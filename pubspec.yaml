@@ -119,6 +119,8 @@ dependencies:
   connectivity_plus: ^7.3.1
   xml: ^6.6.1
   flutter_displaymode: ^0.7.0
+  flutter_tts: ^4.2.5
+  mobile_scanner: ^7.4.2
 
 # Development dependencies
 dev_dependencies:

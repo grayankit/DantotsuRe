@@ -6449,6 +6449,366 @@ abstract class AppLocalizations {
   /// **'Update from Dantotsu'**
   String get commentsNoticeUpdateTitle;
 
+  /// No description provided for @barcodeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan a barcode'**
+  String get barcodeTitle;
+
+  /// No description provided for @barcodeTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Find a manga or novel from its barcode'**
+  String get barcodeTooltip;
+
+  /// No description provided for @barcodeIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Point the camera at the barcode on the back of a volume, or type its ISBN.'**
+  String get barcodeIntro;
+
+  /// No description provided for @barcodeIntroManual.
+  ///
+  /// In en, this message translates to:
+  /// **'Type the ISBN printed above the barcode on the back of a volume.'**
+  String get barcodeIntroManual;
+
+  /// No description provided for @barcodeIsbnHint.
+  ///
+  /// In en, this message translates to:
+  /// **'ISBN'**
+  String get barcodeIsbnHint;
+
+  /// No description provided for @barcodeInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'That is not a valid ISBN'**
+  String get barcodeInvalid;
+
+  /// No description provided for @barcodeNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No book found for {isbn}'**
+  String barcodeNotFound(String isbn);
+
+  /// No description provided for @barcodeCameraDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'The camera is not available. Allow camera access or type the ISBN instead.'**
+  String get barcodeCameraDenied;
+
+  /// No description provided for @themesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Openings & endings'**
+  String get themesTitle;
+
+  /// No description provided for @themesOpening.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening'**
+  String get themesOpening;
+
+  /// No description provided for @themesEnding.
+  ///
+  /// In en, this message translates to:
+  /// **'Ending'**
+  String get themesEnding;
+
+  /// No description provided for @themesPlayVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Play video'**
+  String get themesPlayVideo;
+
+  /// No description provided for @themesPlayAudio.
+  ///
+  /// In en, this message translates to:
+  /// **'Play audio only'**
+  String get themesPlayAudio;
+
+  /// No description provided for @themesOpenSite.
+  ///
+  /// In en, this message translates to:
+  /// **'Open on AnimeThemes'**
+  String get themesOpenSite;
+
+  /// No description provided for @themesCredit.
+  ///
+  /// In en, this message translates to:
+  /// **'Themes from AnimeThemes'**
+  String get themesCredit;
+
+  /// No description provided for @themesVersions.
+  ///
+  /// In en, this message translates to:
+  /// **'Versions'**
+  String get themesVersions;
+
+  /// No description provided for @muTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'MangaUpdates'**
+  String get muTitle;
+
+  /// No description provided for @muReleases.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent releases'**
+  String get muReleases;
+
+  /// No description provided for @muNoReleases.
+  ///
+  /// In en, this message translates to:
+  /// **'No recent releases'**
+  String get muNoReleases;
+
+  /// No description provided for @muLicensed.
+  ///
+  /// In en, this message translates to:
+  /// **'Licensed'**
+  String get muLicensed;
+
+  /// No description provided for @muOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'View on MangaUpdates'**
+  String get muOpen;
+
+  /// No description provided for @muCredit.
+  ///
+  /// In en, this message translates to:
+  /// **'Data from MangaUpdates'**
+  String get muCredit;
+
+  /// No description provided for @muPublishers.
+  ///
+  /// In en, this message translates to:
+  /// **'Publishers'**
+  String get muPublishers;
+
+  /// No description provided for @sauceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Find the source'**
+  String get sauceTitle;
+
+  /// No description provided for @sauceIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload a manga page or an artwork, or paste its link, to find where it comes from.'**
+  String get sauceIntro;
+
+  /// No description provided for @sauceKeyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'SauceNAO API key'**
+  String get sauceKeyTitle;
+
+  /// No description provided for @sauceKeyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional, raises the daily search limit'**
+  String get sauceKeyHint;
+
+  /// No description provided for @sauceKeyDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Get a free key at saucenao.com/user.php'**
+  String get sauceKeyDesc;
+
+  /// No description provided for @sauceSearchTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Search this title'**
+  String get sauceSearchTitle;
+
+  /// No description provided for @sauceOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open source'**
+  String get sauceOpen;
+
+  /// No description provided for @sauceCredit.
+  ///
+  /// In en, this message translates to:
+  /// **'Image search by SauceNAO'**
+  String get sauceCredit;
+
+  /// No description provided for @sauceEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No match found'**
+  String get sauceEmpty;
+
+  /// No description provided for @sauceTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Find the source of a manga page or artwork'**
+  String get sauceTooltip;
+
+  /// No description provided for @sauceLowMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Low match'**
+  String get sauceLowMatch;
+
+  /// No description provided for @trendzTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Anime charts'**
+  String get trendzTitle;
+
+  /// No description provided for @trendzAnime.
+  ///
+  /// In en, this message translates to:
+  /// **'Anime'**
+  String get trendzAnime;
+
+  /// No description provided for @trendzFemale.
+  ///
+  /// In en, this message translates to:
+  /// **'Female characters'**
+  String get trendzFemale;
+
+  /// No description provided for @trendzMale.
+  ///
+  /// In en, this message translates to:
+  /// **'Male characters'**
+  String get trendzMale;
+
+  /// No description provided for @trendzCouple.
+  ///
+  /// In en, this message translates to:
+  /// **'Couples'**
+  String get trendzCouple;
+
+  /// No description provided for @trendzCredit.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly charts by AniTrendz'**
+  String get trendzCredit;
+
+  /// No description provided for @trendzNew.
+  ///
+  /// In en, this message translates to:
+  /// **'NEW'**
+  String get trendzNew;
+
+  /// No description provided for @trendzSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search this title'**
+  String get trendzSearch;
+
+  /// No description provided for @trendzEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'The chart is empty'**
+  String get trendzEmpty;
+
+  /// No description provided for @shareCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Share card'**
+  String get shareCard;
+
+  /// No description provided for @shareCardList.
+  ///
+  /// In en, this message translates to:
+  /// **'Share list card'**
+  String get shareCardList;
+
+  /// No description provided for @muNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No MangaUpdates match for this title'**
+  String get muNotFound;
+
+  /// No description provided for @shareCardWorking.
+  ///
+  /// In en, this message translates to:
+  /// **'Making the card…'**
+  String get shareCardWorking;
+
+  /// No description provided for @shareCardSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Card saved'**
+  String get shareCardSaved;
+
+  /// No description provided for @shareCardFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not make the card'**
+  String get shareCardFailed;
+
+  /// No description provided for @shareCardListEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Your list has nothing to share yet'**
+  String get shareCardListEmpty;
+
+  /// No description provided for @shareCardTop.
+  ///
+  /// In en, this message translates to:
+  /// **'My top picks'**
+  String get shareCardTop;
+
+  /// No description provided for @themesEpisodes.
+  ///
+  /// In en, this message translates to:
+  /// **'Episodes {eps}'**
+  String themesEpisodes(String eps);
+
+  /// No description provided for @muLatest.
+  ///
+  /// In en, this message translates to:
+  /// **'Chapter {count}'**
+  String muLatest(String count);
+
+  /// No description provided for @muRating.
+  ///
+  /// In en, this message translates to:
+  /// **'{rating} from {votes} votes'**
+  String muRating(String rating, String votes);
+
+  /// No description provided for @sauceSimilarity.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% match'**
+  String sauceSimilarity(String percent);
+
+  /// No description provided for @trendzWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Week {week} · {season}'**
+  String trendzWeek(String week, String season);
+
+  /// No description provided for @trendzVotes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} votes'**
+  String trendzVotes(String count);
+
+  /// No description provided for @trendzPeak.
+  ///
+  /// In en, this message translates to:
+  /// **'Peak #{rank}'**
+  String trendzPeak(String rank);
+
+  /// No description provided for @trendzWeeks.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} weeks in the top ten'**
+  String trendzWeeks(String count);
+
+  /// No description provided for @shareCardEntries.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} titles'**
+  String shareCardEntries(String count);
+
   /// No description provided for @imageSearchTitle.
   ///
   /// In en, this message translates to:
@@ -9382,6 +9742,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Letter spacing'**
   String get novelLetterSpacing;
+
+  /// No description provided for @novelSectionTranslate.
+  ///
+  /// In en, this message translates to:
+  /// **'Translation'**
+  String get novelSectionTranslate;
+
+  /// No description provided for @novelTranslateTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Translate to'**
+  String get novelTranslateTo;
+
+  /// No description provided for @novelTranslateOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get novelTranslateOff;
+
+  /// No description provided for @novelSectionSpeech.
+  ///
+  /// In en, this message translates to:
+  /// **'Text to speech'**
+  String get novelSectionSpeech;
+
+  /// No description provided for @novelSpeechRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Speech speed'**
+  String get novelSpeechRate;
+
+  /// No description provided for @novelSpeechPitch.
+  ///
+  /// In en, this message translates to:
+  /// **'Speech pitch'**
+  String get novelSpeechPitch;
+
+  /// No description provided for @novelSpeak.
+  ///
+  /// In en, this message translates to:
+  /// **'Read aloud'**
+  String get novelSpeak;
+
+  /// No description provided for @novelSpeakStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop reading aloud'**
+  String get novelSpeakStop;
+
+  /// No description provided for @novelTranslate.
+  ///
+  /// In en, this message translates to:
+  /// **'Translate chapter'**
+  String get novelTranslate;
+
+  /// No description provided for @novelTranslateShowOriginal.
+  ///
+  /// In en, this message translates to:
+  /// **'Show original'**
+  String get novelTranslateShowOriginal;
+
+  /// No description provided for @novelTranslating.
+  ///
+  /// In en, this message translates to:
+  /// **'Translating…'**
+  String get novelTranslating;
+
+  /// No description provided for @novelTranslateFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Translation failed: {error}'**
+  String novelTranslateFailed(String error);
+
+  /// No description provided for @novelSpeechUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Text to speech is not available on this device'**
+  String get novelSpeechUnavailable;
+
+  /// No description provided for @novelSpeechVoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Voice'**
+  String get novelSpeechVoice;
+
+  /// No description provided for @novelSpeechVoiceDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'System default'**
+  String get novelSpeechVoiceDefault;
+
+  /// No description provided for @novelSpeakPrevious.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous line'**
+  String get novelSpeakPrevious;
+
+  /// No description provided for @novelSpeakNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next line'**
+  String get novelSpeakNext;
 
   /// No description provided for @novelTapPaging.
   ///

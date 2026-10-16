@@ -1,3 +1,6 @@
+import '../../../Utils/Extensions/StringExtensions.dart';
+import '../../Reader/Engine/NovelSpeech.dart';
+import 'SpeakButton.dart';
 import 'package:flutter/material.dart';
 
 import '../../../Utils/Extensions/ClickCursor.dart';
@@ -28,17 +31,28 @@ class DataSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final text = data.text?.trim() ?? '';
+    final spoken = data.html != null && data.html!.trim().isNotEmpty
+        ? data.html!.stripHtml.trim()
+        : text;
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: Dimens.pagePad),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (title != null) ...[
-            Text(
-              title!,
-              style: context.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    title!,
+                    style: context.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                if (NovelSpeech.supported && spoken.isNotEmpty)
+                  SpeakButton(text: spoken),
+              ],
             ),
             SizedBox(height: Dimens.gapSm),
           ],
@@ -116,8 +130,13 @@ class DataSection extends StatelessWidget {
           for (final chip in shown)
             ActionChip(
               mouseCursor: kClickCursor,
+              backgroundColor: context.colorScheme.secondaryContainer,
+              disabledColor: context.colorScheme.secondaryContainer,
+              side: BorderSide.none,
               label: Text(chip),
-              labelStyle: context.textTheme.labelLarge,
+              labelStyle: context.textTheme.labelLarge?.copyWith(
+                color: context.colorScheme.onSecondaryContainer,
+              ),
               visualDensity: VisualDensity.compact,
               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               onPressed: data.onChipTap == null
@@ -125,13 +144,20 @@ class DataSection extends StatelessWidget {
                   : () => data.onChipTap!(chip),
             ),
           if (chips.length > limit)
-            TextButton(
-              style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
+            ActionChip(
+              mouseCursor: kClickCursor,
+              backgroundColor: Colors.transparent,
+              side: BorderSide(color: context.colorScheme.primary),
+              visualDensity: VisualDensity.compact,
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               onPressed: () => _expanded.value = !_expanded.value,
-              child: Text(
+              label: Text(
                 _expanded.value
                     ? getString.showLess
                     : '+${chips.length - limit} more',
+              ),
+              labelStyle: context.textTheme.labelLarge?.copyWith(
+                color: context.colorScheme.primary,
               ),
             ),
         ],

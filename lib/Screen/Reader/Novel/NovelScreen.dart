@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -96,6 +97,14 @@ class _NovelScreenState extends State<NovelScreen>
                     builder: (context, box) => GestureDetector(
                       behavior: HitTestBehavior.translucent,
                       onTapUp: (d) {
+                        if (state.speaking.value &&
+                            !state.controlsVisible.value) {
+                          final at = state.blockAt(d.globalPosition);
+                          if (at != null) {
+                            unawaited(state.startSpeaking(from: at));
+                            return;
+                          }
+                        }
                         if (!settings.novelTapPaging ||
                             state.controlsVisible.value) {
                           state.toggleControls();
@@ -146,7 +155,23 @@ class _NovelScreenState extends State<NovelScreen>
         itemBuilder: (context, i) {
           if (i == 0) return _heading(context, base);
           if (i == blocks.length + 1) return _end(context);
-          return _block(context, blocks[i - 1], base, s);
+          final key = state.blockKeys.putIfAbsent(i - 1, GlobalKey.new);
+          final block = _block(context, blocks[i - 1], base, s);
+          final active = state.speakingAt.value == i - 1;
+          return KeyedSubtree(
+            key: key,
+            child: active
+                ? DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: context.colorScheme.primary.withValues(
+                        alpha: 0.18,
+                      ),
+                      borderRadius: Dimens.borderSm,
+                    ),
+                    child: block,
+                  )
+                : block,
+          );
         },
       ),
     );
@@ -234,14 +259,27 @@ class _NovelScreenState extends State<NovelScreen>
     Color foreground, {
     required bool top,
   }) {
-    final visible = state.controlsVisible.value;
-    final bar = Material(
-      color: background.withValues(alpha: 0.96),
-      elevation: 2,
+    final visible = state.controlsVisible.value || state.speaking.value && !top;
+    final solid = background.withValues(alpha: 0.94);
+    final clear = background.withValues(alpha: 0);
+    final bar = DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: top ? Alignment.topCenter : Alignment.bottomCenter,
+          end: top ? Alignment.bottomCenter : Alignment.topCenter,
+          colors: [solid, solid, clear],
+          stops: const [0, 0.6, 1],
+        ),
+      ),
       child: SafeArea(
         top: top,
         bottom: !top,
-        child: top ? _topRow(context) : _bottomRow(context),
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(8, top ? 4 : 20, 8, top ? 20 : 8),
+          child: top
+              ? _topRow(context, foreground)
+              : _bottomRow(context, foreground),
+        ),
       ),
     );
     return Positioned(
@@ -253,7 +291,7 @@ class _NovelScreenState extends State<NovelScreen>
         ignoring: !visible,
         child: AnimatedSlide(
           offset: visible ? Offset.zero : Offset(0, top ? -1 : 1),
-          duration: animDuration(200),
+          duration: animDuration(220),
           curve: Curves.easeOutCubic,
           child: bar,
         ),
@@ -261,103 +299,159 @@ class _NovelScreenState extends State<NovelScreen>
     );
   }
 
-  Widget _topRow(BuildContext context) => Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 4),
-    child: Row(
-      children: [
-        IconButton(
-          onPressed: () => popPage(context),
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-        ),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                state.title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: context.textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              Text(
-                state.request.media.mainName,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: context.textTheme.bodySmall,
-              ),
-            ],
-          ),
-        ),
-        IconButton(
-          tooltip: state.autoScrolling.value
-              ? getString.readerAutoScrollStop
-              : getString.readerAutoScroll,
-          onPressed: state.toggleAutoScroll,
-          icon: Icon(
-            state.autoScrolling.value
-                ? Icons.pause_circle_outline_rounded
-                : Icons.play_circle_outline_rounded,
-          ),
-        ),
-        IconButton(
-          tooltip: state.bookmarked
-              ? getString.readerBookmarkRemove
-              : getString.readerBookmarkAdd,
-          onPressed: state.toggleBookmark,
-          icon: Icon(
-            state.bookmarked
-                ? Icons.bookmark_rounded
-                : Icons.bookmark_border_rounded,
-          ),
-        ),
-        if (state.record.bookmarks.isNotEmpty)
-          IconButton(
-            tooltip: getString.readerBookmarks,
-            onPressed: () => showBookmarks(
-              context,
-              record: state.record,
-              tick: state.bookmarkTick,
-              detail: (b) => '${(b.position * 100 / b.total).round()}%',
-              onOpen: state.openBookmark,
-              onRemove: state.removeBookmark,
-            ),
-            icon: const Icon(Icons.bookmarks_outlined),
-          ),
-        IconButton(
-          tooltip: getString.readerChapters,
-          onPressed: () => showChapterList(
-            context,
-            request: state.request,
-            current: state.index.value,
-            onPick: state.openChapter,
-          ),
-          icon: const Icon(Icons.list_rounded),
-        ),
-        IconButton(
-          tooltip: getString.readerSettingsTitle,
-          onPressed: () => _options(context),
-          icon: const Icon(Icons.tune_rounded),
-        ),
-      ],
+  Widget _icon(
+    Color foreground,
+    IconData icon,
+    VoidCallback? onTap, {
+    String? tooltip,
+    bool active = false,
+  }) => IconButton(
+    onPressed: onTap,
+    tooltip: tooltip,
+    color: active ? context.colorScheme.onPrimary : foreground,
+    disabledColor: foreground.withValues(alpha: 0.3),
+    style: IconButton.styleFrom(
+      backgroundColor: active
+          ? context.colorScheme.primary
+          : foreground.withValues(alpha: 0.12),
+      disabledBackgroundColor: foreground.withValues(alpha: 0.05),
     ),
+    icon: Icon(icon),
   );
 
-  Widget _bottomRow(BuildContext context) {
+  Widget _topRow(BuildContext context, Color foreground) => Row(
+    children: [
+      _icon(
+        foreground,
+        Icons.arrow_back_ios_new_rounded,
+        () => popPage(context),
+      ),
+      const SizedBox(width: 4),
+      Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              state.title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: context.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            Text(
+              state.request.media.mainName,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: context.textTheme.bodySmall?.copyWith(
+                color: foreground.withValues(alpha: 0.7),
+              ),
+            ),
+          ],
+        ),
+      ),
+      if (state.canSpeak)
+        _icon(
+          foreground,
+          Icons.record_voice_over_rounded,
+          state.toggleSpeaking,
+          active: state.speaking.value,
+          tooltip: state.speaking.value
+              ? getString.novelSpeakStop
+              : getString.novelSpeak,
+        ),
+      _icon(
+        foreground,
+        Icons.g_translate_rounded,
+        state.translating.value ? null : state.toggleTranslation,
+        active: state.translated.value != null,
+        tooltip: state.translated.value != null
+            ? getString.novelTranslateShowOriginal
+            : getString.novelTranslate,
+      ),
+      _icon(
+        foreground,
+        state.autoScrolling.value
+            ? Icons.pause_circle_outline_rounded
+            : Icons.play_circle_outline_rounded,
+        state.toggleAutoScroll,
+        tooltip: state.autoScrolling.value
+            ? getString.readerAutoScrollStop
+            : getString.readerAutoScroll,
+      ),
+      _icon(
+        foreground,
+        state.bookmarked
+            ? Icons.bookmark_rounded
+            : Icons.bookmark_border_rounded,
+        state.toggleBookmark,
+        tooltip: state.bookmarked
+            ? getString.readerBookmarkRemove
+            : getString.readerBookmarkAdd,
+      ),
+      if (state.record.bookmarks.isNotEmpty)
+        _icon(
+          foreground,
+          Icons.bookmarks_outlined,
+          () => showBookmarks(
+            context,
+            record: state.record,
+            tick: state.bookmarkTick,
+            detail: (b) => '${(b.position * 100 / b.total).round()}%',
+            onOpen: state.openBookmark,
+            onRemove: state.removeBookmark,
+          ),
+          tooltip: getString.readerBookmarks,
+        ),
+      _icon(
+        foreground,
+        Icons.format_list_numbered_rounded,
+        () => showChapterList(
+          context,
+          request: state.request,
+          current: state.index.value,
+          onPick: state.openChapter,
+        ),
+        tooltip: getString.readerChapters,
+      ),
+      _icon(
+        foreground,
+        Icons.settings_rounded,
+        () => _options(context),
+        tooltip: getString.readerSettingsTitle,
+      ),
+    ],
+  );
+
+  Widget _bottomRow(BuildContext context, Color foreground) {
     final minutes = (state.wordsLeft / 230).ceil();
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (state.autoScrolling.value) _speed(context),
+    final controls = state.controlsVisible.value;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (state.translating.value)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: LinearProgressIndicator(
+              value: state.translateProgress.value == 0
+                  ? null
+                  : state.translateProgress.value,
+            ),
+          ),
+        if (state.speaking.value) _speech(context, foreground),
+        if (controls && state.autoScrolling.value) _speed(context, foreground),
+        if (controls)
           Row(
             children: [
-              IconButton(
+              _icon(
+                foreground,
+                Icons.skip_previous_rounded,
+                state.hasPrevious ? state.previous : null,
                 tooltip: getString.readerPreviousChapter,
-                onPressed: state.hasPrevious ? state.previous : null,
-                icon: const Icon(Icons.skip_previous_rounded),
+              ),
+              Text(
+                '${(state.fraction.value * 100).round()}%',
+                style: context.textTheme.labelLarge,
               ),
               Expanded(
                 child: Slider(
@@ -365,52 +459,109 @@ class _NovelScreenState extends State<NovelScreen>
                   onChanged: state.seekTo,
                 ),
               ),
-              IconButton(
+              Text(
+                getString.novelMinutesLeft(minutes),
+                style: context.textTheme.labelLarge?.copyWith(
+                  color: foreground.withValues(alpha: 0.7),
+                ),
+              ),
+              _icon(
+                foreground,
+                Icons.skip_next_rounded,
+                state.hasNext ? state.next : null,
                 tooltip: getString.readerNextChapter,
-                onPressed: state.hasNext ? state.next : null,
-                icon: const Icon(Icons.skip_next_rounded),
               ),
             ],
           ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 6),
+      ],
+    );
+  }
+
+  Widget _speech(BuildContext context, Color foreground) {
+    final rate = state.settings.speechRate;
+    void set(int v) =>
+        state.updateSettings((s) => s.speechRate = v.clamp(50, 200));
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          _icon(
+            foreground,
+            Icons.remove_rounded,
+            rate > 50 ? () => set(rate - 10) : null,
+          ),
+          SizedBox(
+            width: 56,
             child: Text(
-              '${(state.fraction.value * 100).round()}%  ·  '
-              '${getString.novelMinutesLeft(minutes)}',
-              style: context.textTheme.labelMedium,
+              '$rate%',
+              textAlign: TextAlign.center,
+              style: context.textTheme.labelLarge,
             ),
+          ),
+          _icon(
+            foreground,
+            Icons.add_rounded,
+            rate < 200 ? () => set(rate + 10) : null,
+          ),
+          const SizedBox(width: 16),
+          _icon(
+            foreground,
+            Icons.skip_previous_rounded,
+            () => state.speakStep(-1),
+            tooltip: getString.novelSpeakPrevious,
+          ),
+          const SizedBox(width: 8),
+          _icon(
+            foreground,
+            Icons.stop_rounded,
+            state.stopSpeaking,
+            active: true,
+            tooltip: getString.novelSpeakStop,
+          ),
+          const SizedBox(width: 8),
+          _icon(
+            foreground,
+            Icons.skip_next_rounded,
+            () => state.speakStep(1),
+            tooltip: getString.novelSpeakNext,
           ),
         ],
       ),
     );
   }
 
-  Widget _speed(BuildContext context) {
+  Widget _speed(BuildContext context, Color foreground) {
     final speed = state.settings.autoScrollSpeed.clamp(1, 10);
     void set(int v) =>
         state.updateSettings((s) => s.autoScrollSpeed = v.clamp(1, 10));
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        IconButton(
-          onPressed: speed > 1 ? () => set(speed - 1) : null,
-          icon: const Icon(Icons.remove_rounded),
-        ),
-        SizedBox(
-          width: 72,
-          child: Text(
-            '$speed',
-            textAlign: TextAlign.center,
-            style: context.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w700,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          _icon(
+            foreground,
+            Icons.remove_rounded,
+            speed > 1 ? () => set(speed - 1) : null,
+          ),
+          SizedBox(
+            width: 72,
+            child: Text(
+              '$speed',
+              textAlign: TextAlign.center,
+              style: context.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ),
-        ),
-        IconButton(
-          onPressed: speed < 10 ? () => set(speed + 1) : null,
-          icon: const Icon(Icons.add_rounded),
-        ),
-      ],
+          _icon(
+            foreground,
+            Icons.add_rounded,
+            speed < 10 ? () => set(speed + 1) : null,
+          ),
+        ],
+      ),
     );
   }
 

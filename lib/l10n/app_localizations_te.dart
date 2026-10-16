@@ -3491,6 +3491,210 @@ class AppLocalizationsTe extends AppLocalizations {
   String get commentsNoticeUpdateTitle => 'Update from Dantotsu';
 
   @override
+  String get barcodeTitle => 'Scan a barcode';
+
+  @override
+  String get barcodeTooltip => 'Find a manga or novel from its barcode';
+
+  @override
+  String get barcodeIntro =>
+      'Point the camera at the barcode on the back of a volume, or type its ISBN.';
+
+  @override
+  String get barcodeIntroManual =>
+      'Type the ISBN printed above the barcode on the back of a volume.';
+
+  @override
+  String get barcodeIsbnHint => 'ISBN';
+
+  @override
+  String get barcodeInvalid => 'That is not a valid ISBN';
+
+  @override
+  String barcodeNotFound(String isbn) {
+    return 'No book found for $isbn';
+  }
+
+  @override
+  String get barcodeCameraDenied =>
+      'The camera is not available. Allow camera access or type the ISBN instead.';
+
+  @override
+  String get themesTitle => 'Openings & endings';
+
+  @override
+  String get themesOpening => 'Opening';
+
+  @override
+  String get themesEnding => 'Ending';
+
+  @override
+  String get themesPlayVideo => 'Play video';
+
+  @override
+  String get themesPlayAudio => 'Play audio only';
+
+  @override
+  String get themesOpenSite => 'Open on AnimeThemes';
+
+  @override
+  String get themesCredit => 'Themes from AnimeThemes';
+
+  @override
+  String get themesVersions => 'Versions';
+
+  @override
+  String get muTitle => 'MangaUpdates';
+
+  @override
+  String get muReleases => 'Recent releases';
+
+  @override
+  String get muNoReleases => 'No recent releases';
+
+  @override
+  String get muLicensed => 'Licensed';
+
+  @override
+  String get muOpen => 'View on MangaUpdates';
+
+  @override
+  String get muCredit => 'Data from MangaUpdates';
+
+  @override
+  String get muPublishers => 'Publishers';
+
+  @override
+  String get sauceTitle => 'Find the source';
+
+  @override
+  String get sauceIntro =>
+      'Upload a manga page or an artwork, or paste its link, to find where it comes from.';
+
+  @override
+  String get sauceKeyTitle => 'SauceNAO API key';
+
+  @override
+  String get sauceKeyHint => 'Optional, raises the daily search limit';
+
+  @override
+  String get sauceKeyDesc => 'Get a free key at saucenao.com/user.php';
+
+  @override
+  String get sauceSearchTitle => 'Search this title';
+
+  @override
+  String get sauceOpen => 'Open source';
+
+  @override
+  String get sauceCredit => 'Image search by SauceNAO';
+
+  @override
+  String get sauceEmpty => 'No match found';
+
+  @override
+  String get sauceTooltip => 'Find the source of a manga page or artwork';
+
+  @override
+  String get sauceLowMatch => 'Low match';
+
+  @override
+  String get trendzTitle => 'Anime charts';
+
+  @override
+  String get trendzAnime => 'Anime';
+
+  @override
+  String get trendzFemale => 'Female characters';
+
+  @override
+  String get trendzMale => 'Male characters';
+
+  @override
+  String get trendzCouple => 'Couples';
+
+  @override
+  String get trendzCredit => 'Weekly charts by AniTrendz';
+
+  @override
+  String get trendzNew => 'NEW';
+
+  @override
+  String get trendzSearch => 'Search this title';
+
+  @override
+  String get trendzEmpty => 'The chart is empty';
+
+  @override
+  String get shareCard => 'Share card';
+
+  @override
+  String get shareCardList => 'Share list card';
+
+  @override
+  String get muNotFound => 'No MangaUpdates match for this title';
+
+  @override
+  String get shareCardWorking => 'Making the card…';
+
+  @override
+  String get shareCardSaved => 'Card saved';
+
+  @override
+  String get shareCardFailed => 'Could not make the card';
+
+  @override
+  String get shareCardListEmpty => 'Your list has nothing to share yet';
+
+  @override
+  String get shareCardTop => 'My top picks';
+
+  @override
+  String themesEpisodes(String eps) {
+    return 'Episodes $eps';
+  }
+
+  @override
+  String muLatest(String count) {
+    return 'Chapter $count';
+  }
+
+  @override
+  String muRating(String rating, String votes) {
+    return '$rating from $votes votes';
+  }
+
+  @override
+  String sauceSimilarity(String percent) {
+    return '$percent% match';
+  }
+
+  @override
+  String trendzWeek(String week, String season) {
+    return 'Week $week · $season';
+  }
+
+  @override
+  String trendzVotes(String count) {
+    return '$count votes';
+  }
+
+  @override
+  String trendzPeak(String rank) {
+    return 'Peak #$rank';
+  }
+
+  @override
+  String trendzWeeks(String count) {
+    return '$count weeks in the top ten';
+  }
+
+  @override
+  String shareCardEntries(String count) {
+    return '$count titles';
+  }
+
+  @override
   String get imageSearchTitle => 'Search by image';
 
   @override
@@ -5101,6 +5305,60 @@ class AppLocalizationsTe extends AppLocalizations {
 
   @override
   String get novelLetterSpacing => 'Letter spacing';
+
+  @override
+  String get novelSectionTranslate => 'Translation';
+
+  @override
+  String get novelTranslateTo => 'Translate to';
+
+  @override
+  String get novelTranslateOff => 'Off';
+
+  @override
+  String get novelSectionSpeech => 'Text to speech';
+
+  @override
+  String get novelSpeechRate => 'Speech speed';
+
+  @override
+  String get novelSpeechPitch => 'Speech pitch';
+
+  @override
+  String get novelSpeak => 'Read aloud';
+
+  @override
+  String get novelSpeakStop => 'Stop reading aloud';
+
+  @override
+  String get novelTranslate => 'Translate chapter';
+
+  @override
+  String get novelTranslateShowOriginal => 'Show original';
+
+  @override
+  String get novelTranslating => 'Translating…';
+
+  @override
+  String novelTranslateFailed(String error) {
+    return 'Translation failed: $error';
+  }
+
+  @override
+  String get novelSpeechUnavailable =>
+      'Text to speech is not available on this device';
+
+  @override
+  String get novelSpeechVoice => 'Voice';
+
+  @override
+  String get novelSpeechVoiceDefault => 'System default';
+
+  @override
+  String get novelSpeakPrevious => 'Previous line';
+
+  @override
+  String get novelSpeakNext => 'Next line';
 
   @override
   String get novelTapPaging => 'Tap edges to turn page';
