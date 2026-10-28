@@ -49,6 +49,7 @@ jobs:
       clean-build: false
       publish-mode: artifact
       zip-name-prefix: Dartotsu_LinuxZip
+      build-appimage: true
     secrets:
       FLUTTER_VERSION: ${{ secrets.FLUTTER_VERSION }}
 
@@ -167,6 +168,8 @@ jobs:
           body_path: CHANGELOG.md
           files: release-artifacts/**
           fail_on_unmatched_files: false
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          make_latest: ${{ contains(github.ref_name, '-') && 'false' || 'true' }}
 
   post-release-notes:
     runs-on: ubuntu-latest
@@ -220,7 +223,7 @@ jobs:
           GH_TOKEN: ${{ secrets.FINE_GRAIN_TOKEN }}
         run: |
           gh release view --repo "${{ github.repository }}" "${{ github.ref_name }}" \
-            --json assets --jq '.assets[].url' > asset_links.txt
+            --json assets --jq '.assets[].browser_download_url' > asset_links.txt
           cat asset_links.txt
 
       - name: Format download message

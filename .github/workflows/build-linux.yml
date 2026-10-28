@@ -18,6 +18,11 @@ on:
         type: string
         required: false
         default: Dartotsu_Linux
+      build-appimage:
+        description: "Also package a Linux AppImage and upload it as an artifact"
+        type: boolean
+        required: false
+        default: false
     outputs:
       zip_link:
         description: Drive web content link
@@ -73,6 +78,14 @@ jobs:
       - name: Build Flutter Linux app
         run: flutter build linux
 
+      - name: Package Linux AppImage
+        if: ${{ inputs.build-appimage }}
+        env:
+          SAFE_REF: ${{ env.SAFE_REF }}
+        run: |
+          pacman -S --noconfirm squashfs-tools curl
+          bash scripts/ci/package_appimage.sh
+
       - name: Archive app
         if: ${{ inputs.publish-mode == 'gdrive' || inputs.publish-mode == 'artifact' || inputs.publish-mode == 'both' }}
         uses: thedoctor0/zip-release@0.7.6
@@ -87,6 +100,14 @@ jobs:
         with:
           name: linux-zip
           path: build/linux/x64/release/bundle/${{ inputs.zip-name-prefix }}_${{ env.SAFE_REF }}.zip
+          if-no-files-found: error
+
+      - name: Upload Linux AppImage artifact
+        if: ${{ inputs.build-appimage && (inputs.publish-mode == 'artifact' || inputs.publish-mode == 'both') }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-appimage
+          path: build/linux/x64/release/Dartotsu_Linux_${{ env.SAFE_REF }}.AppImage
           if-no-files-found: error
 
       - name: Upload File To Google Drive

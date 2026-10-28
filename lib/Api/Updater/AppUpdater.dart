@@ -37,6 +37,11 @@ class AppUpdater extends AppController {
   bool get _isNixManaged =>
       Platform.isLinux && Platform.resolvedExecutable.contains('/nix/store/');
 
+  bool get _runningFromAppImage {
+    final appImage = Platform.environment['APPIMAGE'];
+    return Platform.isLinux && appImage != null && appImage.isNotEmpty;
+  }
+
   /// Checks for application updates by comparing the current version hash
   /// with the latest release on GitHub. If an update is available, it shows
   /// a bottom sheet with update details and options to download and install.
@@ -340,7 +345,9 @@ class AppUpdater extends AppController {
     }
     final platformExtensions = {
       Platform.isWindows: ['.exe', '.msi'],
-      Platform.isLinux: ['.AppImage', '.deb', '.tar.gz', '.zip'],
+      Platform.isLinux: _runningFromAppImage
+          ? ['.AppImage', '.zip']
+          : ['.zip', '.deb', '.tar.gz'],
       Platform.isMacOS: ['.dmg'],
       Platform.isIOS: ['.ipa'],
     };
@@ -480,7 +487,12 @@ class AppUpdater extends AppController {
     }
   }
 
-  Future<void> _applyLinuxUpdate(String zipPath) async {
+  Future<void> _applyLinuxUpdate(String filePath) async {
+    if (path.extension(filePath).toLowerCase() == '.appimage') {
+      await _applyAppImageUpdate(filePath);
+      return;
+    }
+    final zipPath = filePath;
     final exePath = File(
       Platform.resolvedExecutable,
     ).resolveSymbolicLinksSync();
@@ -530,6 +542,28 @@ class AppUpdater extends AppController {
       logError('AppUpdater', e, st);
     }
 
+    exit(0);
+  }
+
+  Future<void> _applyAppImageUpdate(String filePath) async {
+    final current = Platform.environment['APPIMAGE'];
+    if (current == null || current.isEmpty) {
+      throw 'not running from an AppImage';
+    }
+    final target = File(current);
+    if (_isNixManaged || !_canWrite(target.parent)) {
+      throw 'install directory is not writable';
+    }
+
+    final staged = File('$current.partial');
+    if (staged.existsSync()) staged.deleteSync();
+    await File(filePath).copy(staged.path);
+    final chmod = await Process.run('chmod', ['+x', staged.path]);
+    if (chmod.exitCode != 0) {
+      throw 'failed to mark AppImage executable: ${chmod.stderr}';
+    }
+    staged.renameSync(current);
+    await Process.start(current, [], mode: ProcessStartMode.detached);
     exit(0);
   }
 
